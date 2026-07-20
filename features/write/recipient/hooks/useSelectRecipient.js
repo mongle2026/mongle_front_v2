@@ -1,5 +1,3 @@
-// src/user/hooks/useSelectRecipient.js
-
 import {
   useCallback,
   useState,

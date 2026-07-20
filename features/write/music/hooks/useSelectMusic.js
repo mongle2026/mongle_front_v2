@@ -10,11 +10,11 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 
-import useInfiniteSearchQuery from '../../shared/hooks/useInfiniteSearchQuery';
+import useInfiniteSearchQuery from '../../../../shared/hooks/useInfiniteSearchQuery';
 
 import {
   useRecordFormStore,
-} from '../../record/store/useRecordFormStore';
+} from '../../store/useRecordFormStore';
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL;
