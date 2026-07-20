@@ -1,22 +1,15 @@
-// 피드와 편지 공통으로 쓰는 작성값
+// 피드와 편지에서 공통으로 사용하는 작성값
 
 import { create } from 'zustand';
 
 const initialState = {
-  recordType: null, // 'FEED' | 'LETTER'
   music: null,
   text: '',
   files: [],
-  visibility: 'PUBLIC',
 };
 
 export const useRecordFormStore = create((set) => ({
   ...initialState,
-
-  setRecordType: (recordType) =>
-    set({
-      recordType,
-    }),
 
   setMusic: (music) =>
     set({
@@ -67,11 +60,6 @@ export const useRecordFormStore = create((set) => ({
       return {
         files: nextFiles,
       };
-    }),
-
-  setVisibility: (visibility) =>
-    set({
-      visibility,
     }),
 
   resetRecordForm: () =>
