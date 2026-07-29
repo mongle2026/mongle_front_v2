@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { palette } from '../../../shared/styles/color';
+import { colors } from '../../../shared/styles/color';
 import { radius } from '../../../shared/styles/token';
 import HeartStroke from '../../../assets/icons/ic_heart_stroke.svg';
 import HeartFill from '../../../assets/icons/ic_heart_fill.svg';
@@ -60,7 +60,7 @@ const LikeButton = forwardRef(function LikeButton(
         <Icon
           width={ICON_SIZE}
           height={ICON_SIZE}
-          color={isLiked ? palette.pink[50] : palette.gray[30]}
+          color={isLiked ? colors.fgLike : colors.fgDeactivate}
         />
       </Animated.View>
     </Pressable>

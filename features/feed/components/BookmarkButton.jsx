@@ -7,7 +7,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { colors, palette } from '../../../../shared/styles/color';
+import { colors } from '../../../../shared/styles/color';
 import { radius } from '../../../../shared/styles/token';
 import BookmarkStroke from '../../../../assets/icons/ic_bookmark_stroke.svg';
 import BookmarkFill from '../../../../assets/icons/ic_bookmark_fill.svg';
@@ -55,7 +55,7 @@ export default function BookmarkButton({
         <Icon
           width={ICON_SIZE}
           height={ICON_SIZE}
-          color={isBookmarked ? colors.fgBrand : palette.gray[30]}
+          color={isBookmarked ? colors.fgBookmark : colors.fgDeactivate}
         />
       </Animated.View>
     </Pressable>

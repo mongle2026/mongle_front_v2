@@ -1,58 +1,49 @@
-// ── palette: Color Palette의 원시 색상값 ──────────────────────────
+// ── palette: Color Palette의 원시 색상값 (캡스톤 디자인 v2.0) ─────────
 export const palette = {
-  mongle: {
-    10: '#e0eeff', 20: '#c7dfff', 30: '#99c5ff', 40: '#7ab4ff',
-    50: '#4596ff', 60: '#177afd', 70: '#0569eb', 80: '#0653b7',
-    90: '#063c84', 100: '#072955',
+  neutral: {
+    0: '#ffffff', 50: '#f7f6f6', 100: '#f3f2f2', 200: '#e6e6e6',
+    300: '#d9d9d9', 400: '#c6c6c6', 500: '#a8acb0', 600: '#858c96',
+    700: '#757575', 800: '#3d3d3d', 900: '#252729', 950: '#1f2124',
   },
-  red: {
-    10: '#ffe0e0', 20: '#ffc2c2', 30: '#ff9999', 40: '#ff8585',
-    50: '#fa6361', 60: '#e4130c', 70: '#b00a07', 80: '#890606',
-    90: '#550707',
-  },
-  green: {
-    10: '#e0fff3', 20: '#c5fbe7', 30: '#a4f4d5', 40: '#89f2ca',
-    50: '#62edb8', 60: '#27e79e', 70: '#0ed88e', 80: '#07b070',
-    90: '#077e50', 100: '#075537',
-  },
-  gray: {
-    0: '#ffffff', 10: '#eef0f1', 20: '#e6e8eb', 30: '#d9dbdf',
-    40: '#bfc2c7', 50: '#a6adb6', 60: '#8f9399', 70: '#747a81',
-    80: '#54595f', 90: '#34373a', 100: '#1a1b1c',
+  blue: {
+    50: '#e2e9fe', 100: '#c5d3fd', 200: '#a5bbfe', 300: '#85a4fe',
+    400: '#658cfe', 500: '#4574ff', 600: '#2257f4', 700: '#003ae9',
+    800: '#002db1', 900: '#002078', 1000: '#001340',
   },
   pink: {
-    10: '#ffe0eb', 20: '#ffc2d7', 30: '#ff99bd', 40: '#ff85af',
-    50: '#fa6196', 60: '#f42f74', 70: '#e40c57', 80: '#b00742',
-    90: '#890634', 100: '#550722',
+    50: '#fff1f6', 100: '#ffe3eb', 200: '#fec9d8', 300: '#feaec4',
+    400: '#fd94b1', 500: '#e47e9b', 600: '#cb6885', 700: '#b25270',
+    800: '#983c5a', 900: '#7f2644', 1000: '#66102e',
+  },
+  red: {
+    50: '#fdecec', 100: '#fcd9db', 200: '#f9b4b9', 300: '#f68f96',
+    400: '#f36974', 500: '#f04452', 600: '#da3743', 700: '#c42a34',
+    800: '#a2212a', 900: '#801820', 1000: '#5e0f16',
+  },
+  green: {
+    50: '#e7f9f1', 100: '#d0f3e4', 200: '#a1e7cb', 300: '#72dcb1',
+    400: '#44d098', 500: '#15c47e', 600: '#12a66b', 700: '#0f8958',
+    800: '#0c6b45', 900: '#094e32', 1000: '#06301f',
   },
   yellow: {
-    10: '#fff9e7', 20: '#ffebad', 30: '#ffe69b', 40: '#ffdd78',
-    50: '#ffd158', 60: '#ffc038', 70: '#f9b137', 80: '#eea338',
-    90: '#c17c1a', 100: '#965b13',
+    50: '#fffbeb', 100: '#fff1c2', 200: '#ffdd7e', 300: '#ffc939',
+    400: '#fab81c', 500: '#f5a800', 600: '#c08600', 700: '#8a6300',
+    800: '#6a4c00', 900: '#4a3400', 1000: '#2e2000',
   },
-  grayOpacity: {
-    20: '#1a1b1c33',
-    50: '#1a1b1c80',
-    75: '#1a1b1cbf',
-  },
-  whiteOpacity: {
-    30: '#ffffff4d',
+  overlay: {
+    weak:    '#1f212433', // neutral/950 @ 20%
+    default: '#1f212480', // neutral/950 @ 50%
+    strong:  '#1f2124bf', // neutral/950 @ 75%
   },
 };
 
-// ── shadow: boxShadow → RN 호환 props로 변환 ─────────────────────
-// token.json의 blur(15)를 shadowRadius로, #00000033의 알파(0x33≈0.2)를 shadowOpacity로 분리
+// ── shadow: elevation effect style → RN 호환 props로 변환 ─────────
+// elevation/middleDown: Drop shadow, X0 Y4, Blur 15, Spread 0,
+// color=overlay/weak (neutral/950 #1f2124 @ 20% → shadowColor + shadowOpacity로 분리)
 export const shadow = {
   middleDown: {
-    shadowColor: '#000000',
+    shadowColor: '#1f2124',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    elevation: 4, // Android
-  },
-  middleUp: {
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.2,
     shadowRadius: 15,
     elevation: 4, // Android
@@ -61,29 +52,69 @@ export const shadow = {
 
 // ── colors: Color System의 시맨틱 토큰, palette 참조를 실제 값으로 resolve ──
 export const colors = {
-  bgLayerDefault:    palette.gray[0],
-  bgDefault:         palette.gray[100],
-  bgLayerWeak:       palette.gray[10],
-  bgDefaultWeak:     palette.gray[90],
-  bgSurface:         palette.gray[80],
-  bgLayerSurface:    palette.gray[20],
-  bgDimStrong:       palette.grayOpacity[75],
-  bgDim:             palette.grayOpacity[50],
-  bgDimWeak:         palette.grayOpacity[20],
-  bgBrandSolid:      palette.mongle[50],
-  bgCriticalSolid:   palette.red[50],
+  // ── background ──
+  bgLayerBasement:          palette.neutral[100],
+  bgLayerDefault:           palette.neutral[0],
+  bgLayerDefaultPressed:    palette.neutral[100],
+  bgLayerFloating:          palette.neutral[600],
+  bgBrandSolid:             palette.neutral[950],
+  bgBrandWeak:              palette.neutral[100],
+  bgBrandWeakPressed:       palette.neutral[200],
+  bgNeutralInverted:        palette.neutral[900],
+  bgNeutralInvertedPressed: palette.neutral[800],
+  bgDisabled:               palette.neutral[200],
+  bgCriticalSolid:          palette.red[400],
+  bgCriticalSolidPressed:   palette.red[500],
+  bgCriticalWeak:           palette.red[100],
+  bgCriticalWeakPressed:    palette.red[200],
+  bgPositiveSolid:          palette.green[400],
+  bgPositiveSolidPressed:   palette.green[500],
+  bgPositiveWeak:           palette.green[100],
+  bgPositiveWeakPressed:    palette.green[200],
+  bgWarningSolid:           palette.yellow[300],
+  bgWarningSolidPressed:    palette.yellow[400],
+  bgWarningWeak:            palette.yellow[100],
+  bgWarningWeakPressed:     palette.yellow[200],
+  bgInfoSolid:              palette.blue[500],
+  bgInfoSolidPressed:       palette.blue[600],
+  bgInfoWeak:               palette.blue[50],
+  bgInfoWeakPressed:        palette.blue[100],
+  bgOverlay:                palette.overlay.strong,
+  bgOverlayMuted:           palette.overlay.default,
 
-  strokeNeutralWeak: palette.gray[20],
+  // ── stroke ──
+  strokeBrandContrast:    palette.neutral[800],
+  strokeBrandSolid:       palette.neutral[950],
+  strokeBrandMuted:       palette.neutral[300],
+  strokeBrandSubtle:      palette.neutral[200],
+  strokeBrandWeak:        palette.neutral[400],
+  strokeCriticalSolid:    palette.red[700],
+  strokeCriticalWeak:     palette.red[300],
+  strokePositiveSolid:    palette.green[700],
+  strokePositiveWeak:     palette.green[300],
+  strokeWarningSolid:     palette.yellow[700],
+  strokeWarningWeak:      palette.yellow[300],
+  strokeInformativeSolid: palette.blue[700],
+  strokeInformativeWeak:  palette.blue[200],
+  strokeFocusRing:        palette.blue[500],
 
-  fgNeutral:         palette.gray[0],
-  fgLayerNeutral:    palette.gray[90],
-  fgLayerNeutralWeak:palette.gray[70],
-  fgLayerDisabled:   palette.gray[40],
-  fgPlaceholder:     palette.gray[60],
-  fgBrand:           palette.mongle[50],
-  fgCritical:        palette.red[50],
-  fgCriticalStrong:  palette.red[60],
-  fgPositive:        palette.green[50],
-  fgNeutralDisabled: palette.gray[80],
-  fgNeutralWeak:     palette.gray[40],
+  // ── foreground ──
+  fgBrand:               palette.neutral[950],
+  fgNeutralMuted:        palette.neutral[800],
+  fgNeutralSubtle:       palette.neutral[700],
+  fgNeutralSubtlest:     palette.neutral[500],
+  fgNeutralInverted:     palette.neutral[0],
+  fgDeactivate:          palette.neutral[400],
+  fgDisabled:            palette.neutral[500],
+  fgPlaceholder:         palette.neutral[700],
+  fgCritical:            palette.red[700],
+  fgCriticalContrast:    palette.red[900],
+  fgPositive:            palette.green[700],
+  fgPositiveContrast:    palette.green[900],
+  fgWarning:             palette.yellow[700],
+  fgWarningContrast:     palette.yellow[900],
+  fgInformative:         palette.blue[500],
+  fgInformativeContrast: palette.blue[700],
+  fgLike:                palette.pink[400],
+  fgBookmark:            palette.blue[300],
 };
