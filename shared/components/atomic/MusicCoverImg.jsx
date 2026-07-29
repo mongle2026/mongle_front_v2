@@ -1,7 +1,7 @@
 import React, { memo, useMemo, } from 'react';
 import { PixelRatio, StyleSheet, View, } from 'react-native';
 import { Canvas, Group, Image, Paint, RuntimeShader, useImage, } from '@shopify/react-native-skia';
-import { MUSIC_COVER_HALFTONE_SHADER, } from '../../../shared/effects/skia/musicCoverHalftoneShader';
+import { MUSIC_COVER_HALFTONE_EFFECT, } from '../../effects/skia/musicCoverHalftoneEffect';
 import { radius } from '../../styles/token';
 
 export const MUSIC_COVER_SIZES = Object.freeze({

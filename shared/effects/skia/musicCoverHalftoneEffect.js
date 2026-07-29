@@ -1,6 +1,6 @@
 import { Skia } from '@shopify/react-native-skia';
 
-export const MUSIC_COVER_HALFTONE_SHADER =
+export const MUSIC_COVER_HALFTONE_EFFECT =
   Skia.RuntimeEffect.Make(`
     uniform shader image;
 
@@ -190,7 +190,7 @@ export const MUSIC_COVER_HALFTONE_SHADER =
     }
   `);
 
-if (!MUSIC_COVER_HALFTONE_SHADER) {
+if (!MUSIC_COVER_HALFTONE_EFFECT) {
   throw new Error(
     'MusicCoverImg 하프톤 셰이더 컴파일에 실패했습니다.'
   );
