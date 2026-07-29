@@ -139,7 +139,7 @@ const MusicCoverImg = ({
                 <Paint>
                   <RuntimeShader
                     source={
-                      MUSIC_COVER_HALFTONE_SHADER
+                      MUSIC_COVER_HALFTONE_EFFECT
                     }
                     uniforms={
                       uniforms
