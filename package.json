@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@shopify/react-native-skia": "2.2.12",
     "expo": "~54.0.34",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
