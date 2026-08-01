@@ -39,34 +39,58 @@ const LabeledButton = ({
   icon,
   size = 'M',
   font = 'kyobo',
+
+  // 텍스트 색상
   color = colors.fgNeutralSubtlest,
+
+  // 전달하지 않으면 텍스트와 동일한 색상 사용
+  iconColor = color,
+
   disabled = false,
   onPress,
   style,
   textStyle,
-  accessibilityLabel = label,
+  accessibilityLabel,
   ...pressableProps
 }) => {
-  const currentSize = SIZE_CONFIG[size] ?? SIZE_CONFIG.M;
-  const currentFont = TYPOGRAPHY_CONFIG[font]
-    ?? TYPOGRAPHY_CONFIG.kyobo;
+  const currentSize =
+    SIZE_CONFIG[size] ??
+    SIZE_CONFIG.M;
 
-  const typographyStyle = currentFont[size]
-    ?? currentFont.M;
+  const currentFont =
+    TYPOGRAPHY_CONFIG[font] ??
+    TYPOGRAPHY_CONFIG.kyobo;
+
+  const typographyStyle =
+    currentFont[size] ??
+    currentFont.M;
+
+  /*
+   * 0은 유효한 label일 수 있으므로
+   * 단순 Boolean(label)로 검사하지 않습니다.
+   */
+  const hasLabel =
+    label !== undefined &&
+    label !== null &&
+    label !== '';
 
   const renderedIcon = React.isValidElement(icon)
     ? React.cloneElement(icon, {
         width: currentSize.iconSize,
         height: currentSize.iconSize,
         size: currentSize.iconSize,
-        color: icon.props.color ?? color,
+        color: icon.props.color ?? iconColor,
       })
     : null;
+
+  const resolvedAccessibilityLabel =
+    accessibilityLabel ??
+    (hasLabel ? String(label) : undefined);
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={resolvedAccessibilityLabel}
       accessibilityState={{ disabled }}
       disabled={disabled}
       hitSlop={8}
@@ -74,6 +98,7 @@ const LabeledButton = ({
       style={[
         styles.container,
         currentSize.containerStyle,
+        hasLabel && styles.withLabel,
         disabled && styles.disabled,
         style,
       ]}
@@ -93,16 +118,18 @@ const LabeledButton = ({
         </View>
       )}
 
-      <Text
-        style={[
-          typographyStyle,
-          styles.label,
-          { color },
-          textStyle,
-        ]}
-      >
-        {label}
-      </Text>
+      {hasLabel && (
+        <Text
+          style={[
+            typographyStyle,
+            styles.label,
+            { color },
+            textStyle,
+          ]}
+        >
+          {label}
+        </Text>
+      )}
     </Pressable>
   );
 };
@@ -112,8 +139,14 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: gap.S,
     borderRadius: radius.XS,
+  },
+
+  /*
+   * 아이콘만 사용하는 경우에는 gap을 적용하지 않습니다.
+   */
+  withLabel: {
+    gap: gap.S,
   },
 
   iconContainer: {
