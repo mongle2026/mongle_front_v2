@@ -1,21 +1,26 @@
 import React, { memo, useMemo, } from 'react';
-import { PixelRatio, StyleSheet, View, } from 'react-native';
-import { Canvas, Group, Image, Paint, RuntimeShader, useImage, } from '@shopify/react-native-skia';
+import { StyleSheet, View, } from 'react-native';
+import { Canvas, Fill, Group, ImageShader, Shader, rect, rrect, useImage, vec, } from '@shopify/react-native-skia';
+
 import { MUSIC_COVER_HALFTONE_EFFECT, } from '../../effects/skia/musicCoverHalftoneEffect';
-import { radius } from '../../styles/token';
 
-export const MUSIC_COVER_SIZES = Object.freeze({
-  M: 72,
-});
+import { radius, } from '../../styles/token';
 
+export const MUSIC_COVER_SIZES =
+  Object.freeze({
+    M: 72,
+  });
+
+/*
+ * 디자인팀 전달값을 기본 프리셋으로 고정합니다.
+ * 각 값은 props로 덮어쓸 수 있습니다.
+ */
 export const MUSIC_COVER_HALFTONE_PRESET =
   Object.freeze({
     dotSize: 4,
     dotScale: 0.8,
     softness: 1,
   });
-
-const PIXEL_RATIO = PixelRatio.get();
 
 const resolveMusicCoverSize = size => {
   if (
@@ -47,18 +52,27 @@ const resolveImageSource = imageSource => {
   return imageSource;
 };
 
+const resolvePositiveNumber = (
+  value,
+  fallback
+) => {
+  if (
+    typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value > 0
+  ) {
+    return value;
+  }
+
+  return fallback;
+};
+
 const MusicCoverImg = ({
   imageSource,
   size = 'M',
   style,
   accessibilityLabel = '앨범 커버',
 
-  /*
-   * Figma export와 비교하며 튜닝할 수 있도록
-   * 파라미터를 props로 열어둡니다.
-   *
-   * 전달하지 않으면 MusicCover 전용 프리셋이 적용됩니다.
-   */
   dotSize =
     MUSIC_COVER_HALFTONE_PRESET.dotSize,
 
@@ -72,35 +86,92 @@ const MusicCoverImg = ({
     resolveMusicCoverSize(size);
 
   const currentImageSource = useMemo(
-    () => resolveImageSource(imageSource),
+    () => resolveImageSource(
+      imageSource
+    ),
     [imageSource]
   );
+
+  const currentDotSize =
+    resolvePositiveNumber(
+      dotSize,
+      MUSIC_COVER_HALFTONE_PRESET.dotSize
+    );
+
+  const currentDotScale =
+    resolvePositiveNumber(
+      dotScale,
+      MUSIC_COVER_HALFTONE_PRESET.dotScale
+    );
+
+  const currentSoftness =
+    resolvePositiveNumber(
+      softness,
+      MUSIC_COVER_HALFTONE_PRESET.softness
+    );
 
   const image = useImage(
     currentImageSource
   );
 
+  const destinationRect = useMemo(
+    () =>
+      rect(
+        0,
+        0,
+        currentSize,
+        currentSize
+      ),
+    [currentSize]
+  );
+
+  const clipRect = useMemo(
+    () =>
+      rrect(
+        destinationRect,
+        radius.XS,
+        radius.XS
+      ),
+    [destinationRect]
+  );
+
   const uniforms = useMemo(
     () => ({
       /*
-       * RuntimeShader는 PixelRatio를 자동 반영하지 않습니다.
-       * supersampling 배율에 맞춰 화면상의 4dp와 1dp를
-       * 실제 셰이더 좌표로 변환합니다.
+       * 디자인팀 조건:
+       * 그리드는 화면 좌표 기준으로 계산합니다.
        */
-      dotSize:
-        dotSize * PIXEL_RATIO,
+      resolution: vec(
+        currentSize,
+        currentSize
+      ),
 
-      dotScale,
-
-      softness:
-        softness * PIXEL_RATIO,
+      /*
+       * 디자인팀 기본값:
+       * dotSize 4
+       * dotScale 0.8
+       * softness 1
+       *
+       * 필요할 때만 컴포넌트 props로 조절합니다.
+       */
+      dotSize: currentDotSize,
+      dotScale: currentDotScale,
+      softness: currentSoftness,
     }),
     [
-      dotSize,
-      dotScale,
-      softness,
+      currentSize,
+      currentDotSize,
+      currentDotScale,
+      currentSoftness,
     ]
   );
+
+  const canRender =
+    Boolean(
+      image &&
+      destinationRect &&
+      clipRect
+    );
 
   return (
     <View
@@ -118,45 +189,28 @@ const MusicCoverImg = ({
         },
       ]}
     >
-      {image && (
-        <Canvas style={styles.canvas}>
-          <Group
-            transform={[
-              {
-                scale:
-                  1 / PIXEL_RATIO,
-              },
-            ]}
-          >
-            <Group
-              transform={[
-                {
-                  scale:
-                    PIXEL_RATIO,
-                },
-              ]}
-              layer={
-                <Paint>
-                  <RuntimeShader
-                    source={
-                      MUSIC_COVER_HALFTONE_EFFECT
-                    }
-                    uniforms={
-                      uniforms
-                    }
-                  />
-                </Paint>
-              }
-            >
-              <Image
-                image={image}
-                x={0}
-                y={0}
-                width={currentSize}
-                height={currentSize}
-                fit="cover"
-              />
-            </Group>
+      {canRender && (
+        <Canvas
+          pointerEvents="none"
+          style={
+            StyleSheet.absoluteFill
+          }
+        >
+          <Group clip={clipRect}>
+            <Fill>
+              <Shader
+                source={
+                  MUSIC_COVER_HALFTONE_EFFECT
+                }
+                uniforms={uniforms}
+              >
+                <ImageShader
+                  image={image}
+                  fit="cover"
+                  rect={destinationRect}
+                />
+              </Shader>
+            </Fill>
           </Group>
         </Canvas>
       )}
@@ -166,13 +220,10 @@ const MusicCoverImg = ({
 
 const styles = StyleSheet.create({
   container: {
+    position: 'relative',
     flexShrink: 0,
     overflow: 'hidden',
     borderRadius: radius.XS,
-  },
-
-  canvas: {
-    flex: 1,
   },
 });
 
