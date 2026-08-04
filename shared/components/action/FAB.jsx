@@ -1,18 +1,17 @@
-import React, {
-  memo,
-  useCallback,
-  useState,
-} from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import React, { memo, useCallback, useState, } from 'react';
+import { Pressable, StyleSheet, View, } from 'react-native';
+
+import FeedIcon from '../../../assets/icons/ic_feed.svg';
+import LetterIcon from '../../../assets/icons/ic_letter.svg';
+import PlusIcon from '../../../assets/icons/ic_plus.svg';
+import CloseIcon from '../../../assets/icons/ic_x.svg';
 
 import { colors, shadow } from '../../styles/color';
 import { gap } from '../../styles/token';
 
 const FAB_SIZE = 44;
+const ICON_SIZE = 18;
+const FAB_ICON_COLOR = colors.fgNeutralInverted;
 
 const FABButton = memo(
   ({
@@ -50,14 +49,13 @@ const FABButton = memo(
 FABButton.displayName = 'FABButton';
 
 const FAB = ({
-  actions = [],
-  plusIcon,
-  closeIcon,
+  onFeedPress,
+  onLetterPress,
 
-  // 외부에서 상태를 제어하고 싶을 때 사용
+  // 외부에서 열림 상태를 제어할 때 사용
   open,
 
-  // 외부 open을 전달하지 않을 때의 최초 상태
+  // open을 전달하지 않을 때 최초 상태
   defaultOpen = false,
 
   onOpenChange,
@@ -86,32 +84,72 @@ const FAB = ({
   }, [changeOpen, isOpen]);
 
   const handleActionPress = useCallback(
-    action => {
+    onPress => {
+      onPress?.();
+
       if (closeOnActionPress) {
         changeOpen(false);
       }
-
-      action.onPress?.();
     },
     [changeOpen, closeOnActionPress],
   );
 
+  const handleFeedPress = useCallback(() => {
+    handleActionPress(onFeedPress);
+  }, [handleActionPress, onFeedPress]);
+
+  const handleLetterPress = useCallback(() => {
+    handleActionPress(onLetterPress);
+  }, [handleActionPress, onLetterPress]);
+
   return (
     <View style={[styles.container, style]}>
-      {isOpen &&
-        actions.map(action => (
+      {isOpen && (
+        <>
+          {/* 가장 위: 피드 작성 */}
           <FABButton
-            key={action.id}
-            icon={action.icon}
-            accessibilityLabel={
-              action.accessibilityLabel
+            icon={
+              <FeedIcon
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+                color={FAB_ICON_COLOR}
+              />
             }
-            onPress={() => handleActionPress(action)}
+            accessibilityLabel="피드 작성"
+            onPress={handleFeedPress}
           />
-        ))}
 
+          {/* 가운데: 편지 작성 */}
+          <FABButton
+            icon={
+              <LetterIcon
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+                color={FAB_ICON_COLOR}
+              />
+            }
+            accessibilityLabel="편지 작성"
+            onPress={handleLetterPress}
+          />
+        </>
+      )}
+
+      {/* 가장 아래: 열기 또는 닫기 */}
       <FABButton
-        icon={isOpen ? closeIcon : plusIcon}
+        icon={
+          isOpen ? (
+            <CloseIcon
+              width={ICON_SIZE}
+              height={ICON_SIZE}
+            />
+          ) : (
+            <PlusIcon
+              width={ICON_SIZE}
+              height={ICON_SIZE}
+              color={FAB_ICON_COLOR}
+            />
+          )
+        }
         tone={isOpen ? 'light' : 'dark'}
         accessibilityLabel={
           isOpen ? '작성 메뉴 닫기' : '작성 메뉴 열기'
@@ -135,10 +173,10 @@ const styles = StyleSheet.create({
   button: {
     width: FAB_SIZE,
     height: FAB_SIZE,
+
     justifyContent: 'center',
     alignItems: 'center',
 
-    // 44 × 44 크기의 정확한 원
     borderRadius: FAB_SIZE / 2,
 
     ...shadow.middleDown,
