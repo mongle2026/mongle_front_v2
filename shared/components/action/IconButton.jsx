@@ -3,17 +3,6 @@ import { Pressable, StyleSheet, View, } from 'react-native';
 
 import { padding, radius } from '../../styles/token';
 
-const SIZE_STYLES = {
-  S: {
-    container: styles.sizeS,
-    hitSlop: 11,
-  },
-  M: {
-    container: styles.sizeM,
-    hitSlop: 5,
-  },
-};
-
 const IconButton = ({
   icon,
   size = 'M',
@@ -58,7 +47,7 @@ const styles = StyleSheet.create({
   sizeS: {
     width: 22,
     height: 22,
-    padding: padding.S,
+    padding: padding.XS,
   },
 
   sizeM: {
@@ -75,5 +64,16 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
 });
+
+const SIZE_STYLES = {
+  S: {
+    container: styles.sizeS,
+    hitSlop: 11,
+  },
+  M: {
+    container: styles.sizeM,
+    hitSlop: 5,
+  },
+};
 
 export default memo(IconButton);

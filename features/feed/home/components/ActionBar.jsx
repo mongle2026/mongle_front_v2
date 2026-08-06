@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View,} from 'react-native';
+import { StyleSheet, Text, View, } from 'react-native';
 
 import IcBookmarkFill from '../../../../assets/icons/ic_bookmark_fill.svg';
 import IcBookmarkStroke from '../../../../assets/icons/ic_bookmark_stroke.svg';
@@ -7,21 +7,23 @@ import IcComment from '../../../../assets/icons/ic_comment.svg';
 import IcHeartFill from '../../../../assets/icons/ic_heart_fill.svg';
 import IcHeartStroke from '../../../../assets/icons/ic_heart_stroke.svg';
 
-import AnimatedLabeledButton, {
-  ANIMATION_TYPE,
-} from '../../../../shared/atomic/AnimatedLabeledButton';
+import AnimatedLabeledButton, { ANIMATION_TYPE, } from '../../../../shared/components/action/AnimatedLabeledButton';
 
-import LabeledButton from '../../../../shared/atomic/LabeledButton';
+import LabeledButton from '../../../../shared/components/action/LabeledButton';
 
 import { colors } from '../../../../shared/styles/color';
-import { gap, padding } from '../../../../shared/styles/token';
+import { padding } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
-import { formatDateDetail } from '../../../../shared/utils/formatDate';
+import { formatDateDetail } from '../../utils/formatDate';
 
 const ActionBar = ({
   createdAt,
   isLiked = false,
   isBookmarked = false,
+
+  likeDisabled = false,
+  bookmarkDisabled = false,
+
   likeButtonRef,
   onCommentPress,
   onLikePress,
@@ -44,7 +46,7 @@ const ActionBar = ({
 
       <View style={styles.actions}>
         <LabeledButton
-          size="S"
+          size="M"
           icon={<IcComment />}
           iconColor={colors.fgDeactivate}
           onPress={onCommentPress}
@@ -54,13 +56,14 @@ const ActionBar = ({
 
         <AnimatedLabeledButton
           ref={likeButtonRef}
-          size="S"
+          size="M"
           isActive={isLiked}
           activeIcon={IcHeartFill}
           inactiveIcon={IcHeartStroke}
           activeColor={colors.fgLike}
           inactiveColor={colors.fgDeactivate}
           animationType={ANIMATION_TYPE.LIKE}
+          disabled={likeDisabled}
           onPress={onLikePress}
           accessibilityLabel={
             isLiked ? '좋아요 취소' : '좋아요'
@@ -69,13 +72,14 @@ const ActionBar = ({
         />
 
         <AnimatedLabeledButton
-          size="S"
+          size="M"
           isActive={isBookmarked}
           activeIcon={IcBookmarkFill}
           inactiveIcon={IcBookmarkStroke}
           activeColor={colors.fgBookmark}
           inactiveColor={colors.fgDeactivate}
           animationType={ANIMATION_TYPE.BOOKMARK}
+          disabled={bookmarkDisabled}
           onPress={onBookmarkPress}
           accessibilityLabel={
             isBookmarked
@@ -110,7 +114,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexShrink: 0,
-    gap: gap.M,
   },
 
   actionButton: {

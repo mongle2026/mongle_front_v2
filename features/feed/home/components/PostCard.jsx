@@ -1,31 +1,28 @@
-import React, { memo } from 'react';
-import { StyleSheet, Text, View, } from 'react-native';
+import React, { memo, useCallback } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 import ProfileBar from './ProfileBar';
 import ActionBar from './ActionBar';
 
 import MusicCard from '../../../../shared/components/content/MusicCard';
-import { WriteImg, } from '../../../../shared/components/atomic/WriteImg';
-
-import { colors, } from '../../../../shared/styles/color';
-import { gap, padding, radius, } from '../../../../shared/styles/token';
-import { typo, } from '../../../../shared/styles/typo';
+import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
+import { colors } from '../../../../shared/styles/color';
+import { gap, padding, radius } from '../../../../shared/styles/token';
+import { typo } from '../../../../shared/styles/typo';
 
 export const POST_FONT = Object.freeze({
   KYOBO: 'kyobo',
   SUIT: 'suit',
 });
 
-/**
- * 폰트가 달라지더라도 PostCard의 레이아웃이 흔들리지 않도록
- * fontSize와 lineHeight는 kyoboBodyLarge 규격으로 통일합니다.
- *
- * 사용자가 현재 설정한 폰트가 아니라
- * 게시물 작성 당시 저장된 authorFont 값을 전달해야 합니다.
- */
 const POST_FONT_STYLES = Object.freeze({
   [POST_FONT.KYOBO]: typo.kyoboBodyLarge,
-
   [POST_FONT.SUIT]: {
     ...typo.kyoboBodyLarge,
     fontFamily: typo.suitBodyLarge.fontFamily,
@@ -34,20 +31,24 @@ const POST_FONT_STYLES = Object.freeze({
 
 const TEXT_HEIGHT_WITH_IMAGES = 216;
 const TEXT_HEIGHT_WITHOUT_IMAGES = 342;
-
 const TEXT_LINES_WITH_IMAGES = 8;
 const TEXT_LINES_WITHOUT_IMAGES = 13;
 
-const getImageKey = (imageSource, index) => {
-  if (typeof imageSource === 'string') {
-    return imageSource;
-  }
+const PRESSED_SCALE = 0.99;
+const PRESSED_TRANSLATE_Y = 1;
+const PRESS_IN_DURATION = 90;
 
-  if (
-    imageSource &&
-    typeof imageSource === 'object' &&
-    imageSource.uri
-  ) {
+const PRESS_OUT_SPRING_CONFIG = {
+  damping: 18,
+  stiffness: 260,
+  mass: 0.5,
+  overshootClamping: true,
+};
+
+const getImageKey = (imageSource, index) => {
+  if (typeof imageSource === 'string') return imageSource;
+
+  if (imageSource && typeof imageSource === 'object' && imageSource.uri) {
     return imageSource.uri;
   }
 
@@ -58,12 +59,10 @@ const PostCard = ({
   profileProps,
   musicProps,
   actionProps,
-
+  onPress,
   content,
   imageSources = [],
-
   authorFont = POST_FONT.KYOBO,
-
   style,
   contentAreaStyle,
   textContainerStyle,
@@ -71,14 +70,39 @@ const PostCard = ({
   imageContainerStyle,
   imageStyle,
 }) => {
+  const scale = useSharedValue(1);
+  const translateY = useSharedValue(0);
+
+  const animatedCardStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scale: scale.value,
+      },
+      {
+        translateY: translateY.value,
+      },
+    ],
+  }));
+
+  const handlePressIn = useCallback(() => {
+    scale.value = withTiming(PRESSED_SCALE, {
+      duration: PRESS_IN_DURATION,
+    });
+
+    translateY.value = withTiming(PRESSED_TRANSLATE_Y, {
+      duration: PRESS_IN_DURATION,
+    });
+  }, [scale, translateY]);
+
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, PRESS_OUT_SPRING_CONFIG);
+    translateY.value = withSpring(0, PRESS_OUT_SPRING_CONFIG);
+  }, [scale, translateY]);
+
   const hasContent =
-    typeof content === 'string' &&
-    content.trim().length > 0;
+    typeof content === 'string' && content.trim().length > 0;
 
-  const visibleImages = imageSources
-    .filter(Boolean)
-    .slice(0, 2);
-
+  const visibleImages = imageSources.filter(Boolean).slice(0, 2);
   const hasImages = visibleImages.length > 0;
   const hasTwoImages = visibleImages.length === 2;
 
@@ -91,64 +115,60 @@ const PostCard = ({
     POST_FONT_STYLES[normalizedAuthorFont] ??
     POST_FONT_STYLES[POST_FONT.KYOBO];
 
-  const textContainerHeight = hasImages
-    ? TEXT_HEIGHT_WITH_IMAGES
-    : TEXT_HEIGHT_WITHOUT_IMAGES;
-
   const textNumberOfLines = hasImages
     ? TEXT_LINES_WITH_IMAGES
     : TEXT_LINES_WITHOUT_IMAGES;
 
+  const isPressable = typeof onPress === 'function';
+
   return (
-    <View style={[styles.card, style]}>
-      <ProfileBar {...profileProps} />
-
-      <MusicCard {...musicProps} />
-
-      <View
-        style={[
-          styles.contentArea,
-          contentAreaStyle,
-        ]}
+    <Animated.View
+      style={[
+        styles.card,
+        style,
+        animatedCardStyle,
+      ]}
+    >
+      <Pressable
+        onPress={onPress}
+        onPressIn={isPressable ? handlePressIn : undefined}
+        onPressOut={isPressable ? handlePressOut : undefined}
+        style={styles.pressArea}
       >
-        {hasContent && (
-          <View
-            style={[
-              styles.textContainer,
-              {
-                height: textContainerHeight,
-              },
-              textContainerStyle,
-            ]}
-          >
-            <Text
-              numberOfLines={textNumberOfLines}
-              ellipsizeMode="tail"
+        <ProfileBar {...profileProps} />
+        <MusicCard {...musicProps} />
+
+        <View style={[styles.contentArea, contentAreaStyle]}>
+          <View style={[styles.textContainer, textContainerStyle]}>
+            <View
               style={[
-                styles.contentText,
-                authorFontStyle,
-                textStyle,
+                styles.textViewport,
+                hasImages
+                  ? styles.textViewportWithImages
+                  : styles.textViewportWithoutImages,
               ]}
             >
-              {content}
-            </Text>
+              {hasContent && (
+                <Text
+                  numberOfLines={textNumberOfLines}
+                  ellipsizeMode="tail"
+                  style={[
+                    styles.contentText,
+                    authorFontStyle,
+                    textStyle,
+                  ]}
+                >
+                  {content}
+                </Text>
+              )}
+            </View>
           </View>
-        )}
 
-        {hasImages && (
-          <View
-            style={[
-              styles.imageContainer,
-              imageContainerStyle,
-            ]}
-          >
-            {visibleImages.map(
-              (imageSource, index) => (
+          {hasImages && (
+            <View style={[styles.imageContainer, imageContainerStyle]}>
+              {visibleImages.map((imageSource, index) => (
                 <WriteImg
-                  key={getImageKey(
-                    imageSource,
-                    index,
-                  )}
+                  key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
                   style={[
                     hasTwoImages
@@ -157,80 +177,90 @@ const PostCard = ({
                     imageStyle,
                   ]}
                 />
-              ),
-            )}
-          </View>
-        )}
-      </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </Pressable>
 
       <ActionBar {...actionProps} />
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
     width: '100%',
-    minHeight: 532,
-
+    minWidth: '100%',
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+    flexShrink: 0,
     flexDirection: 'column',
-    alignItems: 'center',
-
+    alignItems: 'stretch',
     borderRadius: radius.S,
     overflow: 'hidden',
-
     backgroundColor: colors.bgLayerDefault,
   },
-
-  contentArea: {
+  pressArea: {
     width: '100%',
-    flex: 1,
+    minWidth: 0,
+    maxWidth: '100%',
     alignSelf: 'stretch',
   },
-
+  contentArea: {
+    width: '100%',
+    minWidth: 0,
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+    flexShrink: 0,
+  },
   textContainer: {
     width: '100%',
+    minWidth: 0,
+    maxWidth: '100%',
+    alignSelf: 'stretch',
     paddingVertical: padding.M,
     paddingHorizontal: padding.L,
-
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-
+  },
+  textViewport: {
+    width: '100%',
+    minWidth: 0,
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
     overflow: 'hidden',
   },
-
+  textViewportWithImages: {
+    height: TEXT_HEIGHT_WITH_IMAGES,
+  },
+  textViewportWithoutImages: {
+    height: TEXT_HEIGHT_WITHOUT_IMAGES,
+  },
   contentText: {
     width: '100%',
-
+    minWidth: 0,
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+    flexWrap: 'wrap',
     color: colors.fgNeutralMuted,
     textAlign: 'justify',
-
-    flexShrink: 1,
   },
-
   imageContainer: {
     width: '100%',
-    paddingVertical: padding.S,
+    minWidth: 0,
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+    paddingVertical: padding.XS,
     paddingHorizontal: padding.L,
-
     flexDirection: 'row',
     alignItems: 'flex-start',
-    justifyContent: 'flex-start',
     gap: gap.M,
   },
-
   singleImage: {
     width: '50%',
   },
-
   doubleImage: {
-    /**
-     * WriteImg 기본 width가 50%이기 때문에
-     * 두 장에서 50% + 50% + gap이 되면 넘칠 수 있습니다.
-     *
-     * width: 0과 flex: 1을 함께 사용해
-     * gap을 제외한 공간을 정확히 절반씩 나눕니다.
-     */
     width: 0,
     flex: 1,
   },

@@ -40,11 +40,8 @@ const LabeledButton = ({
   size = 'M',
   font = 'kyobo',
 
-  // 텍스트 색상
   color = colors.fgNeutralSubtlest,
-
-  // 전달하지 않으면 텍스트와 동일한 색상 사용
-  iconColor = color,
+  iconColor = colors.fgNeutralSubtlest,
 
   disabled = false,
   onPress,
@@ -76,11 +73,12 @@ const LabeledButton = ({
 
   const renderedIcon = React.isValidElement(icon)
     ? React.cloneElement(icon, {
-        width: currentSize.iconSize,
-        height: currentSize.iconSize,
-        size: currentSize.iconSize,
-        color: icon.props.color ?? iconColor,
-      })
+      width: currentSize.iconSize,
+      height: currentSize.iconSize,
+      size: currentSize.iconSize,
+      fill: iconColor,
+      color: iconColor,
+    })
     : null;
 
   const resolvedAccessibilityLabel =

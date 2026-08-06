@@ -7,10 +7,10 @@ import * as Haptics from 'expo-haptics';
 import { colors } from '../../styles/color';
 import LabeledButton from './LabeledButton';
 
-export const ANIMATION_TYPE = {
+export const ANIMATION_TYPE = Object.freeze({
   LIKE: 'LIKE',
   BOOKMARK: 'BOOKMARK',
-};
+});
 
 const AnimatedIcon = ({
   Icon,
@@ -18,13 +18,24 @@ const AnimatedIcon = ({
   width,
   height,
   color,
+  fill,
 }) => {
+  if (!Icon) {
+    return null;
+  }
+
+  const resolvedColor =
+    color ??
+    fill ??
+    colors.fgDeactivate;
+
   return (
     <Animated.View style={animatedStyle}>
       <Icon
         width={width}
         height={height}
-        color={color}
+        color={resolvedColor}
+        fill={resolvedColor}
       />
     </Animated.View>
   );
@@ -35,14 +46,19 @@ const AnimatedLabeledButton = forwardRef(
     {
       label,
       isActive = false,
+
       activeIcon: ActiveIcon,
       inactiveIcon: InactiveIcon,
-      activeColor,
+
+      activeColor = colors.fgBrand,
       inactiveColor = colors.fgDeactivate,
       labelColor = colors.fgNeutralSubtlest,
-      animationType,
+
+      animationType = ANIMATION_TYPE.LIKE,
+
       size = 'S',
       font = 'suit',
+
       disabled = false,
       onPress,
       accessibilityLabel,
@@ -53,44 +69,80 @@ const AnimatedLabeledButton = forwardRef(
     const scale = useSharedValue(1);
     const translateY = useSharedValue(0);
 
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform:
-        animationType === ANIMATION_TYPE.BOOKMARK
-          ? [{ translateY: translateY.value }]
-          : [{ scale: scale.value }],
-    }));
-
-    const playAnimation = useCallback(() => {
-      Haptics.impactAsync(
-        Haptics.ImpactFeedbackStyle.Light,
-      );
-
-      if (animationType === ANIMATION_TYPE.BOOKMARK) {
-        translateY.value = withSequence(
-          withTiming(2, {
-            duration: 90,
-          }),
-          withSpring(0, {
-            damping: 20,
-            stiffness: 220,
-          }),
-        );
-
-        return;
+    const animatedStyle = useAnimatedStyle(() => {
+      if (
+        animationType ===
+        ANIMATION_TYPE.BOOKMARK
+      ) {
+        return {
+          transform: [
+            {
+              translateY:
+                translateY.value,
+            },
+          ],
+        };
       }
 
-      scale.value = withSequence(
-        withTiming(0.85, {
-          duration: 90,
-        }),
-        withTiming(1.15, {
-          duration: 130,
-        }),
-        withTiming(1, {
-          duration: 130,
-        }),
-      );
-    }, [animationType, scale, translateY]);
+      return {
+        transform: [
+          {
+            scale: scale.value,
+          },
+        ],
+      };
+    });
+
+    const playHaptic = useCallback(() => {
+      void Haptics.impactAsync(
+        Haptics.ImpactFeedbackStyle.Light,
+      ).catch(() => {
+        /*
+         * 햅틱을 지원하지 않는 환경에서도
+         * 버튼 동작 자체는 유지합니다.
+         */
+      });
+    }, []);
+
+    const playAnimation =
+      useCallback(() => {
+        playHaptic();
+
+        if (
+          animationType ===
+          ANIMATION_TYPE.BOOKMARK
+        ) {
+          translateY.value =
+            withSequence(
+              withTiming(2, {
+                duration: 90,
+              }),
+              withSpring(0, {
+                damping: 20,
+                stiffness: 220,
+              }),
+            );
+
+          return;
+        }
+
+        scale.value = withSequence(
+          withTiming(0.85, {
+            duration: 90,
+          }),
+          withTiming(1.15, {
+            duration: 130,
+          }),
+          withTiming(1, {
+            duration: 130,
+          }),
+        );
+      }, [
+        animationType,
+        playHaptic,
+        scale,
+        translateY,
+      ]);
 
     useImperativeHandle(
       ref,
@@ -100,16 +152,28 @@ const AnimatedLabeledButton = forwardRef(
       [playAnimation],
     );
 
-    const handlePress = () => {
-      if (disabled) return;
+    const handlePress =
+      useCallback(() => {
+        if (disabled) {
+          return;
+        }
 
-      playAnimation();
-      onPress?.();
-    };
+        playAnimation();
+        onPress?.();
+      }, [
+        disabled,
+        onPress,
+        playAnimation,
+      ]);
 
     const Icon = isActive
       ? ActiveIcon
       : InactiveIcon;
+
+    const resolvedIconColor =
+      isActive
+        ? activeColor
+        : inactiveColor;
 
     return (
       <LabeledButton
@@ -120,17 +184,17 @@ const AnimatedLabeledButton = forwardRef(
           <AnimatedIcon
             Icon={Icon}
             animatedStyle={animatedStyle}
+            color={resolvedIconColor}
+            fill={resolvedIconColor}
           />
         }
         color={labelColor}
-        iconColor={
-          isActive
-            ? activeColor
-            : inactiveColor
-        }
+        iconColor={resolvedIconColor}
         disabled={disabled}
         onPress={handlePress}
-        accessibilityLabel={accessibilityLabel}
+        accessibilityLabel={
+          accessibilityLabel
+        }
         style={style}
       />
     );

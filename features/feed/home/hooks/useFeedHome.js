@@ -1,71 +1,331 @@
-import { useCallback, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useCallback, useMemo, } from 'react';
+import { useInfiniteQuery, } from '@tanstack/react-query';
+
 import axios from 'axios';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+import { feedHomeKeys, } from './feedHomeCache';
+import useFeedToggleMutation from './useFeedToggleMutation';
 
-function normalizeFeedItem(item) {
+const API_BASE_URL =
+  process.env
+    .EXPO_PUBLIC_API_BASE_URL
+    ?.replace(
+      /\/+$/,
+      '',
+    );
+
+const FEED_LIMIT = 20;
+
+function normalizeFeedItem(
+  item,
+) {
   if (!item?.feedId) {
     return null;
   }
 
   return {
     ...item,
-    user: item.user ?? {},
-    record: item.record ?? {},
-    music: item.music ?? null,
-    files: Array.isArray(item.files) ? item.files : [],
-    isLiked: item.isLiked ?? false,
-    isBookmarked: item.isBookmarked ?? false,
-    likeCount: item.likeCount ?? 0,
-    bookmarkCount: item.bookmarkCount ?? 0,
+
+    user:
+      item.user ?? {},
+
+    record:
+      item.record ?? {},
+
+    music:
+      item.music ?? null,
+
+    files:
+      Array.isArray(
+        item.files,
+      )
+        ? item.files
+        : [],
+
+    isLiked:
+      Boolean(
+        item.isLiked,
+      ),
+
+    isBookmarked:
+      Boolean(
+        item.isBookmarked,
+      ),
+
+    likeCount:
+      Number(
+        item.likeCount ?? 0,
+      ),
+
+    bookmarkCount:
+      Number(
+        item.bookmarkCount ??
+        0,
+      ),
   };
 }
 
-export default function useFeedHome({ userId }) {
-  const [activeTab, setActiveTab] = useState('추천');
-  const [currentIndex, setCurrentIndex] = useState(0);
+function normalizeFeedPage(
+  data,
+) {
+  const rawItems =
+    Array.isArray(data)
+      ? data
+      : Array.isArray(
+          data?.items,
+        )
+        ? data.items
+        : [];
+
+  const nextCursor =
+    Array.isArray(data)
+      ? null
+      : data?.nextCursor ??
+        null;
+
+  const hasNext =
+    Array.isArray(data)
+      ? false
+      : typeof data?.hasNext ===
+          'boolean'
+        ? data.hasNext
+        : nextCursor !== null &&
+          nextCursor !==
+            undefined;
+
+  return {
+    items:
+      rawItems
+        .map(
+          normalizeFeedItem,
+        )
+        .filter(Boolean),
+
+    nextCursor,
+    hasNext,
+  };
+}
+
+export default function useFeedHome({
+  userId,
+  isFollowing = false,
+}) {
+  const hasUserId =
+    userId !== null &&
+    userId !== undefined;
+
+  const isConfigured =
+    Boolean(
+      API_BASE_URL &&
+      hasUserId,
+    );
+
+  const feedPath =
+    isFollowing
+      ? '/feed/following'
+      : '/feed';
+
+  const feedType =
+    isFollowing
+      ? 'following'
+      : 'recommended';
+
+  const feedQueryKey =
+    useMemo(
+      () =>
+        feedHomeKeys.list(
+          userId,
+          feedType,
+        ),
+      [
+        feedType,
+        userId,
+      ],
+    );
 
   const {
-    data: posts = [],
-    refetch: refetchFeed,
-  } = useQuery({
-    queryKey: ['feeds', userId],
-    queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/feed`, {
-        params: {
-          userId,
-          limit: 20,
-        },
-      });
+    data,
+    error,
 
-      const data = response.data;
-      const items = Array.isArray(data)
-        ? data
-        : data?.items;
+    isLoading,
+    isFetchingNextPage,
 
-      if (!Array.isArray(items)) {
-        return [];
+    hasNextPage,
+    fetchNextPage,
+
+    refetch:
+      refetchFeed,
+  } = useInfiniteQuery({
+    queryKey:
+      feedQueryKey,
+
+    initialPageParam:
+      null,
+
+    enabled:
+      isConfigured,
+
+    queryFn: async ({
+      pageParam,
+    }) => {
+      if (!API_BASE_URL) {
+        throw new Error(
+          'EXPO_PUBLIC_API_BASE_URL이 설정되지 않았습니다.',
+        );
       }
 
-      return items
-        .map(normalizeFeedItem)
-        .filter(Boolean);
+      const params = {
+        userId,
+        limit:
+          FEED_LIMIT,
+      };
+
+      if (
+        pageParam !== null &&
+        pageParam !==
+          undefined
+      ) {
+        params.cursor =
+          pageParam;
+      }
+
+      const response =
+        await axios.get(
+          `${API_BASE_URL}${feedPath}`,
+          {
+            params,
+          },
+        );
+
+      return normalizeFeedPage(
+        response.data,
+      );
     },
-    enabled: Boolean(userId),
+
+    getNextPageParam:
+      lastPage => {
+        if (
+          !lastPage?.hasNext
+        ) {
+          return undefined;
+        }
+
+        return (
+          lastPage
+            .nextCursor ??
+          undefined
+        );
+      },
+
     staleTime: 30_000,
   });
 
-  const onTabPress = useCallback(tab => {
-    setActiveTab(tab);
-  }, []);
+  const posts =
+    useMemo(
+      () =>
+        data?.pages
+          ?.flatMap(
+            page =>
+              page.items,
+          ) ?? [],
+      [data?.pages],
+    );
+
+  const {
+    mutate:
+      mutateLike,
+
+    pendingFeedIds:
+      likePendingFeedIds,
+  } =
+    useFeedToggleMutation({
+      userId,
+
+      endpoint: 'like',
+      valueKey: 'isLiked',
+      countKey: 'likeCount',
+
+      errorMessage:
+        '좋아요 처리에 실패했습니다.',
+    });
+
+  const {
+    mutate:
+      mutateBookmark,
+
+    pendingFeedIds:
+      bookmarkPendingFeedIds,
+  } =
+    useFeedToggleMutation({
+      userId,
+
+      endpoint:
+        'bookmark',
+
+      valueKey:
+        'isBookmarked',
+
+      countKey:
+        'bookmarkCount',
+
+      errorMessage:
+        '북마크 처리에 실패했습니다.',
+    });
+
+  const handlePressLike =
+    useCallback(
+      feed => {
+        if (!feed?.feedId) {
+          return;
+        }
+
+        mutateLike({
+          feedId:
+            feed.feedId,
+
+          nextValue:
+            !feed.isLiked,
+        });
+      },
+      [mutateLike],
+    );
+
+  const handlePressBookmark =
+    useCallback(
+      feed => {
+        if (!feed?.feedId) {
+          return;
+        }
+
+        mutateBookmark({
+          feedId:
+            feed.feedId,
+
+          nextValue:
+            !feed
+              .isBookmarked,
+        });
+      },
+      [mutateBookmark],
+    );
 
   return {
-    activeTab,
     posts,
-    currentIndex,
-    setCurrentIndex,
+    error,
+
+    isConfigured,
+    isLoading,
+
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+
     refetchFeed,
-    onTabPress,
+
+    handlePressLike,
+    handlePressBookmark,
+
+    likePendingFeedIds,
+    bookmarkPendingFeedIds,
   };
 }

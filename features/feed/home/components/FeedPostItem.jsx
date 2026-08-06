@@ -1,0 +1,94 @@
+import React, { memo, useCallback } from 'react';
+
+import { getImageSources, resolveMediaUri } from '../../../../shared/utils/media';
+import useDoubleTapLike from '../../hooks/useDoubleTapLike';
+
+import PostCard from './PostCard';
+
+const FeedPostItem = ({
+  item,
+  userId,
+  likeDisabled = false,
+  bookmarkDisabled = false,
+  isMusicPlaying = false,
+  musicPlaybackProgress = 0,
+  onPressLike,
+  onPressBookmark,
+  onPressMusicPlayback,
+}) => {
+  const feedId = item?.feedId;
+  const user = item?.user;
+  const music = item?.music;
+  const record = item?.record;
+
+  const imageSources = getImageSources(item?.files);
+  const profileImageUri = resolveMediaUri(user?.profileImageUrl);
+  const musicArtworkUri = resolveMediaUri(music?.musicArtwork);
+  const musicPreviewUri = resolveMediaUri(music?.previewUrl);
+
+  const isMine = Number(user?.userId) === Number(userId);
+  const isLiked = Boolean(item?.isLiked);
+  const isBookmarked = Boolean(item?.isBookmarked);
+
+  const handleLike = useCallback(() => {
+    onPressLike?.(item);
+  }, [item, onPressLike]);
+
+  const handleBookmark = useCallback(() => {
+    onPressBookmark?.(item);
+  }, [item, onPressBookmark]);
+
+  const handleMusicPlayback = useCallback(() => {
+    if (!musicPreviewUri) return;
+
+    onPressMusicPlayback?.({
+      feedId,
+      previewUrl: musicPreviewUri,
+    });
+  }, [feedId, musicPreviewUri, onPressMusicPlayback]);
+
+  const { likeButtonRef, handleTap } = useDoubleTapLike({
+    isLiked,
+    disabled: likeDisabled,
+    onLike: handleLike,
+  });
+
+  return (
+    <PostCard
+      onPress={handleTap}
+      profileProps={{
+        imageUri: profileImageUri,
+        username: user?.userCode ?? '',
+        showFollowButton: !isMine,
+        followLabel: '팔로우',
+        followDisabled: true,
+      }}
+      musicProps={{
+        imageSource: musicArtworkUri ? { uri: musicArtworkUri } : undefined,
+        title: music?.musicTitle ?? '',
+        artist: music?.musicArtist ?? '',
+        isPlaying: isMusicPlaying,
+        playbackProgress: musicPlaybackProgress,
+        disabled: !musicPreviewUri,
+        onPressPlayback: musicPreviewUri
+          ? handleMusicPlayback
+          : undefined,
+      }}
+      content={record?.text ?? ''}
+      imageSources={imageSources}
+      authorFont={record?.authorFont}
+      actionProps={{
+        createdAt: item?.createdAt,
+        isLiked,
+        isBookmarked,
+        likeDisabled,
+        bookmarkDisabled,
+        likeButtonRef,
+        onLikePress: handleLike,
+        onBookmarkPress: handleBookmark,
+      }}
+    />
+  );
+};
+
+export default memo(FeedPostItem);

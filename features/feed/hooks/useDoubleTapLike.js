@@ -1,61 +1,57 @@
 import { useCallback, useRef } from 'react';
 
-const DOUBLE_TAP_DELAY = 300;
-const DOUBLE_TAP_COOLDOWN = 350;
+const DEFAULT_DOUBLE_TAP_DELAY = 300;
+const DEFAULT_DOUBLE_TAP_COOLDOWN = 350;
 
 export default function useDoubleTapLike({
   isLiked = false,
-  onToggleLike,
-  onSingleTap,
-  doubleTapDelay = DOUBLE_TAP_DELAY,
-  cooldown = DOUBLE_TAP_COOLDOWN,
+  disabled = false,
+  onLike,
+  doubleTapDelay = DEFAULT_DOUBLE_TAP_DELAY,
+  cooldown = DEFAULT_DOUBLE_TAP_COOLDOWN,
 } = {}) {
-  const likeRef = useRef(null);
-  const lastTapRef = useRef(0);
-  const lastToggleRef = useRef(0);
-  const tapTimerRef = useRef(null);
+  const likeButtonRef = useRef(null);
+  const lastTapAtRef = useRef(0);
+  const lastDoubleTapAtRef = useRef(0);
 
   const handleTap = useCallback(() => {
+    if (disabled) return;
+
     const now = Date.now();
 
-    if (now - lastToggleRef.current < cooldown) {
+    if (now - lastDoubleTapAtRef.current < cooldown) {
       return;
     }
 
-    if (now - lastTapRef.current < doubleTapDelay) {
-      clearTimeout(tapTimerRef.current);
+    const elapsedSinceLastTap = now - lastTapAtRef.current;
 
-      lastTapRef.current = 0;
-      lastToggleRef.current = now;
+    lastTapAtRef.current = now;
 
-      // 이미 좋아요 상태여도 하트 애니메이션은 실행
-      likeRef.current?.bounce();
-
-      // 좋아요가 아닌 경우에만 좋아요 처리
-      if (!isLiked) {
-        onToggleLike?.();
-      }
-
+    if (
+      elapsedSinceLastTap <= 0 ||
+      elapsedSinceLastTap > doubleTapDelay
+    ) {
       return;
     }
 
-    lastTapRef.current = now;
+    lastTapAtRef.current = 0;
+    lastDoubleTapAtRef.current = now;
 
-    if (onSingleTap) {
-      tapTimerRef.current = setTimeout(() => {
-        onSingleTap();
-      }, doubleTapDelay);
+    likeButtonRef.current?.bounce();
+
+    if (!isLiked) {
+      onLike?.();
     }
   }, [
-    isLiked,
-    onToggleLike,
-    onSingleTap,
-    doubleTapDelay,
     cooldown,
+    disabled,
+    doubleTapDelay,
+    isLiked,
+    onLike,
   ]);
 
   return {
-    likeRef,
+    likeButtonRef,
     handleTap,
   };
 }
