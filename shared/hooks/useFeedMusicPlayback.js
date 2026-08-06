@@ -12,6 +12,11 @@ const normalizePreviewUrl = previewUrl => {
   return previewUrl.trim() || null;
 };
 
+const clampProgress = progress => {
+  if (!Number.isFinite(progress)) return 0;
+  return Math.min(Math.max(progress, 0), 1);
+};
+
 const getPlaybackProgress = status => {
   const currentTime = Number.isFinite(status.currentTime)
     ? Math.max(status.currentTime, 0)
@@ -21,7 +26,7 @@ const getPlaybackProgress = status => {
     : 0;
 
   if (duration <= 0) return 0;
-  return Math.min(Math.max(currentTime / duration, 0), 1);
+  return clampProgress(currentTime / duration);
 };
 
 const useFeedMusicPlayback = ({ navigation }) => {
@@ -30,15 +35,28 @@ const useFeedMusicPlayback = ({ navigation }) => {
   });
 
   const loadedFeedIdRef = useRef(null);
+  const durationRef = useRef(0);
+  const isSeekingRef = useRef(false);
+  const seekRequestIdRef = useRef(0);
+  const shouldBePlayingRef = useRef(false);
+
   const [playingFeedId, setPlayingFeedId] = useState(null);
   const [playbackProgress, setPlaybackProgress] = useState(0);
 
+  const cancelPendingSeek = useCallback(() => {
+    seekRequestIdRef.current += 1;
+    isSeekingRef.current = false;
+  }, []);
+
   const stopAndReset = useCallback(() => {
+    cancelPendingSeek();
+    shouldBePlayingRef.current = false;
     player.pause();
     loadedFeedIdRef.current = null;
+    durationRef.current = 0;
     setPlayingFeedId(null);
     setPlaybackProgress(0);
-  }, [player]);
+  }, [cancelPendingSeek, player]);
 
   useEffect(() => {
     const subscription = player.addListener('playbackStatusUpdate', status => {
@@ -51,12 +69,24 @@ const useFeedMusicPlayback = ({ navigation }) => {
       const loadedFeedId = loadedFeedIdRef.current;
       if (!loadedFeedId) return;
 
-      setPlaybackProgress(
-        status.didJustFinish ? 1 : getPlaybackProgress(status),
-      );
+      durationRef.current = Number.isFinite(status.duration)
+        ? Math.max(status.duration, 0)
+        : 0;
+
+      if (!isSeekingRef.current) {
+        setPlaybackProgress(
+          status.didJustFinish ? 1 : getPlaybackProgress(status),
+        );
+      }
+
+      if (status.didJustFinish) {
+        shouldBePlayingRef.current = false;
+        setPlayingFeedId(null);
+        return;
+      }
 
       setPlayingFeedId(
-        status.playing && !status.didJustFinish
+        shouldBePlayingRef.current
           ? loadedFeedId
           : null,
       );
@@ -85,18 +115,25 @@ const useFeedMusicPlayback = ({ navigation }) => {
     if (!nextFeedId || !nextPreviewUrl) return;
 
     const isSameLoadedFeed = loadedFeedIdRef.current === nextFeedId;
+    const isCurrentlyPlaying =
+      isSameLoadedFeed && shouldBePlayingRef.current;
 
-    if (isSameLoadedFeed && player.playing) {
+    if (isCurrentlyPlaying) {
+      cancelPendingSeek();
+      shouldBePlayingRef.current = false;
       player.pause();
       setPlayingFeedId(null);
       return;
     }
 
     try {
+      cancelPendingSeek();
+
       if (isSameLoadedFeed) {
+        const duration = Math.max(durationRef.current, player.duration || 0);
         const hasReachedEnd =
-          player.duration > 0 &&
-          player.currentTime >= player.duration - PLAYBACK_END_TOLERANCE;
+          duration > 0 &&
+          player.currentTime >= duration - PLAYBACK_END_TOLERANCE;
 
         if (hasReachedEnd) {
           await player.seekTo(0);
@@ -104,11 +141,14 @@ const useFeedMusicPlayback = ({ navigation }) => {
         }
       } else {
         player.pause();
+        durationRef.current = 0;
         setPlaybackProgress(0);
-        player.replace(nextPreviewUrl);
         loadedFeedIdRef.current = nextFeedId;
+        player.replace(nextPreviewUrl);
       }
 
+      shouldBePlayingRef.current = true;
+      setPlayingFeedId(nextFeedId);
       player.play();
     } catch (error) {
       console.warn(
@@ -120,12 +160,58 @@ const useFeedMusicPlayback = ({ navigation }) => {
 
       stopAndReset();
     }
-  }, [player, stopAndReset]);
+  }, [cancelPendingSeek, player, stopAndReset]);
+
+  const handleSeekPlayback = useCallback(async ({ feedId, progress }) => {
+    const nextFeedId = normalizeFeedId(feedId);
+    const nextProgress = clampProgress(progress);
+
+    if (!nextFeedId || loadedFeedIdRef.current !== nextFeedId) return;
+
+    const duration = Math.max(durationRef.current, player.duration || 0);
+    if (duration <= 0) return;
+
+    const maximumSeekTime =
+      duration > PLAYBACK_END_TOLERANCE
+        ? duration - PLAYBACK_END_TOLERANCE
+        : duration;
+
+    const targetTime = Math.min(
+      duration * nextProgress,
+      maximumSeekTime,
+    );
+
+    const targetProgress = clampProgress(targetTime / duration);
+    const requestId = seekRequestIdRef.current + 1;
+
+    seekRequestIdRef.current = requestId;
+    isSeekingRef.current = true;
+    setPlaybackProgress(targetProgress);
+
+    try {
+      await player.seekTo(targetTime);
+    } catch (error) {
+      console.warn('음악 재생 위치를 변경하지 못했습니다.', error);
+
+      if (seekRequestIdRef.current === requestId) {
+        setPlaybackProgress(
+          duration > 0
+            ? clampProgress(player.currentTime / duration)
+            : 0,
+        );
+      }
+    } finally {
+      if (seekRequestIdRef.current === requestId) {
+        isSeekingRef.current = false;
+      }
+    }
+  }, [player]);
 
   return {
     playingFeedId,
     playbackProgress,
     handlePressPlayback,
+    handleSeekPlayback,
     handleVisibleFeedChange,
     resetPlayback: stopAndReset,
   };

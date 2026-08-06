@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import IcMusicPlay from '../../../assets/icons/ic_musicplay.svg';
@@ -7,6 +7,7 @@ import MusicWave from '../../../assets/music/musicWave.svg';
 import MusicWaveTexture from '../../../assets/music/musicWaveTexture.svg';
 
 import useAlbumWaveColor from '../../hooks/useAlbumWaveColor';
+import useMusicWaveSeek from '../../hooks/useMusicWaveSeek';
 import { colors } from '../../styles/color';
 import { gap, padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
@@ -16,11 +17,6 @@ import MusicCoverImg from '../atomic/MusicCoverImg';
 
 const MUSIC_WAVE_HEIGHT = 20;
 
-const clampProgress = progress => {
-  if (!Number.isFinite(progress)) return 0;
-  return Math.min(Math.max(progress, 0), 1);
-};
-
 const MusicCard = ({
   imageSource,
   title = '',
@@ -28,19 +24,26 @@ const MusicCard = ({
   isPlaying = false,
   playbackProgress = 0,
   onPressPlayback,
+  onSeekPlayback,
   disabled = false,
   style,
 }) => {
-  const [musicWaveWidth, setMusicWaveWidth] = useState(0);
   const waveColor = useAlbumWaveColor(imageSource, isPlaying);
-  const progressWidth = musicWaveWidth * clampProgress(playbackProgress);
   const PlaybackIcon = isPlaying ? IcMusicStop : IcMusicPlay;
   const accessibilityTitle = title || '음악';
 
-  const handleMusicWaveLayout = useCallback(event => {
-    const nextWidth = Math.round(event.nativeEvent.layout.width);
-    setMusicWaveWidth(nextWidth);
-  }, []);
+  const {
+    waveWidth,
+    displayedProgress,
+    handleLayout,
+    panHandlers,
+    accessibilityActions,
+    handleAccessibilityAction,
+  } = useMusicWaveSeek({
+    playbackProgress,
+    enabled: isPlaying && !disabled,
+    onSeek: onSeekPlayback,
+  });
 
   return (
     <View style={[styles.container, style]}>
@@ -71,33 +74,56 @@ const MusicCard = ({
             }
             onPress={onPressPlayback}
             disabled={disabled}
-            accessibilityLabel={`${accessibilityTitle} 음악 ${isPlaying ? '일시정지' : '재생'}`}
+            accessibilityLabel={`${accessibilityTitle} 음악 ${
+              isPlaying ? '일시정지' : '재생'
+            }`}
             style={styles.playButton}
           />
 
           {isPlaying && (
             <View
-              style={styles.musicWaveContainer}
-              onLayout={handleMusicWaveLayout}
-              pointerEvents="none"
+              style={styles.musicWaveTouchArea}
+              onLayout={handleLayout}
+              accessible
+              accessibilityRole="adjustable"
+              accessibilityLabel={`${accessibilityTitle} 재생 위치`}
+              accessibilityHint="누르거나 좌우로 드래그해 재생 위치를 변경합니다."
+              accessibilityValue={{
+                min: 0,
+                max: 100,
+                now: Math.round(displayedProgress * 100),
+              }}
+              accessibilityActions={accessibilityActions}
+              onAccessibilityAction={handleAccessibilityAction}
+              {...panHandlers}
             >
-              {musicWaveWidth > 0 && (
-                <>
-                  <MusicWave
-                    width={musicWaveWidth}
-                    height={MUSIC_WAVE_HEIGHT}
-                    color={colors.fgNeutralSubtlest}
-                  />
-
-                  <View style={[styles.musicWaveProgressClip, { width: progressWidth }]}>
-                    <MusicWaveTexture
-                      width={musicWaveWidth}
+              <View
+                style={styles.musicWaveContainer}
+                pointerEvents="none"
+              >
+                {waveWidth > 0 && (
+                  <>
+                    <MusicWave
+                      width={waveWidth}
                       height={MUSIC_WAVE_HEIGHT}
-                      color={waveColor}
+                      color={colors.fgNeutralSubtlest}
                     />
-                  </View>
-                </>
-              )}
+
+                    <View
+                      style={[
+                        styles.musicWaveProgressClip,
+                        { width: waveWidth * displayedProgress },
+                      ]}
+                    >
+                      <MusicWaveTexture
+                        width={waveWidth}
+                        height={MUSIC_WAVE_HEIGHT}
+                        color={waveColor}
+                      />
+                    </View>
+                  </>
+                )}
+              </View>
             </View>
           )}
         </View>
@@ -147,9 +173,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.XL,
     backgroundColor: colors.bgBrandWeak,
   },
-  musicWaveContainer: {
+  musicWaveTouchArea: {
     flex: 1,
     minWidth: 0,
+    height: MUSIC_WAVE_HEIGHT,
+  },
+  musicWaveContainer: {
+    width: '100%',
     height: MUSIC_WAVE_HEIGHT,
     position: 'relative',
     justifyContent: 'center',

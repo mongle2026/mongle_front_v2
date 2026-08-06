@@ -45,6 +45,7 @@ const FeedHomeScreen = ({ navigation }) => {
     playingFeedId,
     playbackProgress,
     handlePressPlayback: handlePressMusicPlayback,
+    handleSeekPlayback: handleSeekMusicPlayback,
     handleVisibleFeedChange,
     resetPlayback,
   } = useFeedMusicPlayback({ navigation });
@@ -181,6 +182,7 @@ const FeedHomeScreen = ({ navigation }) => {
           onPressLike={handlePressLike}
           onPressBookmark={handlePressBookmark}
           onPressMusicPlayback={handlePressMusicPlayback}
+          onSeekMusicPlayback={handleSeekMusicPlayback}
         />
       </View>
     );
@@ -190,6 +192,7 @@ const FeedHomeScreen = ({ navigation }) => {
     handlePressBookmark,
     handlePressLike,
     handlePressMusicPlayback,
+    handleSeekMusicPlayback,
     likePendingFeedIds,
     playbackProgress,
     playingFeedId,
