@@ -1,12 +1,12 @@
-import React, { memo, useCallback, useState, } from 'react';
-import { StyleSheet, View, } from 'react-native';
+import React, { memo, useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
 import Profile from '../../../../shared/components/content/profile/Profile';
 import { TextButton } from '../../../../shared/components/action/TextButton';
 import { DividerLine } from '../../../../shared/components/atomic/DividerLine';
 
 import { colors } from '../../../../shared/styles/color';
-import { gap, padding, } from '../../../../shared/styles/token';
+import { gap, padding } from '../../../../shared/styles/token';
 
 const ProfileBar = ({
   imageUri,
@@ -15,6 +15,7 @@ const ProfileBar = ({
 
   showFollowButton = true,
   followLabel = '팔로우',
+  followVariant = 'Solid',
   followDisabled = false,
 
   onPressProfile,
@@ -26,34 +27,22 @@ const ProfileBar = ({
   followTextStyle,
   dividerStyle,
 }) => {
-  const [dividerWidth, setDividerWidth] =
-    useState(0);
+  const [dividerWidth, setDividerWidth] = useState(0);
 
-  const handleContainerLayout = useCallback(
-    event => {
-      const nextWidth = Math.round(
-        event.nativeEvent.layout.width,
-      );
+  const handleContainerLayout = useCallback(event => {
+    const nextWidth = Math.round(event.nativeEvent.layout.width);
 
-      setDividerWidth(currentWidth => {
-        if (currentWidth === nextWidth) {
-          return currentWidth;
-        }
-
-        return nextWidth;
-      });
-    },
-    [],
-  );
+    setDividerWidth(currentWidth => {
+      if (currentWidth === nextWidth) return currentWidth;
+      return nextWidth;
+    });
+  }, []);
 
   return (
     <View style={[styles.profileBar, style]}>
       <View
         onLayout={handleContainerLayout}
-        style={[
-          styles.container,
-          containerStyle,
-        ]}
+        style={[styles.container, containerStyle]}
       >
         <Profile
           imageUri={imageUri}
@@ -64,15 +53,12 @@ const ProfileBar = ({
 
         {showFollowButton && (
           <TextButton
-            variant="Solid"
+            variant={followVariant}
             disabled={followDisabled}
+            showDisabledStyle={false}
             onPress={onPressFollow}
-            accessibilityLabel={`${username ?? '사용자'
-              } ${followLabel}`}
-            style={[
-              styles.followButton,
-              followButtonStyle,
-            ]}
+            accessibilityLabel={`${username ?? '사용자'} ${followLabel}`}
+            style={[styles.followButton, followButtonStyle]}
             textStyle={followTextStyle}
           >
             {followLabel}
@@ -97,15 +83,11 @@ const styles = StyleSheet.create({
     width: '100%',
     minWidth: '100%',
     maxWidth: '100%',
-
     alignSelf: 'stretch',
     flexShrink: 0,
-
     paddingHorizontal: padding.L,
-
     flexDirection: 'column',
     alignItems: 'stretch',
-
     backgroundColor: colors.bgLayerDefault,
   },
 
@@ -113,13 +95,9 @@ const styles = StyleSheet.create({
     width: '100%',
     minWidth: '100%',
     maxWidth: '100%',
-
     alignSelf: 'stretch',
     flexShrink: 0,
-
-    // Profile의 실제 높이 + 상단 8px
     paddingTop: padding.M,
-
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
@@ -135,10 +113,8 @@ const styles = StyleSheet.create({
     width: '100%',
     minWidth: '100%',
     maxWidth: '100%',
-
     alignSelf: 'stretch',
     flexShrink: 0,
-
     height: 1,
     marginTop: gap.M,
   },

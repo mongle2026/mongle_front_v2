@@ -61,14 +61,21 @@ const FeedHomeScreen = ({ navigation }) => {
     refetchFeed,
     handlePressLike,
     handlePressBookmark,
+    handlePressFollow,
     likePendingFeedIds,
     bookmarkPendingFeedIds,
+    pendingTargetUserId,
   } = useFeedHome({ userId, isFollowing });
 
   const feedExtraData = useMemo(() => ({
     playingFeedId,
     playbackProgress,
-  }), [playingFeedId, playbackProgress]);
+    pendingTargetUserId,
+  }), [
+    playingFeedId,
+    playbackProgress,
+    pendingTargetUserId,
+  ]);
 
   const postMetrics = useMemo(() => {
     if (posts.length === 0) {
@@ -165,6 +172,7 @@ const FeedHomeScreen = ({ navigation }) => {
 
   const renderPost = useCallback(({ item }) => {
     const feedId = String(item.feedId);
+    const targetUserId = String(item?.user?.userId ?? '');
     const isMusicPlaying = playingFeedId === feedId;
 
     return (
@@ -177,10 +185,12 @@ const FeedHomeScreen = ({ navigation }) => {
           userId={userId}
           likeDisabled={likePendingFeedIds.has(feedId)}
           bookmarkDisabled={bookmarkPendingFeedIds.has(feedId)}
+          followDisabled={pendingTargetUserId === targetUserId}
           isMusicPlaying={isMusicPlaying}
           musicPlaybackProgress={isMusicPlaying ? playbackProgress : 0}
           onPressLike={handlePressLike}
           onPressBookmark={handlePressBookmark}
+          onPressFollow={handlePressFollow}
           onPressMusicPlayback={handlePressMusicPlayback}
           onSeekMusicPlayback={handleSeekMusicPlayback}
         />
@@ -190,10 +200,12 @@ const FeedHomeScreen = ({ navigation }) => {
     bookmarkPendingFeedIds,
     handlePostLayout,
     handlePressBookmark,
+    handlePressFollow,
     handlePressLike,
     handlePressMusicPlayback,
     handleSeekMusicPlayback,
     likePendingFeedIds,
+    pendingTargetUserId,
     playbackProgress,
     playingFeedId,
     userId,

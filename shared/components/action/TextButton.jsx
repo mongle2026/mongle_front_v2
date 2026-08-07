@@ -1,5 +1,3 @@
-// shared/components/action/TextButton.jsx
-
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors } from '../../styles/color';
@@ -35,6 +33,7 @@ export const TextButton = ({
   variant = 'Solid',
   typography = DEFAULT_TYPOGRAPHY,
   disabled = false,
+  showDisabledStyle = true,
   onPress,
   style,
   textStyle,
@@ -51,7 +50,7 @@ export const TextButton = ({
       style={[
         styles.container,
         currentVariant.container,
-        disabled && styles.disabled,
+        disabled && showDisabledStyle && styles.disabled,
         style,
       ]}
       {...props}
@@ -76,7 +75,6 @@ const styles = StyleSheet.create({
     padding: padding.S,
     justifyContent: 'center',
     alignItems: 'center',
-
     borderWidth: 1,
     borderRadius: radius.XS,
   },

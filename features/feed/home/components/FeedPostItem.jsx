@@ -10,10 +10,12 @@ const FeedPostItem = ({
   userId,
   likeDisabled = false,
   bookmarkDisabled = false,
+  followDisabled = false,
   isMusicPlaying = false,
   musicPlaybackProgress = 0,
   onPressLike,
   onPressBookmark,
+  onPressFollow,
   onPressMusicPlayback,
   onSeekMusicPlayback,
 }) => {
@@ -28,6 +30,7 @@ const FeedPostItem = ({
   const musicPreviewUri = resolveMediaUri(music?.previewUrl);
 
   const isMine = Number(user?.userId) === Number(userId);
+  const isFollowing = Boolean(user?.isFollowing);
   const isLiked = Boolean(item?.isLiked);
   const isBookmarked = Boolean(item?.isBookmarked);
 
@@ -38,6 +41,10 @@ const FeedPostItem = ({
   const handleBookmark = useCallback(() => {
     onPressBookmark?.(item);
   }, [item, onPressBookmark]);
+
+  const handleFollow = useCallback(() => {
+    onPressFollow?.(item);
+  }, [item, onPressFollow]);
 
   const handleMusicPlayback = useCallback(() => {
     if (!musicPreviewUri) return;
@@ -70,11 +77,15 @@ const FeedPostItem = ({
         imageUri: profileImageUri,
         username: user?.userCode ?? '',
         showFollowButton: !isMine,
-        followLabel: '팔로우',
-        followDisabled: true,
+        followLabel: isFollowing ? '팔로잉' : '팔로우',
+        followVariant: isFollowing ? 'Ghost' : 'Solid',
+        followDisabled,
+        onPressFollow: handleFollow,
       }}
       musicProps={{
-        imageSource: musicArtworkUri ? { uri: musicArtworkUri } : undefined,
+        imageSource: musicArtworkUri
+          ? { uri: musicArtworkUri }
+          : undefined,
         title: music?.musicTitle ?? '',
         artist: music?.musicArtist ?? '',
         isPlaying: isMusicPlaying,
