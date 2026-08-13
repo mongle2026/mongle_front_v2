@@ -22,14 +22,15 @@ const Menu = ({
         <Item
           icon={IcPencil}
           label="수정"
+          color={colors.fgNeutralMuted}
           onPress={onPressEdit}
           disabled={editDisabled}
           accessibilityLabel="게시물 수정"
         />
-
         <Item
           icon={IcTrash}
           label="삭제"
+          color={colors.fgCritical}
           onPress={onPressDelete}
           disabled={deleteDisabled}
           accessibilityLabel="게시물 삭제"
@@ -45,7 +46,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.M,
     ...shadow.middleDown,
   },
-
   container: {
     alignSelf: 'flex-start',
     flexDirection: 'column',
