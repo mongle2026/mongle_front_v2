@@ -15,8 +15,23 @@ const Empty = ({
       {Icon && <Icon width={40} height={40} />}
 
       <View style={styles.textContainer}>
-        {title ? <Text style={styles.title}>{title}</Text> : null}
-        {body ? <Text style={styles.body}>{body}</Text> : null}
+        {title ? (
+          <Text
+            allowFontScaling={false}
+            style={styles.title}
+          >
+            {title}
+          </Text>
+        ) : null}
+
+        {body ? (
+          <Text
+            allowFontScaling={false}
+            style={styles.body}
+          >
+            {body}
+          </Text>
+        ) : null}
       </View>
     </View>
   );
@@ -27,31 +42,33 @@ export default Empty;
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+
     paddingVertical: padding.XL,
+
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+
     gap: gap.L,
   },
 
   textContainer: {
     flexDirection: 'column',
     alignItems: 'center',
+
     gap: gap.XS,
   },
 
   title: {
-    fontFamily: 'SUIT-Bold',
-    fontSize: 18,
-    lineHeight: 27,
-    letterSpacing: 0,
-    includeFontPadding: false,
+    ...typo.suitTitleMediumStrong,
+
     color: colors.fgPlaceholder,
     textAlign: 'center',
   },
 
   body: {
     ...typo.suitBodyLarge,
+
     color: colors.fgNeutralSubtle,
     textAlign: 'center',
   },

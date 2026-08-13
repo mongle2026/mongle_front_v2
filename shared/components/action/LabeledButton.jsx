@@ -9,7 +9,7 @@ const SIZE_CONFIG = {
   S: {
     iconSize: 12,
     containerStyle: {
-      paddingVertical: padding.S,
+      paddingVertical: padding.XS,
       paddingHorizontal: 0,
     },
   },

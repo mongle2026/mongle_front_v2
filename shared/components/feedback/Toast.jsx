@@ -7,6 +7,7 @@ import ButtonText from '../action/ButtonText';
 
 import { colors, shadow } from '../../styles/color';
 import { padding, gap, radius } from '../../styles/token';
+import { typo } from '../../styles/typo';
 
 const Toast = ({
   text = '기록을 북마크에 추가했습니다.',
@@ -16,7 +17,10 @@ const Toast = ({
   return (
     <View style={styles.container}>
       <View style={styles.sectionToast}>
-        <IcFilledCheck />
+        <IcFilledCheck
+          width={20}
+          height={20}
+        />
 
         <Text
           allowFontScaling={false}
@@ -28,6 +32,7 @@ const Toast = ({
 
         <ButtonText
           text={buttonText}
+          size="ButtonText"
           onPress={onPressButton}
         />
       </View>
@@ -54,9 +59,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
 
-    paddingTop: padding.XS,
+    paddingTop: padding.XXS,
     paddingRight: padding.L,
-    paddingBottom: padding.XS,
+    paddingBottom: padding.XXS,
     paddingLeft: padding.XL,
 
     gap: gap.M,
@@ -72,10 +77,6 @@ const styles = StyleSheet.create({
 
     color: colors.fgNeutralInverted,
 
-    fontFamily: 'SUIT-SemiBold',
-    fontSize: 14,
-    lineHeight: 17.5,
-
-    includeFontPadding: false,
+    ...typo.suitLabelLargeStrong,
   },
 });

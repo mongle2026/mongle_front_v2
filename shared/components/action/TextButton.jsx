@@ -4,13 +4,16 @@ import { colors } from '../../styles/color';
 import { padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
-const DEFAULT_TYPOGRAPHY = typo.kyoboLabelLarge;
+const TYPOGRAPHY_CONFIG = {
+  kyobo: typo.kyoboLabelLarge,
+  suit: typo.suitLabelLarge,
+};
 
-const variantStyles = {
+const VARIANT_STYLES = {
   Solid: {
     container: {
       backgroundColor: colors.bgBrandSolid,
-      borderColor: colors.bgBrandSolid,
+      borderWidth: 0,
     },
     text: {
       color: colors.fgNeutralInverted,
@@ -20,9 +23,40 @@ const variantStyles = {
   Ghost: {
     container: {
       backgroundColor: 'transparent',
+      borderWidth: 1,
       borderColor: colors.strokeBrandSolid,
     },
     text: {
+      color: colors.fgBrand,
+    },
+  },
+
+  Critical: {
+    container: {
+      paddingVertical: padding.L,
+      paddingHorizontal: padding.XL,
+
+      borderRadius: radius.M,
+      backgroundColor: colors.bgCriticalSolid,
+      borderWidth: 0,
+    },
+    text: {
+      ...typo.suitLabelXLargeStrong,
+      color: colors.fgNeutralInverted,
+    },
+  },
+
+  BrandWeak: {
+    container: {
+      paddingVertical: padding.L,
+      paddingHorizontal: padding.XL,
+
+      borderRadius: radius.M,
+      backgroundColor: colors.bgBrandWeak,
+      borderWidth: 0,
+    },
+    text: {
+      ...typo.suitLabelXLargeStrong,
       color: colors.fgBrand,
     },
   },
@@ -31,7 +65,7 @@ const variantStyles = {
 export const TextButton = ({
   children,
   variant = 'Solid',
-  typography = DEFAULT_TYPOGRAPHY,
+  font = 'kyobo',
   disabled = false,
   showDisabledStyle = true,
   onPress,
@@ -40,7 +74,15 @@ export const TextButton = ({
   ...props
 }) => {
   const currentVariant =
-    variantStyles[variant] ?? variantStyles.Solid;
+    VARIANT_STYLES[variant] ?? VARIANT_STYLES.Solid;
+
+  const isLargeButton =
+    variant === 'Critical' ||
+    variant === 'BrandWeak';
+
+  const currentTypography = isLargeButton
+    ? null
+    : TYPOGRAPHY_CONFIG[font] ?? TYPOGRAPHY_CONFIG.kyobo;
 
   return (
     <Pressable
@@ -56,9 +98,10 @@ export const TextButton = ({
       {...props}
     >
       <Text
+        allowFontScaling={false}
         numberOfLines={1}
         style={[
-          typography,
+          currentTypography,
           currentVariant.text,
           textStyle,
         ]}
@@ -71,11 +114,14 @@ export const TextButton = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    padding: padding.S,
+    alignSelf: 'flex-start',
+
+    paddingVertical: padding.XXS,
+    paddingHorizontal: padding.XS,
+
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+
     borderRadius: radius.XS,
   },
 
