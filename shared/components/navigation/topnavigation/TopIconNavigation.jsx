@@ -10,6 +10,7 @@ import IcKebab from '../../../../assets/icons/ic_kebab.svg';
 
 import { colors } from '../../../styles/color';
 import { padding } from '../../../styles/token';
+import { typo } from '../../../styles/typo';
 
 const ICON_SIZE = 18;
 
