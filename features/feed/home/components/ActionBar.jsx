@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View, } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import IcBookmarkFill from '../../../../assets/icons/ic_bookmark_fill.svg';
 import IcBookmarkStroke from '../../../../assets/icons/ic_bookmark_stroke.svg';
@@ -7,8 +7,9 @@ import IcComment from '../../../../assets/icons/ic_comment.svg';
 import IcHeartFill from '../../../../assets/icons/ic_heart_fill.svg';
 import IcHeartStroke from '../../../../assets/icons/ic_heart_stroke.svg';
 
-import AnimatedLabeledButton, { ANIMATION_TYPE, } from '../../../../shared/components/action/AnimatedLabeledButton';
-
+import AnimatedLabeledButton, {
+  ANIMATION_TYPE,
+} from '../../../../shared/components/action/AnimatedLabeledButton';
 import LabeledButton from '../../../../shared/components/action/LabeledButton';
 
 import { colors } from '../../../../shared/styles/color';
@@ -20,6 +21,7 @@ const ActionBar = ({
   createdAt,
   isLiked = false,
   isBookmarked = false,
+  bookmarkCount,
 
   likeDisabled = false,
   bookmarkDisabled = false,
@@ -34,9 +36,15 @@ const ActionBar = ({
     ? formatDateDetail(createdAt)
     : '';
 
+  const bookmarkLabel =
+    Number(bookmarkCount) > 0
+      ? String(bookmarkCount)
+      : undefined;
+
   return (
     <View style={[styles.container, style]}>
       <Text
+        allowFontScaling={false}
         numberOfLines={1}
         ellipsizeMode="tail"
         style={styles.date}
@@ -72,6 +80,7 @@ const ActionBar = ({
         />
 
         <AnimatedLabeledButton
+          label={bookmarkLabel}
           size="M"
           isActive={isBookmarked}
           activeIcon={IcBookmarkFill}
@@ -96,18 +105,24 @@ const ActionBar = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: padding.S,
+
+    paddingVertical: padding.XS,
     paddingHorizontal: padding.L,
+
     backgroundColor: colors.bgLayerDefault,
   },
 
   date: {
     ...typo.suitLabelMedium,
+
     flex: 1,
     minWidth: 0,
+
     color: colors.fgPlaceholder,
+    textAlign: 'justify',
   },
 
   actions: {

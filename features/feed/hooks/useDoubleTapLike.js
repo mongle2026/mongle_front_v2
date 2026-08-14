@@ -1,46 +1,54 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
-const DEFAULT_DOUBLE_TAP_DELAY = 300;
-const DEFAULT_DOUBLE_TAP_COOLDOWN = 350;
+const DOUBLE_TAP_DELAY = 300;
+const DOUBLE_TAP_COOLDOWN = 350;
 
 export default function useDoubleTapLike({
   isLiked = false,
   disabled = false,
   onLike,
-  doubleTapDelay = DEFAULT_DOUBLE_TAP_DELAY,
-  cooldown = DEFAULT_DOUBLE_TAP_COOLDOWN,
+  onSingleTap,
+  doubleTapDelay = DOUBLE_TAP_DELAY,
+  cooldown = DOUBLE_TAP_COOLDOWN,
 } = {}) {
   const likeButtonRef = useRef(null);
-  const lastTapAtRef = useRef(0);
-  const lastDoubleTapAtRef = useRef(0);
+  const lastTapRef = useRef(0);
+  const lastLikeRef = useRef(0);
+  const singleTapTimerRef = useRef(null);
 
   const handleTap = useCallback(() => {
-    if (disabled) return;
-
     const now = Date.now();
 
-    if (now - lastDoubleTapAtRef.current < cooldown) {
+    if (now - lastLikeRef.current < cooldown) {
       return;
     }
 
-    const elapsedSinceLastTap = now - lastTapAtRef.current;
+    if (now - lastTapRef.current < doubleTapDelay) {
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+        singleTapTimerRef.current = null;
+      }
 
-    lastTapAtRef.current = now;
+      lastTapRef.current = 0;
+      lastLikeRef.current = now;
 
-    if (
-      elapsedSinceLastTap <= 0 ||
-      elapsedSinceLastTap > doubleTapDelay
-    ) {
+      likeButtonRef.current?.bounce();
+
+      if (!isLiked && !disabled) {
+        onLike?.();
+      }
+
       return;
     }
 
-    lastTapAtRef.current = 0;
-    lastDoubleTapAtRef.current = now;
+    lastTapRef.current = now;
 
-    likeButtonRef.current?.bounce();
-
-    if (!isLiked) {
-      onLike?.();
+    if (onSingleTap) {
+      singleTapTimerRef.current = setTimeout(() => {
+        lastTapRef.current = 0;
+        singleTapTimerRef.current = null;
+        onSingleTap();
+      }, doubleTapDelay);
     }
   }, [
     cooldown,
@@ -48,7 +56,16 @@ export default function useDoubleTapLike({
     doubleTapDelay,
     isLiked,
     onLike,
+    onSingleTap,
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+      }
+    };
+  }, []);
 
   return {
     likeButtonRef,

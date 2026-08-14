@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import useFollow from '../../../../shared/hooks/useFollow';
 import { feedHomeKeys } from './feedHomeCache';
-import useFeedToggleMutation from './useFeedToggleMutation';
+import useFeedToggleMutation from '../../hooks/useFeedToggleMutation';
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
