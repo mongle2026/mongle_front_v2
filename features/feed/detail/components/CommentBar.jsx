@@ -1,104 +1,262 @@
-import React, { memo, useCallback, useEffect, useState, } from 'react';
-import { Pressable, StyleSheet, TextInput, View, } from 'react-native';
+import React, { memo, useCallback, useEffect, useRef, useState, } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View, } from 'react-native';
 
-import ProfileImg from '../../../../shared/atomic/ProfileImg';
-import ArrowIcon from '../../../../assets/icons/ic_arrow.svg';
+import ProfileImg from '../../../../shared/components/atomic/ProfileImg';
+import IconButton from '../../../../shared/components/action/IconButton';
+
+import IcArrowUp from '../../../../assets/icons/ic_arrowup.svg';
 
 import { colors } from '../../../../shared/styles/color';
-import { gap, padding, radius, } from '../../../../shared/styles/token';
+import {
+  gap,
+  padding,
+  radius,
+} from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
 
-const INPUT_LINE_HEIGHT = typo.suitLabelLarge.lineHeight;
+const MAX_COMMENT_LENGTH = 400;
 
-// 입력창 내부 텍스트 영역 기준
-const MIN_INPUT_HEIGHT = 20;
-const MAX_INPUT_HEIGHT = INPUT_LINE_HEIGHT * 4;
+const INPUT_LINE_HEIGHT = 21;
+const INPUT_MIN_HEIGHT = INPUT_LINE_HEIGHT;
+const INPUT_MAX_HEIGHT = INPUT_LINE_HEIGHT * 4;
 
 const CommentBar = ({
-  authorId,
-  profileImageUri,
   value = '',
   onChangeText,
   onSubmit,
+
+  profileImageUri,
+  targetUsername,
+
+  focusRequestKey = 0,
+
   disabled = false,
+  style,
 }) => {
+  const inputRef = useRef(null);
+
+  // 답글 버튼으로 강제 재포커스할지
+  const forceRefocusRef = useRef(false);
+
+  // 강제 재포커스 과정의 blur에서는
+  // CommentBar를 기본 상태로 닫지 않음
+  const ignoreNextBlurRef = useRef(false);
+
+  const [isEditing, setIsEditing] = useState(false);
   const [inputHeight, setInputHeight] =
-    useState(MIN_INPUT_HEIGHT);
-  const [isScrollable, setIsScrollable] =
-    useState(false);
+    useState(INPUT_MIN_HEIGHT);
 
-  const normalizedAuthorId =
-    authorId?.replace(/^@/, '') ?? '';
+  const textLength = value.length;
+  const isOverLimit =
+    textLength > MAX_COMMENT_LENGTH;
 
-  const placeholder = normalizedAuthorId
-    ? `@${normalizedAuthorId}로 댓글 작성`
-    : '댓글 작성';
+  const hasText =
+    value.trim().length > 0;
 
-  const trimmedValue = value.trim();
+  const isSubmitDisabled =
+    disabled ||
+    !hasText ||
+    isOverLimit;
 
-  const canSubmit =
-    trimmedValue.length > 0 && !disabled;
+  const openEditor = useCallback(() => {
+    setIsEditing(true);
+  }, []);
 
+  // 외부에서 "답글 달기"를 누른 경우
   useEffect(() => {
-    if (value.length === 0) {
-      setInputHeight(MIN_INPUT_HEIGHT);
-      setIsScrollable(false);
+    if (focusRequestKey <= 0) {
+      return;
+    }
+
+    forceRefocusRef.current = true;
+    setIsEditing(true);
+  }, [focusRequestKey]);
+
+  // TextInput 렌더링 후 focus
+  // 이미 focus 상태라면 한번 blur 후 다시 focus해서
+  // 키보드를 확실하게 다시 올림
+  useEffect(() => {
+    if (!isEditing) {
+      return;
+    }
+
+    let refocusFrame = null;
+
+    const focusFrame =
+      requestAnimationFrame(() => {
+        const input =
+          inputRef.current;
+
+        if (!input) {
+          return;
+        }
+
+        const shouldForceRefocus =
+          forceRefocusRef.current;
+
+        if (
+          shouldForceRefocus &&
+          input.isFocused?.()
+        ) {
+          ignoreNextBlurRef.current =
+            true;
+
+          input.blur();
+
+          refocusFrame =
+            requestAnimationFrame(() => {
+              forceRefocusRef.current =
+                false;
+
+              inputRef.current?.focus();
+            });
+
+          return;
+        }
+
+        forceRefocusRef.current =
+          false;
+
+        input.focus();
+      });
+
+    return () => {
+      cancelAnimationFrame(
+        focusFrame,
+      );
+
+      if (refocusFrame !== null) {
+        cancelAnimationFrame(
+          refocusFrame,
+        );
+      }
+    };
+  }, [
+    isEditing,
+    focusRequestKey,
+  ]);
+
+  const handleBlur = useCallback(() => {
+    // 답글 버튼을 눌러 강제로
+    // blur → focus 하는 과정이라면
+    // CommentBar를 닫지 않음
+    if (ignoreNextBlurRef.current) {
+      ignoreNextBlurRef.current =
+        false;
+
+      return;
+    }
+
+    if (!value.trim()) {
+      setIsEditing(false);
+      setInputHeight(
+        INPUT_MIN_HEIGHT,
+      );
     }
   }, [value]);
 
   const handleContentSizeChange = useCallback(
-    ({ nativeEvent }) => {
+    (event) => {
       const contentHeight =
-        nativeEvent.contentSize.height;
+        event.nativeEvent.contentSize.height;
 
       const nextHeight = Math.min(
         Math.max(
-          Math.ceil(contentHeight),
-          MIN_INPUT_HEIGHT
+          contentHeight,
+          INPUT_MIN_HEIGHT,
         ),
-        MAX_INPUT_HEIGHT
+        INPUT_MAX_HEIGHT,
       );
 
       setInputHeight(nextHeight);
-      setIsScrollable(
-        contentHeight > MAX_INPUT_HEIGHT
-      );
     },
-    []
+    [],
   );
 
   const handleSubmit = useCallback(() => {
-    if (!canSubmit) {
+    if (isSubmitDisabled) {
       return;
     }
 
-    onSubmit?.(trimmedValue);
-  }, [canSubmit, onSubmit, trimmedValue]);
+    onSubmit?.(value.trim());
+  }, [
+    isSubmitDisabled,
+    onSubmit,
+    value,
+  ]);
+
+  if (!isEditing) {
+    return (
+      <View
+        style={[
+          styles.container,
+          style,
+        ]}
+      >
+        <View style={styles.defaultBar}>
+          <ProfileImg
+            imageUri={profileImageUri}
+            size="S"
+          />
+
+          <Pressable
+            onPress={openEditor}
+            style={styles.placeholderButton}
+            accessibilityRole="button"
+            accessibilityLabel="댓글 작성"
+          >
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={styles.placeholder}
+            >
+              댓글을 남겨보세요.
+            </Text>
+          </Pressable>
+
+          <IconButton
+            size="S"
+            icon={
+              <IcArrowUp
+                width={14}
+                height={14}
+                color={colors.fgBrand}
+              />
+            }
+            disabled
+            accessibilityLabel="댓글 등록"
+          />
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <ProfileImg
-        imageUri={profileImageUri}
-        size="L"
-      />
-
+    <View
+      style={[
+        styles.container,
+        style,
+      ]}
+    >
       <View style={styles.textField}>
         <TextInput
+          ref={inputRef}
           value={value}
           onChangeText={onChangeText}
-          placeholder={placeholder}
+          onBlur={handleBlur}
+          onContentSizeChange={
+            handleContentSizeChange
+          }
+          placeholder="댓글을 남겨보세요."
           placeholderTextColor={
             colors.fgPlaceholder
           }
           multiline
-          editable={!disabled}
-          scrollEnabled={isScrollable}
-          onContentSizeChange={
-            handleContentSizeChange
+          scrollEnabled={
+            inputHeight >= INPUT_MAX_HEIGHT
           }
           textAlignVertical="top"
-          underlineColorAndroid="transparent"
-          accessibilityLabel="댓글 입력"
+          selectionColor={colors.fgBrand}
           style={[
             styles.input,
             {
@@ -106,20 +264,65 @@ const CommentBar = ({
             },
           ]}
         />
+      </View>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="댓글 등록"
-          hitSlop={8}
-          disabled={!canSubmit}
-          onPress={handleSubmit}
-          style={styles.submitButton}
-        >
-          <ArrowIcon
-            width={20}
-            height={20}
+      <View style={styles.profileBar}>
+        <ProfileImg
+          imageUri={profileImageUri}
+          size="S"
+        />
+
+        <View style={styles.idContainer}>
+          {!!targetUsername && (
+            <>
+              <Text
+                numberOfLines={1}
+                style={styles.targetId}
+              >
+                @{targetUsername}
+              </Text>
+
+              <Text
+                numberOfLines={1}
+                style={styles.targetDescription}
+              >
+                님에게 댓글 작성
+              </Text>
+            </>
+          )}
+        </View>
+
+        <View style={styles.actionBar}>
+          <View style={styles.countContainer}>
+            <Text
+              style={[
+                styles.currentCount,
+                isOverLimit &&
+                styles.currentCountCritical,
+              ]}
+            >
+              {textLength}
+            </Text>
+
+            <Text style={styles.maxCount}>
+              /{MAX_COMMENT_LENGTH}
+            </Text>
+          </View>
+
+          <IconButton
+            size="S"
+            icon={
+              <IcArrowUp
+                width={14}
+                height={14}
+                color={colors.fgBrand}
+              />
+            }
+            onPress={handleSubmit}
+            disabled={isSubmitDisabled}
+            accessibilityLabel="댓글 등록"
           />
-        </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -128,56 +331,140 @@ const CommentBar = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    gap: gap.S,
-
     paddingVertical: padding.M,
     paddingHorizontal: padding.L,
+
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: gap.M,
 
     borderTopWidth: 0.5,
     borderTopColor: colors.strokeBrandWeak,
+
     backgroundColor: colors.bgLayerDefault,
   },
 
-  textField: {
+  // 기본 상태
+  defaultBar: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: gap.M,
+  },
+
+  placeholderButton: {
     flex: 1,
-    alignSelf: 'stretch',
     minWidth: 0,
+    justifyContent: 'center',
+  },
+
+  placeholder: {
+    ...typo.suitBodyLarge,
+
+    width: '100%',
+
+    overflow: 'hidden',
+
+    color: colors.fgPlaceholder,
+    textAlign: 'justify',
+  },
+
+  // 입력 상태
+  textField: {
+    width: '100%',
+    alignSelf: 'stretch',
 
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: gap.S,
-
-    paddingVertical: padding.M,
-    paddingHorizontal: padding.L,
+    alignItems: 'flex-end',
 
     borderRadius: radius.S,
-    backgroundColor: colors.bgBrandWeak,
+    overflow: 'hidden',
   },
 
   input: {
-    flex: 1,
-    minWidth: 0,
-    padding: 0,
+    ...typo.suitBodyLarge,
+
+    width: '100%',
+    minHeight: INPUT_MIN_HEIGHT,
+    maxHeight: INPUT_MAX_HEIGHT,
+
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    margin: 0,
 
     color: colors.fgBrand,
-
-    ...typo.suitLabelLarge,
-
-    // 입력 중인 문장은 좌측 정렬이 자연스럽고,
-    // iOS와 Android 간 결과도 더 일관적입니다.
-    textAlign: 'left',
+    textAlign: 'justify',
   },
 
-  submitButton: {
-    width: 20,
-    height: 20,
-    flexShrink: 0,
-    justifyContent: 'center',
+  profileBar: {
+    width: '100%',
+
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: gap.M,
+  },
+
+  idContainer: {
+    flex: 1,
+    minWidth: 0,
+
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+
+    overflow: 'hidden',
+  },
+
+  targetId: {
+    ...typo.suitLabelMedium,
+
+    flexShrink: 1,
+
+    color: colors.fgNeutralSubtlest,
+    textAlign: 'justify',
+  },
+
+  targetDescription: {
+    ...typo.suitLabelMedium,
+
+    flexShrink: 0,
+
+    color: colors.fgNeutralSubtlest,
+    textAlign: 'justify',
+  },
+
+  actionBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: gap.M,
+
+    flexShrink: 0,
+  },
+
+  countContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+  },
+
+  currentCount: {
+    ...typo.suitLabelMediumStrong,
+
+    color: colors.fgNeutralSubtle,
+    textAlign: 'right',
+  },
+
+  currentCountCritical: {
+    color: colors.fgCritical,
+  },
+
+  maxCount: {
+    ...typo.suitLabelMediumStrong,
+
+    color: colors.fgNeutralSubtlest,
+    textAlign: 'right',
   },
 });
 

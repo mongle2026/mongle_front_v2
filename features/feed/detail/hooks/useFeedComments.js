@@ -1,170 +1,289 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import axios from 'axios';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+import { resolveMediaUri } from '../../../../shared/utils/media';
+import { formatDateDetail } from '../../utils/formatDate';
+
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+
+const normalizeComment = ({
+  comment,
+  depth,
+  currentUserId,
+  rootCommentId,
+}) => {
+  if (!comment) {
+    return null;
+  }
+
+  return {
+    commentId: Number(comment.commentId),
+    feedId: Number(comment.feedId),
+    userId: Number(comment.userId),
+
+    userCode:
+      comment.user?.userCode ??
+      `user_${comment.userId}`,
+
+    comment: comment.content ?? '',
+
+    createdAt: comment.createdAt
+      ? formatDateDetail(comment.createdAt)
+      : '',
+
+    profileImageUrl: resolveMediaUri(
+      comment.user?.profileImageUrl,
+    ),
+
+    depth,
+
+    parentCommentId:
+      comment.parentCommentId != null
+        ? Number(comment.parentCommentId)
+        : null,
+
+    rootCommentId:
+      rootCommentId != null
+        ? Number(rootCommentId)
+        : null,
+
+    isMine:
+      Number(comment.userId) ===
+      Number(currentUserId),
+  };
+};
+
+const normalizeCommentGroups = (
+  groups,
+  currentUserId,
+) => {
+  if (!Array.isArray(groups)) {
+    return [];
+  }
+
+  return groups.flatMap(root => {
+    const rootId = Number(root.commentId);
+
+    const normalizedRoot =
+      normalizeComment({
+        comment: root,
+        depth: 0,
+        currentUserId,
+        rootCommentId: rootId,
+      });
+
+    const replies = Array.isArray(
+      root.replies,
+    )
+      ? root.replies
+          .map(reply =>
+            normalizeComment({
+              comment: reply,
+              depth: 1,
+              currentUserId,
+              rootCommentId: rootId,
+            }),
+          )
+          .filter(Boolean)
+      : [];
+
+    return normalizedRoot
+      ? [normalizedRoot, ...replies]
+      : replies;
+  });
+};
 
 export default function useFeedComments({
   feedId,
   userId,
   enabled = true,
 }) {
-  const [comments, setComments] = useState([]);
-  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const queryClient = useQueryClient();
 
-  const [commentText, setCommentText] = useState('');
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-  const [replyTarget, setReplyTarget] = useState(null);
+  const isConfigured =
+    Boolean(API_BASE_URL);
 
-  const [isDeletingComment, setIsDeletingComment] = useState(false);
+  const normalizedFeedId =
+    feedId != null
+      ? String(feedId)
+      : '';
 
-  const getCommentProfileSource = useCallback((profileImageUrl) => {
-    if (!profileImageUrl) {
-      return null;
-    }
+  const queryKey = [
+    'feed-comments',
+    normalizedFeedId,
+    Number(userId),
+  ];
 
-    if (profileImageUrl.startsWith('http')) {
-      return { uri: profileImageUrl };
-    }
+  const {
+    data: comments = [],
+    isLoading: isLoadingComments,
+    isFetching: isFetchingComments,
+    isError: isCommentsError,
+    error: commentsError,
+    refetch: refetchComments,
+  } = useQuery({
+    queryKey,
 
-    return { uri: `${API_BASE_URL}${profileImageUrl}` };
-  }, []);
-
-  const getComments = useCallback(async () => {
-    if (!feedId || !userId) {
-      return;
-    }
-
-    try {
-      setIsLoadingComments(true);
-
-      const { data } = await axios.get(
+    queryFn: async () => {
+      const response = await axios.get(
         `${API_BASE_URL}/feed/${feedId}/comments`,
         {
           params: {
             userId,
           },
-        }
-      );
-
-      setComments(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error(error);
-      setComments([]);
-    } finally {
-      setIsLoadingComments(false);
-    }
-  }, [feedId, userId]);
-
-  const handleCreateComment = useCallback(async () => {
-    const content = commentText.trim();
-
-    if (!content || isSubmittingComment) {
-      return;
-    }
-
-    try {
-      setIsSubmittingComment(true);
-
-      await axios.post(
-        `${API_BASE_URL}/feed/${feedId}/comments`,
-        {
-          content,
-          ...(replyTarget
-            ? { parentCommentId: replyTarget.commentId }
-            : {}),
         },
-        {
-          params: {
-            userId,
-          },
+      );
+
+      return response.data;
+    },
+
+    select: data =>
+      normalizeCommentGroups(
+        data,
+        userId,
+      ),
+
+    enabled:
+      enabled &&
+      isConfigured &&
+      Number(feedId) > 0 &&
+      Number(userId) > 0,
+
+    staleTime: 10_000,
+  });
+
+  const createCommentMutation =
+    useMutation({
+      mutationFn: async ({
+        content,
+        parentCommentId = null,
+      }) => {
+        const normalizedContent =
+          String(content ?? '').trim();
+
+        if (!normalizedContent) {
+          throw new Error(
+            '댓글 내용이 없습니다.',
+          );
         }
-      );
 
-      setCommentText('');
-      setReplyTarget(null);
-      await getComments();
-    } catch (error) {
-      console.error(error);
+        const response =
+          await axios.post(
+            `${API_BASE_URL}/feed/${feedId}/comments`,
+            {
+              content:
+                normalizedContent,
 
-      Alert.alert(
-        '댓글 작성 실패',
-        error.response?.data?.message ?? '댓글을 작성하지 못했습니다.'
-      );
-    } finally {
-      setIsSubmittingComment(false);
-    }
-  }, [
-    commentText,
-    isSubmittingComment,
-    feedId,
-    userId,
-    replyTarget,
-    getComments,
-  ]);
+              ...(parentCommentId
+                ? {
+                    parentCommentId:
+                      Number(
+                        parentCommentId,
+                      ),
+                  }
+                : {}),
+            },
+            {
+              params: {
+                userId,
+              },
+            },
+          );
 
-  const handleDeleteComment = useCallback(async (commentDeleteTarget) => {
-    if (!commentDeleteTarget || isDeletingComment) {
-      return false;
-    }
+        return response.data;
+      },
 
-    try {
-      setIsDeletingComment(true);
-
-      await axios.delete(
-        `${API_BASE_URL}/feed/${feedId}/comments/${commentDeleteTarget.commentId}`,
-        {
-          params: {
-            userId,
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(
+          {
+            queryKey,
+            exact: true,
           },
-        }
-      );
+        );
+      },
 
-      await getComments();
-      return true;
-    } catch (error) {
-      console.error(error);
+      onError: error => {
+        console.warn(
+          '댓글 작성에 실패했습니다.',
+          error.response?.data ??
+            error.message,
+        );
 
-      Alert.alert(
-        '댓글 삭제 실패',
-        error.response?.data?.message ?? '댓글을 삭제하지 못했습니다.'
-      );
+        Alert.alert(
+          '댓글 작성 실패',
+          error.response?.data?.message ??
+            '댓글을 작성하지 못했습니다.',
+        );
+      },
+    });
 
-      return false;
-    } finally {
-      setIsDeletingComment(false);
-    }
-  }, [
-    feedId,
-    userId,
-    isDeletingComment,
-    getComments,
-  ]);
+  const deleteCommentMutation =
+    useMutation({
+      mutationFn: async commentId => {
+        const response =
+          await axios.delete(
+            `${API_BASE_URL}/feed/${feedId}/comments/${commentId}`,
+            {
+              params: {
+                userId,
+              },
+            },
+          );
 
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
+        return response.data;
+      },
 
-    getComments();
-  }, [enabled, getComments]);
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(
+          {
+            queryKey,
+            exact: true,
+          },
+        );
+      },
+
+      onError: error => {
+        console.warn(
+          '댓글 삭제에 실패했습니다.',
+          error.response?.data ??
+            error.message,
+        );
+
+        Alert.alert(
+          '댓글 삭제 실패',
+          error.response?.data?.message ??
+            '댓글을 삭제하지 못했습니다.',
+        );
+      },
+    });
 
   return {
     comments,
+
+    isConfigured,
     isLoadingComments,
+    isFetchingComments,
+    isCommentsError,
+    commentsError,
 
-    commentText,
-    setCommentText,
-    isSubmittingComment,
+    createComment:
+      createCommentMutation.mutateAsync,
 
-    replyTarget,
-    setReplyTarget,
+    isCreatingComment:
+      createCommentMutation.isPending,
 
-    isDeletingComment,
+    deleteComment:
+      deleteCommentMutation.mutateAsync,
 
-    getCommentProfileSource,
-    handleCreateComment,
-    handleDeleteComment,
-    getComments,
+    isDeletingComment:
+      deleteCommentMutation.isPending,
+
+    refetchComments,
   };
 }

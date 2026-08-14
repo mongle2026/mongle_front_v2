@@ -1,70 +1,119 @@
-import React, { memo } from 'react';
-import { StyleSheet, Text, View, } from 'react-native';
+import React, { memo, useRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
-import CommentIcon from '../../../../assets/icons/ic_comment.svg';
+import IcComment from '../../../../assets/icons/ic_comment.svg';
+import IcKebab from '../../../../assets/icons/ic_kebab.svg';
 
-import ProfileImg from '../../../../shared/atomic/ProfileImg';
-import LabeledButton from '../../../../shared/atomic/LabeledButton';
+import IconButton from '../../../../shared/components/action/IconButton';
+import LabeledButton from '../../../../shared/components/action/LabeledButton';
+import ProfileImg from '../../../../shared/components/atomic/ProfileImg';
 
 import { colors } from '../../../../shared/styles/color';
-import { gap, padding, radius, } from '../../../../shared/styles/token';
+import { gap, padding, radius } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
 
-const REPLY_PADDING_LEFT = 56;
-
 const Comment = ({
-  profileImageUri,
-  userId,
-  createdAtLabel,
-  content,
-  isReply = false,
+  userCode,
+  comment,
+  createdAt,
+  profileImageUrl,
+  depth = 0,
+  onPressMenu,
   onPressReply,
+  showMenu = true,
+  isMenuOpen = false,
   style,
 }) => {
+  const isReply = depth > 0;
+  const menuButtonRef = useRef(null);
+
+  const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
+
+  const handlePressMenu = () => {
+    menuButtonRef.current?.measureInWindow(
+      (x, y, width, height) => {
+        onPressMenu?.({
+          x,
+          y,
+          width,
+          height,
+        });
+      },
+    );
+  };
+
   return (
     <View
       style={[
-        styles.wrapper,
-        isReply && styles.replyWrapper,
+        styles.container,
+        isReply && styles.replyContainer,
         style,
       ]}
     >
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.content,
+          isMenuOpen && styles.menuOpenContent,
+        ]}
+      >
         <ProfileImg
-          imageUri={profileImageUri}
-          size="L"
+          imageUri={profileImageUrl}
+          size={isReply ? 'M' : 'L'}
         />
 
-        <View style={styles.contentContainer}>
-          <View style={styles.metaContainer}>
+        <View style={styles.body}>
+          <View style={styles.header}>
             <Text
               numberOfLines={1}
+              ellipsizeMode="tail"
               style={styles.userId}
             >
-              {userId}
+              @{normalizedUserCode}
             </Text>
 
-            <Text
-              numberOfLines={1}
-              style={styles.createdAt}
-            >
-              {createdAtLabel}
+            <Text style={styles.date}>
+              {createdAt}
             </Text>
+
+            {showMenu && (
+              <View
+                ref={menuButtonRef}
+                collapsable={false}
+                style={styles.menuButton}
+              >
+                <IconButton
+                  size="S"
+                  icon={
+                    <IcKebab
+                      width={14}
+                      height={14}
+                      color={colors.fgDeactivate}
+                    />
+                  }
+                  onPress={handlePressMenu}
+                  accessibilityLabel="댓글 메뉴"
+                />
+              </View>
+            )}
           </View>
 
-          <Text style={styles.content}>
-            {content}
+          <Text style={styles.comment}>
+            {comment}
           </Text>
 
           <LabeledButton
             label="답글 달기"
-            icon={<CommentIcon />}
+            icon={<IcComment />}
             size="S"
             font="suit"
             color={colors.fgNeutralSubtlest}
             iconColor={colors.fgNeutralSubtlest}
-            accessibilityLabel={`${userId}님 댓글에 답글 달기`}
             onPress={onPressReply}
+            accessibilityLabel="답글 달기"
           />
         </View>
       </View>
@@ -73,41 +122,46 @@ const Comment = ({
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
+  container: {
     width: '100%',
-    padding: padding.S,
+    paddingVertical: padding.XS,
+    paddingHorizontal: padding.M,
     flexDirection: 'column',
     alignItems: 'flex-start',
     backgroundColor: colors.bgLayerDefault,
   },
 
-  /*
-   * 답글의 실제 깊이와 상관없이 모든 답글에
-   * 동일한 왼쪽 여백을 적용합니다.
-   */
-  replyWrapper: {
-    paddingLeft: REPLY_PADDING_LEFT,
+  replyContainer: {
+    paddingTop: padding.S,
+    paddingRight: padding.S,
+    paddingBottom: padding.S,
+    paddingLeft: 56,
   },
 
-  container: {
-    alignSelf: 'stretch',
+  content: {
+    width: '100%',
+    padding: padding.M,
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: gap.M,
-    padding: padding.M,
     borderRadius: radius.M,
+    backgroundColor: colors.bgLayerDefault,
   },
 
-  contentContainer: {
+  menuOpenContent: {
+    backgroundColor: colors.bgLayerBasement,
+  },
+
+  body: {
     flex: 1,
+    minWidth: 0,
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: gap.S,
-    minWidth: 0,
   },
 
-  metaContainer: {
-    alignSelf: 'stretch',
+  header: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: gap.S,
@@ -119,14 +173,20 @@ const styles = StyleSheet.create({
     color: colors.fgNeutralSubtle,
   },
 
-  createdAt: {
+  date: {
     ...typo.suitLabelMedium,
     flex: 1,
+    minWidth: 0,
     color: colors.fgNeutralSubtlest,
   },
 
-  content: {
+  menuButton: {
+    marginLeft: 'auto',
+  },
+
+  comment: {
     ...typo.suitBodyLarge,
+    width: '100%',
     alignSelf: 'stretch',
     color: colors.fgNeutralMuted,
   },
