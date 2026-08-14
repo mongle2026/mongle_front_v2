@@ -1,76 +1,75 @@
-import { useCallback, useMemo } from 'react';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import {useMemo} from 'react';
+import {useInfiniteQuery,useQueryClient} from '@tanstack/react-query';
 import axios from 'axios';
-
 import useFollow from '../../../../shared/hooks/useFollow';
-import { feedHomeKeys } from './feedHomeCache';
-import useFeedToggleMutation from '../../hooks/useFeedToggleMutation';
+import {feedHomeKeys} from './feedHomeCache';
+import useFeedActions from '../../hooks/useFeedActions';
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+const API_BASE_URL=
+  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/,'');
 
-const FEED_LIMIT = 20;
+const FEED_LIMIT=20;
 
-function normalizeFeedItem(item) {
-  if (!item?.feedId) return null;
+function normalizeFeedItem(item){
+  if(!item?.feedId)return null;
 
-  return {
+  return{
     ...item,
-    user: {
-      ...(item.user ?? {}),
-      isFollowing: Boolean(item?.user?.isFollowing),
+    user:{
+      ...(item.user??{}),
+      isFollowing:Boolean(item?.user?.isFollowing),
     },
-    record: item.record ?? {},
-    music: item.music ?? null,
-    files: Array.isArray(item.files) ? item.files : [],
-    isLiked: Boolean(item.isLiked),
-    isBookmarked: Boolean(item.isBookmarked),
-    likeCount: Number(item.likeCount ?? 0),
-    bookmarkCount: Number(item.bookmarkCount ?? 0),
+    record:item.record??{},
+    music:item.music??null,
+    files:Array.isArray(item.files)?item.files:[],
+    isLiked:Boolean(item.isLiked),
+    isBookmarked:Boolean(item.isBookmarked),
+    likeCount:Number(item.likeCount??0),
+    bookmarkCount:Number(item.bookmarkCount??0),
   };
 }
 
-function normalizeFeedPage(data) {
-  const rawItems = Array.isArray(data)
-    ? data
-    : Array.isArray(data?.items)
-      ? data.items
-      : [];
+function normalizeFeedPage(data){
+  const rawItems=Array.isArray(data)
+    ?data
+    :Array.isArray(data?.items)
+      ?data.items
+      :[];
 
-  const nextCursor = Array.isArray(data)
-    ? null
-    : data?.nextCursor ?? null;
+  const nextCursor=Array.isArray(data)
+    ?null
+    :data?.nextCursor??null;
 
-  const hasNext = Array.isArray(data)
-    ? false
-    : typeof data?.hasNext === 'boolean'
-      ? data.hasNext
-      : nextCursor !== null && nextCursor !== undefined;
+  const hasNext=Array.isArray(data)
+    ?false
+    :typeof data?.hasNext==='boolean'
+      ?data.hasNext
+      :nextCursor!==null&&nextCursor!==undefined;
 
-  return {
-    items: rawItems.map(normalizeFeedItem).filter(Boolean),
+  return{
+    items:rawItems.map(normalizeFeedItem).filter(Boolean),
     nextCursor,
     hasNext,
   };
 }
 
-function updateFollowState(data, targetUserId, nextFollowing) {
-  if (!data?.pages) return data;
+function updateFollowState(data,targetUserId,nextFollowing){
+  if(!data?.pages)return data;
 
-  const targetId = String(targetUserId);
+  const targetId=String(targetUserId);
 
-  return {
+  return{
     ...data,
-    pages: data.pages.map(page => ({
+    pages:data.pages.map(page=>({
       ...page,
-      items: page.items.map(item => {
-        if (String(item?.user?.userId) !== targetId) return item;
+      items:page.items.map(item=>{
+        if(String(item?.user?.userId)!==targetId)return item;
 
-        return {
+        return{
           ...item,
-          user: {
+          user:{
             ...item.user,
-            isFollowing: nextFollowing,
+            isFollowing:nextFollowing,
           },
         };
       }),
@@ -78,17 +77,17 @@ function updateFollowState(data, targetUserId, nextFollowing) {
   };
 }
 
-function removeUserFromFeed(data, targetUserId) {
-  if (!data?.pages) return data;
+function removeUserFromFeed(data,targetUserId){
+  if(!data?.pages)return data;
 
-  const targetId = String(targetUserId);
+  const targetId=String(targetUserId);
 
-  return {
+  return{
     ...data,
-    pages: data.pages.map(page => ({
+    pages:data.pages.map(page=>({
       ...page,
-      items: page.items.filter(
-        item => String(item?.user?.userId) !== targetId,
+      items:page.items.filter(
+        item=>String(item?.user?.userId)!==targetId,
       ),
     })),
   };
@@ -96,132 +95,113 @@ function removeUserFromFeed(data, targetUserId) {
 
 export default function useFeedHome({
   userId,
-  isFollowing = false,
-}) {
-  const queryClient = useQueryClient();
+  isFollowing=false,
+}){
+  const queryClient=useQueryClient();
 
-  const hasUserId =
-    userId !== null &&
-    userId !== undefined;
+  const hasUserId=
+    userId!==null&&
+    userId!==undefined;
 
-  const isConfigured = Boolean(
-    API_BASE_URL &&
+  const isConfigured=Boolean(
+    API_BASE_URL&&
     hasUserId,
   );
 
-  const feedPath = isFollowing
-    ? '/feed/following'
-    : '/feed';
+  const feedPath=isFollowing
+    ?'/feed/following'
+    :'/feed';
 
-  const feedType = isFollowing
-    ? 'following'
-    : 'recommended';
+  const feedType=isFollowing
+    ?'following'
+    :'recommended';
 
-  const recommendedQueryKey = useMemo(
-    () => feedHomeKeys.list(userId, 'recommended'),
+  const recommendedQueryKey=useMemo(
+    ()=>feedHomeKeys.list(userId,'recommended'),
     [userId],
   );
 
-  const followingQueryKey = useMemo(
-    () => feedHomeKeys.list(userId, 'following'),
+  const followingQueryKey=useMemo(
+    ()=>feedHomeKeys.list(userId,'following'),
     [userId],
   );
 
-  const feedQueryKey = isFollowing
-    ? followingQueryKey
-    : recommendedQueryKey;
+  const feedQueryKey=isFollowing
+    ?followingQueryKey
+    :recommendedQueryKey;
 
-  const {
+  const{
     data,
     error,
     isLoading,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-    refetch: refetchFeed,
-  } = useInfiniteQuery({
-    queryKey: feedQueryKey,
-    initialPageParam: null,
-    enabled: isConfigured,
-
-    queryFn: async ({ pageParam }) => {
-      if (!API_BASE_URL) {
+    refetch:refetchFeed,
+  }=useInfiniteQuery({
+    queryKey:feedQueryKey,
+    initialPageParam:null,
+    enabled:isConfigured,
+    queryFn:async({pageParam})=>{
+      if(!API_BASE_URL){
         throw new Error(
           'EXPO_PUBLIC_API_BASE_URL이 설정되지 않았습니다.',
         );
       }
 
-      const params = {
+      const params={
         userId,
-        limit: FEED_LIMIT,
+        limit:FEED_LIMIT,
       };
 
-      if (
-        pageParam !== null &&
-        pageParam !== undefined
-      ) {
-        params.cursor = pageParam;
+      if(
+        pageParam!==null&&
+        pageParam!==undefined
+      ){
+        params.cursor=pageParam;
       }
 
-      const response = await axios.get(
+      const response=await axios.get(
         `${API_BASE_URL}${feedPath}`,
-        { params },
+        {params},
       );
 
       return normalizeFeedPage(response.data);
     },
-
-    getNextPageParam: lastPage => {
-      if (!lastPage?.hasNext) return undefined;
-      return lastPage.nextCursor ?? undefined;
+    getNextPageParam:lastPage=>{
+      if(!lastPage?.hasNext)return undefined;
+      return lastPage.nextCursor??undefined;
     },
-
-    staleTime: 30_000,
+    staleTime:30_000,
   });
 
-  const posts = useMemo(
-    () =>
+  const posts=useMemo(
+    ()=>
       data?.pages?.flatMap(
-        page => page.items,
-      ) ?? [],
+        page=>page.items,
+      )??[],
     [data?.pages],
   );
 
-  const {
-    mutate: mutateLike,
-    pendingFeedIds: likePendingFeedIds,
-  } = useFeedToggleMutation({
-    userId,
-    endpoint: 'like',
-    valueKey: 'isLiked',
-    countKey: 'likeCount',
-    errorMessage: '좋아요 처리에 실패했습니다.',
-  });
+  const{
+    handlePressLike,
+    handlePressBookmark,
+    likePendingFeedIds,
+    bookmarkPendingFeedIds,
+  }=useFeedActions({userId});
 
-  const {
-    mutate: mutateBookmark,
-    pendingFeedIds: bookmarkPendingFeedIds,
-  } = useFeedToggleMutation({
-    userId,
-    endpoint: 'bookmark',
-    valueKey: 'isBookmarked',
-    countKey: 'bookmarkCount',
-    errorMessage: '북마크 처리에 실패했습니다.',
-  });
-
-  const {
+  const{
     toggleFollow,
     pendingTargetUserId,
-  } = useFollow({
-    currentUserId: userId,
-
-    onSuccess: (_, {
+  }=useFollow({
+    currentUserId:userId,
+    onSuccess:(_,{
       targetUserId,
       nextFollowing,
-    }) => {
+    })=>{
       queryClient.setQueryData(
         recommendedQueryKey,
-        currentData =>
+        currentData=>
           updateFollowState(
             currentData,
             targetUserId,
@@ -231,8 +211,8 @@ export default function useFeedHome({
 
       queryClient.setQueryData(
         followingQueryKey,
-        currentData => {
-          if (!nextFollowing) {
+        currentData=>{
+          if(!nextFollowing){
             return removeUserFromFeed(
               currentData,
               targetUserId,
@@ -245,65 +225,30 @@ export default function useFeedHome({
     },
   });
 
-  const handlePressLike = useCallback(
-    feed => {
-      if (!feed?.feedId) return;
+  const handlePressFollow=feed=>{
+    const targetUserId=feed?.user?.userId;
 
-      mutateLike({
-        feedId: feed.feedId,
-        nextValue: !feed.isLiked,
-      });
-    },
-    [mutateLike],
-  );
+    if(!targetUserId)return;
+    if(String(targetUserId)===String(userId))return;
 
-  const handlePressBookmark = useCallback(
-    (feed, options) => {
-      if (!feed?.feedId) return;
+    toggleFollow(
+      targetUserId,
+      Boolean(feed?.user?.isFollowing),
+    );
+  };
 
-      mutateBookmark(
-        {
-          feedId: feed.feedId,
-          nextValue: !feed.isBookmarked,
-        },
-        options,
-      );
-    },
-    [mutateBookmark],
-  );
-
-  const handlePressFollow = useCallback(
-    feed => {
-      const targetUserId = feed?.user?.userId;
-
-      if (!targetUserId) return;
-      if (String(targetUserId) === String(userId)) return;
-
-      toggleFollow(
-        targetUserId,
-        Boolean(feed?.user?.isFollowing),
-      );
-    },
-    [toggleFollow, userId],
-  );
-
-  return {
+  return{
     posts,
     error,
-
     isConfigured,
     isLoading,
-
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-
     refetchFeed,
-
     handlePressLike,
     handlePressBookmark,
     handlePressFollow,
-
     likePendingFeedIds,
     bookmarkPendingFeedIds,
     pendingTargetUserId,
