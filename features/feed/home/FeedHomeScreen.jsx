@@ -16,7 +16,8 @@ import FeedPostItem from './components/FeedPostItem';
 import useFeedHome from './hooks/useFeedHome';
 import useFeedHomeFab, { FAB_BOTTOM_GAP } from './hooks/useFeedHomeFab';
 
-const CURRENT_USER_ID = 1;
+import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+
 const ESTIMATED_HEIGHT_WITH_IMAGES = 537;
 const ESTIMATED_HEIGHT_WITHOUT_IMAGES = 532;
 
@@ -37,7 +38,7 @@ const FeedHomeScreen = ({ navigation }) => {
   const [listHeight, setListHeight] = useState(0);
   const [measuredPostHeights, setMeasuredPostHeights] = useState({});
 
-  const userId = CURRENT_USER_ID;
+  const { userId, } = useCurrentUser();
   const isFollowing = activeTab === TOP_NAVIGATION_TAB.FOLLOWING;
   const { isFabOpen, handleFabOpenChange } = useFeedHomeFab(navigation);
 
@@ -170,6 +171,18 @@ const FeedHomeScreen = ({ navigation }) => {
     fetchNextPage();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const handlePressPost = useCallback(item => {
+    const feedId = Number(item?.feedId);
+
+    if (!Number.isInteger(feedId) || feedId < 1) return;
+
+    resetPlayback();
+
+    navigation.navigate('FeedDetail', {
+      feedId,
+    });
+  }, [navigation, resetPlayback]);
+
   const renderPost = useCallback(({ item }) => {
     const feedId = String(item.feedId);
     const targetUserId = String(item?.user?.userId ?? '');
@@ -188,6 +201,7 @@ const FeedHomeScreen = ({ navigation }) => {
           followDisabled={pendingTargetUserId === targetUserId}
           isMusicPlaying={isMusicPlaying}
           musicPlaybackProgress={isMusicPlaying ? playbackProgress : 0}
+          onPressPost={handlePressPost}
           onPressLike={handlePressLike}
           onPressBookmark={handlePressBookmark}
           onPressFollow={handlePressFollow}
@@ -204,6 +218,7 @@ const FeedHomeScreen = ({ navigation }) => {
     handlePressLike,
     handlePressMusicPlayback,
     handleSeekMusicPlayback,
+    handlePressPost,
     likePendingFeedIds,
     pendingTargetUserId,
     playbackProgress,

@@ -13,6 +13,7 @@ const FeedPostItem = ({
   followDisabled = false,
   isMusicPlaying = false,
   musicPlaybackProgress = 0,
+  onPressPost,
   onPressLike,
   onPressBookmark,
   onPressFollow,
@@ -33,6 +34,10 @@ const FeedPostItem = ({
   const isFollowing = Boolean(user?.isFollowing);
   const isLiked = Boolean(item?.isLiked);
   const isBookmarked = Boolean(item?.isBookmarked);
+
+  const handlePressPost = useCallback(() => {
+    onPressPost?.(item);
+  }, [item, onPressPost]);
 
   const handleLike = useCallback(() => {
     onPressLike?.(item);
@@ -68,6 +73,7 @@ const FeedPostItem = ({
     isLiked,
     disabled: likeDisabled,
     onLike: handleLike,
+    onSingleTap: handlePressPost,
   });
 
   return (

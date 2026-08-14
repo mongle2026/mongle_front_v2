@@ -195,18 +195,23 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     alignSelf: 'stretch',
     flexShrink: 0,
+
     flexDirection: 'column',
-    alignItems: 'stretch',
+    alignItems: 'center',
+
     borderRadius: radius.S,
     overflow: 'hidden',
+
     backgroundColor: colors.bgLayerDefault,
   },
+
   pressArea: {
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
     alignSelf: 'stretch',
   },
+
   contentArea: {
     width: '100%',
     minWidth: 0,
@@ -214,52 +219,69 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     flexShrink: 0,
   },
+
   textContainer: {
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
     alignSelf: 'stretch',
+
     paddingVertical: padding.M,
     paddingHorizontal: padding.L,
+
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
+
   textViewport: {
-    width: '100%',
+    flex: 1,
     minWidth: 0,
-    maxWidth: '100%',
-    alignSelf: 'stretch',
+
     justifyContent: 'flex-start',
     alignItems: 'stretch',
+
     overflow: 'hidden',
   },
+
   textViewportWithImages: {
     height: TEXT_HEIGHT_WITH_IMAGES,
   },
+
   textViewportWithoutImages: {
     height: TEXT_HEIGHT_WITHOUT_IMAGES,
   },
+
   contentText: {
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
     alignSelf: 'stretch',
     flexWrap: 'wrap',
+
     color: colors.fgNeutralMuted,
     textAlign: 'justify',
   },
+
   imageContainer: {
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
     alignSelf: 'stretch',
+
     paddingVertical: padding.XS,
     paddingHorizontal: padding.L,
+
     flexDirection: 'row',
     alignItems: 'flex-start',
+
     gap: gap.M,
   },
+
   singleImage: {
     width: '50%',
   },
+
   doubleImage: {
     width: 0,
     flex: 1,
