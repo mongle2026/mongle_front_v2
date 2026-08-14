@@ -30,6 +30,7 @@ export const typo = {
   suitBodyMedium:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 19.5,  letterSpacing: 0 },
   suitBodySmall:          { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 11, lineHeight: 16.5,  letterSpacing: 0 },
   // label: lineHeight 125%
+  suitLabelXXLargeStrong: { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 16, lineHeight: 20,    letterSpacing: 0 },
   suitLabelXLargeStrong:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 15, lineHeight: 18.75, letterSpacing: 0 },
   suitLabelXLarge:        { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 15, lineHeight: 18.75, letterSpacing: 0 },
   suitLabelLarge:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 14, lineHeight: 17.5,  letterSpacing: 0 },

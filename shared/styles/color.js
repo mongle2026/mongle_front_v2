@@ -54,6 +54,7 @@ export const shadow = {
 export const colors = {
   // ── background ──
   bgLayerBasement:          palette.neutral[100],
+  bgLayerCanvas:            palette.neutral[50],
   bgLayerDefault:           palette.neutral[0],
   bgLayerDefaultPressed:    palette.neutral[100],
   bgLayerFloating:          palette.neutral[600],
