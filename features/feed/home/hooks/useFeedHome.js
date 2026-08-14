@@ -258,13 +258,16 @@ export default function useFeedHome({
   );
 
   const handlePressBookmark = useCallback(
-    feed => {
+    (feed, options) => {
       if (!feed?.feedId) return;
 
-      mutateBookmark({
-        feedId: feed.feedId,
-        nextValue: !feed.isBookmarked,
-      });
+      mutateBookmark(
+        {
+          feedId: feed.feedId,
+          nextValue: !feed.isBookmarked,
+        },
+        options,
+      );
     },
     [mutateBookmark],
   );

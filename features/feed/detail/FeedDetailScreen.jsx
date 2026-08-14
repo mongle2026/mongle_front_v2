@@ -1,366 +1,360 @@
-import React, { useCallback, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
+import React,{useCallback,useRef,useState} from 'react';
+import {ActivityIndicator,Pressable,ScrollView,StyleSheet,Text,useWindowDimensions,View} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import IcTrash from '../../../assets/icons/ic_trash.svg';
-
 import MusicCard from '../../../shared/components/content/MusicCard';
 import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
 import Menu from '../../../shared/components/action/menu/Menu';
 import Item from '../../../shared/components/action/menu/Item';
-import { Dialog } from '../../../shared/components/action/Dialog';
-import { useGlobalOverlay } from '../../../shared/components/layout/GlobalOverlayProvider';
-import Toast from '../../../shared/components/feedback/Toast';
-
+import {Dialog} from '../../../shared/components/action/Dialog';
+import {useGlobalOverlay} from '../../../shared/components/layout/GlobalOverlayProvider';
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
-import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottomOffset';
+import {useFloatingBottomOffset} from '../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
-import { useToast } from '../../../shared/hooks/useToast';
-
-import { colors, shadow } from '../../../shared/styles/color';
-import { padding, radius } from '../../../shared/styles/token';
-import {
-  getImageSources,
-  resolveMediaUri,
-} from '../../../shared/utils/media';
-
+import {colors,shadow} from '../../../shared/styles/color';
+import {padding,radius} from '../../../shared/styles/token';
+import {getImageSources,resolveMediaUri} from '../../../shared/utils/media';
 import ActionBar from '../home/components/ActionBar';
 import ProfileBar from '../home/components/ProfileBar';
-
 import FeedDetailContent from './components/FeedDetailContent';
 import CommentSection from './components/CommentSection';
 import CommentBar from './components/CommentBar';
-
 import useFeedDetail from './hooks/useFeedDetail';
 import useFeedComments from './hooks/useFeedComments';
 import useFeedToggleMutation from '../hooks/useFeedToggleMutation';
 import useDoubleTapLike from '../hooks/useDoubleTapLike';
 
-const FeedDetailScreen = ({ navigation, route }) => {
-  const { openOverlay } = useGlobalOverlay();
-  const { currentUser, userId } = useCurrentUser();
-  const { height: windowHeight } = useWindowDimensions();
-  const { toast, showToast } = useToast();
+const FeedDetailScreen=({navigation,route})=>{
+  const{openOverlay,showToast}=useGlobalOverlay();
+  const{currentUser,userId}=useCurrentUser();
+  const{height:windowHeight}=useWindowDimensions();
+  const commentBarRef=useRef(null);
+  const commentMenuOverlayRef=useRef(null);
+  const feedId=route?.params?.feedId;
+  const floatingBottomOffset=useFloatingBottomOffset();
+  const[commentText,setCommentText]=useState('');
+  const[isFeedMenuOpen,setIsFeedMenuOpen]=useState(false);
+  const[commentMenu,setCommentMenu]=useState(null);
+  const[replyTarget,setReplyTarget]=useState(null);
+  const[replyFocusRequestKey,setReplyFocusRequestKey]=useState(0);
+  const[commentBarHeight,setCommentBarHeight]=useState(0);
 
-  const commentBarRef = useRef(null);
-  const commentMenuOverlayRef = useRef(null);
-
-  const feedId = route?.params?.feedId;
-  const floatingBottomOffset = useFloatingBottomOffset();
-
-  const [commentText, setCommentText] = useState('');
-  const [isFeedMenuOpen, setIsFeedMenuOpen] = useState(false);
-  const [commentMenu, setCommentMenu] = useState(null);
-  const [replyTarget, setReplyTarget] = useState(null);
-  const [replyFocusRequestKey, setReplyFocusRequestKey] = useState(0);
-  const [commentBarHeight, setCommentBarHeight] = useState(0);
-
-  const {
+  const{
     feed,
     isConfigured,
     isLoading,
     error,
     deleteFeed,
     isDeletingFeed,
-  } = useFeedDetail({
+  }=useFeedDetail({
     feedId,
     userId,
-    onDeleteSuccess: () => {
+    onDeleteSuccess:()=>{
       navigation.goBack();
     },
   });
 
-  const {
+  const{
     comments,
     isLoadingComments,
     createComment,
     isCreatingComment,
     deleteComment,
     isDeletingComment,
-  } = useFeedComments({
+  }=useFeedComments({
     feedId,
     userId,
   });
 
-  const {
-    mutate: mutateLike,
-    pendingFeedIds: likePendingFeedIds,
-  } = useFeedToggleMutation({
+  const{
+    mutate:mutateLike,
+    pendingFeedIds:likePendingFeedIds,
+  }=useFeedToggleMutation({
     userId,
-    endpoint: 'like',
-    valueKey: 'isLiked',
-    countKey: 'likeCount',
-    errorMessage: '좋아요 처리에 실패했습니다.',
+    endpoint:'like',
+    valueKey:'isLiked',
+    countKey:'likeCount',
+    errorMessage:'좋아요 처리에 실패했습니다.',
   });
 
-  const {
-    mutate: mutateBookmark,
-    pendingFeedIds: bookmarkPendingFeedIds,
-  } = useFeedToggleMutation({
+  const{
+    mutate:mutateBookmark,
+    pendingFeedIds:bookmarkPendingFeedIds,
+  }=useFeedToggleMutation({
     userId,
-    endpoint: 'bookmark',
-    valueKey: 'isBookmarked',
-    countKey: 'bookmarkCount',
-    errorMessage: '북마크 처리에 실패했습니다.',
+    endpoint:'bookmark',
+    valueKey:'isBookmarked',
+    countKey:'bookmarkCount',
+    errorMessage:'북마크 처리에 실패했습니다.',
   });
 
-  const handlePressLike = useCallback(() => {
-    if (!feed?.feedId) return;
+  const handlePressLike=useCallback(()=>{
+    if(!feed?.feedId)return;
     mutateLike({
-      feedId: feed.feedId,
-      nextValue: !feed.isLiked,
+      feedId:feed.feedId,
+      nextValue:!feed.isLiked,
     });
-  }, [feed, mutateLike]);
+  },[feed,mutateLike]);
 
-  const handlePressBookmark = useCallback(() => {
-    if (!feed?.feedId) return;
+  const handlePressBookmarkToastButton=useCallback(()=>{
+    // 북마크 화면 route가 만들어지면 여기에 navigation.navigate 추가
+  },[]);
+
+  const handlePressBookmark=useCallback(()=>{
+    if(!feed?.feedId)return;
+    const nextValue=!feed.isBookmarked;
     mutateBookmark({
-      feedId: feed.feedId,
-      nextValue: !feed.isBookmarked,
+      feedId:feed.feedId,
+      nextValue,
+    },{
+      onSuccess:()=>{
+        if(!nextValue)return;
+        showToast({
+          message:'기록을 북마크에 추가했습니다.',
+          buttonText:'이동',
+          onPressButton:handlePressBookmarkToastButton,
+          bottomOffset:floatingBottomOffset,
+        });
+      },
     });
-  }, [feed, mutateBookmark]);
+  },[
+    commentBarHeight,
+    feed,
+    floatingBottomOffset,
+    handlePressBookmarkToastButton,
+    mutateBookmark,
+    showToast,
+  ]);
 
-  const normalizedFeedId =
-    feed?.feedId != null ? String(feed.feedId) : null;
+  const normalizedFeedId=
+    feed?.feedId!=null
+      ?String(feed.feedId)
+      :null;
 
-  const {
+  const{
     likeButtonRef,
-    handleTap: handleContentTap,
-  } = useDoubleTapLike({
-    isLiked: Boolean(feed?.isLiked),
+    handleTap:handleContentTap,
+  }=useDoubleTapLike({
+    isLiked:Boolean(feed?.isLiked),
     disabled:
-      normalizedFeedId != null &&
+      normalizedFeedId!=null&&
       likePendingFeedIds.has(normalizedFeedId),
-    onLike: handlePressLike,
+    onLike:handlePressLike,
   });
 
-  const {
+  const{
     playingFeedId,
     playbackProgress,
     handlePressPlayback,
     handleSeekPlayback,
-  } = useFeedMusicPlayback({
-    navigation,
-  });
+  }=useFeedMusicPlayback({navigation});
 
-  const handlePressClose = useCallback(() => {
+  const handlePressClose=useCallback(()=>{
     navigation.goBack();
-  }, [navigation]);
+  },[navigation]);
 
-  const handlePressShare = useCallback(() => {
+  const handlePressShare=useCallback(()=>{
     // 공유 기능 추후 구현
-  }, []);
+  },[]);
 
-  const handlePressMore = useCallback(() => {
+  const handlePressMore=useCallback(()=>{
     setCommentMenu(null);
-    setIsFeedMenuOpen(previous => !previous);
-  }, []);
+    setIsFeedMenuOpen(previous=>!previous);
+  },[]);
 
-  const handlePressEdit = useCallback(() => {
+  const handlePressEdit=useCallback(()=>{
     setIsFeedMenuOpen(false);
     // 수정 기능 추후 구현
-  }, []);
+  },[]);
 
-  const handlePressDelete = useCallback(() => {
-    if (isDeletingFeed) return;
+  const handlePressDelete=useCallback(()=>{
+    if(isDeletingFeed)return;
     setIsFeedMenuOpen(false);
     openOverlay({
-      id: 'feed-delete-dialog',
-      closeOnDimPress: true,
-      closeOnBackPress: true,
-      accessibilityLabel: '삭제 확인 창 닫기',
-      contentContainerStyle: styles.dialogOverlayContent,
-      renderContent: ({ close }) => (
+      id:'feed-delete-dialog',
+      closeOnDimPress:true,
+      closeOnBackPress:true,
+      accessibilityLabel:'삭제 확인 창 닫기',
+      contentContainerStyle:styles.dialogOverlayContent,
+      renderContent:({close})=>(
         <Dialog
           title="기록을 삭제하시겠어요?"
           description="삭제한 기록은 다시 복구할 수 없어요."
           cancelText="취소"
           confirmText="삭제"
           onCancel={close}
-          onConfirm={() => {
+          onConfirm={()=>{
             close();
             deleteFeed();
           }}
         />
       ),
     });
-  }, [deleteFeed, isDeletingFeed, openOverlay]);
+  },[deleteFeed,isDeletingFeed,openOverlay]);
 
-  const handleCommentBarLayout = useCallback(event => {
-    const height = event.nativeEvent.layout.height;
-    setCommentBarHeight(previousHeight =>
-      previousHeight === height ? previousHeight : height,
+  const handleCommentBarLayout=useCallback(event=>{
+    const height=event.nativeEvent.layout.height;
+    setCommentBarHeight(previousHeight=>
+      previousHeight===height
+        ?previousHeight
+        :height,
     );
-  }, []);
+  },[]);
 
-  const handleSubmitComment = useCallback(
-    async content => {
-      try {
-        await createComment({
-          content,
-          parentCommentId: replyTarget?.commentId ?? null,
-        });
-        setCommentText('');
-        setReplyTarget(null);
-      } catch {
-        // useFeedComments에서 처리
-      }
-    },
-    [createComment, replyTarget],
-  );
+  const handleSubmitComment=useCallback(async content=>{
+    try{
+      await createComment({
+        content,
+        parentCommentId:replyTarget?.commentId??null,
+      });
+      setCommentText('');
+      setReplyTarget(null);
+    }catch{}
+  },[createComment,replyTarget]);
 
-  const handlePressCommentMenu = useCallback((comment, anchor) => {
-    if (!comment?.commentId || !anchor) return;
+  const handlePressCommentMenu=useCallback((comment,anchor)=>{
+    if(!comment?.commentId||!anchor)return;
     setIsFeedMenuOpen(false);
-    setCommentMenu(previous => {
-      const isSameComment =
-        previous?.comment?.commentId != null &&
-        String(previous.comment.commentId) === String(comment.commentId);
-      if (isSameComment) return null;
-      return {
+    setCommentMenu(previous=>{
+      const isSameComment=
+        previous?.comment?.commentId!=null&&
+        String(previous.comment.commentId)===String(comment.commentId);
+      if(isSameComment)return null;
+      return{
         comment,
         anchor,
-        top: 0,
-        isMeasured: false,
+        top:0,
+        isMeasured:false,
       };
     });
-  }, []);
+  },[]);
 
-  const handleCommentMenuLayout = useCallback(event => {
-    const menuHeight = event.nativeEvent.layout.height;
+  const handleCommentMenuLayout=useCallback(event=>{
+    const menuHeight=event.nativeEvent.layout.height;
 
-    const updateMenuPosition = (overlayY, commentBarTop) => {
-      setCommentMenu(previous => {
-        if (!previous) return previous;
-
-        const anchorTop = previous.anchor.y;
-        const anchorBottom = previous.anchor.y + previous.anchor.height;
-        const belowBottom = anchorBottom + menuHeight;
-
-        const shouldOpenAbove = belowBottom > commentBarTop;
-
-        const menuTopInWindow = shouldOpenAbove
-          ? anchorTop - menuHeight
-          : anchorBottom;
-
-        const menuTopInOverlay = Math.max(
+    const updateMenuPosition=(overlayY,commentBarTop)=>{
+      setCommentMenu(previous=>{
+        if(!previous)return previous;
+        const anchorTop=previous.anchor.y;
+        const anchorBottom=
+          previous.anchor.y+
+          previous.anchor.height;
+        const belowBottom=
+          anchorBottom+
+          menuHeight;
+        const shouldOpenAbove=
+          belowBottom>commentBarTop;
+        const menuTopInWindow=
+          shouldOpenAbove
+            ?anchorTop-menuHeight
+            :anchorBottom;
+        const menuTopInOverlay=Math.max(
           0,
-          menuTopInWindow - overlayY,
+          menuTopInWindow-overlayY,
         );
-
-        if (
-          previous.isMeasured &&
-          previous.top === menuTopInOverlay
-        ) {
+        if(
+          previous.isMeasured&&
+          previous.top===menuTopInOverlay
+        ){
           return previous;
         }
-
-        return {
+        return{
           ...previous,
-          top: menuTopInOverlay,
-          isMeasured: true,
+          top:menuTopInOverlay,
+          isMeasured:true,
         };
       });
     };
 
-    const measurePosition = overlayY => {
-      if (commentBarRef.current) {
-        commentBarRef.current.measureInWindow((x, y) => {
-          updateMenuPosition(overlayY, y);
+    const measurePosition=overlayY=>{
+      if(commentBarRef.current){
+        commentBarRef.current.measureInWindow((x,y)=>{
+          updateMenuPosition(overlayY,y);
         });
         return;
       }
-
       updateMenuPosition(
         overlayY,
-        windowHeight - floatingBottomOffset - commentBarHeight,
+        windowHeight-
+          floatingBottomOffset-
+          commentBarHeight,
       );
     };
 
-    if (commentMenuOverlayRef.current) {
-      commentMenuOverlayRef.current.measureInWindow((x, y) => {
+    if(commentMenuOverlayRef.current){
+      commentMenuOverlayRef.current.measureInWindow((x,y)=>{
         measurePosition(y);
       });
       return;
     }
 
     measurePosition(0);
-  }, [
+  },[
     commentBarHeight,
     floatingBottomOffset,
     windowHeight,
   ]);
 
-  const handlePressDeleteComment = useCallback(() => {
-    if (!commentMenu?.comment || isDeletingComment) return;
-
-    const targetComment = commentMenu.comment;
-
+  const handlePressDeleteComment=useCallback(()=>{
+    if(!commentMenu?.comment||isDeletingComment)return;
+    const targetComment=commentMenu.comment;
     setCommentMenu(null);
-
     openOverlay({
-      id: 'comment-delete-dialog',
-      closeOnDimPress: true,
-      closeOnBackPress: true,
-      accessibilityLabel: '댓글 삭제 확인 창 닫기',
-      contentContainerStyle: styles.dialogOverlayContent,
-      renderContent: ({ close }) => (
+      id:'comment-delete-dialog',
+      closeOnDimPress:true,
+      closeOnBackPress:true,
+      accessibilityLabel:'댓글 삭제 확인 창 닫기',
+      contentContainerStyle:styles.dialogOverlayContent,
+      renderContent:({close})=>(
         <Dialog
           title="댓글을 영구 삭제할까요?"
           description="삭제한 댓글은 다시 되돌릴 수 없습니다."
           cancelText="취소"
           confirmText="삭제"
           onCancel={close}
-          onConfirm={async () => {
+          onConfirm={async()=>{
             close();
-
-            try {
+            try{
               await deleteComment(targetComment.commentId);
-
               showToast({
-                message: '댓글을 삭제했습니다.',
+                message:'댓글을 삭제했습니다.',
+                bottomOffset:
+                  floatingBottomOffset+
+                  commentBarHeight,
               });
-            } catch {
-              // useFeedComments에서 에러 처리
-            }
+            }catch{}
           }}
         />
       ),
     });
-  }, [
+  },[
+    commentBarHeight,
     commentMenu,
     deleteComment,
+    floatingBottomOffset,
     isDeletingComment,
     openOverlay,
     showToast,
   ]);
 
-  const handlePressReply = useCallback(comment => {
-    if (!comment?.commentId) return;
-
+  const handlePressReply=useCallback(comment=>{
+    if(!comment?.commentId)return;
     setCommentMenu(null);
-
     setReplyTarget({
-      commentId: comment.commentId,
-      userId: comment.userId,
-      userCode: comment.userCode,
+      commentId:comment.commentId,
+      userId:comment.userId,
+      userCode:comment.userCode,
     });
+    setReplyFocusRequestKey(previous=>previous+1);
+  },[]);
 
-    setReplyFocusRequestKey(previous => previous + 1);
-  }, []);
-
-  if (!feed) {
-    return (
+  if(!feed){
+    return(
       <View style={styles.screen}>
-        <SafeAreaView edges={['top']} style={styles.topSafeArea}>
+        <SafeAreaView
+          edges={['top']}
+          style={styles.topSafeArea}
+        >
           <TopIconNavigation
             onPressClose={handlePressClose}
             onPressShare={handlePressShare}
@@ -368,8 +362,8 @@ const FeedDetailScreen = ({ navigation, route }) => {
           />
         </SafeAreaView>
         <View style={styles.state}>
-          {isLoading && <ActivityIndicator />}
-          {!isConfigured && (
+          {isLoading&&<ActivityIndicator/>}
+          {!isConfigured&&(
             <Text
               allowFontScaling={false}
               style={styles.stateText}
@@ -377,7 +371,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
               EXPO_PUBLIC_API_BASE_URL을 확인해 주세요.
             </Text>
           )}
-          {error && (
+          {error&&(
             <Text
               allowFontScaling={false}
               style={styles.stateText}
@@ -390,36 +384,35 @@ const FeedDetailScreen = ({ navigation, route }) => {
     );
   }
 
-  const user = feed.user ?? {};
-  const music = feed.music ?? {};
-  const record = feed.record ?? {};
+  const user=feed.user??{};
+  const music=feed.music??{};
+  const record=feed.record??{};
+  const imageSources=getImageSources(feed.files);
+  const profileImageUri=resolveMediaUri(user.profileImageUrl);
+  const musicArtworkUri=resolveMediaUri(music.musicArtwork);
+  const musicPreviewUri=resolveMediaUri(music.previewUrl);
+  const isMine=Number(user.userId)===Number(userId);
+  const isFollowing=Boolean(user.isFollowing);
+  const isMusicPlaying=
+    playingFeedId===normalizedFeedId;
 
-  const imageSources = getImageSources(feed.files);
-  const profileImageUri = resolveMediaUri(user.profileImageUrl);
-  const musicArtworkUri = resolveMediaUri(music.musicArtwork);
-  const musicPreviewUri = resolveMediaUri(music.previewUrl);
-
-  const isMine = Number(user.userId) === Number(userId);
-  const isFollowing = Boolean(user.isFollowing);
-  const isMusicPlaying = playingFeedId === normalizedFeedId;
-
-  const handleMusicPlayback = () => {
-    if (!musicPreviewUri) return;
+  const handleMusicPlayback=()=>{
+    if(!musicPreviewUri)return;
     handlePressPlayback({
-      feedId: feed.feedId,
-      previewUrl: musicPreviewUri,
+      feedId:feed.feedId,
+      previewUrl:musicPreviewUri,
     });
   };
 
-  const handleMusicSeek = progress => {
-    if (!musicPreviewUri) return;
+  const handleMusicSeek=progress=>{
+    if(!musicPreviewUri)return;
     handleSeekPlayback({
-      feedId: feed.feedId,
+      feedId:feed.feedId,
       progress,
     });
   };
 
-  return (
+  return(
     <View style={styles.screen}>
       <SafeAreaView
         edges={['top']}
@@ -431,7 +424,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
             onPressShare={handlePressShare}
             onPressMore={handlePressMore}
           />
-          {isFeedMenuOpen && (
+          {isFeedMenuOpen&&(
             <Menu
               style={styles.menu}
               onPressEdit={handlePressEdit}
@@ -441,121 +434,98 @@ const FeedDetailScreen = ({ navigation, route }) => {
           )}
         </View>
       </SafeAreaView>
-
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
           {
             paddingBottom:
-              commentBarHeight +
+              commentBarHeight+
               floatingBottomOffset,
           },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        onScrollBeginDrag={() => {
+        onScrollBeginDrag={()=>{
           setCommentMenu(null);
           setIsFeedMenuOpen(false);
         }}
       >
         <ProfileBar
           imageUri={profileImageUri}
-          username={user.userCode ?? ''}
+          username={user.userCode??''}
           showFollowButton={!isMine}
           followLabel={
             isFollowing
-              ? '팔로잉'
-              : '팔로우'
+              ?'팔로잉'
+              :'팔로우'
           }
           followVariant={
             isFollowing
-              ? 'Ghost'
-              : 'Solid'
+              ?'Ghost'
+              :'Solid'
           }
         />
-
         <MusicCard
           imageSource={
             musicArtworkUri
-              ? {
-                uri: musicArtworkUri,
-              }
-              : undefined
+              ?{uri:musicArtworkUri}
+              :undefined
           }
-          title={music.musicTitle ?? ''}
-          artist={music.musicArtist ?? ''}
+          title={music.musicTitle??''}
+          artist={music.musicArtist??''}
           isPlaying={isMusicPlaying}
           playbackProgress={
             isMusicPlaying
-              ? playbackProgress
-              : 0
+              ?playbackProgress
+              :0
           }
           disabled={!musicPreviewUri}
           onPressPlayback={
             musicPreviewUri
-              ? handleMusicPlayback
-              : undefined
+              ?handleMusicPlayback
+              :undefined
           }
           onSeekPlayback={
             musicPreviewUri
-              ? handleMusicSeek
-              : undefined
+              ?handleMusicSeek
+              :undefined
           }
         />
-
         <FeedDetailContent
-          content={record.text ?? ''}
+          content={record.text??''}
           imageSources={imageSources}
           authorFont={record.authorFont}
           onPress={handleContentTap}
         />
-
         <ActionBar
           createdAt={feed.createdAt}
           isLiked={Boolean(feed.isLiked)}
           isBookmarked={Boolean(feed.isBookmarked)}
           bookmarkCount={feed.bookmarkCount}
-          likeDisabled={
-            likePendingFeedIds.has(
-              normalizedFeedId,
-            )
-          }
-          bookmarkDisabled={
-            bookmarkPendingFeedIds.has(
-              normalizedFeedId,
-            )
-          }
+          likeDisabled={likePendingFeedIds.has(normalizedFeedId)}
+          bookmarkDisabled={bookmarkPendingFeedIds.has(normalizedFeedId)}
           likeButtonRef={likeButtonRef}
           onLikePress={handlePressLike}
           onBookmarkPress={handlePressBookmark}
         />
-
         <CommentSection
           comments={comments}
           isLoading={isLoadingComments}
           openCommentMenuId={
-            commentMenu?.comment?.commentId ??
-            null
+            commentMenu?.comment?.commentId??null
           }
-          onPressMenu={
-            handlePressCommentMenu
-          }
-          onPressReply={
-            handlePressReply
-          }
+          onPressMenu={handlePressCommentMenu}
+          onPressReply={handlePressReply}
         />
       </ScrollView>
-
       <View
         ref={commentBarRef}
         collapsable={false}
         onLayout={handleCommentBarLayout}
         style={[
           styles.commentBarContainer,
-          {
-            bottom: floatingBottomOffset,
-          },
+          {bottom:floatingBottomOffset},
         ]}
       >
         <CommentBar
@@ -563,40 +533,16 @@ const FeedDetailScreen = ({ navigation, route }) => {
           onChangeText={setCommentText}
           onSubmit={handleSubmitComment}
           disabled={isCreatingComment}
-          profileImageUri={
-            currentUser?.profileImageUri
-          }
+          profileImageUri={currentUser?.profileImageUri}
           targetUsername={
-            replyTarget?.userCode ??
-            user.userCode ??
+            replyTarget?.userCode??
+            user.userCode??
             ''
           }
-          focusRequestKey={
-            replyFocusRequestKey
-          }
+          focusRequestKey={replyFocusRequestKey}
         />
       </View>
-
-      {toast.visible && (
-        <View
-          pointerEvents="box-none"
-          style={[
-            styles.toastContainer,
-            {
-              bottom:
-                floatingBottomOffset,
-            },
-          ]}
-        >
-          <Toast
-            text={toast.message}
-            buttonText={toast.buttonText}
-            onPressButton={toast.onPressButton}
-          />
-        </View>
-      )}
-
-      {commentMenu && (
+      {commentMenu&&(
         <View
           ref={commentMenuOverlayRef}
           collapsable={false}
@@ -604,23 +550,18 @@ const FeedDetailScreen = ({ navigation, route }) => {
         >
           <Pressable
             style={StyleSheet.absoluteFill}
-            onPress={() =>
-              setCommentMenu(null)
-            }
+            onPress={()=>setCommentMenu(null)}
           />
-
           <View
-            onLayout={
-              handleCommentMenuLayout
-            }
+            onLayout={handleCommentMenuLayout}
             style={[
               styles.commentMenu,
               {
-                top: commentMenu.top,
+                top:commentMenu.top,
                 opacity:
                   commentMenu.isMeasured
-                    ? 1
-                    : 0,
+                    ?1
+                    :0,
               },
             ]}
           >
@@ -640,82 +581,74 @@ const FeedDetailScreen = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.bgLayerDefault,
+const styles=StyleSheet.create({
+  screen:{
+    flex:1,
+    backgroundColor:colors.bgLayerDefault,
   },
-  topSafeArea: {
-    width: '100%',
-    position: 'relative',
-    backgroundColor: colors.bgLayerDefault,
-    zIndex: 20,
+  topSafeArea:{
+    width:'100%',
+    position:'relative',
+    backgroundColor:colors.bgLayerDefault,
+    zIndex:20,
   },
-  topNavigationContainer: {
-    width: '100%',
-    position: 'relative',
-    zIndex: 20,
+  topNavigationContainer:{
+    width:'100%',
+    position:'relative',
+    zIndex:20,
   },
-  menu: {
-    position: 'absolute',
-    top: '100%',
-    right: padding.L,
-    zIndex: 30,
+  menu:{
+    position:'absolute',
+    top:'100%',
+    right:padding.L,
+    zIndex:30,
   },
-  scroll: {
-    flex: 1,
+  scroll:{
+    flex:1,
   },
-  scrollContent: {
-    width: '100%',
+  scrollContent:{
+    width:'100%',
   },
-  commentBarContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    width: '100%',
-    backgroundColor: colors.bgLayerDefault,
-    zIndex: 10,
-    elevation: 10,
+  commentBarContainer:{
+    position:'absolute',
+    left:0,
+    right:0,
+    width:'100%',
+    backgroundColor:colors.bgLayerDefault,
+    zIndex:10,
+    elevation:10,
   },
-  toastContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    width: '100%',
-    zIndex: 20,
-    elevation: 20,
-  },
-  commentMenuOverlay: {
+  commentMenuOverlay:{
     ...StyleSheet.absoluteFillObject,
-    zIndex: 100,
-    elevation: 100,
+    zIndex:100,
+    elevation:100,
   },
-  commentMenu: {
-    position: 'absolute',
-    right: 8,
-    zIndex: 1,
-    elevation: 101,
+  commentMenu:{
+    position:'absolute',
+    right:8,
+    zIndex:1,
+    elevation:101,
   },
-  dialogOverlayContent: {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    paddingHorizontal: padding.XL,
-    justifyContent: 'center',
-    alignItems: 'center',
+  dialogOverlayContent:{
+    top:0,
+    right:0,
+    bottom:0,
+    left:0,
+    paddingHorizontal:padding.XL,
+    justifyContent:'center',
+    alignItems:'center',
   },
-  state: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  state:{
+    flex:1,
+    alignItems:'center',
+    justifyContent:'center',
   },
-  stateText: {
-    color: colors.fgNeutralMuted,
+  stateText:{
+    color:colors.fgNeutralMuted,
   },
-  commentDeleteItem: {
-    borderRadius: radius.M,
-    ...shadow.middleDown
+  commentDeleteItem:{
+    borderRadius:radius.M,
+    ...shadow.middleDown,
   },
 });
 
