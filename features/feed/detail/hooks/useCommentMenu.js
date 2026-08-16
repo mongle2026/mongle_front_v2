@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Dialog } from '../../../../shared/components/action/Dialog';
 import { useDialog } from '../../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
@@ -14,6 +15,7 @@ const useCommentMenu = ({
   const { openDialog } = useDialog();
   const { showToast } = useGlobalOverlay();
   const { height: windowHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const commentMenuOverlayRef = useRef(null);
   const [commentMenu, setCommentMenu] = useState(null);
 
@@ -141,7 +143,7 @@ const useCommentMenu = ({
 
               showToast({
                 message: '댓글을 삭제했습니다.',
-                bottomOffset: floatingBottomOffset,
+                bottomOffset: insets.bottom,
               });
             } catch { }
           }}
@@ -152,7 +154,7 @@ const useCommentMenu = ({
     closeCommentMenu,
     commentMenu,
     deleteComment,
-    floatingBottomOffset,
+    insets.bottom,
     isDeletingComment,
     openDialog,
     showToast,
