@@ -1,6 +1,10 @@
 import React, { memo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
 import { colors } from '../../../../shared/styles/color';
 import { gap, padding } from '../../../../shared/styles/token';
@@ -22,9 +26,15 @@ const POST_FONT_STYLES = {
 };
 
 const getImageKey = (imageSource, index) => {
-  if (typeof imageSource === 'string') return imageSource;
+  if (typeof imageSource === 'string') {
+    return imageSource;
+  }
 
-  if (imageSource && typeof imageSource === 'object' && imageSource.uri) {
+  if (
+    imageSource &&
+    typeof imageSource === 'object' &&
+    imageSource.uri
+  ) {
     return imageSource.uri;
   }
 
@@ -36,11 +46,14 @@ const FeedDetailContent = ({
   imageSources = [],
   authorFont = POST_FONT.KYOBO,
   onPress,
+  onPressImage,
 }) => {
   const hasContent =
-    typeof content === 'string' && content.trim().length > 0;
+    typeof content === 'string' &&
+    content.trim().length > 0;
 
-  const visibleImages = imageSources.filter(Boolean);
+  const visibleImages =
+    imageSources.filter(Boolean);
 
   const normalizedAuthorFont =
     typeof authorFont === 'string'
@@ -52,30 +65,49 @@ const FeedDetailContent = ({
     POST_FONT_STYLES[POST_FONT.KYOBO];
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       {hasContent && (
-        <View style={styles.textContainer}>
-          <Text style={[styles.contentText, authorFontStyle]}>
+        <Pressable
+          onPress={onPress}
+          style={styles.textContainer}
+        >
+          <Text
+            style={[
+              styles.contentText,
+              authorFontStyle,
+            ]}
+          >
             {content}
           </Text>
-        </View>
+        </Pressable>
       )}
-
       {visibleImages.length > 0 && (
         <View style={styles.imgContainer}>
-          {visibleImages.map((imageSource, index) => (
-            <WriteImg
-              key={getImageKey(imageSource, index)}
-              imageSource={imageSource}
-              style={styles.image}
-            />
-          ))}
+          {visibleImages.map(
+            (imageSource, index) => (
+              <Pressable
+                key={getImageKey(
+                  imageSource,
+                  index,
+                )}
+                onPress={() =>
+                  onPressImage?.(
+                    imageSource,
+                    index,
+                  )
+                }
+                style={styles.imageButton}
+              >
+                <WriteImg
+                  imageSource={imageSource}
+                  style={styles.image}
+                />
+              </Pressable>
+            ),
+          )}
         </View>
       )}
-    </Pressable>
+    </View>
   );
 };
 
@@ -86,21 +118,18 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'flex-start',
   },
-
   textContainer: {
     width: '100%',
     paddingVertical: padding.XXS,
     paddingHorizontal: padding.L,
     alignItems: 'flex-start',
   },
-
   contentText: {
     width: '100%',
     flexWrap: 'wrap',
     color: colors.fgNeutralMuted,
     textAlign: 'justify',
   },
-
   imgContainer: {
     width: '100%',
     paddingTop: 0,
@@ -110,7 +139,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: gap.M,
   },
-
+  imageButton: {
+    width: '100%',
+    alignSelf: 'stretch',
+  },
   image: {
     width: '100%',
     alignSelf: 'stretch',

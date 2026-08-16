@@ -6,6 +6,7 @@ import MusicCard from '../../../shared/components/content/MusicCard';
 import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
 import Menu from '../../../shared/components/action/menu/Menu';
 import Item from '../../../shared/components/action/menu/Item';
+import ImageViewer from '../../../shared/components/content/ImageViewer';
 import { Dialog } from '../../../shared/components/action/Dialog';
 import { useDialog } from '../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
@@ -29,7 +30,11 @@ import useCommentComposer from './hooks/useCommentComposer';
 
 const FeedDetailScreen = ({ navigation, route }) => {
   const { openDialog } = useDialog();
-  const { showToast } = useGlobalOverlay();
+  const {
+    openOverlay,
+    showToast,
+    hideToast,
+  } = useGlobalOverlay();
   const { currentUser, userId } = useCurrentUser();
   const commentBarRef = useRef(null);
   const feedId = route?.params?.feedId;
@@ -147,6 +152,34 @@ const FeedDetailScreen = ({ navigation, route }) => {
     showToast,
     toggleBookmark,
   ]);
+
+  const handlePressImage = useCallback(
+    imageSource => {
+      closeCommentMenu();
+      setIsFeedMenuOpen(false);
+      hideToast();
+
+      openOverlay({
+        id: 'feed-detail-image-viewer',
+        showDim: true,
+        closeOnDimPress: true,
+        closeOnBackPress: true,
+        accessibilityLabel: '사진 크게 보기 닫기',
+        contentContainerStyle:
+          styles.imageViewerOverlay,
+        renderContent: () => (
+          <ImageViewer
+            imageSource={imageSource}
+          />
+        ),
+      });
+    },
+    [
+      closeCommentMenu,
+      hideToast,
+      openOverlay,
+    ],
+  );
 
   const {
     likeButtonRef,
@@ -393,6 +426,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
           imageSources={imageSources}
           authorFont={record.authorFont}
           onPress={handleContentTap}
+          onPressImage={handlePressImage}
         />
         <ActionBar
           createdAt={feed.createdAt}
@@ -504,6 +538,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     width: '100%',
+  },
+  imageViewerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   commentBarContainer: {
     position: 'absolute',
