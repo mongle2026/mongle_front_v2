@@ -3,20 +3,17 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
 import { fontMap } from './shared/styles/fonts';
 import { colors } from './shared/styles/color';
-
 import FeedHomeScreen from './features/feed/home/FeedHomeScreen';
 import FeedDetailScreen from './features/feed/detail/FeedDetailScreen';
-
-import GlobalOverlayProvider from './shared/components/layout/GlobalOverlayProvider';
+import DialogProvider from './shared/providers/DialogProvider';
+import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
 import { MAIN_TAB_ROUTES } from './shared/components/navigation/bottomnavigation/routeNames';
 
@@ -80,7 +77,6 @@ const RootNavigator = () => (
       name="MainTabs"
       component={MainTabNavigator}
     />
-
     <Stack.Screen
       name="FeedDetail"
       component={FeedDetailScreen}
@@ -107,12 +103,14 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <GlobalOverlayProvider>
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
-          <StatusBar style="dark" />
-        </GlobalOverlayProvider>
+        <DialogProvider>
+          <GlobalOverlayProvider>
+            <NavigationContainer>
+              <RootNavigator />
+            </NavigationContainer>
+            <StatusBar style="dark" />
+          </GlobalOverlayProvider>
+        </DialogProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );

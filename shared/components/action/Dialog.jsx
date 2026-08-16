@@ -1,9 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-
 import { colors } from '../../styles/color';
 import { gap, padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
-
 import { TextButton } from './TextButton';
 
 export const Dialog = ({
@@ -24,7 +22,6 @@ export const Dialog = ({
         >
           {title}
         </Text>
-
         <Text
           allowFontScaling={false}
           style={styles.description}
@@ -32,7 +29,6 @@ export const Dialog = ({
           {description}
         </Text>
       </View>
-
       <View style={styles.containerButtons}>
         <TextButton
           variant="BrandWeak"
@@ -42,7 +38,6 @@ export const Dialog = ({
         >
           {cancelText}
         </TextButton>
-
         <TextButton
           variant="Critical"
           font="suit"
@@ -60,46 +55,35 @@ const styles = StyleSheet.create({
   container: {
     width: 302,
     padding: padding.XL,
-
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     gap: gap.L,
-
     borderRadius: radius.XL,
     backgroundColor: colors.bgLayerDefault,
   },
-
   containerTexts: {
     alignSelf: 'stretch',
-
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: gap.S,
   },
-
   title: {
     alignSelf: 'stretch',
-
     ...typo.suitTitleMediumStrong,
     color: '#34373A',
   },
-
   description: {
     alignSelf: 'stretch',
-
     ...typo.suitBodyLarge,
     color: '#747A81',
   },
-
   containerButtons: {
     alignSelf: 'stretch',
-
     flexDirection: 'row',
     alignItems: 'center',
     gap: gap.S,
   },
-
   button: {
     flex: 1,
     alignSelf: 'stretch',

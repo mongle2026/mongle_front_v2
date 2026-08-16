@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 
 import FAB from '../../../../shared/components/action/FAB';
-import { useGlobalOverlay } from '../../../../shared/components/layout/GlobalOverlayProvider';
+import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 import { useBottomNavigationHeight } from '../../../../shared/components/navigation/bottomnavigation/BottomNavigation';
 import { padding } from '../../../../shared/styles/token';
 
