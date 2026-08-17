@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import Constants from 'expo-constants';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -21,6 +22,26 @@ SplashScreen.preventAutoHideAsync();
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+const kakaoNativeAppKey =
+  Constants.expoConfig?.extra?.kakaoNativeAppKey;
+
+const linking = {
+  prefixes: [
+    `kakao${kakaoNativeAppKey}://`,
+  ],
+  config: {
+    screens: {
+      FeedDetail: {
+        path: 'kakaolink',
+        parse: {
+          feedId: String,
+          visibility: String,
+        },
+      },
+    },
+  },
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -105,7 +126,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <DialogProvider>
           <GlobalOverlayProvider>
-            <NavigationContainer>
+            <NavigationContainer linking={linking}>
               <RootNavigator />
             </NavigationContainer>
             <StatusBar style="dark" />

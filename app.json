@@ -10,10 +10,12 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.mongle.app",
       "edgeToEdgeEnabled": true
     },
     "plugins": [
-      "expo-audio"
+      "expo-audio",
+      "expo-asset"
     ]
   }
 }

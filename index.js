@@ -1,8 +1,15 @@
 import { registerRootComponent } from 'expo';
-
+import Constants from 'expo-constants';
+import { initializeKakaoSDK } from '@react-native-kakao/core';
 import App from './App';
 
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
+const kakaoNativeAppKey =
+    Constants.expoConfig?.extra?.kakaoNativeAppKey;
+
+if (!kakaoNativeAppKey) {
+    throw new Error('Kakao Native App Key를 찾을 수 없습니다.');
+}
+
+initializeKakaoSDK(kakaoNativeAppKey);
+
 registerRootComponent(App);

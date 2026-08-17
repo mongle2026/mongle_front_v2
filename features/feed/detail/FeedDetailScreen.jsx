@@ -16,6 +16,7 @@ import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { colors, shadow } from '../../../shared/styles/color';
 import { padding, radius } from '../../../shared/styles/token';
 import { getImageSources, resolveMediaUri } from '../../../shared/utils/media';
+import { shareKakaoFeed } from '../../../shared/utils/kakaoShare';
 import ActionBar from '../home/components/ActionBar';
 import ProfileBar from '../home/components/ProfileBar';
 import useFeedActions from '../hooks/useFeedActions';
@@ -202,8 +203,18 @@ const FeedDetailScreen = ({ navigation, route }) => {
   }, [navigation]);
 
   const handlePressShare = useCallback(() => {
-    // 공유 기능 추후 구현
-  }, []);
+    if (!feed) return;
+
+    closeCommentMenu();
+    setIsFeedMenuOpen(false);
+    hideToast();
+
+    void shareKakaoFeed(feed);
+  }, [
+    closeCommentMenu,
+    feed,
+    hideToast,
+  ]);
 
   const handlePressMore = useCallback(() => {
     closeCommentMenu();
