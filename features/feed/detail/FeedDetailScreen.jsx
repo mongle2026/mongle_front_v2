@@ -16,7 +16,7 @@ import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { colors, shadow } from '../../../shared/styles/color';
 import { padding, radius } from '../../../shared/styles/token';
 import { getImageSources, resolveMediaUri } from '../../../shared/utils/media';
-import { shareKakaoFeed } from '../../../shared/utils/kakaoShare';
+// import { shareKakaoFeed } from '../../../shared/utils/kakaoShare';
 import { shareFeed } from '../../../shared/utils/shareFeed';
 import ActionBar from '../home/components/ActionBar';
 import ProfileBar from '../home/components/ProfileBar';
