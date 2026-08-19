@@ -33,9 +33,9 @@ const CommentSection = ({
       ) : (
         comments.map(comment => {
           const isMenuOpen =
+            comment.isMine &&
             openCommentMenuId != null &&
-            String(openCommentMenuId) ===
-              String(comment.commentId);
+            String(openCommentMenuId) === String(comment.commentId);
 
           return (
             <Comment
@@ -43,21 +43,15 @@ const CommentSection = ({
               userCode={comment.userCode}
               comment={comment.comment}
               createdAt={comment.createdAt}
-              profileImageUrl={
-                comment.profileImageUrl
-              }
+              profileImageUrl={comment.profileImageUrl}
               depth={comment.depth}
-              showMenu={comment.isMine}
+              showMenu
               isMenuOpen={isMenuOpen}
-              onPressMenu={position =>
-                onPressMenu?.(
-                  comment,
-                  position,
-                )
-              }
-              onPressReply={() =>
-                onPressReply?.(comment)
-              }
+              onPressMenu={position => {
+                if (!comment.isMine) return;
+                onPressMenu?.(comment, position);
+              }}
+              onPressReply={() => onPressReply?.(comment)}
             />
           );
         })
