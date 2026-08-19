@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
 
   replyContainer: {
     paddingTop: padding.S,
-    paddingRight: padding.S,
+    paddingRight: padding.M,
     paddingBottom: padding.S,
     paddingLeft: 56,
   },
