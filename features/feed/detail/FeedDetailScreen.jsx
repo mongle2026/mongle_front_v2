@@ -17,6 +17,7 @@ import { colors, shadow } from '../../../shared/styles/color';
 import { padding, radius } from '../../../shared/styles/token';
 import { getImageSources, resolveMediaUri } from '../../../shared/utils/media';
 import { shareKakaoFeed } from '../../../shared/utils/kakaoShare';
+import { shareFeed } from '../../../shared/utils/shareFeed';
 import ActionBar from '../home/components/ActionBar';
 import ProfileBar from '../home/components/ProfileBar';
 import useFeedActions from '../hooks/useFeedActions';
@@ -209,7 +210,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
     setIsFeedMenuOpen(false);
     hideToast();
 
-    void shareKakaoFeed(feed);
+    void shareFeed(feed);
   }, [
     closeCommentMenu,
     feed,
