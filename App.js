@@ -87,6 +87,12 @@ const MainTabNavigator = () => (
   </Tab.Navigator>
 );
 
+const FeedDetailRoute = props => (
+  <SafeAreaProvider>
+    <FeedDetailScreen {...props} />
+  </SafeAreaProvider>
+);
+
 const RootNavigator = () => (
   <Stack.Navigator
     initialRouteName="MainTabs"
@@ -100,7 +106,7 @@ const RootNavigator = () => (
     />
     <Stack.Screen
       name="FeedDetail"
-      component={FeedDetailScreen}
+      component={FeedDetailRoute}
       options={{
         presentation: 'transparentModal',
       }}
