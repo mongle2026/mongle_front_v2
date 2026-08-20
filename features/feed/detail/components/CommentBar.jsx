@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef, useState, } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View, } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View, } from 'react-native';
 
 import ProfileImg from '../../../../shared/components/atomic/ProfileImg';
 import IconButton from '../../../../shared/components/action/IconButton';
@@ -155,22 +155,52 @@ const CommentBar = ({
     }
   }, [value]);
 
+  const updateInputHeight = useCallback((height) => {
+    const nextHeight = Math.min(
+      Math.max(
+        height,
+        INPUT_MIN_HEIGHT,
+      ),
+      INPUT_MAX_HEIGHT,
+    );
+
+    setInputHeight((prevHeight) =>
+      prevHeight === nextHeight
+        ? prevHeight
+        : nextHeight,
+    );
+  }, []);
+
+  useEffect(() => {
+    if (value.length === 0) {
+      setInputHeight(INPUT_MIN_HEIGHT);
+    }
+  }, [value]);
+
   const handleContentSizeChange = useCallback(
     (event) => {
-      const contentHeight =
-        event.nativeEvent.contentSize.height;
+      if (Platform.OS === 'ios') {
+        return;
+      }
 
-      const nextHeight = Math.min(
-        Math.max(
-          contentHeight,
-          INPUT_MIN_HEIGHT,
-        ),
-        INPUT_MAX_HEIGHT,
+      updateInputHeight(
+        event.nativeEvent.contentSize.height,
       );
-
-      setInputHeight(nextHeight);
     },
-    [],
+    [updateInputHeight],
+  );
+
+  const handleMeasureLayout = useCallback(
+    (event) => {
+      if (Platform.OS !== 'ios') {
+        return;
+      }
+
+      updateInputHeight(
+        event.nativeEvent.layout.height,
+      );
+    },
+    [updateInputHeight],
   );
 
   const handleSubmit = useCallback(() => {
@@ -239,6 +269,17 @@ const CommentBar = ({
       ]}
     >
       <View style={styles.textField}>
+        {Platform.OS === 'ios' && (
+          <Text
+            pointerEvents="none"
+            accessible={false}
+            onLayout={handleMeasureLayout}
+            style={styles.inputMeasure}
+          >
+            {value || ' '}
+          </Text>
+        )}
+
         <TextInput
           ref={inputRef}
           value={value}
@@ -375,6 +416,8 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'stretch',
 
+    position: 'relative',
+
     flexDirection: 'row',
     alignItems: 'flex-end',
 
@@ -394,6 +437,23 @@ const styles = StyleSheet.create({
     margin: 0,
 
     color: colors.fgBrand,
+    textAlign: 'justify',
+  },
+
+  inputMeasure: {
+    ...typo.suitBodyLarge,
+
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    margin: 0,
+
+    opacity: 0,
+
     textAlign: 'justify',
   },
 
