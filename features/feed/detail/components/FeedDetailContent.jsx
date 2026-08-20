@@ -100,6 +100,7 @@ const FeedDetailContent = ({
               >
                 <WriteImg
                   imageSource={imageSource}
+                  pointerEvents="none"
                   style={styles.image}
                 />
               </Pressable>

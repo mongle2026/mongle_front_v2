@@ -21,10 +21,12 @@ export const WriteImg = memo(
   ({
     imageSource,
     style,
+    pointerEvents,
   }) => {
     return (
       <WriteImgEffectRenderer
         imageSource={imageSource}
+        pointerEvents={pointerEvents}
         style={[
           styles.container,
           style,
@@ -38,7 +40,7 @@ export const WriteImg = memo(
         }
       />
     );
-  }
+  },
 );
 
 const styles = StyleSheet.create({

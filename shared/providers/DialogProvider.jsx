@@ -1,6 +1,21 @@
-import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Keyboard, StyleSheet, View } from 'react-native';
+import React, {
+  createContext,
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  BackHandler,
+  Keyboard,
+  StyleSheet,
+  View,
+} from 'react-native';
 import Dim from '../components/layout/Dim';
+import WindowOverlay from '../components/layout/WindowOverlay';
 import { padding } from '../styles/token';
 
 const DialogContext = createContext(null);
@@ -23,6 +38,7 @@ const DialogProvider = ({ children }) => {
       console.warn('Dialog의 id가 필요합니다.');
       return;
     }
+
     if (typeof renderContent !== 'function') {
       console.warn('Dialog의 renderContent가 필요합니다.');
       return;
@@ -47,11 +63,13 @@ const DialogProvider = ({ children }) => {
 
   const closeDialog = useCallback(id => {
     const currentDialog = dialogRef.current;
+
     if (!currentDialog) return;
     if (id && currentDialog.id !== id) return;
 
     dialogRef.current = null;
     setDialog(null);
+
     currentDialog.onClose?.();
   }, []);
 
@@ -61,27 +79,41 @@ const DialogProvider = ({ children }) => {
 
   const handlePressDim = useCallback(() => {
     if (!dialog?.closeOnDimPress) return;
+
     closeDialog(dialog.id);
-  }, [closeDialog, dialog]);
+  }, [
+    closeDialog,
+    dialog,
+  ]);
 
   useEffect(() => {
-    if (!dialog || !dialog.closeOnBackPress) return undefined;
+    if (
+      !dialog ||
+      !dialog.closeOnBackPress
+    ) {
+      return undefined;
+    }
 
-    const subscription = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        closeDialog(dialog.id);
-        return true;
-      },
-    );
+    const subscription =
+      BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => {
+          closeDialog(dialog.id);
+          return true;
+        },
+      );
 
     return () => {
       subscription.remove();
     };
-  }, [closeDialog, dialog]);
+  }, [
+    closeDialog,
+    dialog,
+  ]);
 
   const contextValue = useMemo(() => ({
-    activeDialogId: dialog?.id ?? null,
+    activeDialogId:
+      dialog?.id ?? null,
     openDialog,
     closeDialog,
     isDialogOpen,
@@ -93,36 +125,49 @@ const DialogProvider = ({ children }) => {
   ]);
 
   return (
-    <DialogContext.Provider value={contextValue}>
+    <DialogContext.Provider
+      value={contextValue}
+    >
       <View style={styles.root}>
         {children}
+
         {dialog && (
-          <View
-            accessibilityViewIsModal
-            style={styles.overlay}
+          <WindowOverlay
+            pointerEvents="auto"
           >
-            <Dim
-              visible
-              onPress={
-                dialog.closeOnDimPress
-                  ? handlePressDim
-                  : undefined
-              }
-              accessibilityLabel={dialog.accessibilityLabel}
-              style={dialog.dimStyle}
-            />
             <View
-              pointerEvents="box-none"
-              style={[
-                styles.contentLayer,
-                dialog.contentContainerStyle,
-              ]}
+              accessibilityViewIsModal
+              style={styles.overlay}
             >
-              {dialog.renderContent({
-                close: () => closeDialog(dialog.id),
-              })}
+              <Dim
+                visible
+                onPress={
+                  dialog.closeOnDimPress
+                    ? handlePressDim
+                    : undefined
+                }
+                accessibilityLabel={
+                  dialog.accessibilityLabel
+                }
+                style={dialog.dimStyle}
+              />
+
+              <View
+                pointerEvents="box-none"
+                style={[
+                  styles.contentLayer,
+                  dialog.contentContainerStyle,
+                ]}
+              >
+                {dialog.renderContent({
+                  close: () =>
+                    closeDialog(
+                      dialog.id,
+                    ),
+                })}
+              </View>
             </View>
-          </View>
+          </WindowOverlay>
         )}
       </View>
     </DialogContext.Provider>
@@ -130,7 +175,8 @@ const DialogProvider = ({ children }) => {
 };
 
 const useDialog = () => {
-  const context = useContext(DialogContext);
+  const context =
+    useContext(DialogContext);
 
   if (!context) {
     throw new Error(
@@ -147,9 +193,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 2000,
-    elevation: 2000,
+    flex: 1,
   },
   contentLayer: {
     ...StyleSheet.absoluteFillObject,

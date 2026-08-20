@@ -41,10 +41,9 @@ export const WriteImgEffectRenderer = memo(
     imageSource,
     style,
     borderRadius = 0,
-    halftoneOptions =
-      DEFAULT_HALFTONE_OPTIONS,
-    textureOptions =
-      DEFAULT_TEXTURE_OPTIONS,
+    halftoneOptions = DEFAULT_HALFTONE_OPTIONS,
+    textureOptions = DEFAULT_TEXTURE_OPTIONS,
+    pointerEvents = 'auto',
   }) => {
     const [layout, setLayout] = useState({
       width: 0,
@@ -160,6 +159,7 @@ export const WriteImgEffectRenderer = memo(
 
     return (
       <View
+        pointerEvents={pointerEvents}
         style={[
           styles.container,
           style,
@@ -168,24 +168,19 @@ export const WriteImgEffectRenderer = memo(
       >
         {canRender && (
           <Canvas
-            style={
-              StyleSheet.absoluteFill
-            }
+            pointerEvents="none"
+            style={StyleSheet.absoluteFill}
           >
             <Group clip={clipRect}>
               <Fill>
                 <Shader
-                  source={
-                    WRITE_IMG_PRINT_EFFECT
-                  }
+                  source={WRITE_IMG_PRINT_EFFECT}
                   uniforms={uniforms}
                 >
                   <ImageShader
                     image={image}
                     fit="cover"
-                    rect={
-                      destinationRect
-                    }
+                    rect={destinationRect}
                   />
                 </Shader>
               </Fill>
