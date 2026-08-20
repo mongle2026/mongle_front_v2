@@ -79,6 +79,7 @@ const FeedPostItem = ({
   return (
     <PostCard
       onPress={handleTap}
+      font={item?.font}
       profileProps={{
         imageUri: profileImageUri,
         username: user?.userCode ?? '',
@@ -106,7 +107,6 @@ const FeedPostItem = ({
       }}
       content={record?.text ?? ''}
       imageSources={imageSources}
-      authorFont={record?.authorFont}
       actionProps={{
         createdAt: item?.createdAt,
         isLiked,

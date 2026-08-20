@@ -15,18 +15,11 @@ import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
 import { colors } from '../../../../shared/styles/color';
 import { gap, padding, radius } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
-
-export const POST_FONT = Object.freeze({
-  KYOBO: 'kyobo',
-  SUIT: 'suit',
-});
+import { FONT, normalizeFont } from '../../../../shared/styles/font';
 
 const POST_FONT_STYLES = Object.freeze({
-  [POST_FONT.KYOBO]: typo.kyoboBodyLarge,
-  [POST_FONT.SUIT]: {
-    ...typo.kyoboBodyLarge,
-    fontFamily: typo.suitBodyLarge.fontFamily,
-  },
+  [FONT.KYOBO]: typo.kyoboBodyLarge,
+  [FONT.SUIT]: typo.suitBodyLarge,
 });
 
 const TEXT_HEIGHT_WITH_IMAGES = 216;
@@ -62,7 +55,7 @@ const PostCard = ({
   onPress,
   content,
   imageSources = [],
-  authorFont = POST_FONT.KYOBO,
+  font = FONT.KYOBO,
   style,
   contentAreaStyle,
   textContainerStyle,
@@ -106,14 +99,11 @@ const PostCard = ({
   const hasImages = visibleImages.length > 0;
   const hasTwoImages = visibleImages.length === 2;
 
-  const normalizedAuthorFont =
-    typeof authorFont === 'string'
-      ? authorFont.toLowerCase()
-      : POST_FONT.KYOBO;
+  const normalizedFont = normalizeFont(font);
 
-  const authorFontStyle =
-    POST_FONT_STYLES[normalizedAuthorFont] ??
-    POST_FONT_STYLES[POST_FONT.KYOBO];
+  const contentFontStyle =
+    POST_FONT_STYLES[normalizedFont] ??
+    POST_FONT_STYLES[FONT.KYOBO];
 
   const textNumberOfLines = hasImages
     ? TEXT_LINES_WITH_IMAGES
@@ -135,8 +125,15 @@ const PostCard = ({
         onPressOut={isPressable ? handlePressOut : undefined}
         style={styles.pressArea}
       >
-        <ProfileBar {...profileProps} />
-        <MusicCard {...musicProps} />
+        <ProfileBar
+          {...profileProps}
+          font={normalizedFont}
+        />
+
+        <MusicCard
+          {...musicProps}
+          font={normalizedFont}
+        />
 
         <View style={[styles.contentArea, contentAreaStyle]}>
           <View style={[styles.textContainer, textContainerStyle]}>
@@ -154,7 +151,7 @@ const PostCard = ({
                   ellipsizeMode="tail"
                   style={[
                     styles.contentText,
-                    authorFontStyle,
+                    contentFontStyle,
                     textStyle,
                   ]}
                 >
@@ -183,7 +180,10 @@ const PostCard = ({
         </View>
       </Pressable>
 
-      <ActionBar {...actionProps} />
+      <ActionBar
+        {...actionProps}
+        font={normalizedFont}
+      />
     </Animated.View>
   );
 };

@@ -6,7 +6,6 @@ import { TextButton } from '../../action/TextButton';
 
 import { colors } from '../../../styles/color';
 import { gap } from '../../../styles/token';
-import { typo } from '../../../styles/typo';
 
 const USERNAME_ROTATION_DEGREE = -4;
 const USERNAME_ROTATION_RADIAN =
@@ -34,6 +33,7 @@ const Profile = ({
   imageUri,
   imageSize = 'M',
   username,
+  font,
   onPress,
   style,
   imageStyle,
@@ -96,7 +96,7 @@ const Profile = ({
       >
         <TextButton
           variant="Ghost"
-          typography={typo.kyoboLabelLarge}
+          font={font}
           onPress={onPress}
           accessibilityLabel={`${profileId} 프로필 보기`}
           style={[
@@ -108,7 +108,7 @@ const Profile = ({
           {profileId}
         </TextButton>
       </View>
-    </View>
+    </View >
   );
 };
 

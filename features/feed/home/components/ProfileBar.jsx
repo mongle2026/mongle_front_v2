@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import Profile from '../../../../shared/components/content/profile/Profile';
@@ -12,6 +12,7 @@ const ProfileBar = ({
   imageUri,
   imageSize = 'M',
   username,
+  font = 'kyobo',
 
   showFollowButton = true,
   followLabel = '팔로우',
@@ -48,12 +49,14 @@ const ProfileBar = ({
           imageUri={imageUri}
           imageSize={imageSize}
           username={username}
+          font={font}
           onPress={onPressProfile}
         />
 
         {showFollowButton && (
           <TextButton
             variant={followVariant}
+            font={font}
             disabled={followDisabled}
             showDisabledStyle={false}
             onPress={onPressFollow}

@@ -9,6 +9,7 @@ import MusicWaveTexture from '../../../assets/music/musicWaveTexture.svg';
 import useAlbumWaveColor from '../../hooks/useAlbumWaveColor';
 import useMusicWaveSeek from '../../hooks/useMusicWaveSeek';
 import { colors } from '../../styles/color';
+import { FONT } from '../../styles/font';
 import { gap, padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
@@ -17,10 +18,21 @@ import MusicCoverImg from '../atomic/MusicCoverImg';
 
 const MUSIC_WAVE_HEIGHT = 20;
 
+const TITLE_TYPOGRAPHY = Object.freeze({
+  [FONT.KYOBO]: typo.kyoboLabelLarge,
+  [FONT.SUIT]: typo.suitLabelLarge,
+});
+
+const ARTIST_TYPOGRAPHY = Object.freeze({
+  [FONT.KYOBO]: typo.kyoboLabelMedium,
+  [FONT.SUIT]: typo.suitLabelMedium,
+});
+
 const MusicCard = ({
   imageSource,
   title = '',
   artist = '',
+  font = FONT.KYOBO,
   isPlaying = false,
   playbackProgress = 0,
   onPressPlayback,
@@ -31,6 +43,14 @@ const MusicCard = ({
   const waveColor = useAlbumWaveColor(imageSource, isPlaying);
   const PlaybackIcon = isPlaying ? IcMusicStop : IcMusicPlay;
   const accessibilityTitle = title || '음악';
+
+  const titleTypography =
+    TITLE_TYPOGRAPHY[font] ??
+    TITLE_TYPOGRAPHY[FONT.KYOBO];
+
+  const artistTypography =
+    ARTIST_TYPOGRAPHY[font] ??
+    ARTIST_TYPOGRAPHY[FONT.KYOBO];
 
   const {
     waveWidth,
@@ -54,10 +74,27 @@ const MusicCard = ({
 
       <View style={styles.contentContainer}>
         <View style={styles.musicInfoContainer}>
-          <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+          <Text
+            allowFontScaling={false}
+            style={[
+              styles.title,
+              titleTypography,
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {title}
           </Text>
-          <Text style={styles.artist} numberOfLines={1} ellipsizeMode="tail">
+
+          <Text
+            allowFontScaling={false}
+            style={[
+              styles.artist,
+              artistTypography,
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {artist}
           </Text>
         </View>
@@ -74,9 +111,8 @@ const MusicCard = ({
             }
             onPress={onPressPlayback}
             disabled={disabled}
-            accessibilityLabel={`${accessibilityTitle} 음악 ${
-              isPlaying ? '일시정지' : '재생'
-            }`}
+            accessibilityLabel={`${accessibilityTitle} 음악 ${isPlaying ? '일시정지' : '재생'
+              }`}
             style={styles.playButton}
           />
 
@@ -142,42 +178,48 @@ const styles = StyleSheet.create({
     gap: gap.M,
     backgroundColor: colors.bgLayerDefault,
   },
+
   contentContainer: {
     flex: 1,
     minWidth: 0,
     alignItems: 'flex-start',
     gap: gap.M,
   },
+
   musicInfoContainer: {
     alignSelf: 'stretch',
     alignItems: 'flex-start',
     gap: gap.S,
   },
+
   title: {
-    ...typo.kyoboLabelLarge,
     width: '100%',
     color: colors.fgNeutralMuted,
   },
+
   artist: {
-    ...typo.kyoboLabelMedium,
     width: '100%',
     color: colors.fgNeutralSubtle,
   },
+
   controlContainer: {
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
     gap: gap.M,
   },
+
   playButton: {
     borderRadius: radius.XL,
     backgroundColor: colors.bgBrandWeak,
   },
+
   musicWaveTouchArea: {
     flex: 1,
     minWidth: 0,
     height: MUSIC_WAVE_HEIGHT,
   },
+
   musicWaveContainer: {
     width: '100%',
     height: MUSIC_WAVE_HEIGHT,
@@ -185,6 +227,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
+
   musicWaveProgressClip: {
     position: 'absolute',
     top: 0,

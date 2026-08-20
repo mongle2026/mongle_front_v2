@@ -3,10 +3,11 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { colors } from '../../styles/color';
 import { padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
+import { FONT, normalizeFont } from '../../styles/font';
 
 const TYPOGRAPHY_CONFIG = {
-  kyobo: typo.kyoboLabelLarge,
-  suit: typo.suitLabelLarge,
+  [FONT.KYOBO]: typo.kyoboLabelLarge,
+  [FONT.SUIT]: typo.suitLabelLarge,
 };
 
 const VARIANT_STYLES = {
@@ -65,7 +66,7 @@ const VARIANT_STYLES = {
 export const TextButton = ({
   children,
   variant = 'Solid',
-  font = 'kyobo',
+  font = FONT.KYOBO,
   disabled = false,
   showDisabledStyle = true,
   onPress,
@@ -82,7 +83,7 @@ export const TextButton = ({
 
   const currentTypography = isLargeButton
     ? null
-    : TYPOGRAPHY_CONFIG[font] ?? TYPOGRAPHY_CONFIG.kyobo;
+    : TYPOGRAPHY_CONFIG[font] ?? TYPOGRAPHY_CONFIG[FONT.KYOBO];
 
   return (
     <Pressable

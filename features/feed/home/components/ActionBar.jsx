@@ -15,10 +15,18 @@ import LabeledButton from '../../../../shared/components/action/LabeledButton';
 import { colors } from '../../../../shared/styles/color';
 import { padding } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
+import { FONT, normalizeFont } from '../../../../shared/styles/font';
 import { formatDateDetail } from '../../utils/formatDate';
+
+const DATE_TYPOGRAPHY = {
+  [FONT.KYOBO]: typo.kyoboLabelMedium,
+  [FONT.SUIT]: typo.suitLabelMedium,
+};
 
 const ActionBar = ({
   createdAt,
+  font = FONT.KYOBO,
+
   isLiked = false,
   isBookmarked = false,
   bookmarkCount,
@@ -36,6 +44,9 @@ const ActionBar = ({
     ? formatDateDetail(createdAt)
     : '';
 
+  const dateFontStyle =
+    DATE_TYPOGRAPHY[font] ?? DATE_TYPOGRAPHY[FONT.KYOBO];
+
   const bookmarkLabel =
     Number(bookmarkCount) > 0
       ? String(bookmarkCount)
@@ -47,7 +58,10 @@ const ActionBar = ({
         allowFontScaling={false}
         numberOfLines={1}
         ellipsizeMode="tail"
-        style={styles.date}
+        style={[
+          styles.date,
+          dateFontStyle,
+        ]}
       >
         {formattedDate}
       </Text>
@@ -116,8 +130,6 @@ const styles = StyleSheet.create({
   },
 
   date: {
-    ...typo.suitLabelMedium,
-
     flex: 1,
     minWidth: 0,
 
