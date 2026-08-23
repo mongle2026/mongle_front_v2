@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import Constants from 'expo-constants';
+import { setAudioModeAsync } from 'expo-audio';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -116,6 +117,20 @@ const RootNavigator = () => (
 
 export default function App() {
   const [loaded, error] = useFonts(fontMap);
+
+  useEffect(() => {
+    const configureAudio = async () => {
+      try {
+        await setAudioModeAsync({
+          playsInSilentMode: true,
+        });
+      } catch (error) {
+        console.warn('오디오 모드를 설정하지 못했습니다.', error);
+      }
+    };
+
+    void configureAudio();
+  }, []);
 
   useEffect(() => {
     if (loaded || error) {

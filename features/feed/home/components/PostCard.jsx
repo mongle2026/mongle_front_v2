@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -30,6 +30,7 @@ const TEXT_LINES_WITHOUT_IMAGES = 13;
 const PRESSED_SCALE = 0.99;
 const PRESSED_TRANSLATE_Y = 1;
 const PRESS_IN_DURATION = 90;
+const PRESS_MOVE_THRESHOLD = 8;
 
 const PRESS_OUT_SPRING_CONFIG = {
   damping: 18,
@@ -66,6 +67,9 @@ const PostCard = ({
   const scale = useSharedValue(1);
   const translateY = useSharedValue(0);
 
+  const pressStartRef = useRef(null);
+  const didMoveRef = useRef(false);
+
   const animatedCardStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -77,15 +81,58 @@ const PostCard = ({
     ],
   }));
 
-  const handlePressIn = useCallback(() => {
+  const handlePressIn = useCallback(event => {
+    const { pageX, pageY } = event.nativeEvent;
+
+    pressStartRef.current = {
+      x: pageX,
+      y: pageY,
+    };
+
+    didMoveRef.current = false;
+
     scale.value = withTiming(PRESSED_SCALE, {
       duration: PRESS_IN_DURATION,
     });
 
-    translateY.value = withTiming(PRESSED_TRANSLATE_Y, {
-      duration: PRESS_IN_DURATION,
-    });
+    translateY.value = withTiming(
+      PRESSED_TRANSLATE_Y,
+      {
+        duration: PRESS_IN_DURATION,
+      },
+    );
   }, [scale, translateY]);
+
+  const handlePressMove = useCallback(event => {
+    const start = pressStartRef.current;
+
+    if (!start || didMoveRef.current) return;
+
+    const { pageX, pageY } = event.nativeEvent;
+
+    const deltaX = pageX - start.x;
+    const deltaY = pageY - start.y;
+
+    const distance = Math.hypot(
+      deltaX,
+      deltaY,
+    );
+
+    if (distance >= PRESS_MOVE_THRESHOLD) {
+      didMoveRef.current = true;
+    }
+  }, []);
+
+  const handleCardPress = useCallback(event => {
+    const didMove = didMoveRef.current;
+
+    pressStartRef.current = null;
+    didMoveRef.current = false;
+
+    if (didMove) return;
+
+    onPress?.(event);
+  }, [onPress]);
 
   const handlePressOut = useCallback(() => {
     scale.value = withSpring(1, PRESS_OUT_SPRING_CONFIG);
@@ -120,9 +167,22 @@ const PostCard = ({
       ]}
     >
       <Pressable
-        onPress={onPress}
-        onPressIn={isPressable ? handlePressIn : undefined}
-        onPressOut={isPressable ? handlePressOut : undefined}
+        onPress={handleCardPress}
+        onPressIn={
+          isPressable
+            ? handlePressIn
+            : undefined
+        }
+        onPressMove={
+          isPressable
+            ? handlePressMove
+            : undefined
+        }
+        onPressOut={
+          isPressable
+            ? handlePressOut
+            : undefined
+        }
         style={styles.pressArea}
       >
         <ProfileBar
