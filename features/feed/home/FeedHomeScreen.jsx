@@ -1,55 +1,27 @@
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  View,
-} from 'react-native';
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import React, { useCallback, useMemo, useRef, useState, } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, View, } from 'react-native';
+import { SafeAreaView, } from 'react-native-safe-area-context';
 
 import FAB from '../../../shared/components/action/FAB';
-import TopNavigation, {
-  TOP_NAVIGATION_TAB,
-} from '../../../shared/components/navigation/topnavigation/TopNavigation';
+import TopNavigation, { TOP_NAVIGATION_TAB, } from '../../../shared/components/navigation/topnavigation/TopNavigation';
 
-import {
-  useGlobalOverlay,
-} from '../../../shared/providers/GlobalOverlayProvider';
+import { useGlobalOverlay, } from '../../../shared/providers/GlobalOverlayProvider';
 
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
-import {
-  useFloatingBottomOffset,
-} from '../../../shared/hooks/useFloatingBottomOffset';
+import { useFloatingBottomOffset, } from '../../../shared/hooks/useFloatingBottomOffset';
 
-import {
-  colors,
-} from '../../../shared/styles/color';
+import { colors, } from '../../../shared/styles/color';
+import { gap, padding, } from '../../../shared/styles/token';
 
-import {
-  gap,
-  padding,
-} from '../../../shared/styles/token';
-
-import {
-  hasImageFiles,
-} from '../../../shared/utils/media';
+import { hasImageFiles, } from '../../../shared/utils/media';
 
 import FeedListState from './components/FeedListState';
 import FeedPostItem from './components/FeedPostItem';
 
 import useFeedHome from './hooks/useFeedHome';
 
-import useFeedHomeFab, {
-  FAB_BOTTOM_GAP,
-} from './hooks/useFeedHomeFab';
+import useFeedHomeFab, { FAB_BOTTOM_GAP, } from './hooks/useFeedHomeFab';
 
 const ESTIMATED_HEIGHT_WITH_IMAGES =
   537;

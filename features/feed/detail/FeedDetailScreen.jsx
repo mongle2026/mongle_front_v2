@@ -45,15 +45,9 @@ import {
 
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 
-import {
-  colors,
-  shadow,
-} from '../../../shared/styles/color';
-
-import {
-  padding,
-  radius,
-} from '../../../shared/styles/token';
+import { colors, shadow, } from '../../../shared/styles/color';
+import { padding, radius, } from '../../../shared/styles/token';
+import { normalizeFont } from '../../../shared/styles/font';
 
 import {
   getImageSources,
@@ -151,7 +145,7 @@ const FeedDetailScreen = ({
     replyFocusRequestKey,
     handleSubmitComment,
     handlePressReply:
-      handleStartReply,
+    handleStartReply,
   } = useCommentComposer({
     createComment,
   });
@@ -173,9 +167,9 @@ const FeedDetailScreen = ({
 
   const {
     handlePressLike:
-      toggleLike,
+    toggleLike,
     handlePressBookmark:
-      toggleBookmark,
+    toggleBookmark,
     likePendingFeedIds,
     bookmarkPendingFeedIds,
   } = useFeedActions({
@@ -185,8 +179,8 @@ const FeedDetailScreen = ({
   const normalizedFeedId =
     feed?.feedId != null
       ? String(
-          feed.feedId,
-        )
+        feed.feedId,
+      )
       : null;
 
   const isMine =
@@ -197,14 +191,14 @@ const FeedDetailScreen = ({
 
   const isLikePending =
     normalizedFeedId !=
-      null &&
+    null &&
     likePendingFeedIds.has(
       normalizedFeedId,
     );
 
   const isBookmarkPending =
     normalizedFeedId !=
-      null &&
+    null &&
     bookmarkPendingFeedIds.has(
       normalizedFeedId,
     );
@@ -305,7 +299,7 @@ const FeedDetailScreen = ({
   const {
     likeButtonRef,
     handleTap:
-      handleContentTap,
+    handleContentTap,
   } = useDoubleTapLike({
     isLiked: Boolean(
       feed?.isLiked,
@@ -433,7 +427,7 @@ const FeedDetailScreen = ({
       setCommentBarHeight(
         previousHeight =>
           previousHeight ===
-          height
+            height
             ? previousHeight
             : height,
       );
@@ -558,6 +552,11 @@ const FeedDetailScreen = ({
 
   const record =
     feed.record ?? {};
+
+  const normalizedFont =
+    normalizeFont(
+      feed.font,
+    );
 
   const imageSources =
     getImageSources(
@@ -696,6 +695,9 @@ const FeedDetailScreen = ({
             user.userCode ??
             ''
           }
+          font={
+            normalizedFont
+          }
           showFollowButton={
             !isMine
           }
@@ -715,9 +717,9 @@ const FeedDetailScreen = ({
           imageSource={
             musicArtworkUri
               ? {
-                  uri:
-                    musicArtworkUri,
-                }
+                uri:
+                  musicArtworkUri,
+              }
               : undefined
           }
           title={
@@ -728,13 +730,12 @@ const FeedDetailScreen = ({
             music.musicArtist ??
             ''
           }
+          font={
+            normalizedFont
+          }
           isPlaying={
             isMusicPlaying
           }
-          /*
-           * 조건문으로 0을 전달하지 않고
-           * 동일 SharedValue를 그대로 전달합니다.
-           */
           playbackProgress={
             playbackProgress
           }
@@ -760,8 +761,8 @@ const FeedDetailScreen = ({
           imageSources={
             imageSources
           }
-          authorFont={
-            record.authorFont
+          font={
+            normalizedFont
           }
           onPress={
             handleContentTap
