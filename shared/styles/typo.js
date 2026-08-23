@@ -18,45 +18,41 @@ const base = { includeFontPadding: false };
 
 export const typo = {
   // ── SUIT (UI 텍스트) ──────────────────────────────────────────
-  // title: lineHeight 150% (단, titleSmall은 절대값 26)
+  // title: lineHeight 150%
   suitTitleXLargeStrong:  { ...base, fontFamily: fontFamily.suitBold,     fontSize: 24, lineHeight: 36,    letterSpacing: 0 },
   suitTitleLarge:         { ...base, fontFamily: fontFamily.suitMedium,   fontSize: 20, lineHeight: 30,    letterSpacing: 0 },
   suitTitleMediumStrong:  { ...base, fontFamily: fontFamily.suitBold,     fontSize: 18, lineHeight: 27,    letterSpacing: 0 },
   suitTitleMedium:        { ...base, fontFamily: fontFamily.suitMedium,   fontSize: 18, lineHeight: 27,    letterSpacing: 0 },
   suitTitleSmallStrong:   { ...base, fontFamily: fontFamily.suitBold,     fontSize: 14, lineHeight: 21,    letterSpacing: 0 },
-  suitTitleSmall:         { ...base, fontFamily: fontFamily.suitMedium,   fontSize: 14, lineHeight: 26,    letterSpacing: 0 },
+  suitTitleSmall:         { ...base, fontFamily: fontFamily.suitMedium,   fontSize: 14, lineHeight: 21,    letterSpacing: 0 },
   // body: lineHeight 150%
-  suitBodyLarge:          { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 14, lineHeight: 21,    letterSpacing: 0 },
-  suitBodyMedium:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 19.5,  letterSpacing: 0 },
-  suitBodySmall:          { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 11, lineHeight: 16.5,  letterSpacing: 0 },
+  suitBodyXLarge:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 17, lineHeight: 25.5,  letterSpacing: 0 },
+  suitBodyLarge:          { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 16, lineHeight: 24,    letterSpacing: 0 },
+  suitBodyMedium:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 14, lineHeight: 21,    letterSpacing: 0 },
+  suitBodySmall:          { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 19.5,  letterSpacing: 0 },
   // label: lineHeight 125%
-  suitLabelXXLargeStrong: { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 16, lineHeight: 20,    letterSpacing: 0 },
-  suitLabelXLargeStrong:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 15, lineHeight: 18.75, letterSpacing: 0 },
-  suitLabelXLarge:        { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 15, lineHeight: 18.75, letterSpacing: 0 },
-  suitLabelLarge:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 14, lineHeight: 17.5,  letterSpacing: 0 },
-  suitLabelLargeStrong:   { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 14, lineHeight: 17.5,  letterSpacing: 0 },
-  suitLabelMedium:        { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 12, lineHeight: 15,    letterSpacing: 0 },
-  suitLabelMediumStrong:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 12, lineHeight: 15,    letterSpacing: 0 },
-  // caption: lineHeight 150%
-  suitCaptionLarge:       { ...base, fontFamily: fontFamily.suitMedium,   fontSize: 10, lineHeight: 15,    letterSpacing: 0 },
-  suitCaptionLargeStrong: { ...base, fontFamily: fontFamily.suitBold,     fontSize: 10, lineHeight: 15,    letterSpacing: 0 },
+  suitLabelXXLargeStrong: { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 17, lineHeight: 21.25, letterSpacing: 0 },
+  suitLabelXLargeStrong:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 16, lineHeight: 20,    letterSpacing: 0 },
+  suitLabelXLarge:        { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 16, lineHeight: 20,    letterSpacing: 0 },
+  suitLabelLargeStrong:   { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 15, lineHeight: 18.75, letterSpacing: 0 },
+  suitLabelLarge:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 15, lineHeight: 18.75, letterSpacing: 0 },
+  suitLabelMedium:        { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 16.25, letterSpacing: 0 },
+  suitLabelMediumStrong:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 13, lineHeight: 16.25, letterSpacing: 0 },
+
 
   // ── Kyobo Handwriting 2025 (본문 손글씨) ──────────────────────
   // title: lineHeight 150%
-  kyoboTitleLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 24, lineHeight: 36,   letterSpacing: 0 },
-  kyoboTitleMedium:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 20, lineHeight: 30,   letterSpacing: 0 },
-  kyoboTitleSmall:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 27,   letterSpacing: 0 },
-  // body: lineHeight 140%
-  kyoboBodyXLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 25.2, letterSpacing: 0 },
-  kyoboBodyLarge:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 17, lineHeight: 23.8, letterSpacing: 0 },
-  kyoboBodyMedium:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 15, lineHeight: 21,   letterSpacing: 0 },
-  kyoboBodySmall:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 13, lineHeight: 18.2, letterSpacing: 0 },
+  kyoboTitleLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 24, lineHeight: 36,    letterSpacing: 0 },
+  kyoboTitleMedium:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 20, lineHeight: 30,    letterSpacing: 0 },
+  kyoboTitleSmall:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 27,    letterSpacing: 0 },
+  // body: lineHeight 150%
+  kyoboBodyXLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 19, lineHeight: 28.5,  letterSpacing: 0 },
+  kyoboBodyLarge:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 27,    letterSpacing: 0 },
+  kyoboBodyMedium:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 16, lineHeight: 24,    letterSpacing: 0 },
+  kyoboBodySmall:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 14, lineHeight: 21,    letterSpacing: 0 },
   // label: lineHeight 125%
-  kyoboLabelXLarge:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 22.5, letterSpacing: 0 },
-  kyoboLabelLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 16, lineHeight: 20,   letterSpacing: 0 },
-  kyoboLabelMedium:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 14, lineHeight: 17.5, letterSpacing: 0 },
-  kyoboLabelSmall:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 12, lineHeight: 15,   letterSpacing: 0 },
-  // caption: lineHeight 150%
-  kyoboCaptionLarge: { ...base, fontFamily: fontFamily.kyobo, fontSize: 12, lineHeight: 18,   letterSpacing: 0 },
-  kyoboCaptionSmall: { ...base, fontFamily: fontFamily.kyobo, fontSize: 11, lineHeight: 16.5, letterSpacing: 0 },
+  kyoboLabelXLarge:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 19, lineHeight: 23.75, letterSpacing: 0 },
+  kyoboLabelLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 17, lineHeight: 21.25, letterSpacing: 0 },
+  kyoboLabelMedium:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 15, lineHeight: 18.75, letterSpacing: 0 },
+  kyoboLabelSmall:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 13, lineHeight: 16.25, letterSpacing: 0 },
 };
