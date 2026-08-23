@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import Profile from '../../../../shared/components/content/profile/Profile';
@@ -26,25 +26,10 @@ const ProfileBar = ({
   containerStyle,
   followButtonStyle,
   followTextStyle,
-  dividerStyle,
 }) => {
-  const [dividerWidth, setDividerWidth] = useState(0);
-
-  const handleContainerLayout = useCallback(event => {
-    const nextWidth = Math.round(event.nativeEvent.layout.width);
-
-    setDividerWidth(currentWidth => {
-      if (currentWidth === nextWidth) return currentWidth;
-      return nextWidth;
-    });
-  }, []);
-
   return (
     <View style={[styles.profileBar, style]}>
-      <View
-        onLayout={handleContainerLayout}
-        style={[styles.container, containerStyle]}
-      >
+      <View style={[styles.container, containerStyle]}>
         <Profile
           imageUri={imageUri}
           imageSize={imageSize}
@@ -70,12 +55,7 @@ const ProfileBar = ({
       </View>
 
       <View style={styles.dividerArea}>
-        {dividerWidth > 0 && (
-          <DividerLine
-            width={dividerWidth}
-            style={dividerStyle}
-          />
-        )}
+        <DividerLine />
       </View>
     </View>
   );
@@ -84,8 +64,6 @@ const ProfileBar = ({
 const styles = StyleSheet.create({
   profileBar: {
     width: '100%',
-    minWidth: '100%',
-    maxWidth: '100%',
     alignSelf: 'stretch',
     flexShrink: 0,
     paddingHorizontal: padding.L,
@@ -96,8 +74,6 @@ const styles = StyleSheet.create({
 
   container: {
     width: '100%',
-    minWidth: '100%',
-    maxWidth: '100%',
     alignSelf: 'stretch',
     flexShrink: 0,
     paddingTop: padding.M,
@@ -114,11 +90,6 @@ const styles = StyleSheet.create({
 
   dividerArea: {
     width: '100%',
-    minWidth: '100%',
-    maxWidth: '100%',
-    alignSelf: 'stretch',
-    flexShrink: 0,
-    height: 1,
     marginTop: gap.M,
   },
 });
