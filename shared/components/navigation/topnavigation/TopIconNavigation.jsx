@@ -44,7 +44,7 @@ const TopIconNavigation = ({
               <IcX
                 width={ICON_SIZE}
                 height={ICON_SIZE}
-                color={colors.fgBrand}
+                color={colors.fgNeutralSolid}
               />
             }
             size="M"
@@ -72,7 +72,7 @@ const TopIconNavigation = ({
               <IcX
                 width={ICON_SIZE}
                 height={ICON_SIZE}
-                color={colors.fgBrand}
+                color={colors.fgNeutralSolid}
               />
             }
             size="M"
@@ -86,7 +86,7 @@ const TopIconNavigation = ({
                 <IcShare
                   width={ICON_SIZE}
                   height={ICON_SIZE}
-                  color={colors.fgBrand}
+                  color={colors.fgNeutralSolid}
                 />
               }
               size="M"
@@ -99,7 +99,7 @@ const TopIconNavigation = ({
                 <IcKebab
                   width={ICON_SIZE}
                   height={ICON_SIZE}
-                  color={colors.fgBrand}
+                  color={colors.fgNeutralSolid}
                 />
               }
               size="M"
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   headerText: {
     ...typo.suitLabelXLargeStrong,
 
-    color: '#000',
+    color: colors.fgNeutralSolid,
     textAlign: 'center',
   },
 });

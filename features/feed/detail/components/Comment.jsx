@@ -91,7 +91,7 @@ const Comment = ({
                     <IcKebab
                       width={14}
                       height={14}
-                      color={colors.fgDeactivate}
+                      color={colors.fgNeutralWeak}
                     />
                   }
                   onPress={handlePressMenu}
@@ -109,8 +109,8 @@ const Comment = ({
             label="답글 달기"
             icon={<IcComment />}
             size="S"
-            color={colors.fgNeutralSubtlest}
-            iconColor={colors.fgNeutralSubtlest}
+            color={colors.fgNeutralWeak}
+            iconColor={colors.fgNeutralWeak}
             onPress={onPressReply}
             accessibilityLabel="답글 달기"
           />
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     ...typo.suitLabelMedium,
     flex: 1,
     minWidth: 0,
-    color: colors.fgNeutralSubtlest,
+    color: colors.fgNeutralWeak,
   },
 
   menuButton: {

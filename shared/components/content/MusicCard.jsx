@@ -198,7 +198,7 @@ const MusicCard = ({
                 width={14}
                 height={14}
                 fill={
-                  colors.fgBrand
+                  colors.fgNeutralSolid
                 }
               />
             }
@@ -259,7 +259,7 @@ const MusicCard = ({
                         MUSIC_WAVE_HEIGHT
                       }
                       color={
-                        colors.fgNeutralSubtlest
+                        colors.fgNeutralWeak
                       }
                     />
 
@@ -345,7 +345,7 @@ const styles =
       borderRadius:
         radius.XL,
       backgroundColor:
-        colors.bgBrandWeak,
+        colors.bgNeutralFaint,
     },
 
     musicWaveTouchArea: {

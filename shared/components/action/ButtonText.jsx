@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    color: colors.fgDeactivate,
+    color: colors.fgNeutralWeak,
   },
 });

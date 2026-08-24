@@ -27,7 +27,7 @@ const AnimatedIcon = ({
   const resolvedColor =
     color ??
     fill ??
-    colors.fgDeactivate;
+    colors.fgNeutralWeak;
 
   return (
     <Animated.View style={animatedStyle}>
@@ -50,9 +50,9 @@ const AnimatedLabeledButton = forwardRef(
       activeIcon: ActiveIcon,
       inactiveIcon: InactiveIcon,
 
-      activeColor = colors.fgBrand,
-      inactiveColor = colors.fgDeactivate,
-      labelColor = colors.fgNeutralSubtlest,
+      activeColor = colors.fgNeutralSolid,
+      inactiveColor = colors.fgNeutralWeak,
+      labelColor = colors.fgNeutralWeak,
 
       animationType = ANIMATION_TYPE.LIKE,
 

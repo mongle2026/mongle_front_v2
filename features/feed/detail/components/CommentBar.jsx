@@ -298,7 +298,7 @@ const CommentBar = ({
             inputHeight >= INPUT_MAX_HEIGHT
           }
           textAlignVertical="top"
-          selectionColor={colors.fgBrand}
+          selectionColor={colors.fgNeutralSolid}
           style={[
             styles.input,
             {
@@ -360,7 +360,7 @@ const CommentBar = ({
                 color={
                   isSubmitDisabled
                     ? colors.fgDisabled
-                    : colors.fgBrand
+                    : colors.fgNeutralSolid
                 }
               />
             }
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     gap: gap.M,
 
     borderTopWidth: 0.5,
-    borderTopColor: colors.strokeBrandWeak,
+    borderTopColor: colors.strokeNeutralSubtle,
 
     backgroundColor: colors.bgLayerDefault,
   },
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     margin: 0,
 
-    color: colors.fgBrand,
+    color: colors.fgNeutralSolid,
     textAlign: 'justify',
   },
 
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
 
     flexShrink: 1,
 
-    color: colors.fgNeutralSubtlest,
+    color: colors.fgNeutralWeak,
     textAlign: 'justify',
   },
 
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
 
     flexShrink: 0,
 
-    color: colors.fgNeutralSubtlest,
+    color: colors.fgNeutralWeak,
     textAlign: 'justify',
   },
 
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   maxCount: {
     ...typo.suitLabelMediumStrong,
 
-    color: colors.fgNeutralSubtlest,
+    color: colors.fgNeutralWeak,
     textAlign: 'right',
   },
 

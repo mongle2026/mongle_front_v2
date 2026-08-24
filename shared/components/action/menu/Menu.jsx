@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: gap.XS,
     borderRadius: radius.M,
-    backgroundColor: colors.bgBrandWeak,
+    backgroundColor: colors.bgNeutralFaint,
     overflow: 'hidden',
   },
 });

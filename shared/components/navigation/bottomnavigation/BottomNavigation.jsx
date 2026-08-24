@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderTopWidth: 0.5,
-    borderTopColor: colors.strokeBrandSubtle,
+    borderTopColor: colors.strokeNeutralFaint,
     backgroundColor: colors.bgLayerDefault,
   },
 

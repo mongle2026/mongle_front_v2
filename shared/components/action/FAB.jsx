@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
 
   darkButton: {
-    backgroundColor: colors.bgBrandSolid,
+    backgroundColor: colors.bgNeutralSolid,
   },
 
   lightButton: {

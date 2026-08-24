@@ -10,7 +10,7 @@ import { colors } from '../../styles/color';
 const TEXTURE_SIZE = 58.4;
 const RADIUS = 3.1;
 
-const LINE_COLOR = colors.strokeBrandSolid;
+const LINE_COLOR = colors.strokeNeutralSolid;
 const STROKE_WIDTH = 1;
 
 // 화면에서 원하는 Divider 영역 높이.

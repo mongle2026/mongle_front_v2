@@ -50,11 +50,11 @@ const styles = StyleSheet.create({
   },
 
   activeLabel: {
-    color: colors.fgBrand,
+    color: colors.fgNeutralSolid,
   },
 
   inactiveLabel: {
-    color: colors.fgNeutralSubtlest,
+    color: colors.fgNeutralWeak,
   },
 });
 

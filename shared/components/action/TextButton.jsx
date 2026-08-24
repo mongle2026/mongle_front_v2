@@ -13,7 +13,7 @@ const TYPOGRAPHY_CONFIG = {
 const VARIANT_STYLES = {
   Solid: {
     container: {
-      backgroundColor: colors.bgBrandSolid,
+      backgroundColor: colors.bgNeutralSolid,
       borderWidth: 0,
     },
     text: {
@@ -25,10 +25,10 @@ const VARIANT_STYLES = {
     container: {
       backgroundColor: 'transparent',
       borderWidth: 1,
-      borderColor: colors.strokeBrandSolid,
+      borderColor: colors.strokeNeutralSolid,
     },
     text: {
-      color: colors.fgBrand,
+      color: colors.fgNeutralSolid,
     },
   },
 
@@ -53,12 +53,12 @@ const VARIANT_STYLES = {
       paddingHorizontal: padding.XL,
 
       borderRadius: radius.M,
-      backgroundColor: colors.bgBrandWeak,
+      backgroundColor: colors.bgNeutralFaint,
       borderWidth: 0,
     },
     text: {
       ...typo.suitLabelXLargeStrong,
-      color: colors.fgBrand,
+      color: colors.fgNeutralSolid,
     },
   },
 };
