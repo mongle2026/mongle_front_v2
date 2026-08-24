@@ -250,10 +250,11 @@ const CommentBar = ({
               <IcArrowUp
                 width={14}
                 height={14}
-                color={colors.fgBrand}
+                color={colors.fgDisabled}
               />
             }
             disabled
+            style={styles.submitButton}
             accessibilityLabel="댓글 등록"
           />
         </View>
@@ -356,11 +357,16 @@ const CommentBar = ({
               <IcArrowUp
                 width={14}
                 height={14}
-                color={colors.fgBrand}
+                color={
+                  isSubmitDisabled
+                    ? colors.fgDisabled
+                    : colors.fgBrand
+                }
               />
             }
             onPress={handleSubmit}
             disabled={isSubmitDisabled}
+            style={styles.submitButton}
             accessibilityLabel="댓글 등록"
           />
         </View>
@@ -525,6 +531,10 @@ const styles = StyleSheet.create({
 
     color: colors.fgNeutralSubtlest,
     textAlign: 'right',
+  },
+
+  submitButton: {
+    opacity: 1,
   },
 });
 
