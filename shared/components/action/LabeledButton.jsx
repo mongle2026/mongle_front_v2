@@ -1,5 +1,10 @@
 import React, { memo } from 'react';
-import { Pressable, StyleSheet, Text, View, } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { colors } from '../../styles/color';
 import { gap, padding, radius } from '../../styles/token';
@@ -8,6 +13,7 @@ import { typo } from '../../styles/typo';
 const SIZE_CONFIG = {
   S: {
     iconSize: 12,
+    typography: typo.suitLabelMedium,
     containerStyle: {
       paddingVertical: padding.XS,
       paddingHorizontal: 0,
@@ -16,21 +22,10 @@ const SIZE_CONFIG = {
 
   M: {
     iconSize: 18,
+    typography: typo.suitLabelLarge,
     containerStyle: {
       padding: padding.M,
     },
-  },
-};
-
-const TYPOGRAPHY_CONFIG = {
-  kyobo: {
-    S: typo.kyoboLabelSmall,
-    M: typo.kyoboLabelLarge,
-  },
-
-  suit: {
-    S: typo.suitLabelMedium,
-    M: typo.suitLabelLarge,
   },
 };
 
@@ -38,7 +33,6 @@ const LabeledButton = ({
   label,
   icon,
   size = 'M',
-  font = 'kyobo',
 
   color = colors.fgNeutralSubtlest,
   iconColor = colors.fgNeutralSubtlest,
@@ -54,14 +48,6 @@ const LabeledButton = ({
     SIZE_CONFIG[size] ??
     SIZE_CONFIG.M;
 
-  const currentFont =
-    TYPOGRAPHY_CONFIG[font] ??
-    TYPOGRAPHY_CONFIG.kyobo;
-
-  const typographyStyle =
-    currentFont[size] ??
-    currentFont.M;
-
   /*
    * 0은 유효한 label일 수 있으므로
    * 단순 Boolean(label)로 검사하지 않습니다.
@@ -73,12 +59,12 @@ const LabeledButton = ({
 
   const renderedIcon = React.isValidElement(icon)
     ? React.cloneElement(icon, {
-      width: currentSize.iconSize,
-      height: currentSize.iconSize,
-      size: currentSize.iconSize,
-      fill: iconColor,
-      color: iconColor,
-    })
+        width: currentSize.iconSize,
+        height: currentSize.iconSize,
+        size: currentSize.iconSize,
+        fill: iconColor,
+        color: iconColor,
+      })
     : null;
 
   const resolvedAccessibilityLabel =
@@ -119,7 +105,7 @@ const LabeledButton = ({
       {hasLabel && (
         <Text
           style={[
-            typographyStyle,
+            currentSize.typography,
             styles.label,
             { color },
             textStyle,

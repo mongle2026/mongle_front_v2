@@ -57,7 +57,6 @@ const AnimatedLabeledButton = forwardRef(
       animationType = ANIMATION_TYPE.LIKE,
 
       size = 'S',
-      font = 'suit',
 
       disabled = false,
       onPress,
@@ -179,7 +178,6 @@ const AnimatedLabeledButton = forwardRef(
       <LabeledButton
         label={label}
         size={size}
-        font={font}
         icon={
           <AnimatedIcon
             Icon={Icon}

@@ -109,7 +109,6 @@ const Comment = ({
             label="답글 달기"
             icon={<IcComment />}
             size="S"
-            font="suit"
             color={colors.fgNeutralSubtlest}
             iconColor={colors.fgNeutralSubtlest}
             onPress={onPressReply}
