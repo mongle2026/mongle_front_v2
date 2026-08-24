@@ -1,9 +1,9 @@
 // ── palette: Color Palette의 원시 색상값 (캡스톤 디자인 v2.0) ─────────
 export const palette = {
   neutral: {
-    0: '#ffffff', 50: '#f7f6f6', 100: '#f3f2f2', 200: '#e6e6e6',
-    300: '#d9d9d9', 400: '#c6c6c6', 500: '#a8acb0', 600: '#858c96',
-    700: '#757575', 800: '#3d3d3d', 900: '#252729', 950: '#1f2124',
+    0: '#ffffff', 50: '#f6f6f7', 100: '#f1f2f4', 200: '#e5e6e8',
+    300: '#d7d9dc', 400: '#c4c6ca', 500: '#a9acb0', 600: '#888c91',
+    700: '#72757b', 800: '#3a3d42', 900: '#24272b', 950: '#1e2125',
   },
   blue: {
     50: '#e2e9fe', 100: '#c5d3fd', 200: '#a5bbfe', 300: '#85a4fe',
@@ -31,18 +31,18 @@ export const palette = {
     800: '#6a4c00', 900: '#4a3400', 1000: '#2e2000',
   },
   overlay: {
-    weak:    '#1f212433', // neutral/950 @ 20%
-    default: '#1f212480', // neutral/950 @ 50%
-    strong:  '#1f2124bf', // neutral/950 @ 75%
+    weak:    '#1e212533', // neutral/950 @ 20%
+    default: '#1e212580', // neutral/950 @ 50%
+    strong:  '#1e2125bf', // neutral/950 @ 75%
   },
 };
 
 // ── shadow: elevation effect style → RN 호환 props로 변환 ─────────
 // elevation/middleDown: Drop shadow, X0 Y4, Blur 15, Spread 0,
-// color=overlay/weak (neutral/950 #1f2124 @ 20% → shadowColor + shadowOpacity로 분리)
+// color=overlay/weak (neutral/950 #1e2125 @ 20% → shadowColor + shadowOpacity로 분리)
 export const shadow = {
   middleDown: {
-    shadowColor: '#1f2124',
+    shadowColor: '#1e2125',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 15,
