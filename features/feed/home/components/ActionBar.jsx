@@ -26,6 +26,8 @@ const ActionBar = ({
   likeDisabled = false,
   bookmarkDisabled = false,
 
+  showCommentButton = true,
+
   likeButtonRef,
   onCommentPress,
   onLikePress,
@@ -53,14 +55,16 @@ const ActionBar = ({
       </Text>
 
       <View style={styles.actions}>
-        <LabeledButton
-          size="M"
-          icon={<IcComment />}
-          iconColor={colors.fgDeactivate}
-          onPress={onCommentPress}
-          accessibilityLabel="댓글"
-          style={styles.actionButton}
-        />
+        {showCommentButton && (
+          <LabeledButton
+            size="M"
+            icon={<IcComment />}
+            iconColor={colors.fgDeactivate}
+            onPress={onCommentPress}
+            accessibilityLabel="댓글"
+            style={styles.actionButton}
+          />
+        )}
 
         <AnimatedLabeledButton
           ref={likeButtonRef}

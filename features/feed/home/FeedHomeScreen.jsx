@@ -97,9 +97,9 @@ const FeedHomeScreen = ({
     playingFeedId,
     playbackProgress,
     handlePressPlayback:
-      handlePressMusicPlayback,
+    handlePressMusicPlayback,
     handleSeekPlayback:
-      handleSeekMusicPlayback,
+    handleSeekMusicPlayback,
     handleVisibleFeedChange,
     resetPlayback,
   } = useFeedMusicPlayback({
@@ -117,7 +117,7 @@ const FeedHomeScreen = ({
     refetchFeed,
     handlePressLike,
     handlePressBookmark:
-      toggleBookmark,
+    toggleBookmark,
     handlePressFollow,
     likePendingFeedIds,
     bookmarkPendingFeedIds,
@@ -167,7 +167,7 @@ const FeedHomeScreen = ({
 
           return (
             measuredPostHeights[
-              feedId
+            feedId
             ] ??
             getEstimatedPostHeight(
               item,
@@ -180,27 +180,27 @@ const FeedHomeScreen = ({
 
       const lastHeight =
         heights[
-          heights.length - 1
+        heights.length - 1
         ];
 
       const paddingTop =
         listHeight > 0
           ? Math.max(
-              (listHeight -
-                firstHeight) /
-                2,
-              0,
-            )
+            (listHeight -
+              firstHeight) /
+            2,
+            0,
+          )
           : 0;
 
       const paddingBottom =
         listHeight > 0
           ? Math.max(
-              (listHeight -
-                lastHeight) /
-                2,
-              0,
-            )
+            (listHeight -
+              lastHeight) /
+            2,
+            0,
+          )
           : 0;
 
       let currentTop =
@@ -211,12 +211,12 @@ const FeedHomeScreen = ({
           const offset =
             listHeight > 0
               ? Math.max(
-                  currentTop -
-                    (listHeight -
-                      height) /
-                      2,
-                  0,
-                )
+                currentTop -
+                (listHeight -
+                  height) /
+                2,
+                0,
+              )
               : currentTop;
 
           currentTop +=
@@ -276,7 +276,7 @@ const FeedHomeScreen = ({
       setListHeight(
         currentHeight =>
           currentHeight ===
-          nextHeight
+            nextHeight
             ? currentHeight
             : nextHeight,
       );
@@ -304,7 +304,7 @@ const FeedHomeScreen = ({
           currentHeights => {
             if (
               currentHeights[
-                feedId
+              feedId
               ] === nextHeight
             ) {
               return currentHeights;
@@ -334,7 +334,7 @@ const FeedHomeScreen = ({
             }) =>
               isViewable &&
               item?.feedId !=
-                null,
+              null,
           )?.item;
 
         if (currentItem) {
@@ -453,18 +453,25 @@ const FeedHomeScreen = ({
           {
             onSuccess: () => {
               if (
-                !isAddingBookmark
+                isAddingBookmark
               ) {
+                showToast({
+                  message:
+                    '기록을 북마크에 추가했습니다.',
+                  buttonText:
+                    '이동',
+                  onPressButton:
+                    handlePressBookmarkToastButton,
+                  bottomOffset:
+                    floatingBottomOffset,
+                });
+
                 return;
               }
 
               showToast({
                 message:
-                  '기록을 북마크에 추가했습니다.',
-                buttonText:
-                  '이동',
-                onPressButton:
-                  handlePressBookmarkToastButton,
+                  '기록을 북마크에서 삭제했습니다.',
                 bottomOffset:
                   floatingBottomOffset,
               });
@@ -691,15 +698,15 @@ const FeedHomeScreen = ({
         contentContainerStyle={[
           styles.postList,
           posts.length >
-            0 && {
+          0 && {
             paddingTop:
               postMetrics.paddingTop,
             paddingBottom:
               postMetrics.paddingBottom,
           },
           posts.length ===
-            0 &&
-            styles.emptyPostList,
+          0 &&
+          styles.emptyPostList,
         ]}
         onLayout={
           handleListLayout

@@ -231,18 +231,25 @@ const FeedDetailScreen = ({
         {
           onSuccess: () => {
             if (
-              !isAddingBookmark
+              isAddingBookmark
             ) {
+              showToast({
+                message:
+                  '기록을 북마크에 추가했습니다.',
+                buttonText:
+                  '이동',
+                onPressButton:
+                  handlePressBookmarkToastButton,
+                bottomOffset:
+                  floatingBottomOffset,
+              });
+
               return;
             }
 
             showToast({
               message:
-                '기록을 북마크에 추가했습니다.',
-              buttonText:
-                '이동',
-              onPressButton:
-                handlePressBookmarkToastButton,
+                '기록을 북마크에서 삭제했습니다.',
               bottomOffset:
                 floatingBottomOffset,
             });
@@ -794,6 +801,9 @@ const FeedDetailScreen = ({
           }
           bookmarkDisabled={
             isBookmarkPending
+          }
+          showCommentButton={
+            false
           }
           likeButtonRef={
             likeButtonRef
