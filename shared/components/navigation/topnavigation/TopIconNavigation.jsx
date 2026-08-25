@@ -12,7 +12,7 @@ import { colors } from '../../../styles/color';
 import { padding } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
 
-const ICON_SIZE = 18;
+const ICON_SIZE = 22;
 
 const TopIconNavigation = ({
   type = 'icon',
@@ -40,14 +40,8 @@ const TopIconNavigation = ({
       {isText ? (
         <View style={styles.textContent}>
           <IconButton
-            icon={
-              <IcX
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-                color={colors.fgNeutralSolid}
-              />
-            }
-            size="M"
+            icon={<IcX color={colors.fgNeutralMuted} />}
+            size="XL"
             onPress={onPressClose}
             accessibilityLabel="닫기"
           />
@@ -68,41 +62,23 @@ const TopIconNavigation = ({
       ) : (
         <>
           <IconButton
-            icon={
-              <IcX
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-                color={colors.fgNeutralSolid}
-              />
-            }
-            size="M"
+            icon={<IcX color={colors.fgNeutralMuted} />}
+            size="XL"
             onPress={onPressClose}
             accessibilityLabel="닫기"
           />
 
           <View style={styles.tail}>
             <IconButton
-              icon={
-                <IcShare
-                  width={ICON_SIZE}
-                  height={ICON_SIZE}
-                  color={colors.fgNeutralSolid}
-                />
-              }
-              size="M"
+              icon={<IcShare color={colors.fgNeutralSolid} />}
+              size="XL"
               onPress={onPressShare}
               accessibilityLabel="공유하기"
             />
 
             <IconButton
-              icon={
-                <IcKebab
-                  width={ICON_SIZE}
-                  height={ICON_SIZE}
-                  color={colors.fgNeutralSolid}
-                />
-              }
-              size="M"
+              icon={<IcKebab color={colors.fgNeutralSolid} />}
+              size="XL"
               onPress={onPressMore}
               accessibilityLabel="더보기"
             />

@@ -21,7 +21,7 @@ const SIZE_CONFIG = {
   },
 
   M: {
-    iconSize: 18,
+    iconSize: 22,
     typography: typo.suitLabelLarge,
     containerStyle: {
       padding: padding.M,
@@ -48,10 +48,6 @@ const LabeledButton = ({
     SIZE_CONFIG[size] ??
     SIZE_CONFIG.M;
 
-  /*
-   * 0은 유효한 label일 수 있으므로
-   * 단순 Boolean(label)로 검사하지 않습니다.
-   */
   const hasLabel =
     label !== undefined &&
     label !== null &&
@@ -126,9 +122,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.XS,
   },
 
-  /*
-   * 아이콘만 사용하는 경우에는 gap을 적용하지 않습니다.
-   */
   withLabel: {
     gap: gap.S,
   },

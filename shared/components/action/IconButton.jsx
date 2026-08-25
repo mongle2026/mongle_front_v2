@@ -1,17 +1,24 @@
-import React, { memo } from 'react';
-import { Pressable, StyleSheet, View, } from 'react-native';
+import React, { memo, cloneElement, isValidElement } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { padding, radius } from '../../styles/token';
 
 const IconButton = ({
   icon,
-  size = 'M',
+  size = 'S',
   onPress,
   disabled = false,
   accessibilityLabel,
   style,
 }) => {
-  const currentSize = SIZE_STYLES[size] ?? SIZE_STYLES.M;
+  const currentSize = SIZE_STYLES[size] ?? SIZE_STYLES.S;
+
+  const renderedIcon = isValidElement(icon)
+    ? cloneElement(icon, {
+      width: currentSize.iconSize,
+      height: currentSize.iconSize,
+    })
+    : icon;
 
   return (
     <Pressable
@@ -29,8 +36,17 @@ const IconButton = ({
         style,
       ]}
     >
-      <View pointerEvents="none">
-        {icon}
+      <View
+        pointerEvents="none"
+        style={[
+          styles.icon,
+          {
+            width: currentSize.iconSize,
+            height: currentSize.iconSize,
+          },
+        ]}
+      >
+        {renderedIcon}
       </View>
     </Pressable>
   );
@@ -45,15 +61,20 @@ const styles = StyleSheet.create({
   },
 
   sizeS: {
-    width: 22,
-    height: 22,
     padding: padding.XS,
   },
 
-  sizeM: {
-    width: 34,
-    height: 34,
+  sizeL: {
+    padding: padding.L,
+  },
+
+  sizeXL: {
     padding: padding.M,
+  },
+
+  icon: {
+    aspectRatio: 1,
+    flexShrink: 0,
   },
 
   pressed: {
@@ -68,11 +89,20 @@ const styles = StyleSheet.create({
 const SIZE_STYLES = {
   S: {
     container: styles.sizeS,
+    iconSize: 14,
     hitSlop: 11,
   },
-  M: {
-    container: styles.sizeM,
-    hitSlop: 5,
+
+  L: {
+    container: styles.sizeL,
+    iconSize: 20,
+    hitSlop: 0,
+  },
+
+  XL: {
+    container: styles.sizeXL,
+    iconSize: 22,
+    hitSlop: 3,
   },
 };
 

@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   },
 
   comment: {
-    ...typo.suitBodyLarge,
+    ...typo.suitBodyXLarge,
     width: '100%',
     alignSelf: 'stretch',
     color: colors.fgNeutralMuted,

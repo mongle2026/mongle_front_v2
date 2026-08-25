@@ -1,19 +1,26 @@
 import React, { memo, useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View, } from 'react-native';
 
 import ProfileImg from '../../atomic/ProfileImg';
 import { TextButton } from '../../action/TextButton';
 
 import { colors } from '../../../styles/color';
-import { gap } from '../../../styles/token';
+import { typo } from '../../../styles/typo';
+import { gap, padding } from '../../../styles/token';
+import { FONT, normalizeFont, } from '../../../styles/font';
+
+const PROFILE_TYPE = Object.freeze({
+  FEED: 'Feed',
+  LETTER: 'Letter',
+});
 
 const USERNAME_ROTATION_DEGREE = -4;
 const USERNAME_ROTATION_RADIAN =
   (Math.abs(USERNAME_ROTATION_DEGREE) * Math.PI) / 180;
 
 /**
- * 버튼은 중심을 기준으로 -4도 회전합니다.
- * 회전 후 왼쪽 아래 끝점이 기존 하단보다 내려오는 만큼을 계산합니다.
+ * Feed Profile의 username 버튼은 중심 기준 -4도 회전합니다.
+ * 회전 후 왼쪽 아래 끝점이 기존 하단보다 내려오는 만큼 계산합니다.
  */
 const getRotatedEndpointOffset = (width, height) => {
   const widthOffset =
@@ -30,11 +37,20 @@ const getRotatedEndpointOffset = (width, height) => {
 };
 
 const Profile = ({
+  type = PROFILE_TYPE.FEED,
+
   imageUri,
+
+  // Feed
   imageSize = 'M',
   username,
-  font,
   onPress,
+
+  // Letter
+  recipientName,
+
+  // Common
+  font,
   style,
   imageStyle,
   buttonStyle,
@@ -42,7 +58,9 @@ const Profile = ({
 }) => {
   const [endpointOffset, setEndpointOffset] = useState(0);
 
-  // username에 이미 @가 들어와도 중복되지 않도록 제거합니다.
+  const normalizedFont = normalizeFont(font);
+
+  // Feed username에 이미 @가 들어와도 중복되지 않도록 제거합니다.
   const normalizedUsername = String(username ?? '').replace(/^@+/, '');
   const profileId = `@${normalizedUsername}`;
 
@@ -59,12 +77,69 @@ const Profile = ({
     });
   }, []);
 
+  /**
+   * Letter
+   */
+  if (type === PROFILE_TYPE.LETTER) {
+    const recipientText = String(recipientName ?? '').trim();
+
+    const letterTextStyle =
+      normalizedFont === FONT.SUIT
+        ? typo.suitLabelLarge
+        : typo.kyoboLabelLarge;
+
+    return (
+      <View
+        style={[
+          styles.letterContainer,
+          style,
+        ]}
+      >
+        <View
+          style={[
+            styles.letterImageArea,
+            imageStyle,
+          ]}
+        >
+          <ProfileImg
+            imageUri={imageUri}
+            size="S"
+          />
+        </View>
+
+        <View style={styles.nicknameContainer}>
+          <Text
+            style={[
+              letterTextStyle,
+              styles.letterText,
+              textStyle,
+            ]}
+          >
+            {recipientText}
+          </Text>
+
+          <Text
+            style={[
+              letterTextStyle,
+              styles.letterText,
+              textStyle,
+            ]}
+          >
+            에게
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  /**
+   * Feed
+   */
   return (
     <View
       style={[
-        styles.container,
+        styles.feedContainer,
         {
-          // 회전된 버튼과 이미지가 내려오는 영역을 실제 높이에 포함합니다.
           paddingBottom: endpointOffset,
         },
         style,
@@ -72,9 +147,8 @@ const Profile = ({
     >
       <View
         style={[
-          styles.imageArea,
+          styles.feedImageArea,
           {
-            // 이미지 하단을 회전된 버튼의 왼쪽 아래 끝점에 맞춥니다.
             transform: [
               {
                 translateY: endpointOffset,
@@ -108,12 +182,13 @@ const Profile = ({
           {profileId}
         </TextButton>
       </View>
-    </View >
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  // ── Feed ─────────────────────────────────────
+  feedContainer: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -122,7 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgLayerDefault,
   },
 
-  imageArea: {
+  feedImageArea: {
     flexShrink: 0,
   },
 
@@ -140,6 +215,33 @@ const styles = StyleSheet.create({
   usernameButton: {
     // TextButton의 기본 width: '100%'를 덮어씁니다.
     width: 'auto',
+  },
+
+  // ── Letter ───────────────────────────────────
+  letterContainer: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    paddingVertical: padding.M,
+    paddingHorizontal: padding.L,
+
+    gap: gap.S,
+
+    backgroundColor: colors.bgLayerDefault,
+  },
+
+  letterImageArea: {
+    flexShrink: 0,
+  },
+
+  nicknameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  letterText: {
+    color: colors.fgNeutralSolid,
   },
 });
 

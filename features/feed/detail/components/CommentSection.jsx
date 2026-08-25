@@ -5,7 +5,7 @@ import {
   View,
 } from 'react-native';
 
-import Empty from '../../../../shared/components/feedback/Empty';
+import Empty from '../../../../shared/components/content/Empty';
 import ListHeader from '../../../../shared/components/content/ListHeader';
 
 import Comment from './Comment';
