@@ -15,9 +15,9 @@ const IconButton = ({
 
   const renderedIcon = isValidElement(icon)
     ? cloneElement(icon, {
-      width: currentSize.iconSize,
-      height: currentSize.iconSize,
-    })
+        width: currentSize.iconSize,
+        height: currentSize.iconSize,
+      })
     : icon;
 
   return (
@@ -64,6 +64,10 @@ const styles = StyleSheet.create({
     padding: padding.XS,
   },
 
+  sizeM: {
+    padding: padding.M,
+  },
+
   sizeL: {
     padding: padding.L,
   },
@@ -91,6 +95,12 @@ const SIZE_STYLES = {
     container: styles.sizeS,
     iconSize: 14,
     hitSlop: 11,
+  },
+
+  M: {
+    container: styles.sizeM,
+    iconSize: 18,
+    hitSlop: 5,
   },
 
   L: {

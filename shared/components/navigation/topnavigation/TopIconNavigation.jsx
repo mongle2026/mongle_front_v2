@@ -41,7 +41,7 @@ const TopIconNavigation = ({
         <View style={styles.textContent}>
           <IconButton
             icon={<IcX color={colors.fgNeutralMuted} />}
-            size="XL"
+            size="M"
             onPress={onPressClose}
             accessibilityLabel="닫기"
           />
