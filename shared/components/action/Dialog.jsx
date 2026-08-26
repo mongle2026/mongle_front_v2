@@ -93,8 +93,7 @@ const styles = StyleSheet.create({
   },
   description: {
     alignSelf: 'stretch',
-    ...typo.suitLabelLarge,
-    lineHeight: 22.5,
+    ...typo.suitBodyLarge,
     color: colors.fgNeutralSubtle,
     textAlign: 'center',
   },
