@@ -1,24 +1,47 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import IlEmptyComment from '../../../assets/illustrations/il_empty_comment.svg';
 import IlEmptyRecipient from '../../../assets/illustrations/il_empty_recipient.svg';
+import IlEmptyMusic from '../../../assets/illustrations/il_empty_music.svg';
 
 import { colors } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
 const Empty = ({
+  type,
   title,
   body,
 }) => {
+  const getIllustration = () => {
+    switch (type) {
+      case 'comment':
+        return IlEmptyComment;
+
+      case 'recipient':
+        return IlEmptyRecipient;
+
+      case 'music':
+        return IlEmptyMusic;
+
+      default:
+        return null;
+    }
+  };
+
+  const Illustration = getIllustration();
+
   return (
     <View style={styles.container}>
-      <View style={styles.illustration}>
-        <IlEmptyRecipient
-          width="100%"
-          height="100%"
-        />
-      </View>
+      {Illustration ? (
+        <View style={styles.illustration}>
+          <Illustration
+            width="100%"
+            height="100%"
+          />
+        </View>
+      ) : null}
 
       <View style={styles.textContainer}>
         {title ? (

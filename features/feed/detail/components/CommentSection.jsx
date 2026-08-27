@@ -29,7 +29,7 @@ const CommentSection = ({
           <ActivityIndicator />
         </View>
       ) : comments.length === 0 ? (
-        <Empty body={EMPTY_COMMENT_BODY} />
+        <Empty type="comment" body={EMPTY_COMMENT_BODY} />
       ) : (
         comments.map(comment => {
           const isMenuOpen =
