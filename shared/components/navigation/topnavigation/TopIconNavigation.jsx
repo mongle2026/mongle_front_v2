@@ -97,12 +97,13 @@ const styles = StyleSheet.create({
     paddingBottom: padding.XS,
 
     flexDirection: 'row',
+
+    backgroundColor: colors.bgLayerDefault,
   },
 
   // type = icon
   containerIcon: {
     alignItems: 'center',
-    backgroundColor: colors.bgLayerDefault,
   },
 
   tail: {
@@ -117,8 +118,6 @@ const styles = StyleSheet.create({
   containerText: {
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-
-    backgroundColor: colors.bgLayerCanvas,
   },
 
   textContent: {

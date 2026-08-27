@@ -10,10 +10,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GestureHandlerRootView, } from 'react-native-gesture-handler';
 import { fontMap } from './shared/styles/fonts';
 import { colors } from './shared/styles/color';
 import FeedHomeScreen from './features/feed/home/FeedHomeScreen';
 import FeedDetailScreen from './features/feed/detail/FeedDetailScreen';
+import RecordScreen from './features/write/record/RecordScreen';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
@@ -112,6 +114,10 @@ const RootNavigator = () => (
         presentation: 'transparentModal',
       }}
     />
+    <Stack.Screen
+      name="Record"
+      component={RecordScreen}
+    />
   </Stack.Navigator>
 );
 
@@ -143,17 +149,21 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <DialogProvider>
-          <GlobalOverlayProvider>
-            <NavigationContainer linking={linking}>
-              <RootNavigator />
-            </NavigationContainer>
-            <StatusBar style="dark" />
-          </GlobalOverlayProvider>
-        </DialogProvider>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView
+      style={{ flex: 1 }}
+    >
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <DialogProvider>
+            <GlobalOverlayProvider>
+              <NavigationContainer linking={linking}>
+                <RootNavigator />
+              </NavigationContainer>
+              <StatusBar style="dark" />
+            </GlobalOverlayProvider>
+          </DialogProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

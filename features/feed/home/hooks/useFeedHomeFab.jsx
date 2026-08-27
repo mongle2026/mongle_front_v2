@@ -6,19 +6,30 @@ import { useBottomNavigationHeight } from '../../../../shared/components/navigat
 import { padding } from '../../../../shared/styles/token';
 
 const FAB_OVERLAY_ID = 'feed-home-fab';
+
 export const FAB_BOTTOM_GAP = 10;
 
 const useFeedHomeFab = navigation => {
   const bottomNavigationHeight = useBottomNavigationHeight();
-  const { activeOverlayId, openOverlay, closeOverlay } = useGlobalOverlay();
+
+  const {
+    activeOverlayId,
+    openOverlay,
+    closeOverlay,
+  } = useGlobalOverlay();
+
   const isFabOpen = activeOverlayId === FAB_OVERLAY_ID;
 
   const handlePressFeedWrite = useCallback(() => {
-    navigation.navigate('FeedWrite');
+    navigation.navigate('Record', {
+      type: 'feed',
+    });
   }, [navigation]);
 
   const handlePressLetterWrite = useCallback(() => {
-    navigation.navigate('LetterWrite');
+    navigation.navigate('Record', {
+      type: 'letter',
+    });
   }, [navigation]);
 
   const handleOpenFab = useCallback(() => {
@@ -27,10 +38,12 @@ const useFeedHomeFab = navigation => {
       accessibilityLabel: '작성 메뉴 닫기',
       closeOnDimPress: true,
       closeOnBackPress: true,
+
       contentContainerStyle: {
         right: padding.XL,
         bottom: bottomNavigationHeight + FAB_BOTTOM_GAP,
       },
+
       renderContent: ({ close }) => (
         <FAB
           open

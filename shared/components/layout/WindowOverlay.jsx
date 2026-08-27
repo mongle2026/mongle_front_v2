@@ -7,6 +7,9 @@ import {
 import {
   FullWindowOverlay,
 } from 'react-native-screens';
+import {
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
 
 const WindowOverlay = ({
   children,
@@ -18,7 +21,7 @@ const WindowOverlay = ({
       style={[
         styles.container,
         Platform.OS !== 'ios' &&
-          styles.absoluteContainer,
+        styles.absoluteContainer,
       ]}
     >
       {children}
@@ -28,7 +31,11 @@ const WindowOverlay = ({
   if (Platform.OS === 'ios') {
     return (
       <FullWindowOverlay>
-        {content}
+        <GestureHandlerRootView
+          style={styles.container}
+        >
+          {content}
+        </GestureHandlerRootView>
       </FullWindowOverlay>
     );
   }
