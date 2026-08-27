@@ -1,8 +1,15 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { colors } from '../../styles/color';
-import { gap, padding } from '../../styles/token';
+import {
+  gap,
+  padding,
+} from '../../styles/token';
 import { typo } from '../../styles/typo';
 
 const SIZE = {
@@ -24,22 +31,26 @@ const ListHeader = ({
     <View
       style={[
         styles.container,
-        isMedium ? styles.containerM : styles.containerS,
+        isMedium
+          ? styles.containerM
+          : styles.containerS,
         style,
       ]}
       accessibilityRole="header"
     >
-      {isMedium && informativeText ? (
+      {isMedium ? (
         <>
-          <Text
-            style={[
-              styles.titleM,
-              styles.informativeText,
-              informativeTextStyle,
-            ]}
-          >
-            {informativeText}
-          </Text>
+          {informativeText ? (
+            <Text
+              style={[
+                styles.titleM,
+                styles.informativeText,
+                informativeTextStyle,
+              ]}
+            >
+              {informativeText}
+            </Text>
+          ) : null}
 
           <Text
             style={[
@@ -71,7 +82,8 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor:
+      colors.bgLayerDefault,
   },
 
   // size = S

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Icons
@@ -21,7 +21,7 @@ import { resolveMediaUri } from '../../../shared/utils/media';
 
 // Shared Styles
 import { colors } from '../../../shared/styles/color';
-import { padding } from '../../../shared/styles/token';
+import { gap, padding } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 
 // Feature Components & Stores
@@ -29,8 +29,10 @@ import LabeledButton from '../components/LabeledButton';
 import BottomBar from '../components/bottombar/BottomBar';
 import MusicSelectBottomSheet from '../music/components/MusicSelectBottomSheet';
 import RecipientSelectBottomSheet from '../recipient/components/RecipientSelectBottomSheet';
+import DateSelectBottomSheet from '../date/components/DateSelectBottomSheet';
 import { useRecordFormStore } from '../store/useRecordFormStore';
 import { useLetterFormStore } from '../store/useLetterFormStore';
+import { formatDeliveryDateLabel, toDeliveryAt, } from '../date/utils/deliveryDate';
 
 const RECORD_TYPE = {
   FEED: 'feed',
@@ -39,6 +41,7 @@ const RECORD_TYPE = {
 
 const MUSIC_SELECT_OVERLAY_ID = 'record-music-select';
 const RECIPIENT_SELECT_OVERLAY_ID = 'record-recipient-select';
+const DATE_SELECT_OVERLAY_ID = 'record-date-select';
 
 const RecordScreen = ({ navigation, route }) => {
   /* 현재 로그인 사용자 */
@@ -51,6 +54,8 @@ const RecordScreen = ({ navigation, route }) => {
 
   /* 편지 전용 작성 데이터 */
   const receiver = useLetterFormStore(state => state.receiver);
+  const deliveryAt = useLetterFormStore(state => state.deliveryAt,);
+  const setDeliveryAt = useLetterFormStore(state => state.setDeliveryAt,);
 
   /* feed / letter 구분 */
   const type = route?.params?.type ?? RECORD_TYPE.FEED;
@@ -89,11 +94,81 @@ const RecordScreen = ({ navigation, route }) => {
   }, [openOverlay]);
 
   /* 날짜 선택 */
-  const handleOpenDateSelect = useCallback(() => {
-    Keyboard.dismiss();
+  const handleOpenDateSelect =
+    useCallback(() => {
+      Keyboard.dismiss();
 
-    // TODO: 날짜 선택 BottomSheet 연결
-  }, []);
+      openOverlay({
+        id: DATE_SELECT_OVERLAY_ID,
+        accessibilityLabel:
+          '날짜 선택 닫기',
+        contentContainerStyle:
+          styles.bottomSheetOverlayContainer,
+
+        renderContent: ({ close }) => (
+          <DateSelectBottomSheet
+            initialDate={
+              parseDeliveryAtToDate(
+                deliveryAt,
+              )
+            }
+            onConfirm={
+              handleConfirmDate
+            }
+            onClose={close}
+          />
+        ),
+      });
+    }, [
+      openOverlay,
+      deliveryAt,
+      handleConfirmDate,
+    ]);
+
+  const handleConfirmDate = useCallback(
+    selectedDate => {
+      const nextDeliveryAt =
+        toDeliveryAt(selectedDate);
+
+      if (!nextDeliveryAt) {
+        return;
+      }
+
+      setDeliveryAt(nextDeliveryAt);
+    },
+    [setDeliveryAt],
+  );
+
+  const parseDeliveryAtToDate = deliveryAt => {
+    if (!deliveryAt) {
+      return null;
+    }
+
+    const dateString =
+      deliveryAt.split('T')[0];
+
+    const [
+      year,
+      month,
+      day,
+    ] = dateString
+      .split('-')
+      .map(Number);
+
+    if (
+      !year ||
+      !month ||
+      !day
+    ) {
+      return null;
+    }
+
+    return new Date(
+      year,
+      month - 1,
+      day,
+    );
+  };
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -106,7 +181,19 @@ const RecordScreen = ({ navigation, route }) => {
       <View style={styles.container}>
         {isLetter && (
           <>
-            <View style={styles.recipientAndDateContainer}>
+            <View
+              style={[
+                styles.recipientAndDateContainer,
+
+                // 수신인 선택 전
+                !receiver && styles.recipientAndDateContainerBeforeSelect,
+
+                // 나를 선택했고, 아직 날짜는 선택하지 않은 상태
+                receiver?.isMe &&
+                !deliveryAt &&
+                styles.recipientAndDateContainerDateButton,
+              ]}
+            >
               {receiver ? (
                 <Pressable
                   onPress={handleOpenRecipientSelect}
@@ -138,15 +225,32 @@ const RecordScreen = ({ navigation, route }) => {
               )}
 
               {receiver?.isMe && (
-                <LabeledButton
-                  icon={<IcCalendar />}
-                  label="날짜 선택"
-                  size="M"
-                  typography={typo.suitLabelLargeStrong}
-                  color={colors.fgNeutralMuted}
-                  backgroundColor={colors.bgNeutralFaint}
-                  onPress={handleOpenDateSelect}
-                />
+                deliveryAt ? (
+                  <Pressable
+                    style={styles.dateContainer}
+                    onPress={handleOpenDateSelect}
+                    accessibilityRole="button"
+                    accessibilityLabel="도착 날짜 다시 선택"
+                  >
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.dateText}
+                    >
+                      {formatDeliveryDateLabel(deliveryAt,)}
+                    </Text>
+                  </Pressable>
+                ) : (
+                  <LabeledButton
+                    icon={<IcCalendar />}
+                    label="날짜 선택"
+                    size="M"
+                    typography={typo.suitLabelLargeStrong}
+                    color={colors.fgNeutralMuted}
+                    backgroundColor={colors.bgNeutralFaint}
+                    onPress={handleOpenDateSelect}
+                    style={styles.dateSelectButton}
+                  />
+                )
               )}
             </View>
 
@@ -219,15 +323,39 @@ const styles = StyleSheet.create({
   },
   recipientAndDateContainer: {
     width: '100%',
-    paddingVertical: padding.S,
-    paddingHorizontal: padding.L,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  recipientProfile: {
-    paddingVertical: 0,
-    paddingHorizontal: 0,
+
+  // Profile이 뜨기 전
+  recipientAndDateContainerBeforeSelect: {
+    paddingVertical: padding.S,
+    paddingHorizontal: padding.L,
+  },
+
+  // Profile은 떴지만 날짜 선택 버튼이 아직 있을 때
+  recipientAndDateContainerDateButton: {
+    paddingRight: padding.L,
+  },
+  dateSelectButton: {
+    alignSelf: 'center',
+  },
+  dateContainer: {
+    paddingVertical: padding.M,
+    paddingHorizontal: padding.L,
+
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    gap: gap.S,
+  },
+  dateText: {
+    ...typo.kyoboLabelLarge,
+
+    color: colors.fgNeutralSolid,
+
+    includeFontPadding: false,
   },
   dividerContainer: {
     width: '100%',

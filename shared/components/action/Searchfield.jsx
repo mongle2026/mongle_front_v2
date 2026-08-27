@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -19,9 +19,9 @@ const SearchField = ({
   placeholder = DEFAULT_PLACEHOLDER,
   ...textInputProps
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+  const hasValue = value?.length > 0;
 
-  const foregroundColor = isFocused
+  const foregroundColor = hasValue
     ? colors.fgNeutralSolid
     : colors.fgPlaceholder;
 
@@ -40,8 +40,6 @@ const SearchField = ({
           placeholder={placeholder}
           placeholderTextColor={colors.fgPlaceholder}
           style={styles.input}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
           {...textInputProps}
         />
       </View>
