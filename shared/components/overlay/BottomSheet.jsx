@@ -1,5 +1,9 @@
-import React, { useEffect } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 import {
+  Dimensions,
   StyleSheet,
   View,
 } from 'react-native';
@@ -25,39 +29,72 @@ import {
   colors,
   shadow,
 } from '../../styles/color';
-import { padding, gap, radius } from '../../styles/token';
+import {
+  padding,
+  gap,
+  radius,
+} from '../../styles/token';
 
 const DEFAULT_HEIGHT = 720;
 
 const CLOSE_DISTANCE_RATIO = 0.25;
 const CLOSE_VELOCITY = 1000;
 
+const SCREEN_HEIGHT =
+  Dimensions.get('window').height;
+
 const BottomSheet = ({
   children,
   height = DEFAULT_HEIGHT,
+  fitContent = false,
   onClose,
   showDragHandle = true,
   style,
 }) => {
   const insets = useSafeAreaInsets();
 
-  const translateY =
-    useSharedValue(height);
+  const [measuredHeight, setMeasuredHeight] =
+    useState(0);
+
+  const translateY = useSharedValue(
+    fitContent
+      ? SCREEN_HEIGHT
+      : height,
+  );
 
   const dragStartY =
     useSharedValue(0);
 
   useEffect(() => {
+    if (
+      fitContent &&
+      measuredHeight === 0
+    ) {
+      return;
+    }
+
     translateY.value = withTiming(0, {
       duration: 220,
     });
-  }, [height, translateY]);
+  }, [
+    fitContent,
+    height,
+    measuredHeight,
+    translateY,
+  ]);
 
   const closeBottomSheet = () => {
-    if (onClose) {
-      onClose();
-    }
+    onClose?.();
   };
+
+  const sheetHeight = fitContent
+    ? measuredHeight
+    : height;
+
+  const closeDistance =
+    sheetHeight > 0
+      ? sheetHeight
+      : SCREEN_HEIGHT;
 
   const panGesture = Gesture.Pan()
     .onBegin(() => {
@@ -69,8 +106,6 @@ const BottomSheet = ({
         dragStartY.value +
         event.translationY;
 
-      // 위로는 올라가지 않고
-      // 아래 방향으로만 드래그
       translateY.value = Math.max(
         0,
         nextTranslateY,
@@ -79,7 +114,7 @@ const BottomSheet = ({
     .onEnd(event => {
       const shouldClose =
         translateY.value >
-          height *
+          closeDistance *
             CLOSE_DISTANCE_RATIO ||
         event.velocityY >
           CLOSE_VELOCITY;
@@ -87,7 +122,7 @@ const BottomSheet = ({
       if (shouldClose) {
         translateY.value =
           withTiming(
-            height,
+            closeDistance,
             {
               duration: 180,
             },
@@ -126,11 +161,29 @@ const BottomSheet = ({
 
   return (
     <Animated.View
+      onLayout={
+        fitContent
+          ? event => {
+              setMeasuredHeight(
+                event.nativeEvent.layout
+                  .height,
+              );
+            }
+          : undefined
+      }
       style={[
         styles.container,
-        {
-          height,
-        },
+
+        fitContent
+          ? {
+              maxHeight:
+                SCREEN_HEIGHT -
+                insets.top,
+            }
+          : {
+              height,
+            },
+
         animatedStyle,
         style,
       ]}
@@ -162,6 +215,10 @@ const BottomSheet = ({
       <View
         style={[
           styles.content,
+
+          fitContent &&
+            styles.fitContent,
+
           {
             paddingBottom:
               insets.bottom,
@@ -225,5 +282,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
+  },
+
+  fitContent: {
+    flex: 0,
   },
 });

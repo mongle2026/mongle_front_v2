@@ -32,8 +32,6 @@ import {
   DATE_PRESET,
 } from '../utils/dateSelect';
 
-const BOTTOM_SHEET_HEIGHT = 640;
-
 const DateSelectBottomSheet = ({
   initialDate = null,
   onClose,
@@ -89,7 +87,7 @@ const DateSelectBottomSheet = ({
 
   return (
     <BottomSheet
-      height={BOTTOM_SHEET_HEIGHT}
+      fitContent
       onClose={onClose}
     >
       {/* ListHeader container */}
