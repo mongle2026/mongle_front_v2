@@ -34,6 +34,8 @@ import { useRecordFormStore } from '../store/useRecordFormStore';
 import { useLetterFormStore } from '../store/useLetterFormStore';
 import { formatDeliveryDateLabel, toDeliveryAt, } from '../date/utils/deliveryDate';
 
+import useRecordMusicPlayback from './hooks/useRecordMusicPlayback';
+
 const RECORD_TYPE = {
   FEED: 'feed',
   LETTER: 'letter',
@@ -51,6 +53,21 @@ const RecordScreen = ({ navigation, route }) => {
   const text = useRecordFormStore(state => state.text);
   const setText = useRecordFormStore(state => state.setText);
   const music = useRecordFormStore(state => state.music);
+
+  /* 음악 재생 */
+  const {
+    musicArtworkUri,
+    musicPreviewUri,
+
+    isMusicPlaying,
+    playbackProgress,
+
+    handlePlayback,
+    handleSeek,
+  } = useRecordMusicPlayback({
+    music,
+    navigation,
+  });
 
   /* 편지 전용 작성 데이터 */
   const receiver = useLetterFormStore(state => state.receiver);
@@ -268,9 +285,29 @@ const RecordScreen = ({ navigation, route }) => {
             accessibilityLabel="음악 다시 선택"
           >
             <MusicCard
-              imageSource={music.musicArtwork}
+              imageSource={
+                musicArtworkUri
+                  ? {
+                    uri:
+                      musicArtworkUri,
+                  }
+                  : undefined
+              }
               title={music.musicTitle}
               artist={music.musicArtist}
+              isPlaying={isMusicPlaying}
+              playbackProgress={playbackProgress}
+              disabled={!musicPreviewUri}
+              onPressPlayback={
+                musicPreviewUri
+                  ? handlePlayback
+                  : undefined
+              }
+              onSeekPlayback={
+                musicPreviewUri
+                  ? handleSeek
+                  : undefined
+              }
             />
           </Pressable>
         ) : (
