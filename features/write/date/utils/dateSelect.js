@@ -223,13 +223,23 @@ export const createDateSelectCopy = ({
       selectedDate,
     )}일 뒤`;
 
+  const year =
+    selectedDate.getFullYear();
+
+  const month = String(
+    selectedDate.getMonth() + 1,
+  ).padStart(2, '0');
+
+  const day = String(
+    selectedDate.getDate(),
+  ).padStart(2, '0');
+
   return {
     informativeText:
       `${relativeText} 0시`,
     title:
       '에 편지가 도착합니다.',
     confirmLabel:
-      `${selectedDate.getMonth() + 1}월 ` +
-      `${selectedDate.getDate()}일 선택`,
+      `${year}년 ${month}월 ${day}일 선택`,
   };
 };
