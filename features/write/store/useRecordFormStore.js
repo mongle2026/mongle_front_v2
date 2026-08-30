@@ -6,6 +6,7 @@ const initialState = {
   music: null,
   text: '',
   files: [],
+  font: 'KYOBO',
 };
 
 export const useRecordFormStore = create((set) => ({
@@ -24,6 +25,11 @@ export const useRecordFormStore = create((set) => ({
   setFiles: (files) =>
     set({
       files,
+    }),
+
+  setFont: (font) =>
+    set({
+      font,
     }),
 
   addFile: (file) =>

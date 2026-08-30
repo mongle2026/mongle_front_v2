@@ -19,6 +19,11 @@ export const createBaseRecordFormData = ({
     recordForm.text ?? '',
   );
 
+  formData.append(
+    'font',
+    recordForm.font ?? 'KYOBO',
+  );
+
   const createdAt = Date.now();
 
   recordForm.files?.forEach(
