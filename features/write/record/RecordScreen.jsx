@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Icons
@@ -28,6 +28,7 @@ import { FONT, normalizeFont } from '../../../shared/styles/font';
 // Feature Components, Stores & Utils
 import LabeledButton from '../components/LabeledButton';
 import BottomBar from '../components/bottombar/BottomBar';
+import SelectedImageList from './components/SelectedImageList';
 import MusicSelectBottomSheet from '../music/components/MusicSelectBottomSheet';
 import RecipientSelectBottomSheet from '../recipient/components/RecipientSelectBottomSheet';
 import DateSelectBottomSheet from '../date/components/DateSelectBottomSheet';
@@ -58,10 +59,17 @@ const RecordScreen = ({ navigation, route }) => {
   const music = useRecordFormStore(state => state.music);
   const font = useRecordFormStore(state => state.font);
   const setFont = useRecordFormStore(state => state.setFont);
+  const files = useRecordFormStore(state => state.files);
+  const removeFile = useRecordFormStore(state => state.removeFile);
+  const restoreFile = useRecordFormStore(state => state.restoreFile);
+
+  const imageFiles = files.filter(file => file.fileType === 'IMAGE');
+  const isImageLimitReached = imageFiles.length >= 2;
 
   /* 폰트 정규화 및 타이포 선택 */
   const normalizedFont = normalizeFont(font);
   const isSuitFont = normalizedFont === FONT.SUIT;
+
   const dateTypography = isSuitFont ? typo.suitLabelLarge : typo.kyoboLabelLarge;
   const bodyTypography = isSuitFont ? typo.suitBodyLarge : typo.kyoboBodyLarge;
 
@@ -84,13 +92,31 @@ const RecordScreen = ({ navigation, route }) => {
   const type = route?.params?.type ?? RECORD_TYPE.FEED;
   const isLetter = type === RECORD_TYPE.LETTER;
 
-  /* 키보드가 올라왔을 때 BottomBar 위치 */
+  /* 키보드 / SafeArea 포함 BottomBar 위치 */
   const bottomOffset = useFloatingBottomOffset();
-  const { openOverlay } = useGlobalOverlay();
+  const { openOverlay, showToast } = useGlobalOverlay();
+
+  /* 높이 측정 상태 */
+  const [bottomBarHeight, setBottomBarHeight] = useState(0);
+  const [textInputHeight, setTextInputHeight] = useState(0);
+
+  const handleTextContentSizeChange = useCallback(event => {
+    const nextHeight = Math.ceil(event.nativeEvent.contentSize.height);
+
+    setTextInputHeight(prevHeight => {
+      if (Math.abs(prevHeight - nextHeight) < 1) return prevHeight;
+      return nextHeight;
+    });
+  }, []);
+
+  const handleBottomBarLayout = useCallback(event => {
+    setBottomBarHeight(event.nativeEvent.layout.height);
+  }, []);
 
   /* 수신인 선택 BottomSheet 열기 */
   const handleOpenRecipientSelect = useCallback(() => {
     Keyboard.dismiss();
+
     openOverlay({
       id: RECIPIENT_SELECT_OVERLAY_ID,
       accessibilityLabel: '수신인 선택 닫기',
@@ -104,6 +130,7 @@ const RecordScreen = ({ navigation, route }) => {
   /* 음악 선택 BottomSheet 열기 */
   const handleOpenMusicSelect = useCallback(() => {
     Keyboard.dismiss();
+
     openOverlay({
       id: MUSIC_SELECT_OVERLAY_ID,
       accessibilityLabel: '음악 선택 닫기',
@@ -112,7 +139,7 @@ const RecordScreen = ({ navigation, route }) => {
     });
   }, [openOverlay]);
 
-  /* 날짜 선택 완료 */
+  /* 날짜 선택 완료 및 BottomSheet 열기 */
   const handleConfirmDate = useCallback(
     selectedDate => {
       const nextDeliveryAt = toDeliveryAt(selectedDate);
@@ -122,9 +149,9 @@ const RecordScreen = ({ navigation, route }) => {
     [setDeliveryAt],
   );
 
-  /* 날짜 선택 BottomSheet 열기 */
   const handleOpenDateSelect = useCallback(() => {
     Keyboard.dismiss();
+
     openOverlay({
       id: DATE_SELECT_OVERLAY_ID,
       accessibilityLabel: '날짜 선택 닫기',
@@ -150,12 +177,32 @@ const RecordScreen = ({ navigation, route }) => {
     [setFont],
   );
 
-  /* 이미지 선택 */
+  /* 이미지 선택, 삭제 및 되돌리기 */
   const pickImages = usePickImages();
+
   const handlePressImage = useCallback(() => {
     Keyboard.dismiss();
     pickImages();
   }, [pickImages]);
+
+  const handleRemoveImage = useCallback(
+    image => {
+      if (!image?.uri) return;
+
+      const fileIndex = files.findIndex(file => file.uri === image.uri);
+      if (fileIndex < 0) return;
+
+      removeFile(image.uri);
+
+      showToast({
+        message: '사진을 삭제했습니다.',
+        buttonText: '되돌리기',
+        onPressButton: () => restoreFile(image, fileIndex),
+        bottomOffset,
+      });
+    },
+    [bottomOffset, files, removeFile, restoreFile, showToast],
+  );
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -165,7 +212,16 @@ const RecordScreen = ({ navigation, route }) => {
         onPressClose={() => navigation?.goBack()}
       />
 
-      <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: bottomBarHeight + bottomOffset },
+        ]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+      >
         {isLetter && (
           <>
             <View
@@ -276,17 +332,32 @@ const RecordScreen = ({ navigation, route }) => {
             placeholder="텍스트 입력"
             placeholderTextColor={colors.fgPlaceholder}
             multiline
+            scrollEnabled={false}
             textAlignVertical="top"
             allowFontScaling={false}
-            style={[styles.textInput, bodyTypography]}
+            onContentSizeChange={handleTextContentSizeChange}
+            style={[
+              styles.textInput,
+              bodyTypography,
+              textInputHeight > 0 && { height: textInputHeight },
+            ]}
+          />
+
+          <SelectedImageList
+            images={imageFiles}
+            onRemove={handleRemoveImage}
           />
         </View>
-      </View>
+      </ScrollView>
 
-      <View style={[styles.bottomBarContainer, { bottom: bottomOffset }]}>
+      <View
+        style={[styles.bottomBarContainer, { bottom: bottomOffset }]}
+        onLayout={handleBottomBarLayout}
+      >
         <BottomBar
           mode={bottomBarMode}
           selectedFont={normalizedFont}
+          imageDisabled={isImageLimitReached}
           onPressImage={handlePressImage}
           onPressFont={() => setBottomBarMode('font')}
           onPressBack={() => setBottomBarMode('actions')}
@@ -304,9 +375,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bgLayerDefault,
   },
-  container: {
+  scrollView: {
+    flex: 1,
     width: '100%',
-    flexDirection: 'column',
+  },
+  scrollContent: {
+    width: '100%',
+    flexGrow: 1,
     alignItems: 'flex-start',
   },
   recipientAndDateContainer: {
@@ -356,19 +431,22 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     width: '100%',
+    alignSelf: 'stretch',
     paddingVertical: padding.M,
     paddingHorizontal: padding.L,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: gap.M,
   },
   textInput: {
-    flex: 1,
+    width: '100%',
+    alignSelf: 'stretch',
     padding: 0,
     margin: 0,
     color: colors.fgNeutralSolid,
     textAlign: 'justify',
     includeFontPadding: false,
+    overflow: 'hidden',
   },
   bottomBarContainer: {
     position: 'absolute',

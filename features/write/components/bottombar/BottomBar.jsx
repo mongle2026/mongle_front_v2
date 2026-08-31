@@ -10,39 +10,50 @@ import Item from './Item';
 
 import { colors } from '../../../../shared/styles/color';
 import { padding } from '../../../../shared/styles/token';
-import {
-  FONT,
-  normalizeFont,
-} from '../../../../shared/styles/font';
+import { FONT, normalizeFont, } from '../../../../shared/styles/font';
 
 const BottomBarActions = ({
   onPressImage,
   onPressFont,
-}) => (
-  <>
-    <IconButton
-      size="L"
-      icon={
-        <IcImage
-          color={colors.fgNeutralMuted}
-        />
-      }
-      onPress={onPressImage}
-      accessibilityLabel="이미지 추가"
-    />
+  imageDisabled = false,
+}) => {
+  const imageColor = imageDisabled
+    ? colors.fgDisabled
+    : colors.fgNeutralMuted;
 
-    <IconButton
-      size="L"
-      icon={
-        <IcFont
-          color={colors.fgNeutralMuted}
-        />
-      }
-      onPress={onPressFont}
-      accessibilityLabel="폰트 선택"
-    />
-  </>
-);
+  return (
+    <>
+      <IconButton
+        size="L"
+        icon={
+          <IcImage
+            color={imageColor}
+            fill={imageColor}
+          />
+        }
+        onPress={onPressImage}
+        disabled={imageDisabled}
+        accessibilityLabel="이미지 추가"
+        style={
+          imageDisabled
+            ? styles.imageButtonDisabled
+            : undefined
+        }
+      />
+
+      <IconButton
+        size="L"
+        icon={
+          <IcFont
+            color={colors.fgNeutralMuted}
+          />
+        }
+        onPress={onPressFont}
+        accessibilityLabel="폰트 선택"
+      />
+    </>
+  );
+};
 
 const FontSelector = ({
   selectedFont,
@@ -95,6 +106,8 @@ const BottomBar = ({
 
   selectedFont,
 
+  imageDisabled = false,
+
   onPressImage,
   onPressFont,
   onPressBack,
@@ -108,6 +121,7 @@ const BottomBar = ({
         <BottomBarActions
           onPressImage={onPressImage}
           onPressFont={onPressFont}
+          imageDisabled={imageDisabled}
         />
       ) : (
         <FontSelector
@@ -129,9 +143,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     borderTopWidth: 0.5,
-    borderTopColor: colors.strokeNeutralSubtle,
+    borderTopColor:
+      colors.strokeNeutralSubtle,
 
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor:
+      colors.bgLayerDefault,
+  },
+
+  imageButtonDisabled: {
+    opacity: 1,
   },
 });
 

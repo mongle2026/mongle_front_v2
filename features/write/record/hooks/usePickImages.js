@@ -65,6 +65,10 @@ export const usePickImages = () => {
               'image/jpeg',
 
             fileType: 'IMAGE',
+
+            // 추가
+            width: asset.width,
+            height: asset.height,
           }),
         );
 
