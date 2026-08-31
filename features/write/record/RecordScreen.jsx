@@ -39,6 +39,7 @@ import { deliveryAtToDate, formatDeliveryDateLabel, toDeliveryAt } from '../date
 // Hooks
 import useRecordMusicPlayback from './hooks/useRecordMusicPlayback';
 import { usePickImages } from './hooks/usePickImages';
+import useCreateFeed from './hooks/useCreateFeed';
 
 const RECORD_TYPE = {
   FEED: 'feed',
@@ -92,9 +93,83 @@ const RecordScreen = ({ navigation, route }) => {
   const type = route?.params?.type ?? RECORD_TYPE.FEED;
   const isLetter = type === RECORD_TYPE.LETTER;
 
+  /* 다음 버튼 활성 색상 조건 */
+  const hasMusic = Boolean(music);
+  const hasContent = text.trim().length > 0 || imageFiles.length > 0;
+  const hasRecipient = !isLetter || Boolean(receiver);
+  const hasDeliveryDate = !isLetter || !receiver?.isMe || Boolean(deliveryAt);
+  const isNextReady = hasMusic && hasContent && hasRecipient && hasDeliveryDate;
+  const nextTextColor = isNextReady ? colors.fgNeutralMuted : colors.fgDisabled;
+
   /* 키보드 / SafeArea 포함 BottomBar 위치 */
   const bottomOffset = useFloatingBottomOffset();
   const { openOverlay, showToast } = useGlobalOverlay();
+
+  /* Feed 저장 */
+  const {
+    createFeed,
+    isCreatingFeed,
+  } = useCreateFeed({
+    userId,
+
+    onSuccess: () => {
+      navigation?.goBack();
+    },
+
+    onError: error => {
+      const message =
+        error.response?.data?.message ??
+        '피드를 저장하지 못했습니다.';
+
+      showToast({
+        message:
+          Array.isArray(message)
+            ? message[0]
+            : message,
+
+        bottomOffset,
+      });
+    },
+  });
+
+  const handlePressNext =
+    useCallback(() => {
+      /*
+       * 회색 상태에서도 실제 disabled는 하지 않습니다.
+       *
+       * 추후 여기에서
+       * "음악을 선택해 주세요."
+       * 같은 Toast 처리를 추가할 수 있습니다.
+       */
+      if (!isNextReady) {
+        return;
+      }
+
+      /*
+       * 네트워크 요청 중 연속 탭으로
+       * 같은 피드가 여러 번 생성되는 것을 방지합니다.
+       */
+      if (isCreatingFeed) {
+        return;
+      }
+
+      /*
+       * 이번 작업에서는 피드 저장만 연결합니다.
+       * 편지의 다음 단계는 이후 여기에서 분기하면 됩니다.
+       */
+      if (isLetter) {
+        return;
+      }
+
+      Keyboard.dismiss();
+
+      createFeed();
+    }, [
+      createFeed,
+      isCreatingFeed,
+      isLetter,
+      isNextReady,
+    ]);
 
   /* 높이 측정 상태 */
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
@@ -210,6 +285,8 @@ const RecordScreen = ({ navigation, route }) => {
         type="text"
         headerText={isLetter ? '편지 작성하기' : '피드 작성하기'}
         onPressClose={() => navigation?.goBack()}
+        onPressNext={handlePressNext}
+        nextTextStyle={{ color: nextTextColor }}
       />
 
       <ScrollView

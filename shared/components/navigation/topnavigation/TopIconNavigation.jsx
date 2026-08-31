@@ -26,6 +26,7 @@ const TopIconNavigation = ({
 
   style,
   textStyle,
+  nextTextStyle,
 }) => {
   const isText = type === 'text';
 
@@ -57,6 +58,7 @@ const TopIconNavigation = ({
             text="다음"
             size="ButtonText"
             onPress={onPressNext}
+            textStyle={nextTextStyle}
           />
         </View>
       ) : (

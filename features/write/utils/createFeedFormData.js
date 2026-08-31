@@ -5,6 +5,7 @@ import {
 export const createFeedFormData = ({
   userId,
   recordForm,
+  feedForm,
 }) => {
   const formData =
     createBaseRecordFormData({
@@ -14,8 +15,7 @@ export const createFeedFormData = ({
 
   formData.append(
     'visibility',
-    recordForm.visibility ??
-      'PUBLIC',
+    feedForm.visibility ?? 'PUBLIC',
   );
 
   return formData;

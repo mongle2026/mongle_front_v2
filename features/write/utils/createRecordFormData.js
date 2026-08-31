@@ -1,25 +1,27 @@
-// 실사용은 createRecordFormData만
+import {
+  createFeedFormData,
+} from './createFeedFormData';
 
-import { createFeedFormData, } from './createFeedFormData';
-import { createLetterFormData, } from './createLetterFormData';
+import {
+  createLetterFormData,
+} from './createLetterFormData';
 
 export const createRecordFormData = ({
+  type,
   userId,
   recordForm,
+  feedForm,
   letterForm,
 }) => {
-  if (
-    recordForm.recordType === 'FEED'
-  ) {
+  if (type === 'feed') {
     return createFeedFormData({
       userId,
       recordForm,
+      feedForm,
     });
   }
 
-  if (
-    recordForm.recordType === 'LETTER'
-  ) {
+  if (type === 'letter') {
     return createLetterFormData({
       userId,
       recordForm,
@@ -28,6 +30,6 @@ export const createRecordFormData = ({
   }
 
   throw new Error(
-    '기록 종류가 선택되지 않았습니다.',
+    '기록 종류가 올바르지 않습니다.',
   );
 };
