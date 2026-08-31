@@ -3,19 +3,29 @@ const KOREA_TIMEZONE_OFFSET = '+09:00';
 const pad2 = value =>
   String(value).padStart(2, '0');
 
+/**
+ * 다양한 날짜 값을
+ * YYYY-MM-DD 형태로 정규화
+ */
 export const getDateString = value => {
   if (!value) {
     return null;
   }
 
-  // Calendar가 { dateString: '2026-08-08' } 형태로 주는 경우
+  /**
+   * Calendar가
+   * { dateString: '2026-08-08' }
+   * 형태로 주는 경우
+   */
   if (value?.dateString) {
     return getDateString(
       value.dateString,
     );
   }
 
-  // { year, month, day } 형태
+  /**
+   * { year, month, day } 형태
+   */
   if (
     typeof value === 'object' &&
     Number.isFinite(value.year) &&
@@ -29,7 +39,9 @@ export const getDateString = value => {
     ].join('-');
   }
 
-  // Date 객체
+  /**
+   * Date 객체
+   */
   if (
     value instanceof Date &&
     !Number.isNaN(value.getTime())
@@ -41,7 +53,10 @@ export const getDateString = value => {
     ].join('-');
   }
 
-  // YYYY-MM-DD 또는 ISO datetime 문자열
+  /**
+   * YYYY-MM-DD
+   * 또는 ISO datetime 문자열
+   */
   if (typeof value === 'string') {
     const match = value.match(
       /^(\d{4})-(\d{1,2})-(\d{1,2})/,
@@ -65,7 +80,9 @@ export const getDateString = value => {
 };
 
 /**
- * 백엔드 전달용
+ * Date
+ * ->
+ * 백엔드 저장용 deliveryAt
  *
  * 2026-08-08
  * ->
@@ -81,6 +98,40 @@ export const toDeliveryAt = date => {
 
   return `${dateString}T00:00:00${KOREA_TIMEZONE_OFFSET}`;
 };
+
+/**
+ * 백엔드 deliveryAt
+ * ->
+ * 날짜 선택 UI에서 사용할 Date
+ *
+ * 2026-08-08T00:00:00+09:00
+ * ->
+ * Date(2026, 7, 8)
+ *
+ * new Date(deliveryAt)을 직접 사용하지 않고
+ * 연/월/일만 추출해서 생성하여
+ * timezone에 따른 날짜 밀림을 방지
+ */
+export const deliveryAtToDate =
+  deliveryAt => {
+    const dateString =
+      getDateString(deliveryAt);
+
+    if (!dateString) {
+      return null;
+    }
+
+    const [year, month, day] =
+      dateString
+        .split('-')
+        .map(Number);
+
+    return new Date(
+      year,
+      month - 1,
+      day,
+    );
+  };
 
 /**
  * 화면 표시용

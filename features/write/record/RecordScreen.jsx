@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,8 +23,9 @@ import { resolveMediaUri } from '../../../shared/utils/media';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
+import { FONT, normalizeFont } from '../../../shared/styles/font';
 
-// Feature Components & Stores
+// Feature Components, Stores & Utils
 import LabeledButton from '../components/LabeledButton';
 import BottomBar from '../components/bottombar/BottomBar';
 import MusicSelectBottomSheet from '../music/components/MusicSelectBottomSheet';
@@ -32,9 +33,11 @@ import RecipientSelectBottomSheet from '../recipient/components/RecipientSelectB
 import DateSelectBottomSheet from '../date/components/DateSelectBottomSheet';
 import { useRecordFormStore } from '../store/useRecordFormStore';
 import { useLetterFormStore } from '../store/useLetterFormStore';
-import { formatDeliveryDateLabel, toDeliveryAt, } from '../date/utils/deliveryDate';
+import { deliveryAtToDate, formatDeliveryDateLabel, toDeliveryAt } from '../date/utils/deliveryDate';
 
+// Hooks
 import useRecordMusicPlayback from './hooks/useRecordMusicPlayback';
+import { usePickImages } from './hooks/usePickImages';
 
 const RECORD_TYPE = {
   FEED: 'feed',
@@ -53,26 +56,29 @@ const RecordScreen = ({ navigation, route }) => {
   const text = useRecordFormStore(state => state.text);
   const setText = useRecordFormStore(state => state.setText);
   const music = useRecordFormStore(state => state.music);
+  const font = useRecordFormStore(state => state.font);
+  const setFont = useRecordFormStore(state => state.setFont);
+
+  /* 폰트 정규화 및 타이포 선택 */
+  const normalizedFont = normalizeFont(font);
+  const isSuitFont = normalizedFont === FONT.SUIT;
+  const dateTypography = isSuitFont ? typo.suitLabelLarge : typo.kyoboLabelLarge;
+  const bodyTypography = isSuitFont ? typo.suitBodyLarge : typo.kyoboBodyLarge;
 
   /* 음악 재생 */
   const {
     musicArtworkUri,
     musicPreviewUri,
-
     isMusicPlaying,
     playbackProgress,
-
     handlePlayback,
     handleSeek,
-  } = useRecordMusicPlayback({
-    music,
-    navigation,
-  });
+  } = useRecordMusicPlayback({ music, navigation });
 
   /* 편지 전용 작성 데이터 */
   const receiver = useLetterFormStore(state => state.receiver);
-  const deliveryAt = useLetterFormStore(state => state.deliveryAt,);
-  const setDeliveryAt = useLetterFormStore(state => state.setDeliveryAt,);
+  const deliveryAt = useLetterFormStore(state => state.deliveryAt);
+  const setDeliveryAt = useLetterFormStore(state => state.setDeliveryAt);
 
   /* feed / letter 구분 */
   const type = route?.params?.type ?? RECORD_TYPE.FEED;
@@ -85,7 +91,6 @@ const RecordScreen = ({ navigation, route }) => {
   /* 수신인 선택 BottomSheet 열기 */
   const handleOpenRecipientSelect = useCallback(() => {
     Keyboard.dismiss();
-
     openOverlay({
       id: RECIPIENT_SELECT_OVERLAY_ID,
       accessibilityLabel: '수신인 선택 닫기',
@@ -99,93 +104,58 @@ const RecordScreen = ({ navigation, route }) => {
   /* 음악 선택 BottomSheet 열기 */
   const handleOpenMusicSelect = useCallback(() => {
     Keyboard.dismiss();
-
     openOverlay({
       id: MUSIC_SELECT_OVERLAY_ID,
       accessibilityLabel: '음악 선택 닫기',
       contentContainerStyle: styles.bottomSheetOverlayContainer,
-      renderContent: ({ close }) => (
-        <MusicSelectBottomSheet onClose={close} />
-      ),
+      renderContent: ({ close }) => <MusicSelectBottomSheet onClose={close} />,
     });
   }, [openOverlay]);
 
-  /* 날짜 선택 */
-  const handleOpenDateSelect =
-    useCallback(() => {
-      Keyboard.dismiss();
-
-      openOverlay({
-        id: DATE_SELECT_OVERLAY_ID,
-        accessibilityLabel:
-          '날짜 선택 닫기',
-        contentContainerStyle:
-          styles.bottomSheetOverlayContainer,
-
-        renderContent: ({ close }) => (
-          <DateSelectBottomSheet
-            initialDate={
-              parseDeliveryAtToDate(
-                deliveryAt,
-              )
-            }
-            onConfirm={
-              handleConfirmDate
-            }
-            onClose={close}
-          />
-        ),
-      });
-    }, [
-      openOverlay,
-      deliveryAt,
-      handleConfirmDate,
-    ]);
-
+  /* 날짜 선택 완료 */
   const handleConfirmDate = useCallback(
     selectedDate => {
-      const nextDeliveryAt =
-        toDeliveryAt(selectedDate);
-
-      if (!nextDeliveryAt) {
-        return;
-      }
-
+      const nextDeliveryAt = toDeliveryAt(selectedDate);
+      if (!nextDeliveryAt) return;
       setDeliveryAt(nextDeliveryAt);
     },
     [setDeliveryAt],
   );
 
-  const parseDeliveryAtToDate = deliveryAt => {
-    if (!deliveryAt) {
-      return null;
-    }
+  /* 날짜 선택 BottomSheet 열기 */
+  const handleOpenDateSelect = useCallback(() => {
+    Keyboard.dismiss();
+    openOverlay({
+      id: DATE_SELECT_OVERLAY_ID,
+      accessibilityLabel: '날짜 선택 닫기',
+      contentContainerStyle: styles.bottomSheetOverlayContainer,
+      renderContent: ({ close }) => (
+        <DateSelectBottomSheet
+          initialDate={deliveryAtToDate(deliveryAt)}
+          onConfirm={handleConfirmDate}
+          onClose={close}
+        />
+      ),
+    });
+  }, [openOverlay, deliveryAt, handleConfirmDate]);
 
-    const dateString =
-      deliveryAt.split('T')[0];
+  /* 하단 바 */
+  const [bottomBarMode, setBottomBarMode] = useState('actions');
 
-    const [
-      year,
-      month,
-      day,
-    ] = dateString
-      .split('-')
-      .map(Number);
+  const handleSelectFont = useCallback(
+    nextFont => {
+      const normalized = normalizeFont(nextFont);
+      setFont(normalized === FONT.SUIT ? 'SUIT' : 'KYOBO');
+    },
+    [setFont],
+  );
 
-    if (
-      !year ||
-      !month ||
-      !day
-    ) {
-      return null;
-    }
-
-    return new Date(
-      year,
-      month - 1,
-      day,
-    );
-  };
+  /* 이미지 선택 */
+  const pickImages = usePickImages();
+  const handlePressImage = useCallback(() => {
+    Keyboard.dismiss();
+    pickImages();
+  }, [pickImages]);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -201,14 +171,8 @@ const RecordScreen = ({ navigation, route }) => {
             <View
               style={[
                 styles.recipientAndDateContainer,
-
-                // 수신인 선택 전
                 !receiver && styles.recipientAndDateContainerBeforeSelect,
-
-                // 나를 선택했고, 아직 날짜는 선택하지 않은 상태
-                receiver?.isMe &&
-                !deliveryAt &&
-                styles.recipientAndDateContainerDateButton,
+                receiver?.isMe && !deliveryAt && styles.recipientAndDateContainerDateButton,
               ]}
             >
               {receiver ? (
@@ -219,12 +183,9 @@ const RecordScreen = ({ navigation, route }) => {
                 >
                   <Profile
                     type="Letter"
-                    imageUri={
-                      receiver.profileImageUrl
-                        ? resolveMediaUri(receiver.profileImageUrl)
-                        : null
-                    }
+                    imageUri={receiver.profileImageUrl ? resolveMediaUri(receiver.profileImageUrl) : null}
                     recipientName={`${receiver.nickname}${receiver.isMe ? '(나)' : ''}`}
+                    font={normalizedFont}
                     style={styles.recipientProfile}
                   />
                 </Pressable>
@@ -249,11 +210,8 @@ const RecordScreen = ({ navigation, route }) => {
                     accessibilityRole="button"
                     accessibilityLabel="도착 날짜 다시 선택"
                   >
-                    <Text
-                      allowFontScaling={false}
-                      style={styles.dateText}
-                    >
-                      {formatDeliveryDateLabel(deliveryAt,)}
+                    <Text allowFontScaling={false} style={[styles.dateText, dateTypography]}>
+                      {formatDeliveryDateLabel(deliveryAt)}
                     </Text>
                   </Pressable>
                 ) : (
@@ -285,29 +243,15 @@ const RecordScreen = ({ navigation, route }) => {
             accessibilityLabel="음악 다시 선택"
           >
             <MusicCard
-              imageSource={
-                musicArtworkUri
-                  ? {
-                    uri:
-                      musicArtworkUri,
-                  }
-                  : undefined
-              }
+              imageSource={musicArtworkUri ? { uri: musicArtworkUri } : undefined}
               title={music.musicTitle}
               artist={music.musicArtist}
+              font={normalizedFont}
               isPlaying={isMusicPlaying}
               playbackProgress={playbackProgress}
               disabled={!musicPreviewUri}
-              onPressPlayback={
-                musicPreviewUri
-                  ? handlePlayback
-                  : undefined
-              }
-              onSeekPlayback={
-                musicPreviewUri
-                  ? handleSeek
-                  : undefined
-              }
+              onPressPlayback={musicPreviewUri ? handlePlayback : undefined}
+              onSeekPlayback={musicPreviewUri ? handleSeek : undefined}
             />
           </Pressable>
         ) : (
@@ -334,13 +278,20 @@ const RecordScreen = ({ navigation, route }) => {
             multiline
             textAlignVertical="top"
             allowFontScaling={false}
-            style={styles.textInput}
+            style={[styles.textInput, bodyTypography]}
           />
         </View>
       </View>
 
       <View style={[styles.bottomBarContainer, { bottom: bottomOffset }]}>
-        <BottomBar />
+        <BottomBar
+          mode={bottomBarMode}
+          selectedFont={normalizedFont}
+          onPressImage={handlePressImage}
+          onPressFont={() => setBottomBarMode('font')}
+          onPressBack={() => setBottomBarMode('actions')}
+          onSelectFont={handleSelectFont}
+        />
       </View>
     </SafeAreaView>
   );
@@ -364,14 +315,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-
-  // Profile이 뜨기 전
   recipientAndDateContainerBeforeSelect: {
     paddingVertical: padding.S,
     paddingHorizontal: padding.L,
   },
-
-  // Profile은 떴지만 날짜 선택 버튼이 아직 있을 때
   recipientAndDateContainerDateButton: {
     paddingRight: padding.L,
   },
@@ -381,17 +328,12 @@ const styles = StyleSheet.create({
   dateContainer: {
     paddingVertical: padding.M,
     paddingHorizontal: padding.L,
-
     flexDirection: 'row',
     alignItems: 'center',
-
     gap: gap.S,
   },
   dateText: {
-    ...typo.kyoboLabelLarge,
-
     color: colors.fgNeutralSolid,
-
     includeFontPadding: false,
   },
   dividerContainer: {
@@ -424,7 +366,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 0,
     margin: 0,
-    ...typo.kyoboBodyLarge,
     color: colors.fgNeutralSolid,
     textAlign: 'justify',
     includeFontPadding: false,

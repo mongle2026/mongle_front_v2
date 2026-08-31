@@ -1,56 +1,89 @@
+import { useCallback } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { useRecordFormStore } from '../store/useRecordFormStore';
+
+import { useRecordFormStore } from '../../store/useRecordFormStore';
 
 const MAX_IMAGES = 2;
 
 export const usePickImages = () => {
-  const files = useRecordFormStore(state => state.files);
-  const setFiles = useRecordFormStore(state => state.setFiles);
+  const files = useRecordFormStore(
+    state => state.files,
+  );
 
-  const pickImages = async () => {
+  const setFiles = useRecordFormStore(
+    state => state.setFiles,
+  );
+
+  const pickImages = useCallback(async () => {
     try {
-      const currentImages = files.filter(file => file.fileType === 'IMAGE');
+      const currentImages = files.filter(
+        file => file.fileType === 'IMAGE',
+      );
 
-      const remainingCount = MAX_IMAGES - currentImages.length;
+      const remainingCount =
+        MAX_IMAGES - currentImages.length;
 
       if (remainingCount <= 0) {
-        alert('이미지는 최대 2장까지 첨부할 수 있습니다.');
+        alert(
+          '이미지는 최대 2장까지 첨부할 수 있습니다.',
+        );
         return;
       }
 
       const permissionResult =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
+        await ImagePicker
+          .requestMediaLibraryPermissionsAsync();
 
       if (!permissionResult.granted) {
         alert('사진 접근 권한이 필요합니다.');
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: 'images',
-        allowsMultipleSelection: true,
-        selectionLimit: remainingCount,
-        quality: 0.8,
-      });
+      const result =
+        await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: 'images',
+          allowsMultipleSelection: true,
+          selectionLimit: remainingCount,
+          quality: 0.8,
+        });
 
       if (result.canceled) {
         return;
       }
 
-      const selectedImages = result.assets.map((asset, index) => ({
-        uri: asset.uri,
-        name: asset.fileName ?? `image-${Date.now()}-${index}.jpg`,
-        type: asset.mimeType ?? 'image/jpeg',
-        fileType: 'IMAGE',
-      }));
+      const selectedImages =
+        result.assets.map(
+          (asset, index) => ({
+            uri: asset.uri,
 
-      const otherFiles = files.filter(file => file.fileType !== 'IMAGE');
+            name:
+              asset.fileName ??
+              `image-${Date.now()}-${index}.jpg`,
 
-      setFiles([...otherFiles, ...currentImages, ...selectedImages]);
+            type:
+              asset.mimeType ??
+              'image/jpeg',
+
+            fileType: 'IMAGE',
+          }),
+        );
+
+      const otherFiles = files.filter(
+        file => file.fileType !== 'IMAGE',
+      );
+
+      setFiles([
+        ...otherFiles,
+        ...currentImages,
+        ...selectedImages,
+      ]);
     } catch (error) {
-      console.log('pickImages error:', error);
+      console.log(
+        'pickImages error:',
+        error,
+      );
     }
-  };
+  }, [files, setFiles]);
 
   return pickImages;
 };
