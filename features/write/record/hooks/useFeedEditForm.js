@@ -7,27 +7,11 @@ import axios from 'axios';
 // 스토어
 import { useRecordFormStore, } from '../../record/store/useRecordFormStore.js';
 
+// 유틸
+import { resolveMediaUri, } from '../../../../shared/utils/media.js';
+
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL;
-
-/**
- * 서버에서 받은 파일 URL을
- * 화면에서 사용할 수 있는 전체 URL로 변환합니다.
- */
-const createFileUri = (url) => {
-  if (!url) {
-    return null;
-  }
-
-  if (
-    url.startsWith('http://') ||
-    url.startsWith('https://')
-  ) {
-    return url;
-  }
-
-  return `${API_BASE_URL}${url}`;
-};
 
 /**
  * 서버 파일 데이터를
@@ -42,7 +26,7 @@ const toEditFiles = (files = []) => {
         file.fileType,
     )
     .map((file, index) => ({
-      uri: createFileUri(file.url),
+      uri: resolveMediaUri(file.url),
 
       // 기존 서버 파일을 식별하기 위한 값
       serverFileId: file.fileId,

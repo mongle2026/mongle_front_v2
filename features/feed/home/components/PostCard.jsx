@@ -40,10 +40,10 @@ const PRESS_OUT_SPRING_CONFIG = {
 };
 
 const getImageKey = (imageSource, index) => {
-  if (typeof imageSource === 'string') return imageSource;
+  if (typeof imageSource === 'string') return `${imageSource}-${index}`;
 
   if (imageSource && typeof imageSource === 'object' && imageSource.uri) {
-    return imageSource.uri;
+    return `${imageSource.uri}-${index}`;
   }
 
   return `post-image-${index}`;

@@ -1,15 +1,10 @@
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
-const ABSOLUTE_URI_PATTERN = /^(https?:\/\/|file:\/\/|content:\/\/|data:)/i;
-
 export const resolveMediaUri = uri => {
   if (typeof uri !== 'string') return null;
 
   const normalizedUri = uri.trim();
   if (!normalizedUri) return null;
-  if (ABSOLUTE_URI_PATTERN.test(normalizedUri)) return normalizedUri;
-  if (!API_BASE_URL) return null;
 
-  return `${API_BASE_URL}${normalizedUri.startsWith('/') ? '' : '/'}${normalizedUri}`;
+  return normalizedUri;
 };
 
 export const isImageFile = file => {

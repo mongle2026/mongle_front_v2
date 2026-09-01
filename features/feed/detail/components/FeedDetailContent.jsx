@@ -16,8 +16,8 @@ const FONT_STYLES = Object.freeze({
 });
 
 const getImageKey = (imageSource, index) => {
-  if (typeof imageSource === 'string') return imageSource;
-  if (imageSource && typeof imageSource === 'object' && imageSource.uri) return imageSource.uri;
+  if (typeof imageSource === 'string') return `${imageSource}-${index}`;
+  if (imageSource && typeof imageSource === 'object' && imageSource.uri) return `${imageSource.uri}-${index}`;
 
   return `detail-image-${index}`;
 };

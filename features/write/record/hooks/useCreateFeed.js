@@ -13,8 +13,8 @@ import {
 } from '../../store/useFeedFormStore';
 
 import {
-  createFeedFormData,
-} from '../../utils/createFeedFormData';
+  uploadRecordFiles,
+} from '../../utils/uploadRecordFiles';
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL
@@ -61,26 +61,29 @@ const useCreateFeed = ({
       const feedForm =
         useFeedFormStore.getState();
 
-      const formData =
-        createFeedFormData({
-          userId,
-          recordForm,
-          feedForm,
-        });
-
       const response =
         await axios.post(
           `${API_BASE_URL}/feed`,
-          formData,
           {
-            headers: {
-              'Content-Type':
-                'multipart/form-data',
-            },
-            transformRequest:
-              data => data,
+            userId: String(userId),
+            music: JSON.stringify(recordForm.music),
+            text: recordForm.text ?? '',
+            font: recordForm.font ?? 'KYOBO',
+
+            visibility:
+              feedForm.visibility ?? 'PUBLIC',
           },
         );
+
+      /*
+       * 이미지는 피드 생성 이후
+       * presigned URL을 통해 R2에 직접 업로드합니다.
+       */
+      await uploadRecordFiles({
+        userId,
+        recordId: response.data.recordId,
+        files: recordForm.files,
+      });
 
       return response.data;
     },
