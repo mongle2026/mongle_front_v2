@@ -5,7 +5,8 @@ import { useEffect, useState, } from 'react';
 import axios from 'axios';
 
 // 스토어
-import { useRecordFormStore, } from '../../record/store/useRecordFormStore.js';
+import { useRecordFormStore, } from '../../store/useRecordFormStore.js';
+import { useFeedFormStore, } from '../../store/useFeedFormStore.js';
 
 // 유틸
 import { resolveMediaUri, } from '../../../../shared/utils/media.js';
@@ -14,7 +15,7 @@ const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL;
 
 /**
- * 서버 파일 데이터를
+ * 서버 파일 데이터(R2 URL 포함)를
  * recordFormStore에서 사용하는 파일 구조로 변환합니다.
  */
 const toEditFiles = (files = []) => {
@@ -79,11 +80,6 @@ export function useFeedEditForm({
       (state) => state.resetRecordForm,
     );
 
-  const setRecordType =
-    useRecordFormStore(
-      (state) => state.setRecordType,
-    );
-
   const setText =
     useRecordFormStore(
       (state) => state.setText,
@@ -99,8 +95,18 @@ export function useFeedEditForm({
       (state) => state.setFiles,
     );
 
-  const setVisibility =
+  const setFont =
     useRecordFormStore(
+      (state) => state.setFont,
+    );
+
+  const resetFeedForm =
+    useFeedFormStore(
+      (state) => state.resetFeedForm,
+    );
+
+  const setVisibility =
+    useFeedFormStore(
       (state) => state.setVisibility,
     );
 
@@ -122,6 +128,7 @@ export function useFeedEditForm({
          * 조회 전에 store를 초기화합니다.
          */
         resetRecordForm();
+        resetFeedForm();
 
         const response = await axios.get(
           `${API_BASE_URL}/feed/${feedId}`,
@@ -152,13 +159,15 @@ export function useFeedEditForm({
           feed.files ?? [],
         );
 
-        setRecordType('FEED');
-
         setText(
           feed.record?.text ?? '',
         );
 
         setMusic(feed.music);
+
+        setFont(
+          feed.font ?? 'KYOBO',
+        );
 
         setVisibility(
           feed.visibility ?? 'PUBLIC',
@@ -210,9 +219,10 @@ export function useFeedEditForm({
     feedId,
     userId,
     resetRecordForm,
-    setRecordType,
+    resetFeedForm,
     setText,
     setMusic,
+    setFont,
     setFiles,
     setVisibility,
   ]);

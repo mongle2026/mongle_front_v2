@@ -377,8 +377,14 @@ const FeedDetailScreen = ({
         false,
       );
 
-      // 수정 기능 추후 구현
-    }, []);
+      navigation.navigate(
+        'RecordEdit',
+        { feedId },
+      );
+    }, [
+      feedId,
+      navigation,
+    ]);
 
   const handlePressDelete =
     useCallback(() => {
