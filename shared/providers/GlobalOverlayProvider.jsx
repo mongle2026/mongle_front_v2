@@ -13,6 +13,10 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import Animated, {
+  SlideInDown,
+  SlideOutDown,
+} from 'react-native-reanimated';
 import Toast from '../components/feedback/Toast';
 import Dim from '../components/layout/Dim';
 import WindowOverlay from '../components/layout/WindowOverlay';
@@ -328,7 +332,9 @@ const GlobalOverlayProvider = ({
             )}
 
             {toast.visible && (
-              <View
+              <Animated.View
+                entering={SlideInDown.duration(250)}
+                exiting={SlideOutDown.duration(250)}
                 pointerEvents="box-none"
                 style={[
                   styles.toastLayer,
@@ -351,7 +357,7 @@ const GlobalOverlayProvider = ({
                       : undefined
                   }
                 />
-              </View>
+              </Animated.View>
             )}
           </WindowOverlay>
         )}

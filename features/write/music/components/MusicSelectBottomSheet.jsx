@@ -1,12 +1,13 @@
 import React from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   StyleSheet,
   View,
 } from 'react-native';
 
-import BottomSheet from '../../../../shared/components/overlay/BottomSheet';
+import BottomSheet, {
+  BottomSheetFlatList,
+} from '../../../../shared/components/overlay/BottomSheet';
 import SearchField from '../../../../shared/components/action/Searchfield';
 import ListHeader from '../../../../shared/components/content/ListHeader';
 import Empty from '../../../../shared/components/content/Empty';
@@ -97,7 +98,7 @@ const MusicSelectBottomSheet = ({
         />
       )}
 
-      <FlatList
+      <BottomSheetFlatList
         data={musicList}
         keyExtractor={(item) =>
           String(item.externalId)

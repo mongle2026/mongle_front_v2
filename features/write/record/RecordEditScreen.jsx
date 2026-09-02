@@ -393,6 +393,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   bottomSheetOverlayContainer: {
+    top: 0,
     left: 0,
     right: 0,
     bottom: 0,

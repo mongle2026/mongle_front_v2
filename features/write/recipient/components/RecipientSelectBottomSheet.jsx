@@ -1,8 +1,10 @@
 import React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 // Shared Components
-import BottomSheet from '../../../../shared/components/overlay/BottomSheet';
+import BottomSheet, {
+  BottomSheetFlatList,
+} from '../../../../shared/components/overlay/BottomSheet';
 import SearchField from '../../../../shared/components/action/Searchfield';
 import Empty from '../../../../shared/components/content/Empty';
 
@@ -67,7 +69,7 @@ const RecipientSelectBottomSheet = ({ onClose, currentUserId }) => {
         autoCorrect={false}
       />
 
-      <FlatList
+      <BottomSheetFlatList
         data={userList}
         keyExtractor={item => String(item.id)}
         renderItem={renderItem}

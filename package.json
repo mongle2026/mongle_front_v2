@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^5.2.14",
     "@react-native-kakao/core": "^2.4.6",
     "@react-native-kakao/share": "^2.4.6",
     "@react-native-kakao/social": "^2.4.6",

@@ -1,25 +1,19 @@
 import React, {
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import {
   Dimensions,
   StyleSheet,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
-import {
-  Gesture,
-  GestureDetector,
-} from 'react-native-gesture-handler';
-
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import GorhomBottomSheet, {
+  BottomSheetFlatList as GorhomBottomSheetFlatList,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 
 import {
   useSafeAreaInsets,
@@ -37,11 +31,78 @@ import {
 
 const DEFAULT_HEIGHT = 720;
 
-const CLOSE_DISTANCE_RATIO = 0.25;
-const CLOSE_VELOCITY = 1000;
-
-const SCREEN_HEIGHT =
+// gorhom의 스크롤 가능 컴포넌트(BottomSheetFlatList 등)는 Android에서
+// flex만으로 높이를 잡으면 제스처/스크롤 연동이 제대로 안 잡히는
+// 알려진 회귀 버그가 있습니다.
+// (https://github.com/gorhom/react-native-bottom-sheet/issues/2311)
+// 명시적인 maxHeight를 주면 우회됩니다 — 실제 보이는 높이는 여전히
+// flex:1이 정하고, maxHeight는 절대 넘지 않을 만큼 넉넉한 상한선만
+// 줍니다.
+const MAX_LIST_HEIGHT =
   Dimensions.get('window').height;
+
+/**
+ * BottomSheet의 children으로 넣는 FlatList입니다.
+ * 리스트가 맨 위(top)에서 딱 멈추고, 그 상태에서 이어서 당기면
+ * 시트가 드래그로 닫히는 처리가 (Android 포함) 기본으로 되어 있습니다.
+ *
+ * data가 react-query 캐시 등으로 마운트와 "동시에" 채워져 있으면
+ * (예: 시트를 한 번 닫았다 다시 열었을 때) gorhom이 스크롤 연동을
+ * 제대로 못 잡는 경우가 있습니다. 처음 로딩될 때(데이터가 나중에
+ * 비동기로 채워질 때)는 문제가 없어서, 마운트 첫 프레임엔 항상
+ * 빈 배열을 주고 실제 data로 바꿔서 이 타이밍을 인위적으로
+ * 맞춰줍니다.
+ *
+ * useEffect 한 틱만으로는 gorhom 내부 초기화가 아직 안 끝난
+ * 경우가 있어서(기기 성능에 따라 들쭉날쭉하게 재현됨) 두 번의
+ * requestAnimationFrame으로 실제 화면이 최소 한 프레임 이상
+ * 그려진 뒤에 데이터를 채우도록 넉넉하게 미룹니다.
+ */
+export const BottomSheetFlatList = ({
+  style,
+  data,
+  ...props
+}) => {
+  const [isReady, setIsReady] =
+    useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!cancelled) {
+          setIsReady(true);
+        }
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <GorhomBottomSheetFlatList
+      style={[
+        styles.list,
+        style,
+      ]}
+      data={
+        isReady ? data : []
+      }
+      {...props}
+    />
+  );
+};
+
+const DragHandle = () => (
+  <View style={styles.dragHandleTouchArea}>
+    <View style={styles.dragHandle}>
+      <View style={styles.dragHandleShape} />
+    </View>
+  </View>
+);
 
 const BottomSheet = ({
   children,
@@ -52,182 +113,66 @@ const BottomSheet = ({
   style,
 }) => {
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } =
+    useWindowDimensions();
 
-  const [measuredHeight, setMeasuredHeight] =
-    useState(0);
-
-  const translateY = useSharedValue(
-    fitContent
-      ? SCREEN_HEIGHT
-      : height,
+  const snapPoints = useMemo(
+    () =>
+      fitContent ? undefined : [height],
+    [fitContent, height],
   );
 
-  const dragStartY =
-    useSharedValue(0);
-
-  useEffect(() => {
-    if (
-      fitContent &&
-      measuredHeight === 0
-    ) {
-      return;
-    }
-
-    translateY.value = withTiming(0, {
-      duration: 220,
-    });
-  }, [
-    fitContent,
-    height,
-    measuredHeight,
-    translateY,
-  ]);
-
-  const closeBottomSheet = () => {
-    onClose?.();
-  };
-
-  const sheetHeight = fitContent
-    ? measuredHeight
-    : height;
-
-  const closeDistance =
-    sheetHeight > 0
-      ? sheetHeight
-      : SCREEN_HEIGHT;
-
-  const panGesture = Gesture.Pan()
-    .onBegin(() => {
-      dragStartY.value =
-        translateY.value;
-    })
-    .onUpdate(event => {
-      const nextTranslateY =
-        dragStartY.value +
-        event.translationY;
-
-      translateY.value = Math.max(
-        0,
-        nextTranslateY,
-      );
-    })
-    .onEnd(event => {
-      const shouldClose =
-        translateY.value >
-          closeDistance *
-            CLOSE_DISTANCE_RATIO ||
-        event.velocityY >
-          CLOSE_VELOCITY;
-
-      if (shouldClose) {
-        translateY.value =
-          withTiming(
-            closeDistance,
-            {
-              duration: 180,
-            },
-            finished => {
-              if (
-                finished &&
-                onClose
-              ) {
-                runOnJS(
-                  closeBottomSheet,
-                )();
-              }
-            },
-          );
-
-        return;
-      }
-
-      translateY.value =
-        withSpring(0, {
-          damping: 22,
-          stiffness: 220,
-          mass: 0.8,
-        });
-    });
-
-  const animatedStyle =
-    useAnimatedStyle(() => ({
-      transform: [
-        {
-          translateY:
-            translateY.value,
-        },
-      ],
-    }));
+  // BottomSheetView는 마운트되면 스스로를 "현재 스크롤 가능한
+  // 컴포넌트"로 등록합니다(dynamic sizing 측정을 위해 필요).
+  // 근데 그 안에 BottomSheetFlatList가 함께 있으면, 나중에
+  // 마운트되는 BottomSheetView가 FlatList의 등록을 덮어써버려서
+  // 시트가 리스트를 "스크롤 안 되는 View"로 착각해 스크롤이
+  // 먹통이 됩니다. 그래서 리스트가 있는 고정 높이 모드에서는
+  // 일반 View를, 스크롤 리스트가 없는 fitContent 모드에서만
+  // BottomSheetView를 씁니다.
+  const ContentWrapper = fitContent
+    ? BottomSheetView
+    : View;
 
   return (
-    <Animated.View
-      onLayout={
+    <GorhomBottomSheet
+      index={0}
+      snapPoints={snapPoints}
+      enableDynamicSizing={fitContent}
+      maxDynamicContentSize={
         fitContent
-          ? event => {
-              setMeasuredHeight(
-                event.nativeEvent.layout
-                  .height,
-              );
-            }
+          ? windowHeight - insets.top
           : undefined
       }
-      style={[
-        styles.container,
-
-        fitContent
-          ? {
-              maxHeight:
-                SCREEN_HEIGHT -
-                insets.top,
-            }
-          : {
-              height,
-            },
-
-        animatedStyle,
-        style,
-      ]}
+      topInset={insets.top}
+      enablePanDownToClose
+      onClose={onClose}
+      handleComponent={
+        showDragHandle
+          ? DragHandle
+          : null
+      }
+      backgroundStyle={styles.background}
+      style={[styles.container, style]}
     >
-      {showDragHandle && (
-        <GestureDetector
-          gesture={panGesture}
-        >
-          <View
-            style={
-              styles.dragHandleTouchArea
-            }
-          >
-            <View
-              style={
-                styles.dragHandle
-              }
-            >
-              <View
-                style={
-                  styles.dragHandleShape
-                }
-              />
-            </View>
-          </View>
-        </GestureDetector>
-      )}
-
-      <View
+      <ContentWrapper
         style={[
           styles.content,
 
-          fitContent &&
-            styles.fitContent,
+          fitContent
+            ? styles.fitContent
+            : styles.fixedContent,
 
           {
             paddingBottom:
-              insets.bottom,
+              insets.bottom +
+              padding.XS,
           },
         ]}
       >
         {children}
-      </View>
-    </Animated.View>
+      </ContentWrapper>
+    </GorhomBottomSheet>
   );
 };
 
@@ -235,25 +180,30 @@ export default BottomSheet;
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    borderTopLeftRadius: radius.M,
+    borderTopRightRadius: radius.M,
 
-    paddingVertical: padding.XS,
+    ...shadow.middleUp,
+  },
 
-    flexDirection: 'column',
-    alignItems: 'center',
+  list: {
+    flex: 1,
+    maxHeight: MAX_LIST_HEIGHT,
+  },
 
+  background: {
     borderTopLeftRadius: radius.M,
     borderTopRightRadius: radius.M,
 
     backgroundColor:
       colors.bgLayerDefault,
-
-    ...shadow.middleUp,
   },
 
   dragHandleTouchArea: {
     width: '100%',
     minHeight: 28,
+
+    paddingTop: padding.XS,
 
     justifyContent: 'center',
     alignItems: 'center',
@@ -280,8 +230,11 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    flex: 1,
     width: '100%',
+  },
+
+  fixedContent: {
+    flex: 1,
   },
 
   fitContent: {
