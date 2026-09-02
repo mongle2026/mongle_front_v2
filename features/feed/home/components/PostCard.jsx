@@ -22,8 +22,6 @@ const POST_FONT_STYLES = Object.freeze({
   [FONT.SUIT]: typo.suitBodyLarge,
 });
 
-const TEXT_HEIGHT_WITH_IMAGES = 216;
-const TEXT_HEIGHT_WITHOUT_IMAGES = 342;
 const TEXT_LINES_WITH_IMAGES = 8;
 const TEXT_LINES_WITHOUT_IMAGES = 13;
 
@@ -156,6 +154,8 @@ const PostCard = ({
     ? TEXT_LINES_WITH_IMAGES
     : TEXT_LINES_WITHOUT_IMAGES;
 
+  const textViewportHeight = contentFontStyle.lineHeight * textNumberOfLines;
+
   const isPressable = typeof onPress === 'function';
 
   return (
@@ -200,9 +200,7 @@ const PostCard = ({
             <View
               style={[
                 styles.textViewport,
-                hasImages
-                  ? styles.textViewportWithImages
-                  : styles.textViewportWithoutImages,
+                { height: textViewportHeight },
               ]}
             >
               {hasContent && (
@@ -304,14 +302,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  textViewportWithImages: {
-    height: TEXT_HEIGHT_WITH_IMAGES,
-  },
-
-  textViewportWithoutImages: {
-    height: TEXT_HEIGHT_WITHOUT_IMAGES,
-  },
-
   contentText: {
     width: '100%',
     minWidth: 0,
@@ -320,7 +310,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
 
     color: colors.fgNeutralMuted,
-    textAlign: 'justify',
+    textAlign: 'left',
   },
 
   imageContainer: {
