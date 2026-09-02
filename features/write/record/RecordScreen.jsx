@@ -175,14 +175,23 @@ const RecordScreen = ({ navigation, route }) => {
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
   const [textInputHeight, setTextInputHeight] = useState(0);
 
+  /*
+   * 커서가 있는 마지막 줄이 measuredHeight 딱 그 경계에
+   * 걸쳐 있으면, 네이티브 쪽 relayout이 한 프레임 늦게
+   * 반영되는 순간 커서가 렌더링된 영역 밖으로 벗어나
+   * Android가 스크롤을 튕겼다가 되돌리는 현상이 생깁니다.
+   * 항상 한 줄만큼 여유 공간을 남겨 커서가 경계에 걸치는
+   * 상황 자체를 없앱니다.
+   */
   const handleTextContentSizeChange = useCallback(event => {
-    const nextHeight = Math.ceil(event.nativeEvent.contentSize.height);
+    const measuredHeight = Math.ceil(event.nativeEvent.contentSize.height);
+    const nextHeight = measuredHeight + bodyTypography.lineHeight;
 
     setTextInputHeight(prevHeight => {
       if (Math.abs(prevHeight - nextHeight) < 1) return prevHeight;
       return nextHeight;
     });
-  }, []);
+  }, [bodyTypography.lineHeight]);
 
   const handleBottomBarLayout = useCallback(event => {
     setBottomBarHeight(event.nativeEvent.layout.height);
@@ -326,7 +335,6 @@ const RecordScreen = ({ navigation, route }) => {
                 <LabeledButton
                   icon={<IcProfile />}
                   label="수신인 선택"
-                  size="M"
                   typography={typo.suitLabelLargeStrong}
                   color={colors.fgNeutralMuted}
                   iconColor={colors.fgNeutralMuted}
@@ -351,7 +359,6 @@ const RecordScreen = ({ navigation, route }) => {
                   <LabeledButton
                     icon={<IcCalendar />}
                     label="날짜 선택"
-                    size="M"
                     typography={typo.suitLabelLargeStrong}
                     color={colors.fgNeutralMuted}
                     backgroundColor={colors.bgNeutralFaint}
@@ -392,7 +399,6 @@ const RecordScreen = ({ navigation, route }) => {
             <LabeledButton
               icon={<IcMusic />}
               label="음악 선택"
-              size="M"
               typography={typo.suitLabelLargeStrong}
               color={colors.fgNeutralMuted}
               iconColor={colors.fgNeutralMuted}
@@ -416,7 +422,7 @@ const RecordScreen = ({ navigation, route }) => {
             style={[
               styles.textInput,
               bodyTypography,
-              textInputHeight > 0 && { height: textInputHeight },
+              textInputHeight > 0 && { minHeight: textInputHeight },
             ]}
           />
 
@@ -523,7 +529,6 @@ const styles = StyleSheet.create({
     color: colors.fgNeutralSolid,
     textAlign: 'justify',
     includeFontPadding: false,
-    overflow: 'hidden',
   },
   bottomBarContainer: {
     position: 'absolute',
