@@ -87,13 +87,8 @@ const Comment = ({
               >
                 <IconButton
                   size="S"
-                  icon={
-                    <IcKebab
-                      width={14}
-                      height={14}
-                      color={colors.fgNeutralWeak}
-                    />
-                  }
+                  icon={IcKebab}
+                  color={colors.fgNeutralWeak}
                   onPress={handlePressMenu}
                   accessibilityLabel="댓글 메뉴"
                 />
@@ -107,7 +102,7 @@ const Comment = ({
 
           <LabeledButton
             label="답글 달기"
-            icon={<IcComment />}
+            icon={IcComment}
             size="S"
             color={colors.fgNeutralWeak}
             iconColor={colors.fgNeutralWeak}

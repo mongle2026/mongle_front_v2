@@ -2,6 +2,8 @@ import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import IcFilledCheck from '../../../assets/icons/ic_filledcheck.svg';
+// TODO: 느낌표 아이콘 에셋이 추가되면 ic_x를 교체해주세요.
+import IcExclamation from '../../../assets/icons/ic_x.svg';
 
 import ButtonText from '../action/ButtonText';
 
@@ -9,18 +11,27 @@ import { colors, shadow } from '../../styles/color';
 import { padding, gap, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
+const TOAST_ICONS = {
+  check: IcFilledCheck,
+  exclamation: IcExclamation,
+};
+
 const Toast = ({
   text,
+  icon = 'check',
+  iconColor = colors.fgPositive,
   buttonText,
   onPressButton,
 }) => {
+  const Icon = TOAST_ICONS[icon] ?? TOAST_ICONS.check;
+
   return (
     <View style={styles.container}>
       <View style={styles.sectionToast}>
-        <IcFilledCheck
+        <Icon
           width={20}
           height={20}
-          color={colors.fgPositive}
+          color={iconColor}
         />
 
         <Text
@@ -53,7 +64,7 @@ const styles = StyleSheet.create({
   },
   sectionToast: {
     alignSelf: 'stretch',
-    minHeight: 47,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: padding.XXS,

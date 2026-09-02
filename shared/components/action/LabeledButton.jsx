@@ -31,7 +31,8 @@ const SIZE_CONFIG = {
 
 const LabeledButton = ({
   label,
-  icon,
+  icon: Icon,
+  renderIcon,
   size = 'M',
 
   color = colors.fgNeutralWeak,
@@ -53,15 +54,20 @@ const LabeledButton = ({
     label !== null &&
     label !== '';
 
-  const renderedIcon = React.isValidElement(icon)
-    ? React.cloneElement(icon, {
-        width: currentSize.iconSize,
-        height: currentSize.iconSize,
-        size: currentSize.iconSize,
-        fill: iconColor,
-        color: iconColor,
-      })
-    : null;
+  // icon은 SVG 컴포넌트 참조를 받아 size/iconColor를 직접 주입합니다.
+  // 애니메이션 등 아이콘을 감싸는 마크업이 필요하면 renderIcon을 사용합니다.
+  const renderedIcon = renderIcon
+    ? renderIcon({ size: currentSize.iconSize, color: iconColor })
+    : Icon
+      ? (
+        <Icon
+          width={currentSize.iconSize}
+          height={currentSize.iconSize}
+          fill={iconColor}
+          color={iconColor}
+        />
+      )
+      : null;
 
   const resolvedAccessibilityLabel =
     accessibilityLabel ??

@@ -13,7 +13,7 @@ const ICON_SIZE = 24;
 
 const Item = ({
   label,
-  Icon,
+  icon: Icon,
   isActive = false,
   onPress,
   accessibilityLabel = label,

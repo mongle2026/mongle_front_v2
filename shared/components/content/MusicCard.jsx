@@ -105,7 +105,8 @@ const MusicCard = ({
         <View style={styles.controlContainer}>
           <IconButton
             size="S"
-            icon={<PlaybackIcon width={14} height={14} fill={colors.fgNeutralSolid} />}
+            icon={PlaybackIcon}
+            color={colors.fgNeutralSolid}
             onPress={handlePressPlayback}
             disabled={disabled}
             accessibilityLabel={`${accessibilityTitle} 음악 ${isPlaying ? '일시정지' : '재생'}`}

@@ -15,27 +15,20 @@ export const ANIMATION_TYPE = Object.freeze({
 const AnimatedIcon = ({
   Icon,
   animatedStyle,
-  width,
-  height,
+  size,
   color,
-  fill,
 }) => {
   if (!Icon) {
     return null;
   }
 
-  const resolvedColor =
-    color ??
-    fill ??
-    colors.fgNeutralWeak;
-
   return (
     <Animated.View style={animatedStyle}>
       <Icon
-        width={width}
-        height={height}
-        color={resolvedColor}
-        fill={resolvedColor}
+        width={size}
+        height={size}
+        color={color}
+        fill={color}
       />
     </Animated.View>
   );
@@ -178,14 +171,14 @@ const AnimatedLabeledButton = forwardRef(
       <LabeledButton
         label={label}
         size={size}
-        icon={
+        renderIcon={({ size: iconSize, color }) => (
           <AnimatedIcon
             Icon={Icon}
             animatedStyle={animatedStyle}
-            color={resolvedIconColor}
-            fill={resolvedIconColor}
+            size={iconSize}
+            color={color}
           />
-        }
+        )}
         color={labelColor}
         iconColor={resolvedIconColor}
         disabled={disabled}

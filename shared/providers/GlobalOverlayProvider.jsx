@@ -32,6 +32,8 @@ const GlobalOverlayProvider = ({
     useState({
       visible: false,
       message: '',
+      icon: undefined,
+      iconColor: undefined,
       buttonText: null,
       onPressButton: null,
       bottomOffset: 0,
@@ -134,6 +136,8 @@ const GlobalOverlayProvider = ({
       message,
       duration =
         DEFAULT_TOAST_DURATION,
+      icon = undefined,
+      iconColor = undefined,
       buttonText = null,
       onPressButton = null,
       bottomOffset = 0,
@@ -150,6 +154,8 @@ const GlobalOverlayProvider = ({
       setToast({
         visible: true,
         message,
+        icon,
+        iconColor,
         buttonText,
         onPressButton,
         bottomOffset,
@@ -334,6 +340,8 @@ const GlobalOverlayProvider = ({
               >
                 <Toast
                   text={toast.message}
+                  icon={toast.icon}
+                  iconColor={toast.iconColor}
                   buttonText={
                     toast.buttonText
                   }

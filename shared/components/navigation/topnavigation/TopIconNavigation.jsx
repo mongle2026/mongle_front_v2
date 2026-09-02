@@ -41,7 +41,8 @@ const TopIconNavigation = ({
       {isText ? (
         <View style={styles.textContent}>
           <IconButton
-            icon={<IcX color={colors.fgNeutralMuted} />}
+            icon={IcX}
+            color={colors.fgNeutralMuted}
             size="M"
             onPress={onPressClose}
             accessibilityLabel="닫기"
@@ -64,7 +65,8 @@ const TopIconNavigation = ({
       ) : (
         <>
           <IconButton
-            icon={<IcX color={colors.fgNeutralMuted} />}
+            icon={IcX}
+            color={colors.fgNeutralMuted}
             size="XL"
             onPress={onPressClose}
             accessibilityLabel="닫기"
@@ -72,14 +74,16 @@ const TopIconNavigation = ({
 
           <View style={styles.tail}>
             <IconButton
-              icon={<IcShare color={colors.fgNeutralSolid} />}
+              icon={IcShare}
+              color={colors.fgNeutralSolid}
               size="XL"
               onPress={onPressShare}
               accessibilityLabel="공유하기"
             />
 
             <IconButton
-              icon={<IcKebab color={colors.fgNeutralSolid} />}
+              icon={IcKebab}
+              color={colors.fgNeutralSolid}
               size="XL"
               onPress={onPressMore}
               accessibilityLabel="더보기"

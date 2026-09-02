@@ -246,13 +246,8 @@ const CommentBar = ({
 
           <IconButton
             size="S"
-            icon={
-              <IcArrowUp
-                width={14}
-                height={14}
-                color={colors.fgDisabled}
-              />
-            }
+            icon={IcArrowUp}
+            color={colors.fgDisabled}
             disabled
             style={styles.submitButton}
             accessibilityLabel="댓글 등록"
@@ -353,16 +348,11 @@ const CommentBar = ({
 
           <IconButton
             size="S"
-            icon={
-              <IcArrowUp
-                width={14}
-                height={14}
-                color={
-                  isSubmitDisabled
-                    ? colors.fgDisabled
-                    : colors.fgNeutralSolid
-                }
-              />
+            icon={IcArrowUp}
+            color={
+              isSubmitDisabled
+                ? colors.fgDisabled
+                : colors.fgNeutralSolid
             }
             onPress={handleSubmit}
             disabled={isSubmitDisabled}

@@ -48,7 +48,8 @@ const SelectedImageList = ({ images = [], onRemove }) => {
 
             <IconButton
               size="L"
-              icon={<IcX color={colors.fgNeutralInverted} />}
+              icon={IcX}
+              color={colors.fgNeutralInverted}
               onPress={() => onRemove?.(image)}
               accessibilityLabel={`첨부 이미지 ${index + 1} 삭제`}
               style={styles.removeButton}

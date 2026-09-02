@@ -126,7 +126,7 @@ const BottomNavigation = ({
           <Item
             key={route.key}
             label={label}
-            Icon={Icon}
+            icon={Icon}
             isActive={isActive}
             onPress={handlePress}
             onLongPress={handleLongPress}

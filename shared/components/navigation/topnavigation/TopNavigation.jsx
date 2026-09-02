@@ -48,7 +48,8 @@ const TopNavigation = ({
 
       <IconButton
         size="XL"
-        icon={<IcBell color={colors.fgNeutralSolid} />}
+        icon={IcBell}
+        color={colors.fgNeutralSolid}
         onPress={onPressBell}
         accessibilityLabel="알림 보기"
       />

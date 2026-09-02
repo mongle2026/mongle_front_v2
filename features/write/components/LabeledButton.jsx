@@ -15,6 +15,10 @@ const ICON_SIZE = 14;
 const LabeledButton = ({
   icon,
   label,
+  color = colors.fgNeutralMuted,
+  iconColor = colors.fgNeutralMuted,
+  backgroundColor = colors.bgNeutralFaint,
+  typography = typo.suitLabelLargeStrong,
   onPress,
   disabled = false,
   style,
@@ -23,8 +27,8 @@ const LabeledButton = ({
     ? React.cloneElement(icon, {
       width: ICON_SIZE,
       height: ICON_SIZE,
-      color: colors.fgNeutralMuted,
-      fill: colors.fgNeutralMuted,
+      color: iconColor,
+      fill: iconColor,
     })
     : null;
 
@@ -34,7 +38,7 @@ const LabeledButton = ({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={[styles.container, style]}
+      style={[styles.container, { backgroundColor }, style]}
     >
       {renderedIcon && (
         <View style={styles.icon}>
@@ -44,7 +48,7 @@ const LabeledButton = ({
 
       <Text
         allowFontScaling={false}
-        style={styles.label}
+        style={[typography, { color }]}
       >
         {label}
       </Text>
@@ -64,7 +68,6 @@ const styles = StyleSheet.create({
     gap: padding.S,
 
     borderRadius: radius.XS,
-    backgroundColor: colors.bgNeutralFaint,
   },
 
   icon: {
@@ -74,11 +77,6 @@ const styles = StyleSheet.create({
 
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  label: {
-    ...typo.suitLabelLargeStrong,
-    color: colors.fgNeutralMuted,
   },
 });
 

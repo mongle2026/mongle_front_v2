@@ -58,7 +58,7 @@ const ActionBar = ({
         {showCommentButton && (
           <LabeledButton
             size="M"
-            icon={<IcComment />}
+            icon={IcComment}
             iconColor={colors.fgNeutralWeak}
             onPress={onCommentPress}
             accessibilityLabel="댓글"
