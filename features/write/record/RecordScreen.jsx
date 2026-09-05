@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,26 +23,28 @@ import { resolveMediaUri } from '../../../shared/utils/media';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
-import { FONT, normalizeFont } from '../../../shared/styles/font';
 
 // Feature Components, Stores & Utils
 import LabeledButton from '../components/LabeledButton';
 import BottomBar from '../components/bottombar/BottomBar';
 import SelectedImageList from './components/SelectedImageList';
-import MusicSelectBottomSheet from '../music/components/MusicSelectBottomSheet';
 import RecipientSelectBottomSheet from '../recipient/components/RecipientSelectBottomSheet';
 import DateSelectBottomSheet from '../date/components/DateSelectBottomSheet';
 import { useRecordFormStore } from '../store/useRecordFormStore';
 import { useLetterFormStore } from '../store/useLetterFormStore';
 import { useFeedFormStore } from '../store/useFeedFormStore';
 import { deliveryAtToDate, formatDeliveryDateLabel, toDeliveryAt } from '../date/utils/deliveryDate';
+import { fullScreenOverlayContainerStyle } from '../utils/overlayContainerStyle';
 
 // Hooks
 import useRecordMusicPlayback from './hooks/useRecordMusicPlayback';
-import { usePickImages } from './hooks/usePickImages';
 import useCreateFeed from './hooks/useCreateFeed';
 import useAutoScrollTextInput from './hooks/useAutoScrollTextInput';
 import { useLeaveRecordConfirm } from './hooks/useLeaveRecordConfirm';
+import { useRecordImageManager } from './hooks/useRecordImageManager';
+import { useBottomBarPanel } from './hooks/useBottomBarPanel';
+import { useRecordTypography } from './hooks/useRecordTypography';
+import { useMusicSelectOverlay } from './hooks/useMusicSelectOverlay';
 
 const RECORD_TYPE = {
   FEED: 'feed',
@@ -61,23 +63,24 @@ const RecordScreen = ({ navigation, route }) => {
   const text = useRecordFormStore(state => state.text);
   const setText = useRecordFormStore(state => state.setText);
   const music = useRecordFormStore(state => state.music);
-  const font = useRecordFormStore(state => state.font);
-  const setFont = useRecordFormStore(state => state.setFont);
-  const files = useRecordFormStore(state => state.files);
-  const removeFile = useRecordFormStore(state => state.removeFile);
-  const restoreFile = useRecordFormStore(state => state.restoreFile);
   const resetRecordForm = useRecordFormStore(state => state.resetRecordForm);
   const resetFeedForm = useFeedFormStore(state => state.resetFeedForm);
 
-  const imageFiles = files.filter(file => file.fileType === 'IMAGE');
-  const isImageLimitReached = imageFiles.length >= 2;
+  /* 이미지 선택, 삭제 및 되돌리기 */
+  const {
+    imageFiles,
+    isImageLimitReached,
+    handlePressImage,
+    handleRemoveImage,
+  } = useRecordImageManager();
 
   /* 폰트 정규화 및 타이포 선택 */
-  const normalizedFont = normalizeFont(font);
-  const isSuitFont = normalizedFont === FONT.SUIT;
-
-  const dateTypography = isSuitFont ? typo.suitLabelLarge : typo.kyoboLabelLarge;
-  const bodyTypography = isSuitFont ? typo.suitBodyLarge : typo.kyoboBodyLarge;
+  const {
+    normalizedFont,
+    dateTypography,
+    bodyTypography,
+    handleSelectFont,
+  } = useRecordTypography();
 
   /* 음악 재생 */
   const {
@@ -198,8 +201,14 @@ const RecordScreen = ({ navigation, route }) => {
       isNextReady,
     ]);
 
-  /* 높이 측정 상태 */
-  const [bottomBarHeight, setBottomBarHeight] = useState(0);
+  /* 하단 바 높이 측정 및 actions / font 모드 전환 */
+  const {
+    bottomBarHeight,
+    bottomBarMode,
+    handleBottomBarLayout,
+    handleShowFontMode,
+    handleShowActionsMode,
+  } = useBottomBarPanel();
 
   /* 본문이 길어질 때 커서를 따라 스크롤 */
   const {
@@ -215,10 +224,6 @@ const RecordScreen = ({ navigation, route }) => {
     lineHeight: bodyTypography.lineHeight,
   });
 
-  const handleBottomBarLayout = useCallback(event => {
-    setBottomBarHeight(event.nativeEvent.layout.height);
-  }, []);
-
   /* 수신인 선택 BottomSheet 열기 */
   const handleOpenRecipientSelect = useCallback(() => {
     Keyboard.dismiss();
@@ -226,7 +231,7 @@ const RecordScreen = ({ navigation, route }) => {
     openOverlay({
       id: RECIPIENT_SELECT_OVERLAY_ID,
       accessibilityLabel: '수신인 선택 닫기',
-      contentContainerStyle: styles.bottomSheetOverlayContainer,
+      contentContainerStyle: fullScreenOverlayContainerStyle,
       renderContent: ({ close }) => (
         <RecipientSelectBottomSheet currentUserId={userId} onClose={close} />
       ),
@@ -234,16 +239,7 @@ const RecordScreen = ({ navigation, route }) => {
   }, [openOverlay, userId]);
 
   /* 음악 선택 BottomSheet 열기 */
-  const handleOpenMusicSelect = useCallback(() => {
-    Keyboard.dismiss();
-
-    openOverlay({
-      id: MUSIC_SELECT_OVERLAY_ID,
-      accessibilityLabel: '음악 선택 닫기',
-      contentContainerStyle: styles.bottomSheetOverlayContainer,
-      renderContent: ({ close }) => <MusicSelectBottomSheet onClose={close} />,
-    });
-  }, [openOverlay]);
+  const handleOpenMusicSelect = useMusicSelectOverlay(MUSIC_SELECT_OVERLAY_ID);
 
   /* 날짜 선택 완료 및 BottomSheet 열기 */
   const handleConfirmDate = useCallback(
@@ -261,7 +257,7 @@ const RecordScreen = ({ navigation, route }) => {
     openOverlay({
       id: DATE_SELECT_OVERLAY_ID,
       accessibilityLabel: '날짜 선택 닫기',
-      contentContainerStyle: styles.bottomSheetOverlayContainer,
+      contentContainerStyle: fullScreenOverlayContainerStyle,
       renderContent: ({ close }) => (
         <DateSelectBottomSheet
           initialDate={deliveryAtToDate(deliveryAt)}
@@ -271,44 +267,6 @@ const RecordScreen = ({ navigation, route }) => {
       ),
     });
   }, [openOverlay, deliveryAt, handleConfirmDate]);
-
-  /* 하단 바 */
-  const [bottomBarMode, setBottomBarMode] = useState('actions');
-
-  const handleSelectFont = useCallback(
-    nextFont => {
-      const normalized = normalizeFont(nextFont);
-      setFont(normalized === FONT.SUIT ? 'SUIT' : 'KYOBO');
-    },
-    [setFont],
-  );
-
-  /* 이미지 선택, 삭제 및 되돌리기 */
-  const pickImages = usePickImages();
-
-  const handlePressImage = useCallback(() => {
-    Keyboard.dismiss();
-    pickImages();
-  }, [pickImages]);
-
-  const handleRemoveImage = useCallback(
-    image => {
-      if (!image?.uri) return;
-
-      const fileIndex = files.findIndex(file => file.uri === image.uri);
-      if (fileIndex < 0) return;
-
-      removeFile(image.uri);
-
-      showToast({
-        message: '사진을 삭제했습니다.',
-        buttonText: '되돌리기',
-        onPressButton: () => restoreFile(image, fileIndex),
-        bottomOffset,
-      });
-    },
-    [bottomOffset, files, removeFile, restoreFile, showToast],
-  );
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -469,8 +427,8 @@ const RecordScreen = ({ navigation, route }) => {
           selectedFont={normalizedFont}
           imageDisabled={isImageLimitReached}
           onPressImage={handlePressImage}
-          onPressFont={() => setBottomBarMode('font')}
-          onPressBack={() => setBottomBarMode('actions')}
+          onPressFont={handleShowFontMode}
+          onPressBack={handleShowActionsMode}
           onSelectFont={handleSelectFont}
         />
       </View>
@@ -562,12 +520,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
-  },
-  bottomSheetOverlayContainer: {
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
   },
 });

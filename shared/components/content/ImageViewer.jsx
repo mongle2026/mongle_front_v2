@@ -145,6 +145,22 @@ const ImageViewer = ({ imageSource }) => {
   const displaySizeRef = useRef(displaySize);
   displaySizeRef.current = displaySize;
 
+  const containerStyle = useMemo(() => {
+    if (!displaySize) return null;
+
+    return {
+      position: 'absolute',
+      left: (screenWidth - displaySize.width) / 2,
+      top: (screenHeight - displaySize.height) / 2,
+      width: displaySize.width,
+      height: displaySize.height,
+    };
+  }, [
+    displaySize,
+    screenHeight,
+    screenWidth,
+  ]);
+
   const setTranslate = (x, y) => {
     const size = displaySizeRef.current;
 
@@ -339,20 +355,14 @@ const ImageViewer = ({ imageSource }) => {
     ],
   );
 
-  if (!source || !displaySize) {
+  if (!source || !displaySize || !containerStyle) {
     return null;
   }
 
   return (
     <View
       {...panResponder.panHandlers}
-      style={[
-        styles.container,
-        {
-          width: displaySize.width,
-          height: displaySize.height,
-        },
-      ]}
+      style={containerStyle}
     >
       <Animated.Image
         source={source}
@@ -375,10 +385,6 @@ const ImageViewer = ({ imageSource }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   image: {
     alignSelf: 'center',
   },
