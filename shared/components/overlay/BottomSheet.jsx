@@ -7,7 +7,6 @@ import {
   Dimensions,
   StyleSheet,
   View,
-  useWindowDimensions,
 } from 'react-native';
 
 import GorhomBottomSheet, {
@@ -113,8 +112,19 @@ const BottomSheet = ({
   style,
 }) => {
   const insets = useSafeAreaInsets();
-  const { height: windowHeight } =
-    useWindowDimensions();
+
+  // Android에서는 Dimensions.get('window')가 하단 내비게이션 바
+  // 높이를 제외한 값을 반환할 수 있어, 시트가 실제로 놓이는 전체
+  // 화면 높이인 Dimensions.get('screen')을 기준으로 계산합니다.
+  const { height: screenHeight } =
+    Dimensions.get('screen');
+
+  // 콘텐츠(+ 아래 추가하는 안전영역 스페이서)가 상태바/내비게이션
+  // 바 영역까지 침범하지 않도록 상한을 둡니다.
+  const maxFitContentHeight =
+    screenHeight -
+    insets.top -
+    insets.bottom;
 
   const snapPoints = useMemo(
     () =>
@@ -141,7 +151,7 @@ const BottomSheet = ({
       enableDynamicSizing={fitContent}
       maxDynamicContentSize={
         fitContent
-          ? windowHeight - insets.top
+          ? maxFitContentHeight
           : undefined
       }
       topInset={insets.top}
@@ -163,7 +173,7 @@ const BottomSheet = ({
             ? styles.fitContent
             : styles.fixedContent,
 
-          {
+          !fitContent && {
             paddingBottom:
               insets.bottom +
               padding.XS,
@@ -171,6 +181,24 @@ const BottomSheet = ({
         ]}
       >
         {children}
+
+        {/*
+          gorhom의 enableDynamicSizing은 컨테이너에 준
+          paddingBottom을 콘텐츠 높이 계산에 반영하지 않습니다
+          (실측 결과 paddingBottom 값을 아무리 키워도 시트 높이가
+          전혀 변하지 않음 - Android 하단 내비게이션 바와 겹치는
+          원인). 자식 엘리먼트로 실제 높이를 차지하는 View를 넣어야
+          측정에 반영됩니다.
+        */}
+        {fitContent && (
+          <View
+            style={{
+              height:
+                insets.bottom +
+                padding.XS,
+            }}
+          />
+        )}
       </ContentWrapper>
     </GorhomBottomSheet>
   );

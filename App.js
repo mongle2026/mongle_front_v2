@@ -8,7 +8,10 @@ import { setAudioModeAsync } from 'expo-audio';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {
+  SafeAreaProvider,
+  initialWindowMetrics,
+} from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView, } from 'react-native-gesture-handler';
 import { fontMap } from './shared/styles/fonts';
@@ -92,7 +95,9 @@ const MainTabNavigator = () => (
 );
 
 const FeedDetailRoute = props => (
-  <SafeAreaProvider>
+  <SafeAreaProvider
+    initialMetrics={initialWindowMetrics}
+  >
     <FeedDetailScreen {...props} />
   </SafeAreaProvider>
 );
@@ -157,7 +162,9 @@ export default function App() {
     <GestureHandlerRootView
       style={{ flex: 1 }}
     >
-      <SafeAreaProvider>
+      <SafeAreaProvider
+        initialMetrics={initialWindowMetrics}
+      >
         <QueryClientProvider client={queryClient}>
           <DialogProvider>
             <GlobalOverlayProvider>
