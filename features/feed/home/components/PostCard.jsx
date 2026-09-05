@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -65,6 +65,15 @@ const PostCard = ({
 }) => {
   const scale = useSharedValue(1);
   const translateY = useSharedValue(0);
+
+  // textViewport가 실제로 차지하는 높이를 측정해서, 남는 공간이 있으면
+  // 고정 줄 수(TEXT_LINES_*)보다 더 많은 줄을 보여주기 위한 값
+  const [textViewportHeight, setTextViewportHeight] = useState(0);
+
+  const handleTextViewportLayout = useCallback(event => {
+    const nextHeight = Math.round(event.nativeEvent.layout.height);
+    setTextViewportHeight(currentHeight => (currentHeight === nextHeight ? currentHeight : nextHeight));
+  }, []);
 
   const pressStartRef = useRef(null);
   const didMoveRef = useRef(false);
@@ -151,9 +160,18 @@ const PostCard = ({
     POST_FONT_STYLES[normalizedFont] ??
     POST_FONT_STYLES[FONT.KYOBO];
 
-  const textNumberOfLines = hasImages
+  const fallbackNumberOfLines = hasImages
     ? TEXT_LINES_WITH_IMAGES
     : TEXT_LINES_WITHOUT_IMAGES;
+
+  // textViewport 높이가 측정되면 그 공간에 실제로 들어가는 줄 수를 계산해서
+  // 여백이 남는 카드는 고정값보다 더 많은 텍스트를 보여준다.
+  const lineHeight = contentFontStyle.lineHeight || 1;
+  const measuredNumberOfLines = textViewportHeight > 0
+    ? Math.floor(textViewportHeight / lineHeight)
+    : 0;
+
+  const textNumberOfLines = Math.max(fallbackNumberOfLines, measuredNumberOfLines);
 
   const isPressable = typeof onPress === 'function';
 
@@ -196,7 +214,7 @@ const PostCard = ({
 
         <View style={[styles.contentArea, contentAreaStyle]}>
           <View style={[styles.textContainer, textContainerStyle]}>
-            <View style={styles.textViewport}>
+            <View style={styles.textViewport} onLayout={handleTextViewportLayout}>
               {hasContent && (
                 <SuitSafeText
                   numberOfLines={textNumberOfLines}
