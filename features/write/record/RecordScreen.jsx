@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Icons
 import IcProfile from '../../../assets/icons/ic_profile.svg';
-import IcMusic from '../../../assets/icons/ic_musicplay.svg';
-import IcCalendar from '../../../assets/icons/ic_comment.svg';
+import IcMusic from '../../../assets/icons/ic_music.svg';
+import IcCalendar from '../../../assets/icons/ic_calendar.svg';
 
 // Shared Components & Providers
 import { DividerLine } from '../../../shared/components/atomic/DividerLine';

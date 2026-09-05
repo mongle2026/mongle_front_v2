@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import IcImage from '../../../../assets/icons/ic_profile.svg';
-import IcFont from '../../../../assets/icons/ic_musicplay.svg';
+import IcImage from '../../../../assets/icons/ic_image.svg';
+import IcFont from '../../../../assets/icons/ic_font.svg';
 import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
 
 import IconButton from '../../../../shared/components/action/IconButton';
@@ -61,7 +61,7 @@ const FontSelector = ({
       <IconButton
         size="L"
         icon={IcArrowLeft}
-        color={colors.fgNeutralMuted}
+        color={colors.fgNeutralWeak}
         onPress={onPressBack}
         accessibilityLabel="폰트 선택 닫기"
       />
