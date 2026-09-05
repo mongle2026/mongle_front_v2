@@ -34,6 +34,7 @@ import RecipientSelectBottomSheet from '../recipient/components/RecipientSelectB
 import DateSelectBottomSheet from '../date/components/DateSelectBottomSheet';
 import { useRecordFormStore } from '../store/useRecordFormStore';
 import { useLetterFormStore } from '../store/useLetterFormStore';
+import { useFeedFormStore } from '../store/useFeedFormStore';
 import { deliveryAtToDate, formatDeliveryDateLabel, toDeliveryAt } from '../date/utils/deliveryDate';
 
 // Hooks
@@ -41,6 +42,7 @@ import useRecordMusicPlayback from './hooks/useRecordMusicPlayback';
 import { usePickImages } from './hooks/usePickImages';
 import useCreateFeed from './hooks/useCreateFeed';
 import useAutoScrollTextInput from './hooks/useAutoScrollTextInput';
+import { useLeaveRecordConfirm } from './hooks/useLeaveRecordConfirm';
 
 const RECORD_TYPE = {
   FEED: 'feed',
@@ -64,6 +66,8 @@ const RecordScreen = ({ navigation, route }) => {
   const files = useRecordFormStore(state => state.files);
   const removeFile = useRecordFormStore(state => state.removeFile);
   const restoreFile = useRecordFormStore(state => state.restoreFile);
+  const resetRecordForm = useRecordFormStore(state => state.resetRecordForm);
+  const resetFeedForm = useFeedFormStore(state => state.resetFeedForm);
 
   const imageFiles = files.filter(file => file.fileType === 'IMAGE');
   const isImageLimitReached = imageFiles.length >= 2;
@@ -89,6 +93,7 @@ const RecordScreen = ({ navigation, route }) => {
   const receiver = useLetterFormStore(state => state.receiver);
   const deliveryAt = useLetterFormStore(state => state.deliveryAt);
   const setDeliveryAt = useLetterFormStore(state => state.setDeliveryAt);
+  const resetLetterForm = useLetterFormStore(state => state.resetLetterForm);
 
   /* feed / letter 구분 */
   const type = route?.params?.type ?? RECORD_TYPE.FEED;
@@ -101,6 +106,27 @@ const RecordScreen = ({ navigation, route }) => {
   const hasDeliveryDate = !isLetter || !receiver?.isMe || Boolean(deliveryAt);
   const isNextReady = hasMusic && hasContent && hasRecipient && hasDeliveryDate;
   const nextTextColor = isNextReady ? colors.fgNeutralMuted : colors.fgDisabled;
+
+  /* 작성 중인 값이 하나라도 있는지 (뒤로가기 시 확인 Dialog 노출 여부) */
+  const hasWrittenAnything =
+    hasMusic ||
+    hasContent ||
+    (isLetter && (Boolean(receiver) || Boolean(deliveryAt)));
+
+  const handlePressClose = useLeaveRecordConfirm({
+    navigation,
+    hasChanges: hasWrittenAnything,
+    title: '작성을 그만둘까요?',
+    description: '작성한 글은 다시 되돌릴 수 없습니다.',
+    confirmText: '계속 작성하기',
+    onDiscard: useCallback(() => {
+      resetRecordForm();
+      resetFeedForm();
+      if (isLetter) {
+        resetLetterForm();
+      }
+    }, [isLetter, resetFeedForm, resetLetterForm, resetRecordForm]),
+  });
 
   /* 키보드 / SafeArea 포함 BottomBar 위치 */
   const bottomOffset = useFloatingBottomOffset();
@@ -289,7 +315,7 @@ const RecordScreen = ({ navigation, route }) => {
       <TopIconNavigation
         type="text"
         headerText={isLetter ? '편지 작성하기' : '피드 작성하기'}
-        onPressClose={() => navigation?.goBack()}
+        onPressClose={handlePressClose}
         onPressNext={handlePressNext}
         nextTextStyle={{ color: nextTextColor }}
       />

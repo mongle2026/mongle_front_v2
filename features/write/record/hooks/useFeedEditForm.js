@@ -100,6 +100,11 @@ export function useFeedEditForm({
       (state) => state.setFont,
     );
 
+  const resetDirty =
+    useRecordFormStore(
+      (state) => state.resetDirty,
+    );
+
   const resetFeedForm =
     useFeedFormStore(
       (state) => state.resetFeedForm,
@@ -184,6 +189,13 @@ export function useFeedEditForm({
             (file) => file.serverFileId,
           ),
         );
+
+        /*
+         * 서버 데이터로 store를 채우는 과정에서
+         * isDirty가 true로 바뀌므로, 원본 로딩 완료 시점에
+         * 다시 false로 되돌려 실제 사용자 수정 여부만 추적합니다.
+         */
+        resetDirty();
       } catch (fetchError) {
         if (ignore) {
           return;
@@ -225,6 +237,7 @@ export function useFeedEditForm({
     setFont,
     setFiles,
     setVisibility,
+    resetDirty,
   ]);
 
   return {

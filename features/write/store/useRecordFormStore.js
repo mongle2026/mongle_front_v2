@@ -7,6 +7,9 @@ const initialState = {
   text: '',
   files: [],
   font: 'KYOBO',
+
+  // 수정 화면에서 원본 데이터 대비 변경 여부를 추적하기 위한 값
+  isDirty: false,
 };
 
 export const useRecordFormStore = create((set) => ({
@@ -15,26 +18,31 @@ export const useRecordFormStore = create((set) => ({
   setMusic: (music) =>
     set({
       music,
+      isDirty: true,
     }),
 
   setText: (text) =>
     set({
       text,
+      isDirty: true,
     }),
 
   setFiles: (files) =>
     set({
       files,
+      isDirty: true,
     }),
 
   setFont: (font) =>
     set({
       font,
+      isDirty: true,
     }),
 
   addFile: (file) =>
     set((state) => ({
       files: [...state.files, file],
+      isDirty: true,
     })),
 
   removeFile: (uri) =>
@@ -42,6 +50,7 @@ export const useRecordFormStore = create((set) => ({
       files: state.files.filter(
         (file) => file.uri !== uri,
       ),
+      isDirty: true,
     })),
 
   restoreFile: (file, index) =>
@@ -65,7 +74,13 @@ export const useRecordFormStore = create((set) => ({
 
       return {
         files: nextFiles,
+        isDirty: true,
       };
+    }),
+
+  resetDirty: () =>
+    set({
+      isDirty: false,
     }),
 
   resetRecordForm: () =>

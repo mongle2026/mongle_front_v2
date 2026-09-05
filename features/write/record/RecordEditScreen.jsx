@@ -26,6 +26,7 @@ import BottomBar from '../components/bottombar/BottomBar';
 import SelectedImageList from './components/SelectedImageList';
 import MusicSelectBottomSheet from '../music/components/MusicSelectBottomSheet';
 import { useRecordFormStore } from '../store/useRecordFormStore';
+import { useFeedFormStore } from '../store/useFeedFormStore';
 
 // Hooks
 import useRecordMusicPlayback from './hooks/useRecordMusicPlayback';
@@ -33,6 +34,7 @@ import { usePickImages } from './hooks/usePickImages';
 import { useFeedEditForm } from './hooks/useFeedEditForm';
 import useUpdateFeed from './hooks/useUpdateFeed';
 import useAutoScrollTextInput from './hooks/useAutoScrollTextInput';
+import { useLeaveRecordConfirm } from './hooks/useLeaveRecordConfirm';
 
 const MUSIC_SELECT_OVERLAY_ID = 'record-edit-music-select';
 
@@ -58,6 +60,21 @@ const RecordEditScreen = ({ navigation, route }) => {
   const files = useRecordFormStore(state => state.files);
   const removeFile = useRecordFormStore(state => state.removeFile);
   const restoreFile = useRecordFormStore(state => state.restoreFile);
+  const isDirty = useRecordFormStore(state => state.isDirty);
+  const resetRecordForm = useRecordFormStore(state => state.resetRecordForm);
+  const resetFeedForm = useFeedFormStore(state => state.resetFeedForm);
+
+  const handlePressClose = useLeaveRecordConfirm({
+    navigation,
+    hasChanges: isDirty,
+    title: '수정을 그만둘까요?',
+    description: '수정된 내용은 저장되지 않습니다.',
+    confirmText: '계속 수정하기',
+    onDiscard: useCallback(() => {
+      resetRecordForm();
+      resetFeedForm();
+    }, [resetFeedForm, resetRecordForm]),
+  });
 
   const imageFiles = files.filter(file => file.fileType === 'IMAGE');
   const isImageLimitReached = imageFiles.length >= 2;
@@ -216,7 +233,7 @@ const RecordEditScreen = ({ navigation, route }) => {
         <TopIconNavigation
           type="text"
           headerText="피드 수정하기"
-          onPressClose={() => navigation?.goBack()}
+          onPressClose={handlePressClose}
           nextTextStyle={{ color: colors.fgDisabled }}
         />
 
@@ -238,7 +255,7 @@ const RecordEditScreen = ({ navigation, route }) => {
       <TopIconNavigation
         type="text"
         headerText="피드 수정하기"
-        onPressClose={() => navigation?.goBack()}
+        onPressClose={handlePressClose}
         onPressNext={handlePressNext}
         nextTextStyle={{ color: nextTextColor }}
       />
