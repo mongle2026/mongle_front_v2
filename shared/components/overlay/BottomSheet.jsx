@@ -110,6 +110,8 @@ const BottomSheet = ({
   onClose,
   showDragHandle = true,
   style,
+  activeOffsetY,
+  failOffsetX,
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -156,6 +158,12 @@ const BottomSheet = ({
       }
       topInset={insets.top}
       enablePanDownToClose
+      // content 전체를 내려서 닫을 수 있게 하면서(enablePanDownToClose)도
+      // 가로로 스와이프하는 내부 콘텐츠(예: Calendar)가 있는 경우
+      // 세로 제스처가 먼저 선점해버릴 수 있어, 필요한 곳에서만
+      // 방향 임계값을 좁혀 넘겨줄 수 있게 pass-through 합니다.
+      activeOffsetY={activeOffsetY}
+      failOffsetX={failOffsetX}
       onClose={onClose}
       handleComponent={
         showDragHandle

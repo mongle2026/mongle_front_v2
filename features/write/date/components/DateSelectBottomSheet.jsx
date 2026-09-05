@@ -89,6 +89,11 @@ const DateSelectBottomSheet = ({
     <BottomSheet
       fitContent
       onClose={onClose}
+      // Calendar가 좌우 스와이프로 달을 넘기므로, 세로로
+      // 충분히 움직였을 때만 시트 닫기 제스처가 선점하도록
+      // 방향 임계값을 둡니다.
+      activeOffsetY={[-10, 10]}
+      failOffsetX={[-10, 10]}
     >
       {/* ListHeader container */}
       <View
