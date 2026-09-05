@@ -175,7 +175,7 @@ const VARIANT_STYLES = {
       },
 
       [L]: {
-        color: colors.fgNeutralSolid,
+        color: colors.fgNeutralSubtle,
       },
     },
   },
