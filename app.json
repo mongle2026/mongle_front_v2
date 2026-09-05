@@ -5,17 +5,17 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
     "android": {
-      "package": "com.mongle.app",
-      "edgeToEdgeEnabled": true
+      "package": "com.mongle.app"
     },
     "plugins": [
       "expo-audio",
-      "expo-asset"
+      "expo-asset",
+      "expo-splash-screen",
+      "expo-status-bar"
     ]
   }
 }

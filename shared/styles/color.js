@@ -41,6 +41,15 @@ export const palette = {
 // elevation/middleDown: Drop shadow, X0 Y4, Blur 15, Spread 0,
 // color=overlay/weak (neutral/950 #1e2125 @ 20% → shadowColor + shadowOpacity로 분리)
 export const shadow = {
+  // elevation/weakDown: Drop shadow, X0 Y4, Blur 15, Spread 0, color=overlay @ 10%
+  weakDown: {
+    shadowColor: '#1e2125',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 15,
+    elevation: 3, // Android
+  },
+
   middleDown: {
     shadowColor: '#1e2125',
     shadowOffset: { width: 0, height: 4 },

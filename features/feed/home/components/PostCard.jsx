@@ -154,8 +154,6 @@ const PostCard = ({
     ? TEXT_LINES_WITH_IMAGES
     : TEXT_LINES_WITHOUT_IMAGES;
 
-  const textViewportHeight = contentFontStyle.lineHeight * textNumberOfLines;
-
   const isPressable = typeof onPress === 'function';
 
   return (
@@ -197,12 +195,7 @@ const PostCard = ({
 
         <View style={[styles.contentArea, contentAreaStyle]}>
           <View style={[styles.textContainer, textContainerStyle]}>
-            <View
-              style={[
-                styles.textViewport,
-                { height: textViewportHeight },
-              ]}
-            >
+            <View style={styles.textViewport}>
               {hasContent && (
                 <Text
                   numberOfLines={textNumberOfLines}
@@ -264,6 +257,7 @@ const styles = StyleSheet.create({
   },
 
   pressArea: {
+    flex: 1,
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
@@ -271,14 +265,15 @@ const styles = StyleSheet.create({
   },
 
   contentArea: {
+    flex: 1,
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
     alignSelf: 'stretch',
-    flexShrink: 0,
   },
 
   textContainer: {
+    flex: 1,
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
@@ -289,7 +284,7 @@ const styles = StyleSheet.create({
 
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
   },
 
   textViewport: {

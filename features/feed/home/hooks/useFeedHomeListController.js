@@ -1,74 +1,28 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { gap } from '../../../../shared/styles/token';
-import { hasImageFiles } from '../../../../shared/utils/media';
 
-const ESTIMATED_HEIGHT_WITH_IMAGES = 537;
-const ESTIMATED_HEIGHT_WITHOUT_IMAGES = 532;
+// 현재 게시물 위 게시물이 살짝 보이는 정도 + 게시물 사이 간격
+const PEEK_HEIGHT = gap.M;
+const POST_GAP = gap.M;
 
-const getEstimatedPostHeight = item =>
-  hasImageFiles(item?.files) ? ESTIMATED_HEIGHT_WITH_IMAGES : ESTIMATED_HEIGHT_WITHOUT_IMAGES;
-
-const useFeedHomeListController = ({ posts, activeTab, setActiveTab, resetPlayback }) => {
+const useFeedHomeListController = ({
+  posts,
+  activeTab,
+  setActiveTab,
+  resetPlayback,
+  reservedBottomSpace = 0,
+}) => {
   const listRef = useRef(null);
-  const measuredPostHeightsRef = useRef(new Map());
-  const measurementFrameRef = useRef(null);
   const tabOffsetsRef = useRef({});
   const currentOffsetRef = useRef(0);
   const pendingRestoreTabRef = useRef(null);
 
   const [listHeight, setListHeight] = useState(0);
-  const [measurementVersion, setMeasurementVersion] = useState(0);
 
-  const postMetrics = useMemo(() => {
-    if (posts.length === 0) {
-      return { snapOffsets: [], paddingTop: 0, paddingBottom: 0 };
-    }
-
-    const heights = posts.map(item => {
-      const feedId = String(item.feedId);
-      return measuredPostHeightsRef.current.get(feedId) ?? getEstimatedPostHeight(item);
-    });
-
-    const firstHeight = heights[0];
-    const lastHeight = heights[heights.length - 1];
-
-    const paddingTop = listHeight > 0 ? Math.max((listHeight - firstHeight) / 2, 0) : 0;
-    const paddingBottom = listHeight > 0 ? Math.max((listHeight - lastHeight) / 2, 0) : 0;
-
-    let currentTop = paddingTop;
-
-    const snapOffsets = heights.map(height => {
-      const offset = listHeight > 0 ? Math.max(currentTop - (listHeight - height) / 2, 0) : currentTop;
-      currentTop += height + gap.M;
-      return offset;
-    });
-
-    return { snapOffsets, paddingTop, paddingBottom };
-  }, [listHeight, measurementVersion, posts]);
-
-  const scheduleMetricsUpdate = useCallback(() => {
-    if (measurementFrameRef.current !== null) return;
-
-    measurementFrameRef.current = requestAnimationFrame(() => {
-      measurementFrameRef.current = null;
-      setMeasurementVersion(version => version + 1);
-    });
-  }, []);
-
-  const handlePostLayout = useCallback(
-    (feedId, event) => {
-      const nextHeight = Math.round(event.nativeEvent.layout.height);
-      if (nextHeight <= 0) return;
-
-      const previousHeight = measuredPostHeightsRef.current.get(feedId);
-      if (previousHeight === nextHeight) return;
-
-      measuredPostHeightsRef.current.set(feedId, nextHeight);
-      scheduleMetricsUpdate();
-    },
-    [scheduleMetricsUpdate]
-  );
+  // 남은 공간을 전부 PostCard가 차지하도록 화면 높이에서 고정 간격만큼 뺀 값을 카드 높이로 사용
+  const viewportHeight = Math.max(listHeight - reservedBottomSpace, 0);
+  const postCardHeight = Math.max(viewportHeight - PEEK_HEIGHT - POST_GAP, 0);
 
   const handleListLayout = useCallback(event => {
     const nextHeight = Math.round(event.nativeEvent.layout.height);
@@ -110,19 +64,12 @@ const useFeedHomeListController = ({ posts, activeTab, setActiveTab, resetPlayba
     return () => cancelAnimationFrame(frame);
   }, [activeTab, posts.length]);
 
-  useEffect(() => {
-    return () => {
-      if (measurementFrameRef.current !== null) {
-        cancelAnimationFrame(measurementFrameRef.current);
-        measurementFrameRef.current = null;
-      }
-    };
-  }, []);
-
   return {
     listRef,
-    postMetrics,
-    handlePostLayout,
+    postCardHeight,
+    paddingTop: PEEK_HEIGHT + POST_GAP,
+    paddingBottom: reservedBottomSpace,
+    snapToInterval: postCardHeight + POST_GAP,
     handleListLayout,
     handleListScrollEnd,
     handleChangeTab,

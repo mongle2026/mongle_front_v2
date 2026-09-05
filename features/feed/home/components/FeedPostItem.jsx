@@ -8,6 +8,7 @@ import PostCard from './PostCard';
 const FeedPostItem = ({
   item,
   userId,
+  cardStyle,
   likeDisabled = false,
   bookmarkDisabled = false,
   followDisabled = false,
@@ -79,6 +80,7 @@ const FeedPostItem = ({
   return (
     <PostCard
       onPress={handleTap}
+      style={cardStyle}
       font={item?.font}
       profileProps={{
         imageUri: profileImageUri,

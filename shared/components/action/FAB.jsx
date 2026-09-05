@@ -1,56 +1,53 @@
 import React, { memo, useCallback, useState, } from 'react';
-import { Pressable, StyleSheet, View, } from 'react-native';
+import { Pressable, StyleSheet, Text, View, } from 'react-native';
 
 import FeedIcon from '../../../assets/icons/ic_feed.svg';
 import LetterIcon from '../../../assets/icons/ic_letter.svg';
 import PlusIcon from '../../../assets/icons/ic_plus.svg';
-import CloseIcon from '../../../assets/icons/ic_x.svg';
+import XIcon from '../../../assets/icons/ic_x.svg';
 
 import { colors, shadow } from '../../styles/color';
-import { gap } from '../../styles/token';
+import { gap, padding, radius } from '../../styles/token';
+import { typo } from '../../styles/typo';
 
-const FAB_SIZE = 44;
-const ICON_SIZE = 18;
-const FAB_ICON_COLOR = colors.fgNeutralInverted;
+const TOGGLE_ICON_SIZE = 16;
+const ACTION_ICON_SIZE = 20;
 
-const FABButton = memo(
-  ({
-    icon,
-    tone = 'dark',
-    onPress,
-    accessibilityLabel,
-    expanded,
-  }) => {
-    const accessibilityState =
-      typeof expanded === 'boolean'
-        ? { expanded }
-        : undefined;
+const DEFAULT_LABEL = '새로운 기록 남기기';
+const EXPANDED_LABEL = '피드 더 둘러보기';
 
-    return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityState={accessibilityState}
-        onPress={onPress}
-        style={({ pressed }) => [
-          styles.button,
-          tone === 'light'
-            ? styles.lightButton
-            : styles.darkButton,
-          pressed && styles.pressed,
-        ]}
+const ExpandedActionButton = memo(
+  ({ icon: Icon, label, onPress, accessibilityLabel }) => (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      onPress={onPress}
+      style={styles.expandedButton}
+    >
+      <Icon
+        width={ACTION_ICON_SIZE}
+        height={ACTION_ICON_SIZE}
+        color={colors.fgNeutralInverted}
+      />
+
+      <Text
+        numberOfLines={1}
+        style={styles.expandedLabel}
       >
-        {icon}
-      </Pressable>
-    );
-  },
+        {label}
+      </Text>
+    </Pressable>
+  ),
 );
 
-FABButton.displayName = 'FABButton';
+ExpandedActionButton.displayName = 'ExpandedActionButton';
 
 const FAB = ({
   onFeedPress,
   onLetterPress,
+
+  label = DEFAULT_LABEL,
+  expandedLabel = EXPANDED_LABEL,
 
   // 외부에서 열림 상태를 제어할 때 사용
   open,
@@ -94,104 +91,121 @@ const FAB = ({
     [changeOpen, closeOnActionPress],
   );
 
-  const handleFeedPress = useCallback(() => {
-    handleActionPress(onFeedPress);
-  }, [handleActionPress, onFeedPress]);
-
   const handleLetterPress = useCallback(() => {
     handleActionPress(onLetterPress);
   }, [handleActionPress, onLetterPress]);
 
+  const handleFeedPress = useCallback(() => {
+    handleActionPress(onFeedPress);
+  }, [handleActionPress, onFeedPress]);
+
   return (
     <View style={[styles.container, style]}>
       {isOpen && (
-        <>
-          {/* 가장 위: 피드 작성 */}
-          <FABButton
-            icon={
-              <FeedIcon
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-                color={FAB_ICON_COLOR}
-              />
-            }
-            accessibilityLabel="피드 작성"
-            onPress={handleFeedPress}
-          />
-
-          {/* 가운데: 편지 작성 */}
-          <FABButton
-            icon={
-              <LetterIcon
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-                color={FAB_ICON_COLOR}
-              />
-            }
+        <View style={styles.expandedRow}>
+          <ExpandedActionButton
+            icon={LetterIcon}
+            label="편지 작성"
             accessibilityLabel="편지 작성"
             onPress={handleLetterPress}
           />
-        </>
+
+          <ExpandedActionButton
+            icon={FeedIcon}
+            label="피드 작성"
+            accessibilityLabel="피드 작성"
+            onPress={handleFeedPress}
+          />
+        </View>
       )}
 
-      {/* 가장 아래: 열기 또는 닫기 */}
-      <FABButton
-        icon={
-          isOpen ? (
-            <CloseIcon
-              width={ICON_SIZE}
-              height={ICON_SIZE}
-            />
-          ) : (
-            <PlusIcon
-              width={ICON_SIZE}
-              height={ICON_SIZE}
-              color={FAB_ICON_COLOR}
-            />
-          )
-        }
-        tone={isOpen ? 'light' : 'dark'}
+      <Pressable
+        accessibilityRole="button"
         accessibilityLabel={
           isOpen ? '작성 메뉴 닫기' : '작성 메뉴 열기'
         }
-        expanded={isOpen}
+        accessibilityState={{ expanded: isOpen }}
         onPress={handleToggle}
-      />
+        style={styles.defaultButton}
+      >
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.defaultLabel,
+            isOpen && styles.defaultLabelExpanded,
+          ]}
+        >
+          {isOpen ? expandedLabel : label}
+        </Text>
+
+        {isOpen ? (
+          <XIcon
+            width={TOGGLE_ICON_SIZE}
+            height={TOGGLE_ICON_SIZE}
+            color={colors.fgNeutralMuted}
+          />
+        ) : (
+          <PlusIcon
+            width={TOGGLE_ICON_SIZE}
+            height={TOGGLE_ICON_SIZE}
+            color={colors.fgNeutralMuted}
+          />
+        )}
+      </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: 'flex-start',
+    width: '100%',
     flexDirection: 'column',
-    justifyContent: 'center',
+    alignItems: 'stretch',
+    gap: gap.M,
+  },
+
+  expandedRow: {
+    flexDirection: 'row',
     alignItems: 'flex-start',
     gap: gap.M,
   },
 
-  button: {
-    width: FAB_SIZE,
-    height: FAB_SIZE,
-
-    justifyContent: 'center',
+  expandedButton: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-
-    borderRadius: FAB_SIZE / 2,
-
-    ...shadow.middleDown,
-  },
-
-  darkButton: {
+    gap: gap.M,
+    padding: padding.L,
+    borderRadius: radius.S,
     backgroundColor: colors.bgNeutralSolid,
+    ...shadow.weakDown,
   },
 
-  lightButton: {
+  expandedLabel: {
+    flexShrink: 1,
+    color: colors.fgNeutralInverted,
+    ...typo.suitLabelMediumStrong,
+  },
+
+  defaultButton: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: gap.M,
+    padding: padding.L,
+    borderRadius: radius.S,
     backgroundColor: colors.bgLayerDefault,
+    ...shadow.weakDown,
   },
 
-  pressed: {
-    opacity: 0.8,
+  defaultLabel: {
+    flex: 1,
+    color: colors.fgNeutralMuted,
+    ...typo.suitLabelMediumStrong,
+  },
+
+  defaultLabelExpanded: {
+    color: colors.fgNeutralSubtle,
   },
 });
 

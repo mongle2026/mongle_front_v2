@@ -1,97 +1,58 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { BackHandler } from 'react-native';
 
-import FAB from '../../../../shared/components/action/FAB';
-import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
-import { useBottomNavigationHeight } from '../../../../shared/components/navigation/bottomnavigation/BottomNavigation';
-import { padding } from '../../../../shared/styles/token';
+import { gap, padding } from '../../../../shared/styles/token';
 
-const FAB_OVERLAY_ID = 'feed-home-fab';
-
-export const FAB_BOTTOM_GAP = 10;
+// FAB(default) 레이아웃 측정 전 사용할 예상 높이
+// (padding.L * 2 + 텍스트 lineHeight + FAB 자체 배경의 상하 padding + 회색 배경 박스의 상하 padding.M)
+export const DEFAULT_FAB_HEIGHT = padding.L * 2 + 17 + gap.M * 2 + padding.M * 2;
 
 const useFeedHomeFab = navigation => {
-  const bottomNavigationHeight = useBottomNavigationHeight();
+  const [isFabOpen, setIsFabOpen] = useState(false);
 
-  const {
-    activeOverlayId,
-    openOverlay,
-    closeOverlay,
-  } = useGlobalOverlay();
+  const closeFab = useCallback(() => {
+    setIsFabOpen(false);
+  }, []);
 
-  const isFabOpen = activeOverlayId === FAB_OVERLAY_ID;
+  const handleFabOpenChange = useCallback(nextOpen => {
+    setIsFabOpen(nextOpen);
+  }, []);
 
   const handlePressFeedWrite = useCallback(() => {
+    closeFab();
     navigation.navigate('Record', {
       type: 'feed',
     });
-  }, [navigation]);
+  }, [closeFab, navigation]);
 
   const handlePressLetterWrite = useCallback(() => {
+    closeFab();
     navigation.navigate('Record', {
       type: 'letter',
     });
-  }, [navigation]);
-
-  const handleOpenFab = useCallback(() => {
-    openOverlay({
-      id: FAB_OVERLAY_ID,
-      accessibilityLabel: '작성 메뉴 닫기',
-      closeOnDimPress: true,
-      closeOnBackPress: true,
-
-      contentContainerStyle: {
-        right: padding.XL,
-        bottom: bottomNavigationHeight + FAB_BOTTOM_GAP,
-      },
-
-      renderContent: ({ close }) => (
-        <FAB
-          open
-          closeOnActionPress={false}
-          onOpenChange={nextOpen => {
-            if (!nextOpen) {
-              close();
-            }
-          }}
-          onFeedPress={() => {
-            close();
-            handlePressFeedWrite();
-          }}
-          onLetterPress={() => {
-            close();
-            handlePressLetterWrite();
-          }}
-        />
-      ),
-    });
-  }, [
-    bottomNavigationHeight,
-    handlePressFeedWrite,
-    handlePressLetterWrite,
-    openOverlay,
-  ]);
-
-  const handleFabOpenChange = useCallback(
-    nextOpen => {
-      if (nextOpen) {
-        handleOpenFab();
-        return;
-      }
-
-      closeOverlay(FAB_OVERLAY_ID);
-    },
-    [closeOverlay, handleOpenFab],
-  );
+  }, [closeFab, navigation]);
 
   useEffect(() => {
+    if (!isFabOpen) return undefined;
+
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        closeFab();
+        return true;
+      },
+    );
+
     return () => {
-      closeOverlay(FAB_OVERLAY_ID);
+      subscription.remove();
     };
-  }, [closeOverlay]);
+  }, [closeFab, isFabOpen]);
 
   return {
     isFabOpen,
     handleFabOpenChange,
+    handlePressFeedWrite,
+    handlePressLetterWrite,
   };
 };
 
