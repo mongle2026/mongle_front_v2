@@ -12,6 +12,7 @@ import ActionBar from './ActionBar';
 
 import MusicCard from '../../../../shared/components/content/MusicCard';
 import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
+import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
 import { colors } from '../../../../shared/styles/color';
 import { gap, padding, radius } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
@@ -197,7 +198,7 @@ const PostCard = ({
           <View style={[styles.textContainer, textContainerStyle]}>
             <View style={styles.textViewport}>
               {hasContent && (
-                <Text
+                <SuitSafeText
                   numberOfLines={textNumberOfLines}
                   ellipsizeMode="tail"
                   style={[
@@ -207,7 +208,7 @@ const PostCard = ({
                   ]}
                 >
                   {content}
-                </Text>
+                </SuitSafeText>
               )}
             </View>
           </View>

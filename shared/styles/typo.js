@@ -12,6 +12,10 @@ const fontFamily = {
   kyobo:        'KyoboHandwriting2025', // 손글씨체, 단일 스타일("lyb")
 };
 
+// SUIT 서브셋에 윤곽선이 없는 한글을 대체 표시할 때 쓰는 폰트.
+// Kyobo 손글씨 폰트는 현대 한글 11,172자를 전부 지원하는 것으로 검증됨(fontTools).
+export const FALLBACK_FONT_FAMILY = fontFamily.kyobo;
+
 // includeFontPadding: false → Android 기본 여백 제거 (iOS/Android 크기 통일)
 // lineHeight는 Figma의 % 값을 fontSize 기준으로 계산한 결과 (절대값은 그대로)
 const base = { includeFontPadding: false };

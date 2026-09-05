@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
+import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
 
 import { colors } from '../../../../shared/styles/color';
 import { FONT } from '../../../../shared/styles/font';
@@ -37,9 +38,9 @@ const FeedDetailContent = ({
     <Pressable onPress={onPress} style={styles.container}>
       {hasContent && (
         <View style={styles.textContainer}>
-          <Text style={[styles.contentText, fontStyle]}>
+          <SuitSafeText style={[styles.contentText, fontStyle]}>
             {content}
-          </Text>
+          </SuitSafeText>
         </View>
       )}
 

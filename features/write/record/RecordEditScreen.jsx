@@ -3,7 +3,7 @@ import { ActivityIndicator, Keyboard, Pressable, ScrollView, StyleSheet, Text, T
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Icons
-import IcMusic from '../../../assets/icons/ic_musicplay.svg';
+import IcMusic from '../../../assets/icons/ic_music.svg';
 
 // Shared Components & Providers
 import MusicCard from '../../../shared/components/content/MusicCard';
@@ -32,6 +32,7 @@ import useRecordMusicPlayback from './hooks/useRecordMusicPlayback';
 import { usePickImages } from './hooks/usePickImages';
 import { useFeedEditForm } from './hooks/useFeedEditForm';
 import useUpdateFeed from './hooks/useUpdateFeed';
+import useAutoScrollTextInput from './hooks/useAutoScrollTextInput';
 
 const MUSIC_SELECT_OVERLAY_ID = 'record-edit-music-select';
 
@@ -140,25 +141,20 @@ const RecordEditScreen = ({ navigation, route }) => {
 
   /* 높이 측정 상태 */
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
-  const [textInputHeight, setTextInputHeight] = useState(0);
 
-  /*
-   * 커서가 있는 마지막 줄이 measuredHeight 딱 그 경계에
-   * 걸쳐 있으면, 네이티브 쪽 relayout이 한 프레임 늦게
-   * 반영되는 순간 커서가 렌더링된 영역 밖으로 벗어나
-   * Android가 스크롤을 튕겼다가 되돌리는 현상이 생깁니다.
-   * 항상 한 줄만큼 여유 공간을 남겨 커서가 경계에 걸치는
-   * 상황 자체를 없앱니다.
-   */
-  const handleTextContentSizeChange = useCallback(event => {
-    const measuredHeight = Math.ceil(event.nativeEvent.contentSize.height);
-    const nextHeight = measuredHeight + bodyTypography.lineHeight;
-
-    setTextInputHeight(prevHeight => {
-      if (Math.abs(prevHeight - nextHeight) < 1) return prevHeight;
-      return nextHeight;
-    });
-  }, [bodyTypography.lineHeight]);
+  /* 본문이 길어질 때 커서를 따라 스크롤 */
+  const {
+    scrollViewRef,
+    textInputRef,
+    textInputHeight,
+    handleScroll,
+    handleScrollViewLayout,
+    handleTextContentSizeChange,
+  } = useAutoScrollTextInput({
+    bottomBarHeight,
+    bottomOffset,
+    lineHeight: bodyTypography.lineHeight,
+  });
 
   const handleBottomBarLayout = useCallback(event => {
     setBottomBarHeight(event.nativeEvent.layout.height);
@@ -248,6 +244,7 @@ const RecordEditScreen = ({ navigation, route }) => {
       />
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
@@ -256,6 +253,9 @@ const RecordEditScreen = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
+        onLayout={handleScrollViewLayout}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         {music ? (
           <Pressable
@@ -292,6 +292,7 @@ const RecordEditScreen = ({ navigation, route }) => {
 
         <View style={styles.textContainer}>
           <TextInput
+            ref={textInputRef}
             value={text}
             onChangeText={setText}
             placeholder="텍스트 입력"
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
     color: colors.fgNeutralSolid,
-    textAlign: 'justify',
+    textAlign: 'left',
     includeFontPadding: false,
   },
   bottomBarContainer: {

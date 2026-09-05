@@ -11,6 +11,7 @@ import IcKebab from '../../../../assets/icons/ic_kebab.svg';
 import IconButton from '../../../../shared/components/action/IconButton';
 import LabeledButton from '../../../../shared/components/action/LabeledButton';
 import ProfileImg from '../../../../shared/components/atomic/ProfileImg';
+import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
 
 import { colors } from '../../../../shared/styles/color';
 import { gap, padding, radius } from '../../../../shared/styles/token';
@@ -96,9 +97,9 @@ const Comment = ({
             )}
           </View>
 
-          <Text style={styles.comment}>
+          <SuitSafeText style={styles.comment}>
             {comment}
-          </Text>
+          </SuitSafeText>
 
           <LabeledButton
             label="답글 달기"
