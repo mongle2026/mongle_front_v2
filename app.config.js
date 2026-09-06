@@ -28,9 +28,6 @@ module.exports = ({ config }) => ({
       '@react-native-kakao/core',
       {
         nativeAppKey: kakaoNativeAppKey,
-        android: {
-          forwardKakaoLinkIntentFilterToMainActivity: true,
-        },
       },
     ],
   ],

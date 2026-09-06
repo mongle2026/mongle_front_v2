@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import Constants from 'expo-constants';
 import { setAudioModeAsync } from 'expo-audio';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -30,23 +29,17 @@ SplashScreen.preventAutoHideAsync();
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const kakaoNativeAppKey =
-  Constants.expoConfig?.extra?.kakaoNativeAppKey;
-
 const linking = {
   prefixes: [
-    `kakao${kakaoNativeAppKey}://`,
     // 공유 웹페이지(/feed/share/:feedId)가 앱으로 딥링크할 때 사용하는 커스텀 스킴
     'mongle://',
   ],
   config: {
     screens: {
-      // 카카오톡 공유 링크와 자체 공유 웹페이지 딥링크가 같은 경로를 공유한다
       FeedDetail: {
-        path: 'kakaolink',
+        path: 'share',
         parse: {
           feedId: String,
-          visibility: String,
         },
       },
     },
