@@ -36,9 +36,12 @@ const kakaoNativeAppKey =
 const linking = {
   prefixes: [
     `kakao${kakaoNativeAppKey}://`,
+    // 공유 웹페이지(/feed/share/:feedId)가 앱으로 딥링크할 때 사용하는 커스텀 스킴
+    'mongle://',
   ],
   config: {
     screens: {
+      // 카카오톡 공유 링크와 자체 공유 웹페이지 딥링크가 같은 경로를 공유한다
       FeedDetail: {
         path: 'kakaolink',
         parse: {

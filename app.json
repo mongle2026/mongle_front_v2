@@ -2,6 +2,7 @@
   "expo": {
     "name": "mongle_front_v2",
     "slug": "mongle_front_v2",
+    "scheme": "mongle",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
