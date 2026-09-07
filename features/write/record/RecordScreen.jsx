@@ -394,6 +394,7 @@ const RecordScreen = ({ navigation, route }) => {
 
         <View style={styles.textContainer}>
           <TextInput
+            key={normalizedFont}
             ref={textInputRef}
             value={text}
             onChangeText={setText}
