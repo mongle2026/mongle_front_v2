@@ -181,6 +181,16 @@ const FeedHomeScreen = ({ navigation }) => {
     [navigation]
   );
 
+  const handlePressComment = useCallback(
+    item => {
+      const feedId = Number(item?.feedId);
+      if (!Number.isInteger(feedId) || feedId < 1) return;
+
+      navigation.navigate('FeedDetail', { feedId, scrollToComment: true });
+    },
+    [navigation]
+  );
+
   const renderPost = useCallback(
     ({ item }) => {
       const feedId = String(item.feedId);
@@ -198,6 +208,7 @@ const FeedHomeScreen = ({ navigation }) => {
           isMusicPlaying={isMusicPlaying}
           musicPlaybackProgress={playbackProgress}
           onPressPost={handlePressPost}
+          onPressComment={handlePressComment}
           onPressLike={handlePressLike}
           onPressBookmark={handlePressBookmark}
           onPressFollow={handlePressFollow}
@@ -209,6 +220,7 @@ const FeedHomeScreen = ({ navigation }) => {
     [
       bookmarkPendingFeedIds,
       handlePressBookmark,
+      handlePressComment,
       handlePressFollow,
       handlePressLike,
       handlePressMusicPlayback,

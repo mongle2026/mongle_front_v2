@@ -15,6 +15,7 @@ const FeedPostItem = ({
   isMusicPlaying = false,
   musicPlaybackProgress = 0,
   onPressPost,
+  onPressComment,
   onPressLike,
   onPressBookmark,
   onPressFollow,
@@ -39,6 +40,10 @@ const FeedPostItem = ({
   const handlePressPost = useCallback(() => {
     onPressPost?.(item);
   }, [item, onPressPost]);
+
+  const handleComment = useCallback(() => {
+    onPressComment?.(item);
+  }, [item, onPressComment]);
 
   const handleLike = useCallback(() => {
     onPressLike?.(item);
@@ -116,6 +121,7 @@ const FeedPostItem = ({
         likeDisabled,
         bookmarkDisabled,
         likeButtonRef,
+        onCommentPress: handleComment,
         onLikePress: handleLike,
         onBookmarkPress: handleBookmark,
       }}

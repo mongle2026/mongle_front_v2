@@ -95,8 +95,23 @@ const FeedDetailScreen = ({
   const commentBarRef =
     useRef(null);
 
+  const scrollViewRef =
+    useRef(null);
+
+  const commentSectionYRef =
+    useRef(0);
+
+  const hasScrolledToCommentRef =
+    useRef(false);
+
   const feedId =
     route?.params?.feedId;
+
+  const shouldScrollToComment =
+    Boolean(
+      route?.params
+        ?.scrollToComment,
+    );
 
   const floatingBottomOffset =
     useFloatingBottomOffset();
@@ -483,6 +498,9 @@ const FeedDetailScreen = ({
 
   const handleScrollBeginDrag =
     useCallback(() => {
+      // 사용자가 직접 스크롤을 시작하면 자동 스크롤을 잠근다.
+      hasScrolledToCommentRef.current = true;
+
       closeCommentMenu();
 
       setIsFeedMenuOpen(
@@ -491,6 +509,34 @@ const FeedDetailScreen = ({
     }, [
       closeCommentMenu,
     ]);
+
+  const handleCommentSectionLayout =
+    useCallback(
+      event => {
+        commentSectionYRef.current =
+          event.nativeEvent
+            .layout.y;
+
+        if (
+          !shouldScrollToComment ||
+          hasScrolledToCommentRef.current
+        ) {
+          return;
+        }
+
+        // 위쪽 콘텐츠(이미지 등)의 레이아웃이 늦게 잡히며 y가 바뀔 수 있어
+        // 사용자가 직접 스크롤하기 전까지는 댓글 위치로 계속 맞춰준다.
+        requestAnimationFrame(() => {
+          scrollViewRef.current?.scrollTo(
+            {
+              y: commentSectionYRef.current,
+              animated: true,
+            },
+          );
+        });
+      },
+      [shouldScrollToComment],
+    );
 
   if (!feed) {
     return (
@@ -681,6 +727,7 @@ const FeedDetailScreen = ({
       </SafeAreaView>
 
       <ScrollView
+        ref={scrollViewRef}
         style={
           styles.scroll
         }
@@ -822,26 +869,32 @@ const FeedDetailScreen = ({
           }
         />
 
-        <CommentSection
-          comments={
-            comments
+        <View
+          onLayout={
+            handleCommentSectionLayout
           }
-          isLoading={
-            isLoadingComments
-          }
-          openCommentMenuId={
-            commentMenu
-              ?.comment
-              ?.commentId ??
-            null
-          }
-          onPressMenu={
-            handleOpenCommentMenu
-          }
-          onPressReply={
-            handlePressReply
-          }
-        />
+        >
+          <CommentSection
+            comments={
+              comments
+            }
+            isLoading={
+              isLoadingComments
+            }
+            openCommentMenuId={
+              commentMenu
+                ?.comment
+                ?.commentId ??
+              null
+            }
+            onPressMenu={
+              handleOpenCommentMenu
+            }
+            onPressReply={
+              handlePressReply
+            }
+          />
+        </View>
       </ScrollView>
 
       <View
