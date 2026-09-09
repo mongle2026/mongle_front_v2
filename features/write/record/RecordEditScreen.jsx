@@ -138,7 +138,22 @@ const RecordEditScreen = ({ navigation, route }) => {
 
   const handlePressNext =
     useCallback(() => {
+      /*
+       * 회색 상태에서도 실제 disabled는 하지 않고,
+       * 비어 있는 항목을 Toast로 안내합니다.
+       */
       if (!isNextReady) {
+        const missingToastMessage =
+          (!hasMusic && '음악을 선택해 주세요.') ||
+          '메시지를 작성하거나 사진을 첨부해 주세요.';
+
+        showToast({
+          message: missingToastMessage,
+          icon: 'alert',
+          iconColor: colors.fgCritical,
+          bottomOffset,
+        });
+
         return;
       }
 
@@ -154,8 +169,11 @@ const RecordEditScreen = ({ navigation, route }) => {
 
       updateFeed();
     }, [
+      bottomOffset,
+      hasMusic,
       isNextReady,
       isUpdatingFeed,
+      showToast,
       updateFeed,
     ]);
 
@@ -271,7 +289,7 @@ const RecordEditScreen = ({ navigation, route }) => {
             ref={textInputRef}
             value={text}
             onChangeText={setText}
-            placeholder="텍스트 입력"
+            placeholder="음악과 함께 기록할 내용을 작성해 주세요."
             placeholderTextColor={colors.fgPlaceholder}
             multiline
             scrollEnabled={false}

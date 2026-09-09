@@ -13,6 +13,7 @@ import {
 
 const useDateSelect = ({
   initialDate = null,
+  allowToday = false,
 } = {}) => {
   const today = useMemo(
     () => startOfDay(new Date()),
@@ -20,8 +21,11 @@ const useDateSelect = ({
   );
 
   const presetDates = useMemo(
-    () => createPresetDates(today),
-    [today],
+    () =>
+      createPresetDates(today, {
+        allowToday,
+      }),
+    [today, allowToday],
   );
 
   const [

@@ -1,10 +1,12 @@
 export const DATE_PRESET = Object.freeze({
+  NOW: 'now',
   WEEK: 'week',
   MONTH: 'month',
   YEAR: 'year',
 });
 
 export const DATE_PRESET_LABEL = Object.freeze({
+  [DATE_PRESET.NOW]: '즉시',
   [DATE_PRESET.WEEK]: '일주일 뒤',
   [DATE_PRESET.MONTH]: '한 달 뒤',
   [DATE_PRESET.YEAR]: '일 년 뒤',
@@ -161,8 +163,18 @@ export const getDifferenceInDays = (
 
 /**
  * 프리셋 날짜 생성
+ *
+ * allowToday(타인에게 보내는 편지)일 때만
+ * '즉시' 프리셋(= 오늘)을 포함합니다.
  */
-export const createPresetDates = today => ({
+export const createPresetDates = (
+  today,
+  { allowToday = false } = {},
+) => ({
+  ...(allowToday
+    ? { [DATE_PRESET.NOW]: startOfDay(today) }
+    : null),
+
   [DATE_PRESET.WEEK]:
     addDays(today, 7),
 
@@ -233,6 +245,17 @@ export const createDateSelectCopy = ({
   const day = String(
     selectedDate.getDate(),
   ).padStart(2, '0');
+
+  if (matchedPreset === DATE_PRESET.NOW) {
+    return {
+      informativeText:
+        '편지를 전송하면 바로',
+      title:
+        '편지가 도착합니다.',
+      confirmLabel:
+        '즉시 발송 선택',
+    };
+  }
 
   return {
     informativeText:

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -102,11 +102,41 @@ const RecordScreen = ({ navigation, route }) => {
   const type = route?.params?.type ?? RECORD_TYPE.FEED;
   const isLetter = type === RECORD_TYPE.LETTER;
 
+  /*
+   * 타인에게 보내는 편지일 때만
+   * '즉시' 버튼과 오늘 날짜 선택을 허용합니다.
+   * (나에게 보내는 편지는 오늘 선택 불가)
+   */
+  const canSelectToday =
+    isLetter && Boolean(receiver) && !receiver.isMe;
+
+  /*
+   * 타인 -> 나 로 수신인을 바꾸면
+   * 이미 골라둔 '오늘(즉시)' 또는 지난 날짜는 무효이므로 비웁니다.
+   */
+  useEffect(() => {
+    if (!isLetter || canSelectToday || !deliveryAt) {
+      return;
+    }
+
+    const selected = deliveryAtToDate(deliveryAt);
+    if (!selected) {
+      return;
+    }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    if (selected.getTime() <= todayStart.getTime()) {
+      setDeliveryAt(null);
+    }
+  }, [isLetter, canSelectToday, deliveryAt, setDeliveryAt]);
+
   /* 다음 버튼 활성 색상 조건 */
   const hasMusic = Boolean(music);
   const hasContent = text.trim().length > 0 || imageFiles.length > 0;
   const hasRecipient = !isLetter || Boolean(receiver);
-  const hasDeliveryDate = !isLetter || !receiver?.isMe || Boolean(deliveryAt);
+  const hasDeliveryDate = !isLetter || Boolean(deliveryAt);
   const isNextReady = hasMusic && hasContent && hasRecipient && hasDeliveryDate;
   const nextTextColor = isNextReady ? colors.fgNeutralMuted : colors.fgDisabled;
 
@@ -165,13 +195,23 @@ const RecordScreen = ({ navigation, route }) => {
   const handlePressNext =
     useCallback(() => {
       /*
-       * 회색 상태에서도 실제 disabled는 하지 않습니다.
-       *
-       * 추후 여기에서
-       * "음악을 선택해 주세요."
-       * 같은 Toast 처리를 추가할 수 있습니다.
+       * 회색 상태에서도 실제 disabled는 하지 않고,
+       * 비어 있는 항목을 화면 위에서부터 순서대로 Toast로 안내합니다.
        */
       if (!isNextReady) {
+        const missingToastMessage =
+          (!hasRecipient && '수신인을 선택해 주세요.') ||
+          (!hasDeliveryDate && '도착일을 선택해 주세요.') ||
+          (!hasMusic && '음악을 선택해 주세요.') ||
+          '메시지를 작성하거나 사진을 첨부해 주세요.';
+
+        showToast({
+          message: missingToastMessage,
+          icon: 'alert',
+          iconColor: colors.fgCritical,
+          bottomOffset,
+        });
+
         return;
       }
 
@@ -195,10 +235,15 @@ const RecordScreen = ({ navigation, route }) => {
 
       createFeed();
     }, [
+      bottomOffset,
       createFeed,
+      hasDeliveryDate,
+      hasMusic,
+      hasRecipient,
       isCreatingFeed,
       isLetter,
       isNextReady,
+      showToast,
     ]);
 
   /* 하단 바 높이 측정 및 actions / font 모드 전환 */
@@ -261,12 +306,13 @@ const RecordScreen = ({ navigation, route }) => {
       renderContent: ({ close }) => (
         <DateSelectBottomSheet
           initialDate={deliveryAtToDate(deliveryAt)}
+          allowToday={canSelectToday}
           onConfirm={handleConfirmDate}
           onClose={close}
         />
       ),
     });
-  }, [openOverlay, deliveryAt, handleConfirmDate]);
+  }, [openOverlay, deliveryAt, handleConfirmDate, canSelectToday]);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -298,7 +344,7 @@ const RecordScreen = ({ navigation, route }) => {
               style={[
                 styles.recipientAndDateContainer,
                 !receiver && styles.recipientAndDateContainerBeforeSelect,
-                receiver?.isMe && !deliveryAt && styles.recipientAndDateContainerDateButton,
+                !deliveryAt && styles.recipientAndDateContainerDateButton,
               ]}
             >
               {receiver ? (
@@ -327,29 +373,27 @@ const RecordScreen = ({ navigation, route }) => {
                 />
               )}
 
-              {receiver?.isMe && (
-                deliveryAt ? (
-                  <Pressable
-                    style={styles.dateContainer}
-                    onPress={handleOpenDateSelect}
-                    accessibilityRole="button"
-                    accessibilityLabel="도착 날짜 다시 선택"
-                  >
-                    <Text allowFontScaling={false} style={[styles.dateText, dateTypography]}>
-                      {formatDeliveryDateLabel(deliveryAt)}
-                    </Text>
-                  </Pressable>
-                ) : (
-                  <LabeledButton
-                    icon={<IcCalendar />}
-                    label="날짜 선택"
-                    typography={typo.suitLabelLargeStrong}
-                    color={colors.fgNeutralMuted}
-                    backgroundColor={colors.bgNeutralFaint}
-                    onPress={handleOpenDateSelect}
-                    style={styles.dateSelectButton}
-                  />
-                )
+              {deliveryAt ? (
+                <Pressable
+                  style={styles.dateContainer}
+                  onPress={handleOpenDateSelect}
+                  accessibilityRole="button"
+                  accessibilityLabel="도착 날짜 다시 선택"
+                >
+                  <Text allowFontScaling={false} style={[styles.dateText, dateTypography]}>
+                    {formatDeliveryDateLabel(deliveryAt)}
+                  </Text>
+                </Pressable>
+              ) : (
+                <LabeledButton
+                  icon={<IcCalendar />}
+                  label="도착일 선택"
+                  typography={typo.suitLabelLargeStrong}
+                  color={colors.fgNeutralMuted}
+                  backgroundColor={colors.bgNeutralFaint}
+                  onPress={handleOpenDateSelect}
+                  style={styles.dateSelectButton}
+                />
               )}
             </View>
 
@@ -398,7 +442,11 @@ const RecordScreen = ({ navigation, route }) => {
             ref={textInputRef}
             value={text}
             onChangeText={setText}
-            placeholder="텍스트 입력"
+            placeholder={
+              isLetter
+                ? '음악과 함께 보낼 메시지를 작성해 주세요.'
+                : '음악과 함께 기록할 내용을 작성해 주세요.'
+            }
             placeholderTextColor={colors.fgPlaceholder}
             multiline
             scrollEnabled={false}

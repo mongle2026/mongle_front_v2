@@ -36,6 +36,11 @@ const DateSelectBottomSheet = ({
   initialDate = null,
   onClose,
   onConfirm,
+  /**
+   * 오늘 날짜 / '즉시' 선택 허용 여부
+   * (타인에게 보내는 편지일 때만 true)
+   */
+  allowToday = false,
 }) => {
   const {
     selectedDate,
@@ -46,6 +51,7 @@ const DateSelectBottomSheet = ({
     isPresetSelected,
   } = useDateSelect({
     initialDate,
+    allowToday,
   });
 
   /**
@@ -114,6 +120,7 @@ const DateSelectBottomSheet = ({
       <Calendar
         selectedDate={selectedDate}
         onSelectDate={handleSelectDate}
+        allowToday={allowToday}
         autoMoveRequestKey={
           calendarMoveRequestKey
         }
@@ -135,6 +142,27 @@ const DateSelectBottomSheet = ({
           styles.dateButtonContainer
         }
       >
+        {allowToday && (
+          <TextButton
+            variant={
+              isPresetSelected(
+                DATE_PRESET.NOW,
+              )
+                ? TEXT_BUTTON_VARIANT.BG_INFO_WEAK
+                : TEXT_BUTTON_VARIANT.NEUTRAL_WEAK
+            }
+            size={TEXT_BUTTON_SIZE.M}
+            font={FONT.SUIT}
+            onPress={() =>
+              handlePresetPress(
+                DATE_PRESET.NOW,
+              )
+            }
+          >
+            즉시
+          </TextButton>
+        )}
+
         <TextButton
           variant={
             isPresetSelected(
@@ -241,6 +269,7 @@ const styles = StyleSheet.create({
     paddingBottom: padding.XL,
 
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
     gap: gap.M,
   },

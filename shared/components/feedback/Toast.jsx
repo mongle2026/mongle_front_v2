@@ -2,8 +2,7 @@ import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import IcFilledCheck from '../../../assets/icons/ic_filledcheck.svg';
-// TODO: 느낌표 아이콘 에셋이 추가되면 ic_x를 교체해주세요.
-import IcExclamation from '../../../assets/icons/ic_x.svg';
+import IcFilledAlert from '../../../assets/icons/ic_filledalert.svg';
 
 import ButtonText from '../action/ButtonText';
 
@@ -13,7 +12,7 @@ import { typo } from '../../styles/typo';
 
 const TOAST_ICONS = {
   check: IcFilledCheck,
-  exclamation: IcExclamation,
+  alert: IcFilledAlert,
 };
 
 const Toast = ({

@@ -32,6 +32,12 @@ const Calendar = ({
 
   autoMoveRequestKey = 0,
 
+  /**
+   * 오늘 날짜 선택 허용 여부
+   * (타인에게 보내는 편지일 때만 true)
+   */
+  allowToday = false,
+
   leftIcon,
   rightIcon,
 }) => {
@@ -61,14 +67,17 @@ const Calendar = ({
 
   /**
    * 선택 가능 최소 날짜
-   * = 내일
+   * = 기본은 내일, allowToday면 오늘
    */
   const minDate = useMemo(() => {
     const date = new Date(today);
-    date.setDate(date.getDate() + 1);
+
+    if (!allowToday) {
+      date.setDate(date.getDate() + 1);
+    }
 
     return date;
-  }, [today]);
+  }, [today, allowToday]);
 
   /**
    * 선택 가능 최대 날짜
