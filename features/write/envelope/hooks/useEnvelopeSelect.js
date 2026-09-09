@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, } from 'react';
-import { PATTERNS, } from '../../../../shared/data/letterCoverData';
-import { TEMPLATES, } from '../data/letterCoverTemplateData';
-import { resolvePatternColor, } from '../../../../shared/utils/letterCoverUtils';
+import { PATTERNS, } from '../../../../shared/data/envelopeData';
+import { TEMPLATES, } from '../data/envelopeTemplateData';
+import { resolvePatternColor, } from '../../../../shared/utils/envelopeUtils';
 import { useLetterFormStore, } from '../stores/useLetterFormStore';
 
 export const TABS = [
@@ -51,7 +51,7 @@ function createRandomTemplateSelection() {
   };
 }
 
-export default function useLetterCoverSelect() {
+export default function useEnvelopeSelect() {
   const [activeTab, setActiveTab] =
     useState('template');
 

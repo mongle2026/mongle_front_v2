@@ -1,7 +1,7 @@
 import {
   PATTERNS,
   STAMPS,
-} from '../data/letterCoverData';
+} from '../data/envelopeData';
 
 export function resolvePatternColor(
   patternColorId,
@@ -22,7 +22,7 @@ export function resolvePatternColor(
   return null;
 }
 
-export function resolveLetterCover({
+export function resolveEnvelope({
   patternId,
   colorId,
   stampId,
