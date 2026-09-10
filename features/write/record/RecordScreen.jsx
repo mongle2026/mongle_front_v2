@@ -319,6 +319,7 @@ const RecordScreen = ({ navigation, route }) => {
       <TopIconNavigation
         type="text"
         headerText={isLetter ? '편지 작성하기' : '피드 작성하기'}
+        nextText={isLetter ? '다음' : '게시'}
         onPressClose={handlePressClose}
         onPressNext={handlePressNext}
         nextTextStyle={{ color: nextTextColor }}
