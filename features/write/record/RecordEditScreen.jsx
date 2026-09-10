@@ -203,6 +203,28 @@ const RecordEditScreen = ({ navigation, route }) => {
     lineHeight: bodyTypography.lineHeight,
   });
 
+  /* 본문 여백을 눌러도 키보드가 뜨도록 TextInput에 포커스 */
+  const handleFocusText = useCallback(() => {
+    const input = textInputRef.current;
+    if (!input) return;
+
+    /* 키보드가 이미 떠 있으면 그대로 둡니다. */
+    if (Keyboard.isVisible()) return;
+
+    /*
+     * keyboardDismissMode="interactive" 등으로 키보드만 내려가고
+     * TextInput 포커스는 유지된 경우 focus()가 무시되므로,
+     * blur 후 다음 프레임에 다시 focus 합니다.
+     */
+    if (input.isFocused?.()) {
+      input.blur();
+      requestAnimationFrame(() => textInputRef.current?.focus());
+      return;
+    }
+
+    input.focus();
+  }, [textInputRef]);
+
   /* 음악 선택 BottomSheet 열기 */
   const handleOpenMusicSelect = useMusicSelectOverlay(MUSIC_SELECT_OVERLAY_ID);
 
@@ -287,24 +309,33 @@ const RecordEditScreen = ({ navigation, route }) => {
         )}
 
         <View style={styles.textContainer}>
-          <TextInput
-            key={normalizedFont}
-            ref={textInputRef}
-            value={text}
-            onChangeText={handleChangeText}
-            placeholder="음악과 함께 기록할 내용을 작성해 주세요."
-            placeholderTextColor={colors.fgPlaceholder}
-            multiline
-            scrollEnabled={false}
-            textAlignVertical="top"
-            allowFontScaling={false}
-            onContentSizeChange={handleTextContentSizeChange}
+          <Pressable
             style={[
-              styles.textInput,
-              bodyTypography,
-              textInputHeight > 0 && { minHeight: textInputHeight },
+              styles.textPressable,
+              imageFiles.length === 0 && styles.textPressableFill,
             ]}
-          />
+            onPress={handleFocusText}
+            accessible={false}
+          >
+            <TextInput
+              key={normalizedFont}
+              ref={textInputRef}
+              value={text}
+              onChangeText={handleChangeText}
+              placeholder="음악과 함께 기록할 내용을 작성해 주세요."
+              placeholderTextColor={colors.fgPlaceholder}
+              multiline
+              scrollEnabled={false}
+              textAlignVertical="top"
+              allowFontScaling={false}
+              onContentSizeChange={handleTextContentSizeChange}
+              style={[
+                styles.textInput,
+                bodyTypography,
+                textInputHeight > 0 && { minHeight: textInputHeight },
+              ]}
+            />
+          </Pressable>
 
           <SelectedImageList
             images={imageFiles}
@@ -369,11 +400,19 @@ const styles = StyleSheet.create({
   textContainer: {
     width: '100%',
     alignSelf: 'stretch',
+    flexGrow: 1,
     paddingVertical: padding.M,
     paddingHorizontal: padding.L,
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: gap.M,
+  },
+  textPressable: {
+    width: '100%',
+    alignSelf: 'stretch',
+  },
+  textPressableFill: {
+    flexGrow: 1,
   },
   textInput: {
     width: '100%',
