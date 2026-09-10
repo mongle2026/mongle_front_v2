@@ -36,6 +36,7 @@ import { useRecordImageManager } from './hooks/useRecordImageManager';
 import { useBottomBarPanel } from './hooks/useBottomBarPanel';
 import { useRecordTypography } from './hooks/useRecordTypography';
 import { useMusicSelectOverlay } from './hooks/useMusicSelectOverlay';
+import { useRecordTextLimit } from './hooks/useRecordTextLimit';
 
 const MUSIC_SELECT_OVERLAY_ID = 'record-edit-music-select';
 
@@ -54,7 +55,6 @@ const RecordEditScreen = ({ navigation, route }) => {
 
   /* 피드 작성 데이터 (RecordScreen과 store를 공유) */
   const text = useRecordFormStore(state => state.text);
-  const setText = useRecordFormStore(state => state.setText);
   const music = useRecordFormStore(state => state.music);
   const isDirty = useRecordFormStore(state => state.isDirty);
   const resetRecordForm = useRecordFormStore(state => state.resetRecordForm);
@@ -106,6 +106,9 @@ const RecordEditScreen = ({ navigation, route }) => {
   /* 키보드 / SafeArea 포함 BottomBar 위치 */
   const bottomOffset = useFloatingBottomOffset();
   const { showToast } = useGlobalOverlay();
+
+  /* 본문 2,000자 제한 (초과 시 입력 차단 + Toast) */
+  const { handleChangeText } = useRecordTextLimit({ bottomOffset });
 
   /* Feed 수정 저장 */
   const {
@@ -288,7 +291,7 @@ const RecordEditScreen = ({ navigation, route }) => {
             key={normalizedFont}
             ref={textInputRef}
             value={text}
-            onChangeText={setText}
+            onChangeText={handleChangeText}
             placeholder="음악과 함께 기록할 내용을 작성해 주세요."
             placeholderTextColor={colors.fgPlaceholder}
             multiline

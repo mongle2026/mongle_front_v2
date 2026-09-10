@@ -45,6 +45,7 @@ import { useRecordImageManager } from './hooks/useRecordImageManager';
 import { useBottomBarPanel } from './hooks/useBottomBarPanel';
 import { useRecordTypography } from './hooks/useRecordTypography';
 import { useMusicSelectOverlay } from './hooks/useMusicSelectOverlay';
+import { useRecordTextLimit } from './hooks/useRecordTextLimit';
 
 const RECORD_TYPE = {
   FEED: 'feed',
@@ -61,7 +62,6 @@ const RecordScreen = ({ navigation, route }) => {
 
   /* 피드 / 편지 공통 작성 데이터 */
   const text = useRecordFormStore(state => state.text);
-  const setText = useRecordFormStore(state => state.setText);
   const music = useRecordFormStore(state => state.music);
   const resetRecordForm = useRecordFormStore(state => state.resetRecordForm);
   const resetFeedForm = useFeedFormStore(state => state.resetFeedForm);
@@ -164,6 +164,9 @@ const RecordScreen = ({ navigation, route }) => {
   /* 키보드 / SafeArea 포함 BottomBar 위치 */
   const bottomOffset = useFloatingBottomOffset();
   const { openOverlay, showToast } = useGlobalOverlay();
+
+  /* 본문 2,000자 제한 (초과 시 입력 차단 + Toast) */
+  const { handleChangeText } = useRecordTextLimit({ bottomOffset });
 
   /* Feed 저장 */
   const {
@@ -442,7 +445,7 @@ const RecordScreen = ({ navigation, route }) => {
             key={normalizedFont}
             ref={textInputRef}
             value={text}
-            onChangeText={setText}
+            onChangeText={handleChangeText}
             placeholder={
               isLetter
                 ? '음악과 함께 보낼 메시지를 작성해 주세요.'
