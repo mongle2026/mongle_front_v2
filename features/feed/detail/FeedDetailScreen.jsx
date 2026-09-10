@@ -241,6 +241,11 @@ const FeedDetailScreen = ({
       const isAddingBookmark =
         !feed.isBookmarked;
 
+      // 토스트를 CommentBar(닫힌/열린 상태 모두) 위로 띄운다.
+      const toastBottomOffset =
+        floatingBottomOffset +
+        commentBarHeight;
+
       toggleBookmark(
         feed,
         {
@@ -256,7 +261,7 @@ const FeedDetailScreen = ({
                 onPressButton:
                   handlePressBookmarkToastButton,
                 bottomOffset:
-                  floatingBottomOffset,
+                  toastBottomOffset,
               });
 
               return;
@@ -266,12 +271,13 @@ const FeedDetailScreen = ({
               message:
                 '기록을 북마크에서 삭제했습니다.',
               bottomOffset:
-                floatingBottomOffset,
+                toastBottomOffset,
             });
           },
         },
       );
     }, [
+      commentBarHeight,
       feed,
       floatingBottomOffset,
       handlePressBookmarkToastButton,

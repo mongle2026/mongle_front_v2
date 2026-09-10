@@ -18,6 +18,7 @@ const TopIconNavigation = ({
   type = 'icon',
 
   headerText = '',
+  nextText = '다음',
 
   onPressClose,
   onPressNext,
@@ -56,7 +57,7 @@ const TopIconNavigation = ({
           </Text>
 
           <ButtonText
-            text="다음"
+            text={nextText}
             size="ButtonText"
             onPress={onPressNext}
             textStyle={nextTextStyle}
