@@ -165,6 +165,11 @@ const RecordScreen = ({ navigation, route }) => {
   const bottomOffset = useFloatingBottomOffset();
   const { openOverlay, showToast } = useGlobalOverlay();
 
+  /* 키보드 강제로 내리기 */
+  const handlePressHideKeyboard = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
+
   /* 본문 2,000자 제한 (초과 시 입력 차단 + Toast) */
   const { handleChangeText } = useRecordTextLimit({ bottomOffset });
 
@@ -281,11 +286,6 @@ const RecordScreen = ({ navigation, route }) => {
     /* 키보드가 이미 떠 있으면 그대로 둡니다. */
     if (Keyboard.isVisible()) return;
 
-    /*
-     * keyboardDismissMode="interactive" 등으로 키보드만 내려가고
-     * TextInput 포커스는 유지된 경우 focus()가 무시되므로,
-     * blur 후 다음 프레임에 다시 focus 합니다.
-     */
     if (input.isFocused?.()) {
       input.blur();
       requestAnimationFrame(() => textInputRef.current?.focus());
@@ -513,6 +513,7 @@ const RecordScreen = ({ navigation, route }) => {
           imageDisabled={isImageLimitReached}
           onPressImage={handlePressImage}
           onPressFont={handleShowFontMode}
+          onPressHideKeyboard={handlePressHideKeyboard}
           onPressBack={handleShowActionsMode}
           onSelectFont={handleSelectFont}
         />

@@ -107,6 +107,11 @@ const RecordEditScreen = ({ navigation, route }) => {
   const bottomOffset = useFloatingBottomOffset();
   const { showToast } = useGlobalOverlay();
 
+  /* 키보드 강제로 내리기 */
+  const handlePressHideKeyboard = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
+
   /* 본문 2,000자 제한 (초과 시 입력 차단 + Toast) */
   const { handleChangeText } = useRecordTextLimit({ bottomOffset });
 
@@ -354,6 +359,7 @@ const RecordEditScreen = ({ navigation, route }) => {
           imageDisabled={isImageLimitReached}
           onPressImage={handlePressImage}
           onPressFont={handleShowFontMode}
+          onPressHideKeyboard={handlePressHideKeyboard}
           onPressBack={handleShowActionsMode}
           onSelectFont={handleSelectFont}
         />

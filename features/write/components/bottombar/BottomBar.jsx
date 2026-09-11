@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import IcImage from '../../../../assets/icons/ic_image.svg';
 import IcFont from '../../../../assets/icons/ic_font.svg';
 import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
+import IcHideKeyboard from '../../../../assets/icons/ic_hidekeyboard.svg';
 
 import IconButton from '../../../../shared/components/action/IconButton';
 import Item from './Item';
@@ -15,6 +16,7 @@ import { FONT, normalizeFont, } from '../../../../shared/styles/font';
 const BottomBarActions = ({
   onPressImage,
   onPressFont,
+  onPressHideKeyboard,
   imageDisabled = false,
 }) => {
   const imageColor = imageDisabled
@@ -23,26 +25,36 @@ const BottomBarActions = ({
 
   return (
     <>
-      <IconButton
-        size="L"
-        icon={IcImage}
-        color={imageColor}
-        onPress={onPressImage}
-        disabled={imageDisabled}
-        accessibilityLabel="이미지 추가"
-        style={
-          imageDisabled
-            ? styles.imageButtonDisabled
-            : undefined
-        }
-      />
+      <View style={styles.container}>
+        <IconButton
+          size="L"
+          icon={IcImage}
+          color={imageColor}
+          onPress={onPressImage}
+          disabled={imageDisabled}
+          accessibilityLabel="이미지 추가"
+          style={
+            imageDisabled
+              ? styles.imageButtonDisabled
+              : undefined
+          }
+        />
+
+        <IconButton
+          size="L"
+          icon={IcFont}
+          color={colors.fgNeutralMuted}
+          onPress={onPressFont}
+          accessibilityLabel="폰트 선택"
+        />
+      </View>
 
       <IconButton
         size="L"
-        icon={IcFont}
+        icon={IcHideKeyboard}
         color={colors.fgNeutralMuted}
-        onPress={onPressFont}
-        accessibilityLabel="폰트 선택"
+        onPress={onPressHideKeyboard}
+        accessibilityLabel="키보드 숨기기"
       />
     </>
   );
@@ -100,17 +112,25 @@ const BottomBar = ({
 
   onPressImage,
   onPressFont,
+  onPressHideKeyboard,
   onPressBack,
   onSelectFont,
 
   style,
 }) => {
   return (
-    <View style={[styles.container, style]}>
+    <View
+      style={[
+        styles.bar,
+        mode === 'actions' && styles.barActions,
+        style,
+      ]}
+    >
       {mode === 'actions' ? (
         <BottomBarActions
           onPressImage={onPressImage}
           onPressFont={onPressFont}
+          onPressHideKeyboard={onPressHideKeyboard}
           imageDisabled={imageDisabled}
         />
       ) : (
@@ -125,7 +145,7 @@ const BottomBar = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
+  bar: {
     width: '100%',
     paddingHorizontal: padding.XS,
 
@@ -138,6 +158,15 @@ const styles = StyleSheet.create({
 
     backgroundColor:
       colors.bgLayerDefault,
+  },
+
+  barActions: {
+    justifyContent: 'space-between',
+  },
+
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   imageButtonDisabled: {
