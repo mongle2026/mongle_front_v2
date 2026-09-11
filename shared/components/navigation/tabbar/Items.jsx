@@ -5,10 +5,6 @@ import { colors } from '../../../styles/color';
 import { gap, padding } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
 
-import IcComment from '../../../../assets/icons/ic_comment.svg';
-
-const ICON_SIZE = 18;
-
 const Items = ({
   label,
   isActive = false,
@@ -16,10 +12,6 @@ const Items = ({
   accessibilityLabel = label,
   style,
 }) => {
-  const contentColor = isActive
-    ? colors.fgNeutralSolid
-    : colors.fgNeutralWeak;
-
   return (
     <Pressable
       onPress={onPress}
@@ -33,12 +25,6 @@ const Items = ({
       ]}
     >
       <View style={styles.inner}>
-        <IcComment
-          width={ICON_SIZE}
-          height={ICON_SIZE}
-          color={contentColor}
-        />
-
         <Text
           numberOfLines={1}
           style={[

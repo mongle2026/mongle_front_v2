@@ -20,6 +20,9 @@ const TopIconNavigation = ({
   headerText = '',
   nextText = '다음',
 
+  leftIcon = IcX,
+  leftAccessibilityLabel = '닫기',
+
   onPressClose,
   onPressNext,
   onPressShare,
@@ -42,11 +45,11 @@ const TopIconNavigation = ({
       {isText ? (
         <View style={styles.textContent}>
           <IconButton
-            icon={IcX}
+            icon={leftIcon}
             color={colors.fgNeutralMuted}
             size="M"
             onPress={onPressClose}
-            accessibilityLabel="닫기"
+            accessibilityLabel={leftAccessibilityLabel}
           />
 
           <Text

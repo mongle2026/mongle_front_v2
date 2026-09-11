@@ -13,7 +13,7 @@ const TabBar = ({
 }) => {
   return (
     <View style={[styles.container, style]}>
-      {tabs.slice(0, 2).map((label, index) => (
+      {tabs.map((label, index) => (
         <Items
           key={`${label}-${index}`}
           label={label}

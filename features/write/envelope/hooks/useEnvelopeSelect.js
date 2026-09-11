@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, } from 'react';
 import { PATTERNS, } from '../../../../shared/data/envelopeData';
 import { TEMPLATES, } from '../data/envelopeTemplateData';
-import { resolvePatternColor, } from '../../../../shared/utils/envelopeUtils';
-import { useLetterFormStore, } from '../stores/useLetterFormStore';
+import { resolveEnvelope, resolvePatternColor, } from '../../../../shared/utils/envelopeUtils';
+import { useLetterFormStore, } from '../../store/useLetterFormStore';
 
 export const TABS = [
   {
@@ -273,6 +273,13 @@ export default function useEnvelopeSelect() {
     stampId,
   };
 
+  /* 미리보기(Letter)에 넘길 pattern / color / stamp + SVG 컴포넌트 */
+  const envelope = resolveEnvelope({
+    patternId,
+    colorId,
+    stampId,
+  });
+
   const isNextEnabled = Boolean(
     patternId &&
       colorId &&
@@ -283,6 +290,7 @@ export default function useEnvelopeSelect() {
     activeTab,
     selectedItems,
     currentColors,
+    envelope,
     isNextEnabled,
     handleTabPress,
     handleSelectItem,

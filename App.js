@@ -19,6 +19,7 @@ import FeedHomeScreen from './features/feed/home/FeedHomeScreen';
 import FeedDetailScreen from './features/feed/detail/FeedDetailScreen';
 import RecordScreen from './features/write/record/RecordScreen';
 import RecordEditScreen from './features/write/record/RecordEditScreen';
+import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
@@ -123,6 +124,10 @@ const RootNavigator = () => (
     <Stack.Screen
       name="RecordEdit"
       component={RecordEditScreen}
+    />
+    <Stack.Screen
+      name="Envelope"
+      component={EnvelopeScreen}
     />
   </Stack.Navigator>
 );

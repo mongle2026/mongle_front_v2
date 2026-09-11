@@ -226,15 +226,15 @@ const RecordScreen = ({ navigation, route }) => {
         return;
       }
 
+      Keyboard.dismiss();
+
       /*
-       * 이번 작업에서는 피드 저장만 연결합니다.
-       * 편지의 다음 단계는 이후 여기에서 분기하면 됩니다.
+       * 편지는 저장 대신 봉투 선택 화면으로 이동합니다.
        */
       if (isLetter) {
+        navigation?.navigate('Envelope');
         return;
       }
-
-      Keyboard.dismiss();
 
       createFeed();
     }, [
@@ -246,6 +246,7 @@ const RecordScreen = ({ navigation, route }) => {
       isCreatingFeed,
       isLetter,
       isNextReady,
+      navigation,
       showToast,
     ]);
 

@@ -25,10 +25,18 @@ import Stamp24 from '../../assets/envelope/stamps/stamp_24.svg';
 import Stamp25 from '../../assets/envelope/stamps/stamp_25.svg';
 import Stamp26 from '../../assets/envelope/stamps/stamp_26.svg';
 
+import P1Thumbnail from '../../assets/envelope/patterns/p1_thumbnail.svg';
+import P2Thumbnail from '../../assets/envelope/patterns/p2_thumbnail.svg';
+import P3Thumbnail from '../../assets/envelope/patterns/p3_thumbnail.svg';
+import P4Thumbnail from '../../assets/envelope/patterns/p4_thumbnail.svg';
+import P5Thumbnail from '../../assets/envelope/patterns/p5_thumbnail.svg';
+import P6Thumbnail from '../../assets/envelope/patterns/p6_thumbnail.svg';
+import P7Thumbnail from '../../assets/envelope/patterns/p7_thumbnail.svg';
+
 export const PATTERNS = [
   {
     id: 'p1',
-    thumbnail: require('../../assets/envelope/patterns/p1_thumbnail.svg'),
+    thumbnail: P1Thumbnail,
     colors: [
       { id: 'p1_c1', color: '#fdfefe', frontImg: require('../../assets/envelope/patterns/p1_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c1_flap.svg') },
       { id: 'p1_c2', color: '#1e2a44', frontImg: require('../../assets/envelope/patterns/p1_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c2_flap.svg') },
@@ -40,7 +48,7 @@ export const PATTERNS = [
   },
   {
     id: 'p2',
-    thumbnail: require('../../assets/envelope/patterns/p2_thumbnail.svg'),
+    thumbnail: P2Thumbnail,
     colors: [
       { id: 'p2_c1', color: '#1d3557', frontImg: require('../../assets/envelope/patterns/p2_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c1_flap.svg') },
       { id: 'p2_c2', color: '#ffffff', frontImg: require('../../assets/envelope/patterns/p2_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c2_flap.svg') },
@@ -52,7 +60,7 @@ export const PATTERNS = [
   },
   {
     id: 'p3',
-    thumbnail: require('../../assets/envelope/patterns/p3_thumbnail.svg'),
+    thumbnail: P3Thumbnail,
     colors: [
       { id: 'p3_c1', color: '#c7d7f2', frontImg: require('../../assets/envelope/patterns/p3_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p3_c1_flap.svg') },
       { id: 'p3_c2', color: '#d6efc5', frontImg: require('../../assets/envelope/patterns/p3_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p3_c2_flap.svg') },
@@ -62,7 +70,7 @@ export const PATTERNS = [
   },
   {
     id: 'p4',
-    thumbnail: require('../../assets/envelope/patterns/p4_thumbnail.svg'),
+    thumbnail: P4Thumbnail,
     colors: [
       { id: 'p4_c1', color: '#93b6f7', frontImg: require('../../assets/envelope/patterns/p4_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c1_flap.svg') },
       { id: 'p4_c2', color: '#95c197', frontImg: require('../../assets/envelope/patterns/p4_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c2_flap.svg') },
@@ -73,7 +81,7 @@ export const PATTERNS = [
   },
   {
     id: 'p5',
-    thumbnail: require('../../assets/envelope/patterns/p5_thumbnail.svg'),
+    thumbnail: P5Thumbnail,
     colors: [
       { id: 'p5_c1', color: '#fafaf5', frontImg: require('../../assets/envelope/patterns/p5_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c1_flap.svg') },
       { id: 'p5_c2', color: '#282854', frontImg: require('../../assets/envelope/patterns/p5_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c2_flap.svg') },
@@ -85,7 +93,7 @@ export const PATTERNS = [
   },
   {
     id: 'p6',
-    thumbnail: require('../../assets/envelope/patterns/p6_thumbnail.svg'),
+    thumbnail: P6Thumbnail,
     colors: [
       { id: 'p6_c1', color: '#bfd0de', frontImg: require('../../assets/envelope/patterns/p6_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c1_flap.svg') },
       { id: 'p6_c2', color: '#b9c6b0', frontImg: require('../../assets/envelope/patterns/p6_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c2_flap.svg') },
@@ -96,7 +104,7 @@ export const PATTERNS = [
   },
   {
     id: 'p7',
-    thumbnail: require('../../assets/envelope/patterns/p7_thumbnail.svg'),
+    thumbnail: P7Thumbnail,
     colors: [
       { id: 'p7_c1', color: '#ffeea9', frontImg: require('../../assets/envelope/patterns/p7_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p7_c1_flap.svg') },
       { id: 'p7_c2', color: '#ff5555', frontImg: require('../../assets/envelope/patterns/p7_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p7_c2_flap.svg') },
