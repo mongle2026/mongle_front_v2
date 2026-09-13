@@ -48,7 +48,7 @@ const TAB_CONFIG = {
     Icon: IcFeed,
   },
   [MAIN_TAB_ROUTES.LETTER]: {
-    label: '편지',
+    label: '편지함',
     Icon: IcLetter,
   },
   [MAIN_TAB_ROUTES.PROFILE]: {

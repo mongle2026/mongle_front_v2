@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { memo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { colors } from '../../../styles/color';
@@ -8,6 +8,7 @@ import { padding } from '../../../styles/token';
 import Items from './Items';
 
 const DEFAULT_TABS = ['탭1', '탭2', '탭3', '탭4', '탭5', '탭6'];
+const TAB_ROW_HEIGHT = 39;
 
 const Tabs = ({
   tabs = DEFAULT_TABS,
@@ -15,6 +16,15 @@ const Tabs = ({
   onChange,
   style,
 }) => {
+  const [showRightFade, setShowRightFade] = useState(false);
+  const scrollRef = useRef({ layoutWidth: 0, contentWidth: 0, x: 0 });
+
+  // 탭이 넘치고, 아직 오른쪽 끝까지 스크롤하지 않았을 때만 오른쪽 fade 표시
+  const updateRightFade = () => {
+    const { layoutWidth, contentWidth, x } = scrollRef.current;
+    setShowRightFade(contentWidth > layoutWidth && x + layoutWidth < contentWidth - 1);
+  };
+
   return (
     <View style={[styles.container, style]}>
       <View style={styles.background} />
@@ -27,14 +37,46 @@ const Tabs = ({
         style={styles.fade}
       />
 
-      {tabs.map((label, index) => (
-        <Items
-          key={`${label}-${index}`}
-          label={label}
-          isActive={index === activeIndex}
-          onPress={() => onChange?.(index)}
+      {/* 탭이 화면 너비를 넘으면 가로 스크롤 */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.scroll}
+        contentContainerStyle={styles.itemContainer}
+        onLayout={(e) => {
+          scrollRef.current.layoutWidth = e.nativeEvent.layout.width;
+          updateRightFade();
+        }}
+        onContentSizeChange={(width) => {
+          scrollRef.current.contentWidth = width;
+          updateRightFade();
+        }}
+        onScroll={(e) => {
+          scrollRef.current.x = e.nativeEvent.contentOffset.x;
+          updateRightFade();
+        }}
+        scrollEventThrottle={16}
+      >
+        {tabs.map((label, index) => (
+          <Items
+            key={`${label}-${index}`}
+            label={label}
+            isActive={index === activeIndex}
+            onPress={() => onChange?.(index)}
+          />
+        ))}
+      </ScrollView>
+
+      {/* ScrollView 위에 겹치도록 뒤에 렌더링 */}
+      {showRightFade && (
+        <LinearGradient
+          pointerEvents="none"
+          colors={['rgba(241, 242, 244, 0)', colors.bgLayerBasement]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.rightFade}
         />
-      ))}
+      )}
     </View>
   );
 };
@@ -42,12 +84,18 @@ const Tabs = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    paddingTop: padding.M,
+    paddingBottom: padding.XL,
+  },
+
+  scroll: {
+    flexGrow: 0,
+  },
+
+  itemContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    paddingTop: padding.M,
-    paddingRight: padding.M,
-    paddingBottom: padding.XL,
-    paddingLeft: padding.M,
+    paddingHorizontal: padding.M,
   },
 
   background: {
@@ -55,8 +103,16 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 39,
+    height: TAB_ROW_HEIGHT,
     backgroundColor: colors.bgLayerBasement,
+  },
+
+  rightFade: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 100,
+    height: TAB_ROW_HEIGHT,
   },
 
   fade: {

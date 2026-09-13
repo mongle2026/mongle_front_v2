@@ -2,39 +2,29 @@ import { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import InboxIcon from '../../../assets/icons/ic_inbox.svg';
-import DotIcon from '../../../assets/letter/dot.svg';
+import SendIcon from '../../../assets/icons/ic_send.svg';
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
+import { resolveEnvelope } from '../../../shared/utils/envelopeUtils';
+import CdCover from './CdCover';
+import DotMatrixText from './DotMatrixText';
 import Letter from './Letter';
 
 // 두 번째 컨테이너의 편지 봉투. 공유 Letter(320x232)를 카드 폭에 맞춰 축소해서 사용.
 const LETTER_WIDTH = 120;
 const LETTER_HEIGHT = Math.round((LETTER_WIDTH * 232) / 320); // 원본 비율 유지
 
-// unread dot: 글자 수만큼 생성. 첫 dot → 마지막 dot(1px)까지 선형으로 축소.
-const DOT_FIRST_SIZE = 4; // title 첫 dot
-const DOT_LAST_SIZE = 1;
-const SINGER_FIRST_DOT_SIZE = 3; // singer는 첫 dot만 3px, 나머지는 title과 동일
+// 카드 높이: 디자인 기준 padding 포함 143px. read/unread 모두 동일하게 고정.
+const CARD_HEIGHT = 143;
+// read 카드의 CD 지름. 디자인은 104px이지만 카드 높이 143에 맞추기 위해 봉투 높이와 동일하게 축소.
+const CD_SIZE = LETTER_HEIGHT;
 
-/**
- * 글자 수만큼 dot 크기 배열을 만든다.
- * - index 0 : firstSize (title=4, singer=3)
- * - 그 외   : 4px → 1px 선형 보간 (11개면 4, 3.7, 3.4 … 1)
- */
-function getDotSizes(text, firstSize) {
-  const count = Array.from(text ?? '').length;
-  if (count <= 0) return [];
-  if (count === 1) return [firstSize];
-
-  return Array.from({ length: count }, (_, index) => {
-    if (index === 0) return firstSize;
-    return (
-      DOT_FIRST_SIZE + (DOT_LAST_SIZE - DOT_FIRST_SIZE) * (index / (count - 1))
-    );
-  });
-}
+// unread dot 격자. 크기는 모두 같고, 제목/가수 글자 모양에 해당하는 dot만 색을 바꾼다.
+// rowPitch = dot 높이 + 줄 사이 여백 → 3줄 높이는 DOT_ROWS * rowPitch 가 된다.
+const TITLE_DOT = { dotSize: 3, colGap: 1, rowPitch: 5 }; // 3줄 15px + padding 4px = 19px
+const SINGER_DOT = { dotSize: 2, colGap: 2, rowPitch: 4 }; // 3줄 12px + padding 4px = 16px
 
 // 백엔드 값(Date | ISO 문자열 | timestamp) → "yy.mm.dd"
 function formatDate(value) {
@@ -49,60 +39,47 @@ function formatDate(value) {
   return `${yy}.${mm}.${dd}`;
 }
 
-// dot 한 행. 글자마다 위/아래 2행을 이루며, 행 내부는 caption 컨테이너와 동일한 규칙.
-function DotLine({ sizes, color }) {
-  return (
-    <View style={styles.dotRow}>
-      {sizes.map((size, index) => (
-        <View
-          key={index}
-          style={{
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor: color,
-          }}
-        />
-      ))}
-    </View>
-  );
-}
-
-function DottedText({ text, firstDotSize, color }) {
-  const sizes = useMemo(
-    () => getDotSizes(text, firstDotSize),
-    [text, firstDotSize],
-  );
-
-  return (
-    <>
-      <DotLine sizes={sizes} color={color} />
-      <DotLine sizes={sizes} color={color} />
-    </>
-  );
-}
-
 /**
- * 받은 편지 카드.
+ * 받은 편지 / 보낸 편지 카드.
  * 백엔드에서 편지 1건에 대한 정보를 letter 객체로 넘겨준다고 가정한다.
  *
  * @param {object}   [letter]
- * @param {string}   [letter.profileImageUri] 보낸 사람 프로필 이미지
- * @param {string}   [letter.nickname]        보낸 사람 이름
+ * @param {string}   [letter.profileImageUri] 상대 프로필 이미지 (받은 편지: 보낸 사람, 보낸 편지: 받는 사람)
+ * @param {string}   [letter.nickname]        상대 이름 (받은 편지: 보낸 사람, 보낸 편지: 받는 사람)
  * @param {string|number|Date} [letter.receivedAt] 받은 날짜
+ * @param {boolean}  [letter.isSent]          보낸 편지 여부 (보낸 편지는 읽음 여부와 관계없이 점으로 가리지 않음)
  * @param {boolean}  [letter.isRead]          읽음 여부 (type 미지정 시 이 값으로 결정)
- * @param {{ title?: string, singer?: string }} [letter.music] 음악 정보
- * @param {import('react-native').ImageSourcePropType} [letter.stampSource] 우표 이미지
+ * @param {{ title?: string, singer?: string, artworkUri?: string }} [letter.music] 음악 정보 (artworkUri: 앨범 커버, CD에 사용)
+ * @param {{ pattern?: string, color?: string, stamp?: string }} [letter.envelope] 봉투 패턴/색상/우표 id (envelopeData 기준)
+ * @param {import('react-native').ImageSourcePropType} [letter.stampSource] 우표 이미지 (envelope.stamp 가 없을 때)
  * @param {'read' | 'unread'} [type] letter.isRead 대신 강제 지정할 때
  * @param {() => void} [onPress]
  * @param {import('react-native').StyleProp<import('react-native').ViewStyle>} [style]
  */
 function Card({ letter = {}, type, onPress, style }) {
-  const { profileImageUri, nickname = '', receivedAt, stampSource, isRead } =
-    letter;
+  const {
+    profileImageUri,
+    nickname = '',
+    receivedAt,
+    stampSource,
+    isSent,
+    isRead,
+  } = letter;
   const music = letter.music ?? {};
+  const envelope = letter.envelope ?? {};
 
-  const resolvedType = type ?? (isRead ? 'read' : 'unread');
+  const { FrontSvg, FlapSvg, StampSvg } = useMemo(
+    () =>
+      resolveEnvelope({
+        patternId: envelope.pattern,
+        colorId: envelope.color,
+        stampId: envelope.stamp,
+      }),
+    [envelope.pattern, envelope.color, envelope.stamp],
+  );
+
+  const resolvedType = type ?? (isSent || isRead ? 'read' : 'unread');
+  const CaptionIcon = isSent ? SendIcon : InboxIcon;
   const isReadType = resolvedType === 'read';
   const title = music.title ?? '';
   const singer = music.singer ?? '';
@@ -123,51 +100,70 @@ function Card({ letter = {}, type, onPress, style }) {
 
         {/* music container */}
         <View style={styles.musicContainer}>
-          {/* caption container */}
-          <View style={styles.captionContainer}>
-            <InboxIcon width={14} height={14} color={colors.fgNeutralWeak} />
-            <Text style={styles.caption}>받은 편지</Text>
-            {/* dot.svg (2x2, fill fgNeutralSubtle #72757B) — 원본 그대로 사용 */}
-            <DotIcon width={2} height={2} />
-            <Text style={styles.caption}>{formatDate(receivedAt)}</Text>
-          </View>
-
           {/* title */}
-          <View style={styles.title}>
+          <View style={[styles.title, isReadType && styles.textBoxRead]}>
             {isReadType ? (
               <Text style={styles.titleText} numberOfLines={1}>
                 {title}
               </Text>
             ) : (
-              <DottedText
+              <DotMatrixText
                 text={title}
-                firstDotSize={DOT_FIRST_SIZE}
-                color={colors.fgNeutralSubtle}
+                {...TITLE_DOT}
+                baseColor={colors.fgNeutralFaint}
+                fillColor={colors.fgNeutralWeak}
               />
             )}
           </View>
 
           {/* singer */}
-          <View style={styles.singer}>
+          <View style={[styles.singer, isReadType && styles.textBoxRead]}>
             {isReadType ? (
               <Text style={styles.singerText} numberOfLines={1}>
                 {singer}
               </Text>
             ) : (
-              <DottedText
+              <DotMatrixText
                 text={singer}
-                firstDotSize={SINGER_FIRST_DOT_SIZE}
-                color={colors.fgNeutralWeak}
+                {...SINGER_DOT}
+                baseColor={colors.fgNeutralFaint}
+                fillColor={colors.fgNeutralWeak}
               />
             )}
           </View>
+        </View>
+
+        {/* caption container */}
+        <View style={styles.captionContainer}>
+          <CaptionIcon width={14} height={14} color={colors.fgNeutralWeak} />
+          <Text style={styles.caption}>{isSent ? '보낸 편지' : '받은 편지'}</Text>
+          <View style={styles.captionDot} />
+          <Text style={styles.caption}>{formatDate(receivedAt)}</Text>
         </View>
       </View>
 
       {/* 두 번째 컨테이너 */}
       <View style={styles.secondContainer}>
-        <Letter type="front" style={styles.letter} />
-        {stampSource ? (
+        {/* 보낸 편지 / 읽은 편지는 봉투 대신 앨범 커버를 씌운 CD */}
+        {isReadType ? (
+          <CdCover imageUri={music.artworkUri} size={CD_SIZE} />
+        ) : (
+          <Letter
+            type="front"
+            BackgroundSvg={FrontSvg}
+            FlapSvg={FlapSvg}
+            style={styles.letter}
+          />
+        )}
+        {StampSvg ? (
+          <View style={styles.stamp}>
+            <StampSvg
+              width="100%"
+              height="100%"
+              preserveAspectRatio="xMidYMid slice"
+            />
+          </View>
+        ) : stampSource ? (
           <Image source={stampSource} style={styles.stamp} resizeMode="cover" />
         ) : (
           <View style={styles.stamp} />
@@ -182,6 +178,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     width: '100%',
+    height: CARD_HEIGHT,
     padding: padding.L,
     alignItems: 'center',
     gap: padding.XS,
@@ -190,9 +187,11 @@ const styles = StyleSheet.create({
   },
 
   // 첫 번째 container: column, align flex-start, gap XL, flex 1
+  // 카드의 alignItems center 영향을 받지 않도록 상단 고정 → profile이 카드 padding 바로 아래에 위치
   firstContainer: {
     flexDirection: 'column',
     alignItems: 'flex-start',
+    alignSelf: 'flex-start',
     gap: gap.XL,
     flex: 1,
   },
@@ -229,14 +228,22 @@ const styles = StyleSheet.create({
     color: colors.fgNeutralSubtle,
     ...typo.suitLabelMedium,
   },
+  // caption 사이 구분 점: 2x2 원
+  captionDot: {
+    width: 2,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: colors.fgNeutralSubtle,
+  },
 
-  // title: 세로 padding XS, column, justify center, align flex-start, gap S, stretch
+  // title: height 19, 세로 padding XXS, column, justify center, align flex-start, gap XXS, stretch
   title: {
-    paddingVertical: padding.XS,
+    height: 19,
+    paddingVertical: padding.XXS,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    gap: gap.S,
+    gap: gap.XS,
     alignSelf: 'stretch',
   },
   titleText: {
@@ -244,26 +251,21 @@ const styles = StyleSheet.create({
     ...typo.suitLabelLarge,
   },
 
-  // singer: 세로 padding XXS, 그 외 title과 동일
+  // singer: 세로 padding XXS, 높이 고정 없음. 그 외 title과 동일
   singer: {
     paddingVertical: padding.XXS,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    gap: gap.S,
     alignSelf: 'stretch',
   },
   singerText: {
     color: colors.fgNeutralSubtle,
     ...typo.suitLabelMedium,
   },
-
-  // unread dot 한 행: caption 컨테이너와 동일 (row + align center + gap S + stretch)
-  dotRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: gap.S,
-    alignSelf: 'stretch',
+  // read 카드: 텍스트 줄높이가 dot 2행보다 커서, 카드 높이 143을 맞추기 위해 상하 padding 제거
+  textBoxRead: {
+    paddingVertical: 0,
   },
 
   // 두 번째 container: 세로 padding 8, column, justify flex-end, align flex-end, stretch

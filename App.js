@@ -20,6 +20,7 @@ import FeedDetailScreen from './features/feed/detail/FeedDetailScreen';
 import RecordScreen from './features/write/record/RecordScreen';
 import RecordEditScreen from './features/write/record/RecordEditScreen';
 import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
+import LetterBoxScreen from './features/letter/box/LetterBoxScreen';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
@@ -82,7 +83,7 @@ const MainTabNavigator = () => (
     />
     <Tab.Screen
       name={MAIN_TAB_ROUTES.LETTER}
-      component={TemporaryScreen}
+      component={LetterBoxScreen}
     />
     <Tab.Screen
       name={MAIN_TAB_ROUTES.PROFILE}
