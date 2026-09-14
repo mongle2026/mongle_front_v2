@@ -39,11 +39,11 @@ export const PATTERNS = [
     thumbnail: P1Thumbnail,
     colors: [
       { id: 'p1_c1', color: '#fdfefe', frontImg: require('../../assets/envelope/patterns/p1_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c1_flap.svg') },
-      { id: 'p1_c2', color: '#1e2a44', frontImg: require('../../assets/envelope/patterns/p1_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c2_flap.svg') },
+      { id: 'p1_c2', color: '#587bb7', frontImg: require('../../assets/envelope/patterns/p1_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c2_flap.svg') },
       { id: 'p1_c3', color: '#dce5d3', frontImg: require('../../assets/envelope/patterns/p1_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c3_flap.svg') },
       { id: 'p1_c4', color: '#f5d8d8', frontImg: require('../../assets/envelope/patterns/p1_c4_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c4_flap.svg') },
       { id: 'p1_c5', color: '#d9ecf2', frontImg: require('../../assets/envelope/patterns/p1_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c5_flap.svg') },
-      { id: 'p1_c6', color: '#fff48a', frontImg: require('../../assets/envelope/patterns/p1_c6_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c6_flap.svg') },
+      { id: 'p1_c6', color: '#fff5a9', frontImg: require('../../assets/envelope/patterns/p1_c6_front.svg'), flapImg: require('../../assets/envelope/patterns/p1_c6_flap.svg') },
     ],
   },
   {
@@ -51,7 +51,6 @@ export const PATTERNS = [
     thumbnail: P2Thumbnail,
     colors: [
       { id: 'p2_c1', color: '#1d3557', frontImg: require('../../assets/envelope/patterns/p2_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c1_flap.svg') },
-      { id: 'p2_c2', color: '#ffffff', frontImg: require('../../assets/envelope/patterns/p2_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c2_flap.svg') },
       { id: 'p2_c3', color: '#2d6a4f', frontImg: require('../../assets/envelope/patterns/p2_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c3_flap.svg') },
       { id: 'p2_c4', color: '#d97757', frontImg: require('../../assets/envelope/patterns/p2_c4_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c4_flap.svg') },
       { id: 'p2_c5', color: '#8ecae6', frontImg: require('../../assets/envelope/patterns/p2_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c5_flap.svg') },
@@ -72,9 +71,9 @@ export const PATTERNS = [
     id: 'p4',
     thumbnail: P4Thumbnail,
     colors: [
-      { id: 'p4_c1', color: '#93b6f7', frontImg: require('../../assets/envelope/patterns/p4_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c1_flap.svg') },
-      { id: 'p4_c2', color: '#95c197', frontImg: require('../../assets/envelope/patterns/p4_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c2_flap.svg') },
-      { id: 'p4_c3', color: '#a4adba', frontImg: require('../../assets/envelope/patterns/p4_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c3_flap.svg') },
+      { id: 'p4_c1', color: '#bed0ed', frontImg: require('../../assets/envelope/patterns/p4_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c1_flap.svg') },
+      { id: 'p4_c2', color: '#ceddce', frontImg: require('../../assets/envelope/patterns/p4_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c2_flap.svg') },
+      { id: 'p4_c3', color: '#cfd8e2', frontImg: require('../../assets/envelope/patterns/p4_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c3_flap.svg') },
       { id: 'p4_c4', color: '#efecc5', frontImg: require('../../assets/envelope/patterns/p4_c4_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c4_flap.svg') },
       { id: 'p4_c5', color: '#edb7b7', frontImg: require('../../assets/envelope/patterns/p4_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p4_c5_flap.svg') },
     ],
@@ -95,11 +94,11 @@ export const PATTERNS = [
     id: 'p6',
     thumbnail: P6Thumbnail,
     colors: [
-      { id: 'p6_c1', color: '#bfd0de', frontImg: require('../../assets/envelope/patterns/p6_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c1_flap.svg') },
-      { id: 'p6_c2', color: '#b9c6b0', frontImg: require('../../assets/envelope/patterns/p6_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c2_flap.svg') },
-      { id: 'p6_c3', color: '#c9c3d9', frontImg: require('../../assets/envelope/patterns/p6_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c3_flap.svg') },
-      { id: 'p6_c4', color: '#e2c4c7', frontImg: require('../../assets/envelope/patterns/p6_c4_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c4_flap.svg') },
-      { id: 'p6_c5', color: '#d6c8b6', frontImg: require('../../assets/envelope/patterns/p6_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c5_flap.svg') },
+      { id: 'p6_c1', color: '#d5e5ef', frontImg: require('../../assets/envelope/patterns/p6_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c1_flap.svg') },
+      { id: 'p6_c2', color: '#dbe8d1', frontImg: require('../../assets/envelope/patterns/p6_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c2_flap.svg') },
+      { id: 'p6_c3', color: '#dfdcef', frontImg: require('../../assets/envelope/patterns/p6_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c3_flap.svg') },
+      { id: 'p6_c4', color: '#f4e1e4', frontImg: require('../../assets/envelope/patterns/p6_c4_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c4_flap.svg') },
+      { id: 'p6_c5', color: '#eae1d8', frontImg: require('../../assets/envelope/patterns/p6_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p6_c5_flap.svg') },
     ],
   },
   {
