@@ -13,6 +13,13 @@ const WRITE_IMG_ASPECT_RATIO = Object.freeze({
   [WRITE_IMG_RATIO.FIVE_SIX]: 5 / 6,
 });
 
+// 원본 크기 → WriteImg 비율. 세로 사진은 5:6, 가로·1:1 사진과 크기를 모를 때는 4:3
+export const getWriteImgRatio = ({ width, height } = {}) => {
+  if (!width || !height) return WRITE_IMG_RATIO.FOUR_THREE;
+
+  return height > width ? WRITE_IMG_RATIO.FIVE_SIX : WRITE_IMG_RATIO.FOUR_THREE;
+};
+
 const WRITE_IMG_HALFTONE_OPTIONS = Object.freeze({
   dotSize: 4,
   dotScale: 1.33,

@@ -48,6 +48,8 @@ const Profile = ({
 
   // Letter
   recipientName,
+  // 이름 뒤에 붙는 말. 받는 이는 '에게', 보낸 이는 '이가'
+  nameSuffix = '에게',
 
   // Common
   font,
@@ -125,7 +127,7 @@ const Profile = ({
               textStyle,
             ]}
           >
-            에게
+            {nameSuffix}
           </Text>
         </View>
       </View>

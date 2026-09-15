@@ -15,10 +15,14 @@ import LabeledButton from '../../../../shared/components/action/LabeledButton';
 import { colors } from '../../../../shared/styles/color';
 import { padding } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
-import { formatDateDetail } from '../../utils/formatDate';
+import { formatDateDetail, formatDateOnly } from '../../utils/formatDate';
 
 const ActionBar = ({
   createdAt,
+  showTime = true,
+  // 날짜 앞뒤에 붙는 말. 예) '>' + 날짜 + '도착'
+  datePrefix,
+  dateSuffix,
   isLiked = false,
   isBookmarked = false,
   bookmarkCount,
@@ -27,6 +31,8 @@ const ActionBar = ({
   bookmarkDisabled = false,
 
   showCommentButton = true,
+  showLikeButton = true,
+  showBookmarkButton = true,
 
   likeButtonRef,
   onCommentPress,
@@ -34,8 +40,14 @@ const ActionBar = ({
   onBookmarkPress,
   style,
 }) => {
+  const formatCreatedAt = showTime
+    ? formatDateDetail
+    : formatDateOnly;
+
   const formattedDate = createdAt
-    ? formatDateDetail(createdAt)
+    ? [datePrefix, formatCreatedAt(createdAt), dateSuffix]
+      .filter(Boolean)
+      .join(' ')
     : '';
 
   const bookmarkLabel =
@@ -66,41 +78,45 @@ const ActionBar = ({
           />
         )}
 
-        <AnimatedLabeledButton
-          ref={likeButtonRef}
-          size="M"
-          isActive={isLiked}
-          activeIcon={IcHeartFill}
-          inactiveIcon={IcHeartStroke}
-          activeColor={colors.fgLike}
-          inactiveColor={colors.fgNeutralWeak}
-          animationType={ANIMATION_TYPE.LIKE}
-          disabled={likeDisabled}
-          onPress={onLikePress}
-          accessibilityLabel={
-            isLiked ? '좋아요 취소' : '좋아요'
-          }
-          style={styles.actionButton}
-        />
+        {showLikeButton && (
+          <AnimatedLabeledButton
+            ref={likeButtonRef}
+            size="M"
+            isActive={isLiked}
+            activeIcon={IcHeartFill}
+            inactiveIcon={IcHeartStroke}
+            activeColor={colors.fgLike}
+            inactiveColor={colors.fgNeutralWeak}
+            animationType={ANIMATION_TYPE.LIKE}
+            disabled={likeDisabled}
+            onPress={onLikePress}
+            accessibilityLabel={
+              isLiked ? '좋아요 취소' : '좋아요'
+            }
+            style={styles.actionButton}
+          />
+        )}
 
-        <AnimatedLabeledButton
-          label={bookmarkLabel}
-          size="M"
-          isActive={isBookmarked}
-          activeIcon={IcBookmarkFill}
-          inactiveIcon={IcBookmarkStroke}
-          activeColor={colors.fgBookmark}
-          inactiveColor={colors.fgNeutralWeak}
-          animationType={ANIMATION_TYPE.BOOKMARK}
-          disabled={bookmarkDisabled}
-          onPress={onBookmarkPress}
-          accessibilityLabel={
-            isBookmarked
-              ? '북마크 해제'
-              : '북마크'
-          }
-          style={styles.actionButton}
-        />
+        {showBookmarkButton && (
+          <AnimatedLabeledButton
+            label={bookmarkLabel}
+            size="M"
+            isActive={isBookmarked}
+            activeIcon={IcBookmarkFill}
+            inactiveIcon={IcBookmarkStroke}
+            activeColor={colors.fgBookmark}
+            inactiveColor={colors.fgNeutralWeak}
+            animationType={ANIMATION_TYPE.BOOKMARK}
+            disabled={bookmarkDisabled}
+            onPress={onBookmarkPress}
+            accessibilityLabel={
+              isBookmarked
+                ? '북마크 해제'
+                : '북마크'
+            }
+            style={styles.actionButton}
+          />
+        )}
       </View>
     </View>
   );

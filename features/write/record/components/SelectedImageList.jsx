@@ -6,25 +6,11 @@ import IcX from '../../../../assets/icons/ic_x.svg';
 
 // Shared Components
 import IconButton from '../../../../shared/components/action/IconButton';
-import { WriteImg, WRITE_IMG_RATIO } from '../../../../shared/components/atomic/WriteImg';
+import { WriteImg, getWriteImgRatio } from '../../../../shared/components/atomic/WriteImg';
 
 // Shared Styles
 import { colors } from '../../../../shared/styles/color';
 import { gap, radius } from '../../../../shared/styles/token';
-
-const getWriteImgRatio = image => {
-  const width = image?.width;
-  const height = image?.height;
-
-  // 크기 정보를 알 수 없으면 기본 4:3
-  if (!width || !height) return WRITE_IMG_RATIO.FOUR_THREE;
-
-  // 세로 사진
-  if (height > width) return WRITE_IMG_RATIO.FIVE_SIX;
-
-  // 가로 사진 + 1:1 사진
-  return WRITE_IMG_RATIO.FOUR_THREE;
-};
 
 const SelectedImageList = ({ images = [], onRemove }) => {
   if (images.length === 0) return null;

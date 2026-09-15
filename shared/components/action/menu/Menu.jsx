@@ -14,26 +14,32 @@ const Menu = ({
   onPressDelete,
   editDisabled = false,
   deleteDisabled = false,
+  // 삭제만 필요한 화면(편지 상세 등)은 showEdit={false}
+  showEdit = true,
+  deleteLabel = '삭제',
+  deleteAccessibilityLabel = '게시물 삭제',
   style,
 }) => {
   return (
     <View style={[styles.shadowContainer, style]}>
       <View style={styles.container}>
-        <Item
-          icon={IcPencil}
-          label="수정"
-          color={colors.fgNeutralMuted}
-          onPress={onPressEdit}
-          disabled={editDisabled}
-          accessibilityLabel="게시물 수정"
-        />
+        {showEdit && (
+          <Item
+            icon={IcPencil}
+            label="수정"
+            color={colors.fgNeutralMuted}
+            onPress={onPressEdit}
+            disabled={editDisabled}
+            accessibilityLabel="게시물 수정"
+          />
+        )}
         <Item
           icon={IcTrash}
-          label="삭제"
+          label={deleteLabel}
           color={colors.fgCritical}
           onPress={onPressDelete}
           disabled={deleteDisabled}
-          accessibilityLabel="게시물 삭제"
+          accessibilityLabel={deleteAccessibilityLabel}
         />
       </View>
     </View>

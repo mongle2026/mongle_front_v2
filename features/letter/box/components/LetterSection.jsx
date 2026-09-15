@@ -30,7 +30,8 @@ const LETTER_FILTER_LABELS = LETTER_FILTERS.map(filter => filter.label);
 const END_REACHED_THRESHOLD = 0.4;
 
 // bottomInset: 목록 하단이 FAB에 가려지지 않도록 확보할 여백
-const LetterSection = ({ userId, bottomInset = 0 }) => {
+// onPressLetter: 편지 카드를 누르면 letter 객체와 함께 호출
+const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   const [activeFilter, setActiveFilter] = useState(LETTER_FILTER.ALL);
   const activeFilterIndex = LETTER_FILTERS.findIndex(filter => filter.key === activeFilter);
 
@@ -74,7 +75,7 @@ const LetterSection = ({ userId, bottomInset = 0 }) => {
         >
           <View style={styles.letterContainer}>
             {letters.map(letter => (
-              <Card key={letter.letterId} letter={letter} />
+              <Card key={letter.letterId} letter={letter} onPress={() => onPressLetter?.(letter)} />
             ))}
           </View>
         </ScrollView>

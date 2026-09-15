@@ -21,6 +21,8 @@ import RecordScreen from './features/write/record/RecordScreen';
 import RecordEditScreen from './features/write/record/RecordEditScreen';
 import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
 import LetterBoxScreen from './features/letter/box/LetterBoxScreen';
+import LetterDetailScreen from './features/letter/detail/LetterDetailScreen';
+import StampDetailScreen from './features/stamp/detail/StampDetailScreen';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
@@ -117,6 +119,14 @@ const RootNavigator = () => (
       options={{
         presentation: 'transparentModal',
       }}
+    />
+    <Stack.Screen
+      name="LetterDetail"
+      component={LetterDetailScreen}
+    />
+    <Stack.Screen
+      name="StampDetail"
+      component={StampDetailScreen}
     />
     <Stack.Screen
       name="Record"

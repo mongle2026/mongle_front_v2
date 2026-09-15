@@ -28,6 +28,9 @@ const TopIconNavigation = ({
   onPressShare,
   onPressMore,
 
+  // type = icon
+  showShare = true,
+
   style,
   textStyle,
   nextTextStyle,
@@ -77,13 +80,15 @@ const TopIconNavigation = ({
           />
 
           <View style={styles.tail}>
-            <IconButton
-              icon={IcShare}
-              color={colors.fgNeutralSolid}
-              size="XL"
-              onPress={onPressShare}
-              accessibilityLabel="공유하기"
-            />
+            {showShare && (
+              <IconButton
+                icon={IcShare}
+                color={colors.fgNeutralSolid}
+                size="XL"
+                onPress={onPressShare}
+                accessibilityLabel="공유하기"
+              />
+            )}
 
             <IconButton
               icon={IcKebab}

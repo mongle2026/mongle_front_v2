@@ -103,6 +103,14 @@ const LetterBoxScreen = ({ navigation }) => {
     // navigation.navigate('Notification');
   }, []);
 
+  const handlePressLetter = useCallback(letter => {
+    navigation.navigate('LetterDetail', { letterId: letter.letterId });
+  }, [navigation]);
+
+  const handlePressStamp = useCallback(stampCode => {
+    navigation.navigate('StampDetail', { stampCode });
+  }, [navigation]);
+
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
@@ -119,8 +127,12 @@ const LetterBoxScreen = ({ navigation }) => {
       />
 
       <View style={styles.content}>
-        {activeTab === LETTER_BOX_TAB.LETTER && <LetterSection userId={userId} bottomInset={fabHeight} />}
-        {activeTab === LETTER_BOX_TAB.STAMP && <StampSection bottomInset={fabHeight} />}
+        {activeTab === LETTER_BOX_TAB.LETTER && (
+          <LetterSection userId={userId} bottomInset={fabHeight} onPressLetter={handlePressLetter} />
+        )}
+        {activeTab === LETTER_BOX_TAB.STAMP && (
+          <StampSection bottomInset={fabHeight} onPressStamp={handlePressStamp} />
+        )}
       </View>
 
       {!isFabOpen && (
