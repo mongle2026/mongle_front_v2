@@ -1,5 +1,7 @@
-import React, { memo, useCallback, useState, } from 'react';
+import React, { memo, useCallback, useEffect, useState, } from 'react';
 import { Pressable, StyleSheet, Text, View, } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming, } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import FeedIcon from '../../../assets/icons/ic_feed.svg';
 import LetterIcon from '../../../assets/icons/ic_letter.svg';
@@ -12,6 +14,12 @@ import { typo } from '../../styles/typo';
 
 const TOGGLE_ICON_SIZE = 16;
 const ACTION_ICON_SIZE = 20;
+
+export const FAB_EXPAND_DURATION = 200;
+
+// expandedRow가 숨어 있을 때의 위치: 기본 버튼 바로 뒤(아랫변끼리 맞춤)
+// layout animation(exiting)은 행이 레이아웃에서 빠지며 위치가 밀리므로, 닫힘이 끝날 때까지 마운트를 유지하고 직접 애니메이션한다
+const EXPANDED_ROW_FALLBACK_OFFSET = 48;
 
 const DEFAULT_LABEL = '새로운 기록 남기기';
 const EXPANDED_LABEL = '피드 더 둘러보기';
@@ -99,10 +107,46 @@ const FAB = ({
     handleActionPress(onFeedPress);
   }, [handleActionPress, onFeedPress]);
 
+  const [isRowMounted, setIsRowMounted] = useState(isOpen);
+  const progress = useSharedValue(0);
+  const toggleHeight = useSharedValue(0);
+
+  useEffect(() => {
+    const timing = { duration: FAB_EXPAND_DURATION };
+
+    if (isOpen) {
+      setIsRowMounted(true);
+      progress.value = withTiming(1, timing);
+      return;
+    }
+
+    progress.value = withTiming(0, timing, finished => {
+      if (finished) scheduleOnRN(setIsRowMounted, false);
+    });
+  }, [isOpen, progress]);
+
+  const handleToggleLayout = useCallback(event => {
+    toggleHeight.value = event.nativeEvent.layout.height;
+  }, [toggleHeight]);
+
+  const expandedRowAnimatedStyle = useAnimatedStyle(() => {
+    const hiddenOffset = toggleHeight.value > 0
+      ? toggleHeight.value + gap.M
+      : EXPANDED_ROW_FALLBACK_OFFSET;
+
+    return {
+      opacity: progress.value,
+      transform: [{ translateY: (1 - progress.value) * hiddenOffset }],
+    };
+  });
+
   return (
     <View style={[styles.container, style]}>
-      {isOpen && (
-        <View style={styles.expandedRow}>
+      {isRowMounted && (
+        <Animated.View
+          pointerEvents={isOpen ? 'auto' : 'none'}
+          style={[styles.expandedRow, expandedRowAnimatedStyle]}
+        >
           <ExpandedActionButton
             icon={LetterIcon}
             label="편지 작성"
@@ -116,7 +160,7 @@ const FAB = ({
             accessibilityLabel="피드 작성"
             onPress={handleFeedPress}
           />
-        </View>
+        </Animated.View>
       )}
 
       <Pressable
@@ -126,6 +170,7 @@ const FAB = ({
         }
         accessibilityState={{ expanded: isOpen }}
         onPress={handleToggle}
+        onLayout={handleToggleLayout}
         style={styles.defaultButton}
       >
         <Text
@@ -196,6 +241,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.S,
     backgroundColor: colors.bgLayerDefault,
     ...shadow.weakDown,
+    // expandedRow가 이 버튼 뒤로 올라오고 내려가도록 항상 앞에 그린다
+    zIndex: 1,
   },
 
   defaultLabel: {
