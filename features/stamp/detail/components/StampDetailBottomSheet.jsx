@@ -149,9 +149,9 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
   );
 
   const renderLetter = useCallback(
-    ({ item }) => (
+    ({ item, index }) => (
       <FollowSummary offset={belowSummaryOffset}>
-        <StampLetterItem letter={item} onPress={onPressLetter} />
+        <StampLetterItem letter={item} index={index} onPress={onPressLetter} />
       </FollowSummary>
     ),
     [onPressLetter, belowSummaryOffset],
