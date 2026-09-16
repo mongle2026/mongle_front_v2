@@ -7,6 +7,7 @@ import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
+import { formatDate } from '../../../shared/utils/dateUtils';
 import { resolveEnvelope } from '../../../shared/utils/envelopeUtils';
 import CdCover from './CdCover';
 import DotMatrixText from './DotMatrixText';
@@ -25,19 +26,6 @@ const CD_SIZE = LETTER_HEIGHT;
 // rowPitch = dot 높이 + 줄 사이 여백 → 3줄 높이는 DOT_ROWS * rowPitch 가 된다.
 const TITLE_DOT = { dotSize: 3, colGap: 1, rowPitch: 5 }; // 3줄 15px + padding 4px = 19px
 const SINGER_DOT = { dotSize: 2, colGap: 2, rowPitch: 4 }; // 3줄 12px + padding 4px = 16px
-
-// 백엔드 값(Date | ISO 문자열 | timestamp) → "yy.mm.dd"
-function formatDate(value) {
-  if (value == null || value === '') return '';
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return typeof value === 'string' ? value : '';
-  }
-  const yy = String(date.getFullYear()).slice(-2);
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  return `${yy}.${mm}.${dd}`;
-}
 
 /**
  * 받은 편지 / 보낸 편지 카드.

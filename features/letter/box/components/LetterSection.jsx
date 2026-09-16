@@ -1,11 +1,13 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import Empty from '../../../../shared/components/content/Empty';
 import Tabs from '../../../../shared/components/navigation/tabs/Tabs';
 import { gap, padding } from '../../../../shared/styles/token';
 
 import Card from '../../components/Card';
 import useLetterBox from '../hooks/useLetterBox';
+import UnreadLetterStack from './UnreadLetterStack';
 
 const LETTER_FILTER = {
   UNREAD: 'unread',
@@ -29,17 +31,28 @@ const LETTER_FILTER_LABELS = LETTER_FILTERS.map(filter => filter.label);
 // 스크롤이 끝에서 화면 높이의 이 비율 이내로 오면 다음 페이지를 불러온다
 const END_REACHED_THRESHOLD = 0.4;
 
+const EMPTY_UNREAD_TITLE = '읽지 않은 편지가 없어요.';
+const EMPTY_UNREAD_BODY = '도착한 편지를 모두 확인했어요.';
+const EMPTY_LETTER_TITLE = '아직 주고받은 편지가 없어요.';
+const EMPTY_LETTER_BODY = '전송 예정인 편지는 잘 배송되고 있어요.';
+
 // bottomInset: 목록 하단이 FAB에 가려지지 않도록 확보할 여백
 // onPressLetter: 편지 카드를 누르면 letter 객체와 함께 호출
 const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   const [activeFilter, setActiveFilter] = useState(LETTER_FILTER.ALL);
   const activeFilterIndex = LETTER_FILTERS.findIndex(filter => filter.key === activeFilter);
 
-  // TODO: letters가 비어 있을 때 Empty 뷰 추가
-  const { letters, isFetchingNextPage, hasNextPage, fetchNextPage } = useLetterBox({
+  const { letters, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useLetterBox({
     userId,
     filter: activeFilter,
   });
+
+  const isUnread = activeFilter === LETTER_FILTER.UNREAD;
+
+  // 상세에서 읽음 처리된 편지는 안 읽음 목록에서 바로 뺀다 (useLetterDetail 이 캐시의 isRead 를 갱신)
+  const unreadLetters = useMemo(() => letters.filter(letter => !letter.isRead), [letters]);
+  const visibleLetters = isUnread ? unreadLetters : letters;
+  const isEmpty = !isLoading && visibleLetters.length === 0;
 
   const handleChangeFilter = useCallback(index => {
     setActiveFilter(LETTER_FILTERS[index].key);
@@ -65,8 +78,24 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
         onChange={handleChangeFilter}
       />
 
-      {/* TODO: 안 읽음 탭 레이아웃 */}
-      {activeFilter !== LETTER_FILTER.UNREAD && (
+      {isEmpty && (
+        <Empty
+          type="letter"
+          title={isUnread ? EMPTY_UNREAD_TITLE : EMPTY_LETTER_TITLE}
+          body={isUnread ? EMPTY_UNREAD_BODY : EMPTY_LETTER_BODY}
+        />
+      )}
+
+      {!isEmpty && isUnread && (
+        <UnreadLetterStack
+          letters={unreadLetters}
+          bottomInset={bottomInset}
+          onPressLetter={onPressLetter}
+          onScroll={handleScroll}
+        />
+      )}
+
+      {!isEmpty && !isUnread && (
         <ScrollView
           contentContainerStyle={{ paddingBottom: bottomInset }}
           onScroll={handleScroll}

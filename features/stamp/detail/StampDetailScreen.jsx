@@ -1,41 +1,43 @@
 import { useCallback } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 
-import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
-import { colors } from '../../../shared/styles/color';
-import { padding } from '../../../shared/styles/token';
+import Dim from '../../../shared/components/layout/Dim';
+import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 
-import Stamp from '../components/Stamp';
+import StampDetailBottomSheet from './components/StampDetailBottomSheet';
 import useStampDetail from './hooks/useStampDetail';
 
-const STAMP_DETAIL_WIDTH = 160;
-
+// 편지함 위에 투명 모달(transparentModal)로 떠서 BottomSheet 로 우표 상세를 보여준다.
+// 스택 화면이라 편지 카드를 눌러 LetterDetail 로 갔다가 돌아오면 시트가 그대로 남아 있다.
 // route.params: { stampCode }
 const StampDetailScreen = ({ navigation, route }) => {
   const stampCode = route?.params?.stampCode;
-  const { stamp } = useStampDetail({ stampCode });
+  const { userId } = useCurrentUser();
+  const { stamp, detail } = useStampDetail({ stampCode, userId });
 
-  const handlePressClose = useCallback(() => {
-    navigation.goBack();
+  // 시트를 내려 닫을 때와 딤을 눌러 닫을 때가 겹쳐도 한 번만 닫는다
+  const handleClose = useCallback(() => {
+    if (navigation.isFocused()) navigation.goBack();
   }, [navigation]);
+
+  const handlePressLetter = useCallback(
+    letter => {
+      navigation.navigate('LetterDetail', { letterId: letter.letterId });
+    },
+    [navigation],
+  );
 
   return (
     <View style={styles.screen}>
-      <SafeAreaView edges={['top']} style={styles.topSafeArea}>
-        <TopIconNavigation onPressClose={handlePressClose} />
-      </SafeAreaView>
+      <Dim onPress={handleClose} accessibilityLabel="우표 상세 닫기" />
 
-      {!stamp ? (
-        <View style={styles.state}>
-          <Text style={styles.stateText}>우표를 찾을 수 없습니다.</Text>
-        </View>
-      ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <Stamp stampCode={stamp.id} width={STAMP_DETAIL_WIDTH} />
-
-          {/* TODO: 이 우표가 붙은 편지 목록 (누르면 navigation.navigate('LetterDetail', { letterId })) */}
-        </ScrollView>
+      {stamp && (
+        <StampDetailBottomSheet
+          stampCode={stamp.id}
+          detail={detail}
+          onPressLetter={handlePressLetter}
+          onClose={handleClose}
+        />
       )}
     </View>
   );
@@ -44,24 +46,6 @@ const StampDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerDefault,
-  },
-  topSafeArea: {
-    width: '100%',
-    backgroundColor: colors.bgLayerDefault,
-  },
-  scrollContent: {
-    width: '100%',
-    paddingVertical: padding.XL,
-    alignItems: 'center',
-  },
-  state: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stateText: {
-    color: colors.fgNeutralMuted,
   },
 });
 

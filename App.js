@@ -102,6 +102,18 @@ const FeedDetailRoute = props => (
   </SafeAreaProvider>
 );
 
+// 투명 모달은 (iOS에서) 별도 네이티브 화면으로 떠서, 안의 BottomSheet 제스처와
+// 안전영역이 동작하도록 루트를 한 번 더 감싼다
+const StampDetailRoute = props => (
+  <GestureHandlerRootView style={{ flex: 1 }}>
+    <SafeAreaProvider
+      initialMetrics={initialWindowMetrics}
+    >
+      <StampDetailScreen {...props} />
+    </SafeAreaProvider>
+  </GestureHandlerRootView>
+);
+
 const RootNavigator = () => (
   <Stack.Navigator
     initialRouteName="MainTabs"
@@ -126,7 +138,11 @@ const RootNavigator = () => (
     />
     <Stack.Screen
       name="StampDetail"
-      component={StampDetailScreen}
+      component={StampDetailRoute}
+      options={{
+        presentation: 'transparentModal',
+        animation: 'fade',
+      }}
     />
     <Stack.Screen
       name="Record"

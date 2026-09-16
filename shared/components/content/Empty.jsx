@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import IlEmptyComment from '../../../assets/illustrations/il_empty_comment.svg';
 import IlEmptyRecipient from '../../../assets/illustrations/il_empty_recipient.svg';
 import IlEmptyMusic from '../../../assets/illustrations/il_empty_music.svg';
+import IlEmptyLetter from '../../../assets/illustrations/il_empty_letter.svg';
 
 import { colors } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
@@ -24,6 +25,9 @@ const Empty = ({
 
       case 'music':
         return IlEmptyMusic;
+
+      case 'letter':
+        return IlEmptyLetter;
 
       default:
         return null;

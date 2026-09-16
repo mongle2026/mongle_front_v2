@@ -73,6 +73,16 @@ function markLetterAsReadInLetterbox(queryClient, userId, letterId) {
     queryKey: ['letterbox', Number(userId), 'UNREAD'],
     refetchType: 'none',
   });
+
+  // 우표 상세의 편지 목록 (useStampDetail)
+  queryClient.setQueriesData({ queryKey: ['letterbox', 'stamp', Number(userId)] }, currentData => {
+    if (!currentData?.letters) return currentData;
+
+    return {
+      ...currentData,
+      letters: currentData.letters.map(item => (item.letterId === letterId ? { ...item, isRead: true } : item)),
+    };
+  });
 }
 
 // 편지함 목록 캐시(모든 탭)에서 삭제한 편지를 뺀다
@@ -88,6 +98,9 @@ function removeLetterFromLetterbox(queryClient, userId, letterId) {
       })),
     };
   });
+
+  // 우표 수집 횟수/우표 상세도 바뀌므로 다시 불러온다 (useStampBox, useStampDetail)
+  void queryClient.invalidateQueries({ queryKey: ['letterbox', 'stamp', Number(userId)] });
 }
 
 // 편지 상세 조회. GET /letter/:letterId?userId=

@@ -131,7 +131,7 @@ const LetterBoxScreen = ({ navigation }) => {
           <LetterSection userId={userId} bottomInset={fabHeight} onPressLetter={handlePressLetter} />
         )}
         {activeTab === LETTER_BOX_TAB.STAMP && (
-          <StampSection bottomInset={fabHeight} onPressStamp={handlePressStamp} />
+          <StampSection userId={userId} bottomInset={fabHeight} onPressStamp={handlePressStamp} />
         )}
       </View>
 

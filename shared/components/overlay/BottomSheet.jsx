@@ -30,6 +30,10 @@ import {
 
 const DEFAULT_HEIGHT = 720;
 
+// DragHandle 영역 높이. snapPoints는 이 영역까지 포함한 시트 높이라,
+// 콘텐츠 높이에 맞춰 snapPoint를 계산할 때 더해줍니다.
+export const DRAG_HANDLE_HEIGHT = 28;
+
 // gorhom의 스크롤 가능 컴포넌트(BottomSheetFlatList 등)는 Android에서
 // flex만으로 높이를 잡으면 제스처/스크롤 연동이 제대로 안 잡히는
 // 알려진 회귀 버그가 있습니다.
@@ -103,11 +107,19 @@ const DragHandle = () => (
   </View>
 );
 
+// snapPoints: 여러 높이로 멈추게 할 때 사용 (예: [처음 높이, '100%']).
+// 주면 height는 무시되고, 처음에는 snapPoints[0]로 뜹니다.
+// animatedIndex: 시트의 현재 위치를 snapPoint index로 받는 SharedValue
+// (예: 0.5 = 0번과 1번 사이). 드래그 중에도 실제 위치를 따라갑니다.
+// footerComponent: 시트의 보이는 하단에 붙어 다니는 요소 (gorhom BottomSheetFooter로 감싸서 넘깁니다)
 const BottomSheet = ({
   children,
   height = DEFAULT_HEIGHT,
+  snapPoints: snapPointsProp,
   fitContent = false,
   onClose,
+  animatedIndex,
+  footerComponent,
   showDragHandle = true,
   style,
   activeOffsetY,
@@ -129,9 +141,11 @@ const BottomSheet = ({
     insets.bottom;
 
   const snapPoints = useMemo(
-    () =>
-      fitContent ? undefined : [height],
-    [fitContent, height],
+    () => {
+      if (fitContent) return undefined;
+      return snapPointsProp ?? [height];
+    },
+    [fitContent, height, snapPointsProp],
   );
 
   // BottomSheetView는 마운트되면 스스로를 "현재 스크롤 가능한
@@ -165,6 +179,8 @@ const BottomSheet = ({
       activeOffsetY={activeOffsetY}
       failOffsetX={failOffsetX}
       onClose={onClose}
+      animatedIndex={animatedIndex}
+      footerComponent={footerComponent}
       handleComponent={
         showDragHandle
           ? DragHandle
@@ -237,7 +253,7 @@ const styles = StyleSheet.create({
 
   dragHandleTouchArea: {
     width: '100%',
-    minHeight: 28,
+    minHeight: DRAG_HANDLE_HEIGHT,
 
     paddingTop: padding.XS,
 
