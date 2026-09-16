@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 import {
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 import {
@@ -90,7 +90,11 @@ const ListRow = ({
         </View>
 
         {isRecipient && isMe && (
-          <View style={styles.meButton}>
+          // 표시용 배지라 탭은 바깥 행으로 넘깁니다
+          <View
+            pointerEvents="none"
+            style={styles.meButton}
+          >
             <TextButton
               variant={TEXT_BUTTON_VARIANT.SOLID}
               size={TEXT_BUTTON_SIZE.S}

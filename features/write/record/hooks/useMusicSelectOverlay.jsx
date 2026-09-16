@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { Keyboard } from 'react-native';
 
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 import MusicSelectBottomSheet from '../../music/components/MusicSelectBottomSheet';
+import { dismissKeyboardThen } from '../../../../shared/utils/keyboardUtils';
 import { fullScreenOverlayContainerStyle } from '../../utils/overlayContainerStyle';
 
 /*
@@ -13,13 +13,13 @@ export const useMusicSelectOverlay = overlayId => {
   const { openOverlay } = useGlobalOverlay();
 
   const handleOpenMusicSelect = useCallback(() => {
-    Keyboard.dismiss();
-
-    openOverlay({
-      id: overlayId,
-      accessibilityLabel: '음악 선택 닫기',
-      contentContainerStyle: fullScreenOverlayContainerStyle,
-      renderContent: ({ close }) => <MusicSelectBottomSheet onClose={close} />,
+    dismissKeyboardThen(() => {
+      openOverlay({
+        id: overlayId,
+        accessibilityLabel: '음악 선택 닫기',
+        contentContainerStyle: fullScreenOverlayContainerStyle,
+        renderContent: ({ close }) => <MusicSelectBottomSheet onClose={close} />,
+      });
     });
   }, [openOverlay, overlayId]);
 

@@ -245,10 +245,12 @@ const GlobalOverlayProvider = ({
       );
     }, []);
 
+  // 오버레이 열림 상태(overlay)는 value에 넣지 않습니다.
+  // 넣으면 열고 닫을 때마다 useGlobalOverlay를 쓰는 모든 화면이
+  // 리렌더되어 시트가 올라가는 프레임이 끊깁니다.
+  // 현재 열린 오버레이는 isOverlayOpen(id)으로 확인합니다.
   const contextValue =
     useMemo(() => ({
-      activeOverlayId:
-        overlay?.id ?? null,
       openOverlay,
       closeOverlay,
       isOverlayOpen,
@@ -259,7 +261,6 @@ const GlobalOverlayProvider = ({
       hideToast,
       isOverlayOpen,
       openOverlay,
-      overlay?.id,
       showToast,
     ]);
 

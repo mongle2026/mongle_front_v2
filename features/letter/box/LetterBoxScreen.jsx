@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useQueryClient } from '@tanstack/react-query';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/action/WriteFab';
 import TopNavigation, { LETTER_TOP_NAVIGATION_TABS } from '../../../shared/components/navigation/topnavigation/TopNavigation';
@@ -10,6 +11,7 @@ import { colors } from '../../../shared/styles/color';
 
 import LetterSection from './components/LetterSection';
 import StampSection from './components/StampSection';
+import { prefetchStampDetail } from '../../stamp/detail/hooks/useStampDetail';
 
 const LETTER_BOX_TAB = {
   LETTER: 'letter',
@@ -26,6 +28,7 @@ const LETTER_BOX_TAB_LABELS = LETTER_BOX_TABS.map(tab => tab.label);
 
 const LetterBoxScreen = ({ navigation }) => {
   const { userId } = useCurrentUser();
+  const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState(LETTER_BOX_TAB.LETTER);
   const activeTabIndex = LETTER_BOX_TABS.findIndex(tab => tab.key === activeTab);
@@ -45,8 +48,9 @@ const LetterBoxScreen = ({ navigation }) => {
   }, [navigation]);
 
   const handlePressStamp = useCallback(stampCode => {
+    prefetchStampDetail(queryClient, { stampCode, userId });
     navigation.navigate('StampDetail', { stampCode });
-  }, [navigation]);
+  }, [navigation, queryClient, userId]);
 
   return (
     <View style={styles.screen}>

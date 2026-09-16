@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 import { colors } from '../../../../shared/styles/color';
@@ -18,13 +19,27 @@ import { padding } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
 
 import IconButton from '../../../../shared/components/action/IconButton';
-import Item from './Item';
+import Item, { CALENDAR_ITEM_SIZE } from './Item';
 
 const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 const DAYS_PER_WEEK = 7;
 const WEEK_COUNT = 6;
 const CALENDAR_CELL_COUNT = DAYS_PER_WEEK * WEEK_COUNT;
+
+const DAYS_GAP = padding.XS;
+const CALENDAR_HORIZONTAL_PADDING = padding.XL;
+
+/**
+ * 날짜 영역 높이 (6주 고정)
+ *
+ * 시트가 콘텐츠 높이에 맞춰 뜨기 때문에(fitContent),
+ * 첫 프레임부터 높이를 정해 둬야 올라가는 도중에
+ * 높이가 바뀌어 시트가 다시 스냅되지 않습니다.
+ */
+const DAYS_HEIGHT =
+  CALENDAR_ITEM_SIZE * WEEK_COUNT +
+  DAYS_GAP * (WEEK_COUNT - 1);
 
 const Calendar = ({
   selectedDate = null,
@@ -51,8 +66,18 @@ const Calendar = ({
    */
   const lastAutoMovedDateRef = useRef(null);
 
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
-  const [pageWidth, setPageWidth] = useState(0);
+  const { width: windowWidth } = useWindowDimensions();
+
+  /**
+   * 페이지 폭
+   *
+   * onLayout을 기다리면 첫 프레임에 달력이 비어 있다가
+   * 다음 프레임에 그려지므로, 화면 폭 기준 값으로 바로 그리고
+   * 실제 폭이 다르면 onLayout에서 보정합니다.
+   */
+  const [pageWidth, setPageWidth] = useState(
+    () => windowWidth - CALENDAR_HORIZONTAL_PADDING * 2,
+  );
 
   /**
    * 오늘
@@ -133,6 +158,17 @@ const Calendar = ({
     return result;
   }, [today, maxDate]);
 
+  /**
+   * 처음 선택된 날짜가 있는 달에서 바로 시작합니다.
+   * (0번째 달을 그렸다가 스크롤해 이동하지 않도록)
+   */
+  const [initialMonthIndex] = useState(() =>
+    Math.max(0, findMonthIndex(months, selectedDate)),
+  );
+
+  const [currentMonthIndex, setCurrentMonthIndex] =
+    useState(initialMonthIndex);
+
   const currentMonth = months[currentMonthIndex];
 
   const isFirstMonth = currentMonthIndex === 0;
@@ -180,18 +216,8 @@ const Calendar = ({
       return;
     }
 
-    const selected =
-      startOfDay(selectedDate);
-
     const targetMonthIndex =
-      months.findIndex(month => {
-        return (
-          month.getFullYear() ===
-          selected.getFullYear() &&
-          month.getMonth() ===
-          selected.getMonth()
-        );
-      });
+      findMonthIndex(months, selectedDate);
 
     if (targetMonthIndex < 0) {
       return;
@@ -256,7 +282,11 @@ const Calendar = ({
     const width = event.nativeEvent.layout.width;
 
     if (width > 0) {
-      setPageWidth(width);
+      setPageWidth(previous =>
+        Math.abs(previous - width) < 1
+          ? previous
+          : width,
+      );
     }
   }, []);
 
@@ -357,6 +387,7 @@ const Calendar = ({
               }
               renderItem={renderMonth}
               getItemLayout={getItemLayout}
+              initialScrollIndex={initialMonthIndex}
               onMomentumScrollEnd={
                 handleMomentumScrollEnd
               }
@@ -435,15 +466,15 @@ const MonthPage = memo(
                 <Item
                   key={normalizedDate.getTime()}
                   state={state}
-                  onPress={() => {
-                    if (isDisabled) {
-                      return;
-                    }
-
-                    onSelectDate?.(
-                      new Date(normalizedDate),
-                    );
-                  }}
+                  onPress={
+                    isDisabled
+                      ? undefined
+                      : () => {
+                        onSelectDate?.(
+                          new Date(normalizedDate),
+                        );
+                      }
+                  }
                 >
                   {normalizedDate.getDate()}
                 </Item>
@@ -515,6 +546,17 @@ const createMonthWeeks = month => {
   return weeks;
 };
 
+const findMonthIndex = (months, date) => {
+  if (!date) {
+    return -1;
+  }
+
+  return months.findIndex(month => (
+    month.getFullYear() === date.getFullYear() &&
+    month.getMonth() === date.getMonth()
+  ));
+};
+
 const startOfDay = date => {
   const result = new Date(date);
 
@@ -537,7 +579,7 @@ const isSameDate = (dateA, dateB) => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    paddingHorizontal: padding.XL,
+    paddingHorizontal: CALENDAR_HORIZONTAL_PADDING,
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: padding.XS,
@@ -578,6 +620,7 @@ const styles = StyleSheet.create({
    */
   daysViewport: {
     alignSelf: 'stretch',
+    height: DAYS_HEIGHT,
     overflow: 'hidden',
   },
 
@@ -585,7 +628,7 @@ const styles = StyleSheet.create({
   containerDays: {
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: padding.XS,
+    gap: DAYS_GAP,
   },
 
   // container_week
@@ -603,8 +646,8 @@ const styles = StyleSheet.create({
    * 요일 위치가 틀어지지 않도록 공간만 차지합니다.
    */
   emptyItem: {
-    width: 48,
-    height: 48,
+    width: CALENDAR_ITEM_SIZE,
+    height: CALENDAR_ITEM_SIZE,
   },
 });
 

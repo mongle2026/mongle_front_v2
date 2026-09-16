@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 
 import { resolveEnvelope } from '../../../../shared/utils/envelopeUtils';
 

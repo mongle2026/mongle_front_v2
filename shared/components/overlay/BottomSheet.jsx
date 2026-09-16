@@ -1,6 +1,10 @@
 import React, {
+  createContext,
+  useCallback,
+  useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -44,6 +48,15 @@ export const DRAG_HANDLE_HEIGHT = 28;
 const MAX_LIST_HEIGHT =
   Dimensions.get('window').height;
 
+// 시트 콘텐츠(리스트 data)를 채워도 되는 시점인지 알려주는 context.
+// BottomSheet 밖에서 쓰면 바로 채웁니다.
+const BottomSheetContentReadyContext =
+  createContext(true);
+
+// 시트를 연 뒤 레이아웃 계산이 늦어 snapToIndex가 무시될 때
+// 다시 시도할 최대 프레임 수 (약 1초)
+const MAX_OPEN_ATTEMPTS = 60;
+
 /**
  * BottomSheet의 children으로 넣는 FlatList입니다.
  * 리스트가 맨 위(top)에서 딱 멈추고, 그 상태에서 이어서 당기면
@@ -51,39 +64,21 @@ const MAX_LIST_HEIGHT =
  *
  * data가 react-query 캐시 등으로 마운트와 "동시에" 채워져 있으면
  * (예: 시트를 한 번 닫았다 다시 열었을 때) gorhom이 스크롤 연동을
- * 제대로 못 잡는 경우가 있습니다. 처음 로딩될 때(데이터가 나중에
- * 비동기로 채워질 때)는 문제가 없어서, 마운트 첫 프레임엔 항상
- * 빈 배열을 주고 실제 data로 바꿔서 이 타이밍을 인위적으로
- * 맞춰줍니다.
+ * 제대로 못 잡는 경우가 있습니다. 그래서 마운트 첫 프레임엔 항상
+ * 빈 배열을 주고, BottomSheet가 gorhom 내부 초기화를 기다린 뒤
+ * (두 번의 requestAnimationFrame) 알려주면 실제 data로 바꿉니다.
  *
- * useEffect 한 틱만으로는 gorhom 내부 초기화가 아직 안 끝난
- * 경우가 있어서(기기 성능에 따라 들쭉날쭉하게 재현됨) 두 번의
- * requestAnimationFrame으로 실제 화면이 최소 한 프레임 이상
- * 그려진 뒤에 데이터를 채우도록 넉넉하게 미룹니다.
+ * 시트는 이 data까지 그려진 뒤에 올라가기 시작하므로, 리스트 행이
+ * 마운트되는 비용이 올라가는 애니메이션 프레임과 겹치지 않습니다.
  */
 export const BottomSheetFlatList = ({
   style,
   data,
   ...props
 }) => {
-  const [isReady, setIsReady] =
-    useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!cancelled) {
-          setIsReady(true);
-        }
-      });
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const isContentReady = useContext(
+    BottomSheetContentReadyContext,
+  );
 
   return (
     <GorhomBottomSheetFlatList
@@ -92,7 +87,7 @@ export const BottomSheetFlatList = ({
         style,
       ]}
       data={
-        isReady ? data : []
+        isContentReady ? data : []
       }
       {...props}
     />
@@ -112,7 +107,10 @@ const DragHandle = () => (
 // animatedIndex: 시트의 현재 위치를 snapPoint index로 받는 SharedValue
 // (예: 0.5 = 0번과 1번 사이). 드래그 중에도 실제 위치를 따라갑니다.
 // footerComponent: 시트의 보이는 하단에 붙어 다니는 요소 (gorhom BottomSheetFooter로 감싸서 넘깁니다)
+// ready: false인 동안은 닫힌 위치에서 콘텐츠만 미리 그려두고 올라가지 않습니다.
+// (예: 데이터를 불러와 높이가 정해진 뒤에 열어서, 올라가는 도중 높이가 바뀌지 않게)
 const BottomSheet = ({
+  ready = true,
   children,
   height = DEFAULT_HEIGHT,
   snapPoints: snapPointsProp,
@@ -160,71 +158,147 @@ const BottomSheet = ({
     ? BottomSheetView
     : View;
 
+  const sheetRef = useRef(null);
+  const hasStartedOpeningRef =
+    useRef(false);
+
+  // 마운트 직후에는 gorhom 내부 초기화가 끝나지 않아서
+  // 리스트 data는 두 프레임 뒤에 채웁니다. (BottomSheetFlatList 참고)
+  const [isContentReady, setIsContentReady] =
+    useState(false);
+
+  useEffect(() => {
+    let frameId = requestAnimationFrame(() => {
+      frameId = requestAnimationFrame(() => {
+        setIsContentReady(true);
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  // 시트는 닫힌 위치(index -1)에 마운트해 콘텐츠를 먼저 다 그린 뒤,
+  // 그 다음 프레임부터 올립니다. 마운트/레이아웃 비용이
+  // 올라가는 애니메이션과 겹치면 프레임이 끊기기 때문입니다.
+  // gorhom은 레이아웃 계산 전에 snapToIndex를 부르면 조용히
+  // 무시하므로, 올라가기 시작할 때까지 프레임마다 다시 시도합니다.
+  useEffect(() => {
+    if (
+      !ready ||
+      !isContentReady ||
+      hasStartedOpeningRef.current
+    ) {
+      return undefined;
+    }
+
+    let attempts = 0;
+    let frameId;
+
+    const tryOpen = () => {
+      if (
+        hasStartedOpeningRef.current ||
+        attempts >= MAX_OPEN_ATTEMPTS
+      ) {
+        return;
+      }
+
+      attempts += 1;
+      sheetRef.current?.snapToIndex(0);
+      frameId =
+        requestAnimationFrame(tryOpen);
+    };
+
+    frameId =
+      requestAnimationFrame(tryOpen);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
+  }, [ready, isContentReady]);
+
+  const handleAnimate = useCallback(
+    (fromIndex, toIndex) => {
+      if (toIndex >= 0) {
+        hasStartedOpeningRef.current =
+          true;
+      }
+    },
+    [],
+  );
+
   return (
-    <GorhomBottomSheet
-      index={0}
-      snapPoints={snapPoints}
-      enableDynamicSizing={fitContent}
-      maxDynamicContentSize={
-        fitContent
-          ? maxFitContentHeight
-          : undefined
-      }
-      topInset={insets.top}
-      enablePanDownToClose
-      // content 전체를 내려서 닫을 수 있게 하면서(enablePanDownToClose)도
-      // 가로로 스와이프하는 내부 콘텐츠(예: Calendar)가 있는 경우
-      // 세로 제스처가 먼저 선점해버릴 수 있어, 필요한 곳에서만
-      // 방향 임계값을 좁혀 넘겨줄 수 있게 pass-through 합니다.
-      activeOffsetY={activeOffsetY}
-      failOffsetX={failOffsetX}
-      onClose={onClose}
-      animatedIndex={animatedIndex}
-      footerComponent={footerComponent}
-      handleComponent={
-        showDragHandle
-          ? DragHandle
-          : null
-      }
-      backgroundStyle={styles.background}
-      style={[styles.container, style]}
+    <BottomSheetContentReadyContext.Provider
+      value={isContentReady}
     >
-      <ContentWrapper
-        style={[
-          styles.content,
-
+      <GorhomBottomSheet
+        ref={sheetRef}
+        index={-1}
+        onAnimate={handleAnimate}
+        snapPoints={snapPoints}
+        enableDynamicSizing={fitContent}
+        maxDynamicContentSize={
           fitContent
-            ? styles.fitContent
-            : styles.fixedContent,
-
-          !fitContent && {
-            paddingBottom:
-              insets.bottom +
-              padding.XS,
-          },
-        ]}
+            ? maxFitContentHeight
+            : undefined
+        }
+        topInset={insets.top}
+        enablePanDownToClose
+        // content 전체를 내려서 닫을 수 있게 하면서(enablePanDownToClose)도
+        // 가로로 스와이프하는 내부 콘텐츠(예: Calendar)가 있는 경우
+        // 세로 제스처가 먼저 선점해버릴 수 있어, 필요한 곳에서만
+        // 방향 임계값을 좁혀 넘겨줄 수 있게 pass-through 합니다.
+        activeOffsetY={activeOffsetY}
+        failOffsetX={failOffsetX}
+        onClose={onClose}
+        animatedIndex={animatedIndex}
+        footerComponent={footerComponent}
+        handleComponent={
+          showDragHandle
+            ? DragHandle
+            : null
+        }
+        backgroundStyle={styles.background}
+        style={[styles.container, style]}
       >
-        {children}
+        <ContentWrapper
+          style={[
+            styles.content,
 
-        {/*
-          gorhom의 enableDynamicSizing은 컨테이너에 준
-          paddingBottom을 콘텐츠 높이 계산에 반영하지 않습니다
-          (실측 결과 paddingBottom 값을 아무리 키워도 시트 높이가
-          전혀 변하지 않음 - Android 하단 내비게이션 바와 겹치는
-          원인). 자식 엘리먼트로 실제 높이를 차지하는 View를 넣어야
-          측정에 반영됩니다.
-        */}
-        {fitContent && (
-          <View
-            style={{
-              height:
+            fitContent
+              ? styles.fitContent
+              : styles.fixedContent,
+
+            !fitContent && {
+              paddingBottom:
                 insets.bottom +
                 padding.XS,
-            }}
-          />
-        )}
-      </ContentWrapper>
-    </GorhomBottomSheet>
+            },
+          ]}
+        >
+          {children}
+
+          {/*
+            gorhom의 enableDynamicSizing은 컨테이너에 준
+            paddingBottom을 콘텐츠 높이 계산에 반영하지 않습니다
+            (실측 결과 paddingBottom 값을 아무리 키워도 시트 높이가
+            전혀 변하지 않음 - Android 하단 내비게이션 바와 겹치는
+            원인). 자식 엘리먼트로 실제 높이를 차지하는 View를 넣어야
+            측정에 반영됩니다.
+          */}
+          {fitContent && (
+            <View
+              style={{
+                height:
+                  insets.bottom +
+                  padding.XS,
+              }}
+            />
+          )}
+        </ContentWrapper>
+      </GorhomBottomSheet>
+    </BottomSheetContentReadyContext.Provider>
   );
 };
 

@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 
 import { colors } from '../../styles/color';
 import { padding, radius } from '../../styles/token';

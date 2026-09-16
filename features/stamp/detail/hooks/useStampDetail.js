@@ -43,20 +43,36 @@ function normalizeStampDetail(data) {
   };
 }
 
+const findStamp = stampCode => STAMPS.find(item => item.id === stampCode) ?? null;
+
+const isStampDetailConfigured = ({ stampCode, userId }) =>
+  Boolean(API_BASE_URL && Number(userId) > 0 && findStamp(stampCode));
+
+// queryKey는 ['letterbox', 'stamp', ...]로 둔다 (편지 전송/읽음/삭제 시 함께 갱신된다).
+const getStampDetailQueryOptions = ({ stampCode, userId }) => ({
+  queryKey: ['letterbox', 'stamp', Number(userId), stampCode],
+  queryFn: async () => {
+    const response = await axios.get(`${API_BASE_URL}/stamp/${stampCode}`, { params: { userId } });
+    return normalizeStampDetail(response.data);
+  },
+});
+
+// 우표를 누르는 순간 불러오기 시작해서, 우표 상세 시트가 뜰 때는 데이터가 준비되어 있게 한다.
+// (시트가 올라가는 도중에 데이터가 들어와 높이가 바뀌면 프레임이 끊긴다)
+export const prefetchStampDetail = (queryClient, { stampCode, userId }) => {
+  if (!isStampDetailConfigured({ stampCode, userId })) return;
+  void queryClient.prefetchQuery(getStampDetailQueryOptions({ stampCode, userId }));
+};
+
 // 우표 상세 조회. GET /stamp/:code?userId=
 // 우표 이미지는 프론트(envelopeData)에서 code로 관리하므로 로컬에서 찾는다.
-// queryKey는 ['letterbox', 'stamp', ...]로 둔다 (편지 전송/읽음/삭제 시 함께 갱신된다).
 const useStampDetail = ({ stampCode, userId } = {}) => {
-  const stamp = useMemo(() => STAMPS.find(item => item.id === stampCode) ?? null, [stampCode]);
-  const isConfigured = Boolean(API_BASE_URL && Number(userId) > 0 && stamp);
+  const stamp = useMemo(() => findStamp(stampCode), [stampCode]);
+  const isConfigured = isStampDetailConfigured({ stampCode, userId });
 
   const { data: detail, error, isLoading, refetch } = useQuery({
-    queryKey: ['letterbox', 'stamp', Number(userId), stampCode],
+    ...getStampDetailQueryOptions({ stampCode, userId }),
     enabled: isConfigured,
-    queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/stamp/${stampCode}`, { params: { userId } });
-      return normalizeStampDetail(response.data);
-    },
   });
 
   return {

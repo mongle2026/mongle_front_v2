@@ -1,9 +1,12 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 
 import { colors } from '../../../../shared/styles/color';
 import { radius } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
+
+export const CALENDAR_ITEM_SIZE = 48;
 
 const Item = ({
   children,
@@ -13,11 +16,24 @@ const Item = ({
   const isDisabled = state === 'disabled';
   const isCurrent = state === 'current';
 
+  /**
+   * 요일 헤더 / 선택 불가 날짜처럼 누를 일이 없는 칸은 View로 그립니다.
+   * Pressable(gesture-handler)은 칸마다 native 제스처 핸들러를 만들어
+   * 달력 한 달(최대 42칸)을 마운트하는 비용이 커지기 때문입니다.
+   */
+  const Container =
+    onPress && !isDisabled
+      ? Pressable
+      : View;
+
   return (
-    <Pressable
+    <Container
       style={styles.container}
-      onPress={onPress}
-      disabled={isDisabled}
+      onPress={
+        Container === Pressable
+          ? onPress
+          : undefined
+      }
     >
       <View
         style={[
@@ -35,7 +51,7 @@ const Item = ({
           {children}
         </Text>
       </View>
-    </Pressable>
+    </Container>
   );
 };
 
@@ -43,8 +59,8 @@ export default Item;
 
 const styles = StyleSheet.create({
   container: {
-    width: 48,
-    height: 48,
+    width: CALENDAR_ITEM_SIZE,
+    height: CALENDAR_ITEM_SIZE,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',

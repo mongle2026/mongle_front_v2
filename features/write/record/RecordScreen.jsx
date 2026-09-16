@@ -18,6 +18,7 @@ import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvide
 import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { resolveMediaUri } from '../../../shared/utils/media';
+import { dismissKeyboardThen } from '../../../shared/utils/keyboardUtils';
 
 // Shared Styles
 import { colors } from '../../../shared/styles/color';
@@ -297,15 +298,15 @@ const RecordScreen = ({ navigation, route }) => {
 
   /* 수신인 선택 BottomSheet 열기 */
   const handleOpenRecipientSelect = useCallback(() => {
-    Keyboard.dismiss();
-
-    openOverlay({
-      id: RECIPIENT_SELECT_OVERLAY_ID,
-      accessibilityLabel: '수신인 선택 닫기',
-      contentContainerStyle: fullScreenOverlayContainerStyle,
-      renderContent: ({ close }) => (
-        <RecipientSelectBottomSheet currentUserId={userId} onClose={close} />
-      ),
+    dismissKeyboardThen(() => {
+      openOverlay({
+        id: RECIPIENT_SELECT_OVERLAY_ID,
+        accessibilityLabel: '수신인 선택 닫기',
+        contentContainerStyle: fullScreenOverlayContainerStyle,
+        renderContent: ({ close }) => (
+          <RecipientSelectBottomSheet currentUserId={userId} onClose={close} />
+        ),
+      });
     });
   }, [openOverlay, userId]);
 
@@ -323,20 +324,20 @@ const RecordScreen = ({ navigation, route }) => {
   );
 
   const handleOpenDateSelect = useCallback(() => {
-    Keyboard.dismiss();
-
-    openOverlay({
-      id: DATE_SELECT_OVERLAY_ID,
-      accessibilityLabel: '날짜 선택 닫기',
-      contentContainerStyle: fullScreenOverlayContainerStyle,
-      renderContent: ({ close }) => (
-        <DateSelectBottomSheet
-          initialDate={deliveryAtToDate(deliveryAt)}
-          allowToday={canSelectToday}
-          onConfirm={handleConfirmDate}
-          onClose={close}
-        />
-      ),
+    dismissKeyboardThen(() => {
+      openOverlay({
+        id: DATE_SELECT_OVERLAY_ID,
+        accessibilityLabel: '날짜 선택 닫기',
+        contentContainerStyle: fullScreenOverlayContainerStyle,
+        renderContent: ({ close }) => (
+          <DateSelectBottomSheet
+            initialDate={deliveryAtToDate(deliveryAt)}
+            allowToday={canSelectToday}
+            onConfirm={handleConfirmDate}
+            onClose={close}
+          />
+        ),
+      });
     });
   }, [openOverlay, deliveryAt, handleConfirmDate, canSelectToday]);
 

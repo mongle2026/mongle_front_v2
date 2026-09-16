@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { BottomSheetFooter } from '@gorhom/bottom-sheet';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -26,6 +26,15 @@ import StampSummary, { ESTIMATED_COLLAPSE_DISTANCE } from './StampSummary';
 // 실제 높이는 StampSummary 가 알려주는 값과 불러온 뒤 onLayout 으로 잰 프로필 줄 높이로 바꾼다.
 const ESTIMATED_SUMMARY_HEIGHT = 293; // 우표 233 + gap 12 + 텍스트 48
 const ESTIMATED_PROFILE_ROW_HEIGHT = 100;
+
+// 데이터가 늦게 오면 이 시간만큼만 기다렸다가 어림값 높이로 먼저 연다
+const MAX_OPEN_WAIT_MS = 500;
+
+// 처음 높이에서는 편지가 보이지 않으므로 처음엔 조금만 그린다.
+// 편지 한 장이 큰 SVG(봉투 + 우표)라 한 번에 많이 마운트하면 시트가 뜰 때 프레임이 끊긴다.
+const LETTER_INITIAL_NUM_TO_RENDER = 2;
+const LETTER_MAX_TO_RENDER_PER_BATCH = 2;
+const LETTER_WINDOW_SIZE = 5;
 
 // 시트 하단 그라데이션 (이 시트 전용)
 const BOTTOM_FADE_HEIGHT = 40;
@@ -70,6 +79,29 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
   const [summaryHeight, setSummaryHeight] = useState(ESTIMATED_SUMMARY_HEIGHT);
   const [profileRowHeight, setProfileRowHeight] = useState(ESTIMATED_PROFILE_ROW_HEIGHT);
   const topSectionHeight = summaryHeight + profileRowHeight;
+
+  // 시트는 데이터를 받고 프로필 줄 높이까지 반영된 뒤에 올린다.
+  // 올라가는 도중에 snapPoints 가 바뀌면 시트가 다시 스냅되며 튀기 때문이다.
+  const [isLayoutSettled, setIsLayoutSettled] = useState(false);
+  const [isWaitExpired, setIsWaitExpired] = useState(false);
+
+  useEffect(() => {
+    if (!detail) return undefined;
+
+    // 불러온 뒤 프로필 줄 onLayout(높이 반영)이 처리될 때까지 두 프레임 기다린다
+    let frameId = requestAnimationFrame(() => {
+      frameId = requestAnimationFrame(() => setIsLayoutSettled(true));
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [detail]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => setIsWaitExpired(true), MAX_OPEN_WAIT_MS);
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  const isReadyToOpen = isLayoutSettled || isWaitExpired;
 
   // 처음 높이: 프로필 줄이 하단 내비게이션 바에 가리지 않고 다 보이도록 한다.
   // 하단 그라데이션이 프로필 줄의 아래 padding(XL)을 넘어 이름까지 덮지 않게도 확보한다.
@@ -154,6 +186,7 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
 
   return (
     <BottomSheet
+      ready={isReadyToOpen}
       snapPoints={snapPoints}
       animatedIndex={animatedIndex}
       onClose={onClose}
@@ -171,6 +204,9 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
         style={{ marginBottom: -listBottomSpace }}
         contentContainerStyle={[styles.letterContainer, { paddingBottom: listBottomSpace }]}
         showsVerticalScrollIndicator={false}
+        initialNumToRender={LETTER_INITIAL_NUM_TO_RENDER}
+        maxToRenderPerBatch={LETTER_MAX_TO_RENDER_PER_BATCH}
+        windowSize={LETTER_WINDOW_SIZE}
       />
     </BottomSheet>
   );
