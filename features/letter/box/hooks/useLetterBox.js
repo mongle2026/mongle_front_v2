@@ -38,6 +38,7 @@ export function normalizeLetterboxItem(item) {
     recipientName: item.receiver?.nickname ?? '',
     senderName: item.sender?.nickname ?? '',
     receivedAt: item.deliveryAt,
+    createdAt: item.createdAt,
     isRead: Boolean(item.isRead),
     isSent,
     isSender,

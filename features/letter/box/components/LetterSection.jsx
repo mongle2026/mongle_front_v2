@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import Empty from '../../../../shared/components/content/Empty';
-import Tabs from '../../../../shared/components/navigation/tabs/Tabs';
+import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../../shared/components/navigation/tabs/Tabs';
 import { gap, padding } from '../../../../shared/styles/token';
 
 import Card from '../../components/Card';
@@ -39,8 +39,25 @@ const EMPTY_LETTER_BODY = '전송 예정인 편지는 잘 배송되고 있어요
 // bottomInset: 목록 하단이 FAB에 가려지지 않도록 확보할 여백
 // onPressLetter: 편지 카드를 누르면 letter 객체와 함께 호출
 const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
-  const [activeFilter, setActiveFilter] = useState(LETTER_FILTER.ALL);
+  // 기본 필터가 정해지기 전에는 null
+  const [activeFilter, setActiveFilter] = useState(null);
+
+  // 안 읽은 편지가 있으면 '안 읽음', 모두 읽었으면 '전체 편지'가 기본 화면이다
+  const { letters: unreadQueryLetters, isLoading: isUnreadLoading } = useLetterBox({
+    userId,
+    filter: LETTER_FILTER.UNREAD,
+  });
+  const hasUnread = unreadQueryLetters.some(letter => !letter.isRead);
+
+  // 기본 필터는 편지 탭에 들어올 때 한 번만 정한다.
+  // 상세에서 마지막 안 읽은 편지를 읽고 돌아와도 '전체 편지'로 넘어가지 않고 엠티뷰를 보여준다
+  if (activeFilter === null && !isUnreadLoading) {
+    setActiveFilter(hasUnread ? LETTER_FILTER.UNREAD : LETTER_FILTER.ALL);
+  }
+
   const activeFilterIndex = LETTER_FILTERS.findIndex(filter => filter.key === activeFilter);
+  // 기본 필터를 정하는 중에는 목록을 그리지 않는다 (전체 → 안 읽음으로 깜빡이지 않게)
+  const isDecidingFilter = activeFilter === null;
 
   const { letters, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useLetterBox({
     userId,
@@ -52,7 +69,7 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   // 상세에서 읽음 처리된 편지는 안 읽음 목록에서 바로 뺀다 (useLetterDetail 이 캐시의 isRead 를 갱신)
   const unreadLetters = useMemo(() => letters.filter(letter => !letter.isRead), [letters]);
   const visibleLetters = isUnread ? unreadLetters : letters;
-  const isEmpty = !isLoading && visibleLetters.length === 0;
+  const isEmpty = !isDecidingFilter && !isLoading && visibleLetters.length === 0;
 
   const handleChangeFilter = useCallback(index => {
     setActiveFilter(LETTER_FILTERS[index].key);
@@ -86,28 +103,41 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
         />
       )}
 
-      {!isEmpty && isUnread && (
-        <UnreadLetterStack
-          letters={unreadLetters}
-          bottomInset={bottomInset}
-          onPressLetter={onPressLetter}
-          onScroll={handleScroll}
-        />
-      )}
+      {/* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */}
+      {!isDecidingFilter && !isEmpty && (
+        <View style={styles.listContainer}>
+          {isUnread && (
+            <UnreadLetterStack
+              topInset={TABS_BOTTOM_FADE_HEIGHT}
+              letters={unreadLetters}
+              bottomInset={bottomInset}
+              onPressLetter={onPressLetter}
+              onScroll={handleScroll}
+            />
+          )}
 
-      {!isEmpty && !isUnread && (
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: bottomInset }}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.letterContainer}>
-            {letters.map(letter => (
-              <Card key={letter.letterId} letter={letter} onPress={() => onPressLetter?.(letter)} />
-            ))}
-          </View>
-        </ScrollView>
+          {!isUnread && (
+            <ScrollView
+              contentContainerStyle={{
+                paddingTop: TABS_BOTTOM_FADE_HEIGHT,
+                paddingBottom: bottomInset,
+              }}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.letterContainer}>
+                {letters.map(letter => (
+                  <Card
+                    key={letter.letterId}
+                    letter={letter}
+                    onPress={() => onPressLetter?.(letter)}
+                  />
+                ))}
+              </View>
+            </ScrollView>
+          )}
+        </View>
       )}
     </View>
   );
@@ -117,6 +147,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+  },
+  listContainer: {
+    flex: 1,
+    marginTop: -TABS_BOTTOM_FADE_HEIGHT,
   },
   letterContainer: {
     display: 'flex',
