@@ -1,8 +1,14 @@
 import { memo, useCallback, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { BottomSheetFooter } from '@gorhom/bottom-sheet';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Extrapolation, interpolate, useDerivedValue, useSharedValue } from 'react-native-reanimated';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import BottomSheet, {
@@ -14,7 +20,7 @@ import { gap, padding } from '../../../../shared/styles/token';
 
 import SenderProfileList from './SenderProfileList';
 import StampLetterItem from './StampLetterItem';
-import StampSummary from './StampSummary';
+import StampSummary, { ESTIMATED_COLLAPSE_DISTANCE } from './StampSummary';
 
 // 처음 뜰 때 보여줄 상단 영역(우표 + 텍스트 + 프로필 줄) 높이의 어림값.
 // 실제 높이는 StampSummary 가 알려주는 값과 불러온 뒤 onLayout 으로 잰 프로필 줄 높이로 바꾼다.
@@ -33,10 +39,24 @@ const BottomFadeFooter = props => (
   </BottomSheetFooter>
 );
 
+// StampSummary 는 높이를 고정해 두고 처음 배치를 아래로 넘쳐 그려서,
+// 그 아래 요소는 offset 만큼 transform 으로만 내린다 (레이아웃을 매 프레임 바꾸지 않는다)
+const FollowSummary = ({ offset, style, onLayout, children }) => {
+  const offsetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: offset.value }],
+  }));
+
+  return (
+    <Animated.View style={[style, offsetStyle]} onLayout={onLayout}>
+      {children}
+    </Animated.View>
+  );
+};
+
 /**
  * 우표 상세 BottomSheet.
  * 처음에는 프로필 줄까지만 보이는 높이로 뜨고, 끌어올리면 전체 높이로 펼쳐지며
- * 끌어올린 만큼 상단이 가로 배치로 이어서 바뀌고 아래 편지 목록을 스크롤할 수 있다.
+ * 끌어올린 만큼 상단이 가로 배치로 이어서 바뀌고, 상단과 편지 목록이 함께 스크롤된다.
  *
  * @param {string} stampCode
  * @param {object|null} detail useStampDetail 의 detail (불러오기 전에는 null)
@@ -74,6 +94,19 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
     interpolate(animatedIndex.value, [0, 1], [0, 1], Extrapolation.CLAMP),
   );
 
+  // StampSummary 아래 요소(프로필 줄, 편지)를 내릴 거리. 끌어올린 만큼 줄어서 펼치면 0 이 된다.
+  const collapseDistance = useSharedValue(ESTIMATED_COLLAPSE_DISTANCE);
+  const belowSummaryOffset = useDerivedValue(
+    () => collapseDistance.value * (1 - layoutProgress.value),
+  );
+
+  const handleCollapseDistanceChange = useCallback(
+    distance => {
+      collapseDistance.value = distance;
+    },
+    [collapseDistance],
+  );
+
   // 프로필 줄 높이는 배치와 상관없지만, 불러오기 전에는 비어 있어서 불러온 뒤에만 잰다
   const handleProfileRowLayout = useCallback(
     event => {
@@ -84,8 +117,39 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
   );
 
   const renderLetter = useCallback(
-    ({ item }) => <StampLetterItem letter={item} onPress={onPressLetter} />,
-    [onPressLetter],
+    ({ item }) => (
+      <FollowSummary offset={belowSummaryOffset}>
+        <StampLetterItem letter={item} onPress={onPressLetter} />
+      </FollowSummary>
+    ),
+    [onPressLetter, belowSummaryOffset],
+  );
+
+  // 상단 영역도 편지 목록과 함께 스크롤되도록 목록의 header 로 넣는다
+  const listHeader = useMemo(
+    () => (
+      <>
+        <StampSummary
+          stampCode={stampCode}
+          count={detail?.count}
+          firstCollectedAt={detail?.firstCollectedAt}
+          progress={layoutProgress}
+          onCollapsedHeightChange={setSummaryHeight}
+          onCollapseDistanceChange={handleCollapseDistanceChange}
+        />
+        <FollowSummary offset={belowSummaryOffset} onLayout={handleProfileRowLayout}>
+          <SenderProfileList senders={detail?.senders ?? []} progress={layoutProgress} />
+        </FollowSummary>
+      </>
+    ),
+    [
+      stampCode,
+      detail,
+      layoutProgress,
+      belowSummaryOffset,
+      handleCollapseDistanceChange,
+      handleProfileRowLayout,
+    ],
   );
 
   return (
@@ -98,21 +162,12 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
       activeOffsetY={[-10, 10]}
       failOffsetX={[-10, 10]}
     >
-      <StampSummary
-        stampCode={stampCode}
-        count={detail?.count}
-        firstCollectedAt={detail?.firstCollectedAt}
-        progress={layoutProgress}
-        onCollapsedHeightChange={setSummaryHeight}
-      />
-      <View onLayout={handleProfileRowLayout}>
-        <SenderProfileList senders={detail?.senders ?? []} progress={layoutProgress} />
-      </View>
-
       <BottomSheetFlatList
         data={detail?.letters ?? []}
         keyExtractor={item => String(item.letterId)}
         renderItem={renderLetter}
+        ListHeaderComponent={listHeader}
+        ListHeaderComponentStyle={styles.listHeader}
         style={{ marginBottom: -listBottomSpace }}
         contentContainerStyle={[styles.letterContainer, { paddingBottom: listBottomSpace }]}
         showsVerticalScrollIndicator={false}
@@ -126,6 +181,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     gap: gap.M,
+  },
+  listHeader: {
+    // 목록은 가운데 정렬이라 header 는 폭 전체를 쓰게 하고,
+    // 목록의 gap 이 header 와 첫 편지 사이에 더해지지 않게 상쇄한다
+    alignSelf: 'stretch',
+    marginBottom: -gap.M,
   },
   bottomFade: {
     height: BOTTOM_FADE_HEIGHT,

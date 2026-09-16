@@ -44,5 +44,10 @@
   "private": true,
   "devDependencies": {
     "react-native-svg-transformer": "^1.5.3"
+  },
+  "reanimated": {
+    "staticFeatureFlags": {
+      "ANDROID_SYNCHRONOUSLY_UPDATE_UI_PROPS": true
+    }
   }
 }

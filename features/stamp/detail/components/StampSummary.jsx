@@ -46,18 +46,35 @@ const getExpandedHeight = textHeight => {
   return Math.max(EXPANDED_STAMP_HEIGHT, textHeight);
 };
 
+// 처음 높이와 끌어올린 높이의 차이. 이 컴포넌트 아래 요소는 이만큼 내려 두었다가 끌어올린 만큼 올린다.
+const getCollapseDistance = textHeight => getCollapsedHeight(textHeight) - getExpandedHeight(textHeight);
+
+export const ESTIMATED_COLLAPSE_DISTANCE = getCollapseDistance(ESTIMATED_TEXT_HEIGHT);
+
 /**
  * 우표 상세 BottomSheet 상단의 우표 + "n개 수집" / "최초 수집일 yy.mm.dd".
  * progress 를 따라 세로 배치(가운데 큰 우표 아래 텍스트)에서
  * 가로 배치(왼쪽 작은 우표 옆 텍스트)로 이어서 바뀐다.
+ *
+ * 레이아웃 높이는 끌어올린 높이로 고정하고, 처음 배치는 그 아래로 넘쳐서 그린다.
+ * 매 프레임 height 를 바꾸면 시트를 움직이는 동안 목록 전체 레이아웃을 다시 계산해서 프레임이 밀려 튀기 때문이다.
+ * 그래서 아래에 오는 요소는 onCollapseDistanceChange 로 받은 거리만큼 (1 - progress) 비율로 직접 내려야 한다.
  *
  * @param {string} stampCode
  * @param {number} [count] 불러오기 전에는 비워둔다
  * @param {string|Date} [firstCollectedAt]
  * @param {import('react-native-reanimated').SharedValue<number>} progress 0 = 처음 높이, 1 = 끌어올린 높이
  * @param {(height: number) => void} [onCollapsedHeightChange] 세로 배치일 때의 높이 (시트 처음 높이 계산용)
+ * @param {(distance: number) => void} [onCollapseDistanceChange] 세로 배치 높이 - 가로 배치 높이
  */
-const StampSummary = ({ stampCode, count, firstCollectedAt, progress, onCollapsedHeightChange }) => {
+const StampSummary = ({
+  stampCode,
+  count,
+  firstCollectedAt,
+  progress,
+  onCollapsedHeightChange,
+  onCollapseDistanceChange,
+}) => {
   const title = count == null ? EMPTY_TEXT : `${count}개 수집`;
   const caption = firstCollectedAt ? `최초 수집일 ${formatDate(firstCollectedAt)}` : EMPTY_TEXT;
 
@@ -69,17 +86,14 @@ const StampSummary = ({ stampCode, count, firstCollectedAt, progress, onCollapse
       const { height } = event.nativeEvent.layout;
       textHeight.value = height;
       onCollapsedHeightChange?.(Math.ceil(getCollapsedHeight(height)));
+      onCollapseDistanceChange?.(getCollapseDistance(height));
     },
-    [onCollapsedHeightChange, textHeight],
+    [onCollapsedHeightChange, onCollapseDistanceChange, textHeight],
   );
 
-  // 높이가 줄어드는 만큼 아래 프로필 줄과 편지 목록이 따라 올라온다
+  // progress 와 상관없이 텍스트 높이를 잰 뒤에만 한 번 바뀐다
   const containerStyle = useAnimatedStyle(() => ({
-    height: interpolate(
-      progress.value,
-      [0, 1],
-      [getCollapsedHeight(textHeight.value), getExpandedHeight(textHeight.value)],
-    ),
+    height: getExpandedHeight(textHeight.value),
   }));
 
   const stampStyle = useAnimatedStyle(() => {
@@ -129,7 +143,8 @@ const StampSummary = ({ stampCode, count, firstCollectedAt, progress, onCollapse
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'stretch',
-    overflow: 'hidden',
+    // 처음 배치는 고정한 높이 아래로 넘쳐서 그린다
+    overflow: 'visible',
   },
   layer: {
     position: 'absolute',
