@@ -19,8 +19,11 @@ const LETTER_HEIGHT = Math.round((LETTER_WIDTH * 232) / 320); // 원본 비율 �
 
 // 카드 높이: 디자인 기준 padding 포함 143px. read/unread 모두 동일하게 고정.
 const CARD_HEIGHT = 143;
-// read 카드의 CD 지름. 디자인은 104px이지만 카드 높이 143에 맞추기 위해 봉투 높이와 동일하게 축소.
-const CD_SIZE = LETTER_HEIGHT;
+// read 카드에서 우표 자리에 들어가는 CD 지름 (디자인 80x80)
+const CD_SIZE = 80;
+// 우표(44x64)는 봉투와 48px 겹친다. CD는 우표보다 16px 높으므로 64px 겹쳐 하단 위치를 우표와 맞춘다.
+const STAMP_OVERLAP = 48;
+const CD_OVERLAP = STAMP_OVERLAP + (CD_SIZE - 64);
 
 // unread dot 격자. 크기는 모두 같고, 제목/가수 글자 모양에 해당하는 dot만 색을 바꾼다.
 // rowPitch = dot 높이 + 줄 사이 여백 → 3줄 높이는 DOT_ROWS * rowPitch 가 된다.
@@ -34,7 +37,8 @@ const SINGER_DOT = { dotSize: 2, colGap: 2, rowPitch: 4 }; // 3줄 12px + paddin
  * @param {object}   [letter]
  * @param {string}   [letter.profileImageUri] 상대 프로필 이미지 (받은 편지: 보낸 사람, 보낸 편지: 받는 사람)
  * @param {string}   [letter.nickname]        상대 이름 (받은 편지: 보낸 사람, 보낸 편지: 받는 사람)
- * @param {string|number|Date} [letter.receivedAt] 받은 날짜
+ * @param {string|number|Date} [letter.receivedAt] 받은 날짜 (= deliveryAt)
+ * @param {string|number|Date} [letter.createdAt]  작성 날짜 (보낸 편지에서 receivedAt 앞에 함께 표기)
  * @param {boolean}  [letter.isSent]          보낸 편지 여부 (보낸 편지는 읽음 여부와 관계없이 점으로 가리지 않음)
  * @param {boolean}  [letter.isRead]          읽음 여부 (type 미지정 시 이 값으로 결정)
  * @param {{ title?: string, singer?: string, artworkUri?: string }} [letter.music] 음악 정보 (artworkUri: 앨범 커버, CD에 사용)
@@ -49,6 +53,7 @@ function Card({ letter = {}, type, onPress, style }) {
     profileImageUri,
     nickname = '',
     receivedAt,
+    createdAt,
     stampSource,
     isSent,
     isRead,
@@ -126,24 +131,28 @@ function Card({ letter = {}, type, onPress, style }) {
           <CaptionIcon width={14} height={14} color={colors.fgNeutralWeak} />
           <Text style={styles.caption}>{isSent ? '보낸 편지' : '받은 편지'}</Text>
           <View style={styles.captionDot} />
+          {isSent ? (
+            <>
+              <Text style={styles.caption}>{formatDate(createdAt)}</Text>
+              <Text style={styles.caption}>{'>'}</Text>
+            </>
+          ) : null}
           <Text style={styles.caption}>{formatDate(receivedAt)}</Text>
         </View>
       </View>
 
       {/* 두 번째 컨테이너 */}
       <View style={styles.secondContainer}>
-        {/* 보낸 편지 / 읽은 편지는 봉투 대신 앨범 커버를 씌운 CD */}
+        <Letter
+          type="front"
+          BackgroundSvg={FrontSvg}
+          FlapSvg={FlapSvg}
+          style={styles.letter}
+        />
+        {/* 보낸 편지 / 읽은 편지는 우표 자리에 앨범 커버를 씌운 CD */}
         {isReadType ? (
-          <CdCover imageUri={music.artworkUri} size={CD_SIZE} />
-        ) : (
-          <Letter
-            type="front"
-            BackgroundSvg={FrontSvg}
-            FlapSvg={FlapSvg}
-            style={styles.letter}
-          />
-        )}
-        {StampSvg ? (
+          <CdCover imageUri={music.artworkUri} size={CD_SIZE} style={styles.cd} />
+        ) : StampSvg ? (
           <View style={styles.stamp}>
             <StampSvg
               width="100%"
@@ -268,12 +277,16 @@ const styles = StyleSheet.create({
     width: LETTER_WIDTH,
     height: LETTER_HEIGHT,
   },
-  // gap: -48px → RN은 음수 gap 미지원. 우표를 위로 끌어올려 봉투와 겹침.
+  // gap: -48px → RN은 음수 gap 미지원. 우표를 위로 끌어올려 봉투와 겹침. 4도 기울임.
   stamp: {
     width: 44,
     height: 64,
-    marginTop: -48,
+    marginTop: -STAMP_OVERLAP,
     backgroundColor: colors.bgDisabled,
+    transform: [{ rotate: '4deg' }],
+  },
+  cd: {
+    marginTop: -CD_OVERLAP,
   },
 });
 
