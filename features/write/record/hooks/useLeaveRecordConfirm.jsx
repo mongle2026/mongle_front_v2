@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { BackHandler } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 
 import { useDialog } from '../../../../shared/providers/DialogProvider';
 import { Dialog } from '../../../../shared/components/action/Dialog';
@@ -58,7 +59,17 @@ export function useLeaveRecordConfirm({
     });
   }, [confirmText, description, handleLeave, hasChanges, openDialog, title]);
 
+  /*
+   * 스택 위에 다른 화면(EnvelopeScreen 등)이 올라가도 이 화면은 마운트된 상태이므로,
+   * 포커스된 경우에만 뒤로가기를 가로채야 상위 화면의 뒤로가기가 정상 동작합니다.
+   */
+  const isFocused = useIsFocused();
+
   useEffect(() => {
+    if (!isFocused) {
+      return undefined;
+    }
+
     const subscription = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
@@ -70,7 +81,7 @@ export function useLeaveRecordConfirm({
     return () => {
       subscription.remove();
     };
-  }, [handleClose]);
+  }, [handleClose, isFocused]);
 
   return handleClose;
 }
