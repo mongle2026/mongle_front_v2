@@ -8,7 +8,8 @@ import { padding } from '../../../styles/token';
 import Items from './Items';
 
 const DEFAULT_TABS = ['탭1', '탭2', '탭3', '탭4', '탭5', '탭6'];
-const TAB_ROW_HEIGHT = 39;
+// 하단 그라데이션 높이. 아래 목록이 이 높이만큼 Tabs 밑으로 들어와야 그라데이션이 보인다
+export const TABS_BOTTOM_FADE_HEIGHT = padding.XL;
 
 const Tabs = ({
   tabs = DEFAULT_TABS,
@@ -27,13 +28,14 @@ const Tabs = ({
 
   return (
     <View style={[styles.container, style]}>
+      {/* 탭 영역은 단색, 하단 패딩 영역은 배경색 → 투명 그라데이션 */}
       <View style={styles.background} />
 
       <LinearGradient
         pointerEvents="none"
         colors={['rgba(241, 242, 244, 0)', colors.bgLayerBasement]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
         style={styles.fade}
       />
 
@@ -84,8 +86,9 @@ const Tabs = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    zIndex: 1,
     paddingTop: padding.M,
-    paddingBottom: padding.XL,
+    paddingBottom: TABS_BOTTOM_FADE_HEIGHT,
   },
 
   scroll: {
@@ -103,7 +106,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: TAB_ROW_HEIGHT,
+    bottom: TABS_BOTTOM_FADE_HEIGHT,
     backgroundColor: colors.bgLayerBasement,
   },
 
@@ -111,8 +114,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
+    bottom: TABS_BOTTOM_FADE_HEIGHT,
     width: 100,
-    height: TAB_ROW_HEIGHT,
   },
 
   fade: {
@@ -120,7 +123,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 16,
+    height: TABS_BOTTOM_FADE_HEIGHT,
   },
 });
 
