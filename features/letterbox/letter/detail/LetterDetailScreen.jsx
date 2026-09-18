@@ -42,7 +42,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
     },
   });
 
-  const { playingFeedId, playbackProgress, handlePressPlayback, handleSeekPlayback } = useFeedMusicPlayback({
+  const { playingFeedId, handlePressPlayback } = useFeedMusicPlayback({
     navigation,
   });
 
@@ -102,15 +102,6 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
     handlePressPlayback({ feedId: playbackId, previewUrl: previewUri });
   }, [handlePressPlayback, playbackId, previewUri]);
-
-  const handleMusicSeek = useCallback(
-    progress => {
-      if (!playbackId || !previewUri) return;
-
-      handleSeekPlayback({ feedId: playbackId, progress });
-    },
-    [handleSeekPlayback, playbackId, previewUri]
-  );
 
   // 나에게 쓴 편지는 받은 편지로 취급한다 (편지함 목록과 동일)
   const isSent = Boolean(letter?.isSender && !letter?.isReceiver);
@@ -176,10 +167,8 @@ const LetterDetailScreen = ({ navigation, route }) => {
               artist={letter.music.singer}
               font={letter.font}
               isPlaying={playingFeedId === playbackId}
-              playbackProgress={playbackProgress}
               disabled={!previewUri}
               onPressPlayback={previewUri ? handleMusicPlayback : undefined}
-              onSeekPlayback={previewUri ? handleMusicSeek : undefined}
             />
 
             <LetterDetailContent text={letter.text} imageSources={letter.imageSources} font={letter.font} />

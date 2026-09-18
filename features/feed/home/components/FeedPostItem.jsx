@@ -13,14 +13,12 @@ const FeedPostItem = ({
   bookmarkDisabled = false,
   followDisabled = false,
   isMusicPlaying = false,
-  musicPlaybackProgress = 0,
   onPressPost,
   onPressComment,
   onPressLike,
   onPressBookmark,
   onPressFollow,
   onPressMusicPlayback,
-  onSeekMusicPlayback,
 }) => {
   const feedId = item?.feedId;
   const user = item?.user;
@@ -66,15 +64,6 @@ const FeedPostItem = ({
     });
   }, [feedId, musicPreviewUri, onPressMusicPlayback]);
 
-  const handleMusicSeek = useCallback(progress => {
-    if (!musicPreviewUri) return;
-
-    onSeekMusicPlayback?.({
-      feedId,
-      progress,
-    });
-  }, [feedId, musicPreviewUri, onSeekMusicPlayback]);
-
   const { likeButtonRef, handleTap } = useDoubleTapLike({
     isLiked,
     disabled: likeDisabled,
@@ -103,13 +92,9 @@ const FeedPostItem = ({
         title: music?.musicTitle ?? '',
         artist: music?.musicArtist ?? '',
         isPlaying: isMusicPlaying,
-        playbackProgress: musicPlaybackProgress,
         disabled: !musicPreviewUri,
         onPressPlayback: musicPreviewUri
           ? handleMusicPlayback
-          : undefined,
-        onSeekPlayback: musicPreviewUri
-          ? handleMusicSeek
           : undefined,
       }}
       content={record?.text ?? ''}

@@ -340,9 +340,7 @@ const FeedDetailScreen = ({
 
   const {
     playingFeedId,
-    playbackProgress,
     handlePressPlayback,
-    handleSeekPlayback,
   } = useFeedMusicPlayback({
     navigation,
   });
@@ -668,21 +666,6 @@ const FeedDetailScreen = ({
       });
     };
 
-  const handleMusicSeek =
-    progress => {
-      if (
-        !musicPreviewUri
-      ) {
-        return;
-      }
-
-      handleSeekPlayback({
-        feedId:
-          feed.feedId,
-        progress,
-      });
-    };
-
   return (
     <View
       style={
@@ -802,20 +785,12 @@ const FeedDetailScreen = ({
           isPlaying={
             isMusicPlaying
           }
-          playbackProgress={
-            playbackProgress
-          }
           disabled={
             !musicPreviewUri
           }
           onPressPlayback={
             musicPreviewUri
               ? handleMusicPlayback
-              : undefined
-          }
-          onSeekPlayback={
-            musicPreviewUri
-              ? handleMusicSeek
               : undefined
           }
         />

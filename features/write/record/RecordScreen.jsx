@@ -88,9 +88,7 @@ const RecordScreen = ({ navigation, route }) => {
     musicArtworkUri,
     musicPreviewUri,
     isMusicPlaying,
-    playbackProgress,
     handlePlayback,
-    handleSeek,
   } = useRecordMusicPlayback({ music, navigation });
 
   /* 편지 전용 작성 데이터 */
@@ -444,10 +442,8 @@ const RecordScreen = ({ navigation, route }) => {
               artist={music.musicArtist}
               font={normalizedFont}
               isPlaying={isMusicPlaying}
-              playbackProgress={playbackProgress}
               disabled={!musicPreviewUri}
               onPressPlayback={musicPreviewUri ? handlePlayback : undefined}
-              onSeekPlayback={musicPreviewUri ? handleSeek : undefined}
             />
           </Pressable>
         ) : (

@@ -32,9 +32,7 @@ const useRecordMusicPlayback = ({
 
   const {
     playingFeedId,
-    playbackProgress,
     handlePressPlayback,
-    handleSeekPlayback,
     handleVisibleFeedChange,
     resetPlayback,
   } = useFeedMusicPlayback({
@@ -83,31 +81,6 @@ const useRecordMusicPlayback = ({
       musicPreviewUri,
     ]);
 
-  /*
-   * 파형 Seek
-   */
-  const handleSeek =
-    useCallback(
-      progress => {
-        if (
-          !musicId ||
-          !musicPreviewUri
-        ) {
-          return;
-        }
-
-        handleSeekPlayback({
-          feedId: musicId,
-          progress,
-        });
-      },
-      [
-        handleSeekPlayback,
-        musicId,
-        musicPreviewUri,
-      ],
-    );
-
   const isMusicPlaying =
     Boolean(musicId) &&
     playingFeedId === musicId;
@@ -117,10 +90,8 @@ const useRecordMusicPlayback = ({
     musicPreviewUri,
 
     isMusicPlaying,
-    playbackProgress,
 
     handlePlayback,
-    handleSeek,
   };
 };
 

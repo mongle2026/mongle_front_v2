@@ -32,9 +32,7 @@ const FeedHomeScreen = ({ navigation }) => {
 
   const {
     playingFeedId,
-    playbackProgress,
     handlePressPlayback: handlePressMusicPlayback,
-    handleSeekPlayback: handleSeekMusicPlayback,
     handleVisibleFeedChange,
     resetPlayback,
   } = useFeedMusicPlayback({ navigation });
@@ -139,14 +137,12 @@ const FeedHomeScreen = ({ navigation }) => {
           bookmarkDisabled={bookmarkPendingFeedIds.has(feedId)}
           followDisabled={pendingTargetUserId === targetUserId}
           isMusicPlaying={isMusicPlaying}
-          musicPlaybackProgress={playbackProgress}
           onPressPost={handlePressPost}
           onPressComment={handlePressComment}
           onPressLike={handlePressLike}
           onPressBookmark={handlePressBookmark}
           onPressFollow={handlePressFollow}
           onPressMusicPlayback={handlePressMusicPlayback}
-          onSeekMusicPlayback={handleSeekMusicPlayback}
         />
       );
     },
@@ -158,10 +154,8 @@ const FeedHomeScreen = ({ navigation }) => {
       handlePressLike,
       handlePressMusicPlayback,
       handlePressPost,
-      handleSeekMusicPlayback,
       likePendingFeedIds,
       pendingTargetUserId,
-      playbackProgress,
       playingFeedId,
       postCardHeight,
       userId,

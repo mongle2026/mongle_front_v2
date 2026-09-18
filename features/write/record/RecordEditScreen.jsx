@@ -92,9 +92,7 @@ const RecordEditScreen = ({ navigation, route }) => {
     musicArtworkUri,
     musicPreviewUri,
     isMusicPlaying,
-    playbackProgress,
     handlePlayback,
-    handleSeek,
   } = useRecordMusicPlayback({ music, navigation });
 
   /* 다음 버튼 활성 색상 조건 */
@@ -293,10 +291,8 @@ const RecordEditScreen = ({ navigation, route }) => {
               artist={music.musicArtist}
               font={normalizedFont}
               isPlaying={isMusicPlaying}
-              playbackProgress={playbackProgress}
               disabled={!musicPreviewUri}
               onPressPlayback={musicPreviewUri ? handlePlayback : undefined}
-              onSeekPlayback={musicPreviewUri ? handleSeek : undefined}
             />
           </Pressable>
         ) : (
