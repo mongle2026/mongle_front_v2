@@ -4,7 +4,7 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 import useFollow from '../../../../shared/hooks/useFollow';
-import { feedHomeKeys } from './feedHomeCache';
+import { feedHomeKeys, syncFollowState } from './feedHomeCache';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
 
@@ -45,56 +45,6 @@ function normalizeFeedPage(data) {
     nextCursor,
     hasNext,
   };
-}
-
-function updateFollowState(data, targetUserId, nextFollowing) {
-  if (!data?.pages) return data;
-
-  const targetId = String(targetUserId);
-  let hasChanged = false;
-
-  const nextPages = data.pages.map(page => {
-    if (!Array.isArray(page?.items)) return page;
-
-    let pageChanged = false;
-    const nextItems = page.items.map(item => {
-      if (String(item?.user?.userId) !== targetId) return item;
-      if (Boolean(item?.user?.isFollowing) === nextFollowing) return item;
-
-      hasChanged = true;
-      pageChanged = true;
-
-      return {
-        ...item,
-        user: { ...item.user, isFollowing: nextFollowing },
-      };
-    });
-
-    return pageChanged ? { ...page, items: nextItems } : page;
-  });
-
-  return hasChanged ? { ...data, pages: nextPages } : data;
-}
-
-function removeUserFromFeed(data, targetUserId) {
-  if (!data?.pages) return data;
-
-  const targetId = String(targetUserId);
-  let hasChanged = false;
-
-  const nextPages = data.pages.map(page => {
-    if (!Array.isArray(page?.items)) return page;
-
-    const nextItems = page.items.filter(item => {
-      const shouldRemove = String(item?.user?.userId) === targetId;
-      if (shouldRemove) hasChanged = true;
-      return !shouldRemove;
-    });
-
-    return nextItems.length === page.items.length ? page : { ...page, items: nextItems };
-  });
-
-  return hasChanged ? { ...data, pages: nextPages } : data;
 }
 
 async function fetchFeedPage({ userId, feedType, pageParam }) {
@@ -141,8 +91,6 @@ export default function useFeedHome({ userId, isFollowing = false }) {
     [isConfigured, userId]
   );
 
-  const recommendedQueryKey = recommendedQueryOptions.queryKey;
-  const followingQueryKey = followingQueryOptions.queryKey;
   const activeQueryOptions = isFollowing ? followingQueryOptions : recommendedQueryOptions;
 
   const {
@@ -169,21 +117,13 @@ export default function useFeedHome({ userId, isFollowing = false }) {
 
   const handleFollowSuccess = useCallback(
     (_, { targetUserId, nextFollowing }) => {
-      queryClient.setQueryData(recommendedQueryKey, currentData =>
-        updateFollowState(currentData, targetUserId, nextFollowing)
-      );
+      syncFollowState(queryClient, { userId, targetUserId, nextFollowing });
 
-      if (!nextFollowing) {
-        queryClient.setQueryData(followingQueryKey, currentData =>
-          removeUserFromFeed(currentData, targetUserId)
-        );
-        return;
+      if (nextFollowing) {
+        void queryClient.prefetchInfiniteQuery(followingQueryOptions);
       }
-
-      queryClient.invalidateQueries({ queryKey: followingQueryKey, refetchType: 'none' });
-      void queryClient.prefetchInfiniteQuery(followingQueryOptions);
     },
-    [followingQueryKey, followingQueryOptions, queryClient, recommendedQueryKey]
+    [followingQueryOptions, queryClient, userId]
   );
 
   const { toggleFollow, pendingTargetUserId } = useFollow({

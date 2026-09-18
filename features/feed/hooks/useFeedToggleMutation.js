@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 import {
+  feedDetailKeys,
   feedHomeKeys,
   findFeedItem,
   updateFeedItem,
@@ -11,7 +12,6 @@ import {
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
 
 const normalizeFeedId = feedId => String(feedId);
-const getFeedDetailKey = (feedId, userId) => ['feed-detail', String(feedId), userId];
 
 export default function useFeedToggleMutation({
   userId,
@@ -43,7 +43,7 @@ export default function useFeedToggleMutation({
 
     onMutate: async ({ feedId, nextValue }) => {
       const pendingId = normalizeFeedId(feedId);
-      const detailQueryKey = getFeedDetailKey(feedId, userId);
+      const detailQueryKey = feedDetailKeys.detail(userId, feedId);
 
       setPendingFeedIds(previousIds => {
         const nextIds = new Set(previousIds);
@@ -126,7 +126,7 @@ export default function useFeedToggleMutation({
 
       if (context?.previousDetailState) {
         queryClient.setQueryData(
-          getFeedDetailKey(variables.feedId, userId),
+          feedDetailKeys.detail(userId, variables.feedId),
           previousData => {
             if (!previousData) return previousData;
 
@@ -150,6 +150,13 @@ export default function useFeedToggleMutation({
       if (settledFeedId === null || settledFeedId === undefined) return;
 
       const pendingId = normalizeFeedId(settledFeedId);
+      const detailQueryKey = feedDetailKeys.detail(userId, settledFeedId);
+
+      // 상세 첫 조회 중에 토글하면 onMutate의 cancelQueries로 조회가 취소된 채 남는다.
+      // 데이터가 없는 상세 쿼리는 다시 불러와 서버 상태와 맞춘다.
+      if (queryClient.getQueryData(detailQueryKey) === undefined) {
+        queryClient.invalidateQueries({ queryKey: detailQueryKey });
+      }
 
       setPendingFeedIds(previousIds => {
         const nextIds = new Set(previousIds);

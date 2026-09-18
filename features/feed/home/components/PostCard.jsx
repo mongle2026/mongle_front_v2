@@ -183,6 +183,25 @@ const PostCard = ({
         animatedCardStyle,
       ]}
     >
+      {/*
+        팔로우/재생 버튼은 gesture-handler Pressable이라 카드 Pressable과 터치를 공유하지 않습니다.
+        카드 Pressable 밖에 형제로 두어 버튼 터치가 상세 이동으로 이어지지 않도록 합니다.
+        MusicCard는 재생 버튼을 제외한 영역에 카드와 같은 press 핸들러를 연결합니다.
+      */}
+      <ProfileBar
+        {...profileProps}
+        font={normalizedFont}
+      />
+
+      <MusicCard
+        {...musicProps}
+        font={normalizedFont}
+        onPress={isPressable ? handleCardPress : undefined}
+        onPressIn={isPressable ? handlePressIn : undefined}
+        onPressMove={isPressable ? handlePressMove : undefined}
+        onPressOut={isPressable ? handlePressOut : undefined}
+      />
+
       <Pressable
         onPress={handleCardPress}
         onPressIn={
@@ -202,16 +221,6 @@ const PostCard = ({
         }
         style={styles.pressArea}
       >
-        <ProfileBar
-          {...profileProps}
-          font={normalizedFont}
-        />
-
-        <MusicCard
-          {...musicProps}
-          font={normalizedFont}
-        />
-
         <View style={[styles.contentArea, contentAreaStyle]}>
           <View style={[styles.textContainer, textContainerStyle]}>
             <View style={styles.textViewport} onLayout={handleTextViewportLayout}>

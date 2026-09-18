@@ -14,6 +14,9 @@ import {
 import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
+import {
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import IcTrash from '../../../assets/icons/ic_trash.svg';
 
@@ -44,6 +47,7 @@ import {
 } from '../../../shared/hooks/useFloatingBottomOffset';
 
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import useFollow from '../../../shared/hooks/useFollow';
 
 import { colors, shadow, } from '../../../shared/styles/color';
 import { padding, radius, } from '../../../shared/styles/token';
@@ -60,6 +64,10 @@ import {
 
 import ActionBar from '../home/components/ActionBar';
 import ProfileBar from '../home/components/ProfileBar';
+
+import {
+  syncFollowState,
+} from '../home/hooks/feedHomeCache';
 
 import useFeedActions from '../hooks/useFeedActions';
 import useDoubleTapLike from '../hooks/useDoubleTapLike';
@@ -91,6 +99,9 @@ const FeedDetailScreen = ({
     currentUser,
     userId,
   } = useCurrentUser();
+
+  const queryClient =
+    useQueryClient();
 
   const commentBarRef =
     useRef(null);
@@ -191,6 +202,40 @@ const FeedDetailScreen = ({
     userId,
   });
 
+  const handleFollowSuccess =
+    useCallback(
+      (
+        _,
+        {
+          targetUserId,
+          nextFollowing,
+        },
+      ) => {
+        syncFollowState(
+          queryClient,
+          {
+            userId,
+            targetUserId,
+            nextFollowing,
+          },
+        );
+      },
+      [
+        queryClient,
+        userId,
+      ],
+    );
+
+  const {
+    toggleFollow,
+    isFollowPending,
+  } = useFollow({
+    currentUserId:
+      userId,
+    onSuccess:
+      handleFollowSuccess,
+  });
+
   const normalizedFeedId =
     feed?.feedId != null
       ? String(
@@ -217,6 +262,22 @@ const FeedDetailScreen = ({
     bookmarkPendingFeedIds.has(
       normalizedFeedId,
     );
+
+  const handlePressFollow =
+    useCallback(() => {
+      if (!feed || isMine) return;
+
+      toggleFollow(
+        feed.user?.userId,
+        Boolean(
+          feed.user?.isFollowing,
+        ),
+      );
+    }, [
+      feed,
+      isMine,
+      toggleFollow,
+    ]);
 
   const handlePressLike =
     useCallback(() => {
@@ -759,6 +820,12 @@ const FeedDetailScreen = ({
             isFollowing
               ? 'Ghost'
               : 'Solid'
+          }
+          followDisabled={
+            isFollowPending
+          }
+          onPressFollow={
+            handlePressFollow
           }
         />
 

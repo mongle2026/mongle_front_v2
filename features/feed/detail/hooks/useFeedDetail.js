@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+  feedDetailKeys,
   feedHomeKeys,
   findFeedItemInHomeCache,
   removeFeedItem,
@@ -11,12 +12,10 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
 const DETAIL_STALE_TIME = 2 * 60 * 1000;
 const DETAIL_GC_TIME = 30 * 60 * 1000;
 
-const getFeedDetailKey = (feedId, userId) => ['feed-detail', String(feedId), userId];
-
 export default function useFeedDetail({ feedId, userId, onDeleteSuccess }) {
   const queryClient = useQueryClient();
   const isConfigured = Boolean(API_BASE_URL);
-  const detailQueryKey = getFeedDetailKey(feedId, userId);
+  const detailQueryKey = feedDetailKeys.detail(userId, feedId);
 
   const {
     data: feed,

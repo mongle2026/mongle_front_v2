@@ -30,6 +30,9 @@ const MusicCard = ({
   isPlaying = false,
   onPressPlayback,
   onPress,
+  onPressIn,
+  onPressMove,
+  onPressOut,
   pressAccessibilityLabel,
   disabled = false,
   style,
@@ -53,6 +56,9 @@ const MusicCard = ({
   const pressAreaProps = onPress
     ? {
       onPress,
+      onPressIn,
+      onPressMove,
+      onPressOut,
       accessibilityRole: 'button',
       accessibilityLabel: pressAccessibilityLabel,
     }

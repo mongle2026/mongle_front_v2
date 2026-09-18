@@ -16,6 +16,10 @@ import {
   uploadRecordFiles,
 } from '../../utils/uploadRecordFiles';
 
+import {
+  feedDetailKeys,
+} from '../../../feed/home/hooks/feedHomeCache';
+
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL
     ?.replace(/\/+$/, '');
@@ -123,7 +127,11 @@ const useUpdateFeed = ({
       });
 
       queryClient.invalidateQueries({
-        queryKey: ['feed-detail', String(feedId)],
+        queryKey:
+          feedDetailKeys.detail(
+            userId,
+            feedId,
+          ),
       });
 
       /*
