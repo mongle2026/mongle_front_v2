@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Animated, StyleSheet, View, Text, Image } from 'react-native';
+import { StyleSheet, View, Text, Image } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import LetterBackground from '../../../assets/envelope/patterns/letter_cover_default.png';
 import LetterFlap from '../../../assets/envelope/patterns/letter_flap_default.png';
@@ -42,7 +43,7 @@ function Letter({
   sender = '',
   stampSource,
   style,
-  flapOpacity = 1,
+  flapStyle,
 }) {
   const isBack = type === 'back';
 
@@ -117,7 +118,7 @@ function Letter({
           배경과 동일한 기준 너비(320px 대비 318px)를 갖도록 한다. */}
       {!isBack ? (
         <Animated.View
-          style={[StyleSheet.absoluteFill, { opacity: flapOpacity }]}
+          style={[StyleSheet.absoluteFill, flapStyle]}
           pointerEvents="none"
         >
           {flapSize && wrapperSize ? (

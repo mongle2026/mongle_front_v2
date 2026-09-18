@@ -69,7 +69,7 @@ const FollowSummary = ({ offset, style, onLayout, children }) => {
  *
  * @param {string} stampCode
  * @param {object|null} detail useStampDetail 의 detail (불러오기 전에는 null)
- * @param {(letter: object) => void} onPressLetter
+ * @param {(letter: object) => void} onPressLetter 편지를 눌러 앞면으로 뒤집힌 뒤 호출
  * @param {() => void} onClose
  */
 const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) => {
@@ -148,13 +148,21 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
     [detail],
   );
 
+  // 편지는 한 번에 한 장만 뒤집힌다
+  const isLetterFlipping = useSharedValue(false);
+
   const renderLetter = useCallback(
     ({ item, index }) => (
       <FollowSummary offset={belowSummaryOffset}>
-        <StampLetterItem letter={item} index={index} onPress={onPressLetter} />
+        <StampLetterItem
+          letter={item}
+          index={index}
+          isFlipping={isLetterFlipping}
+          onPress={onPressLetter}
+        />
       </FollowSummary>
     ),
-    [onPressLetter, belowSummaryOffset],
+    [onPressLetter, belowSummaryOffset, isLetterFlipping],
   );
 
   // 상단 영역도 편지 목록과 함께 스크롤되도록 목록의 header 로 넣는다

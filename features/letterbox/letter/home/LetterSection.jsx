@@ -1,8 +1,9 @@
 import { memo, useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import Empty from '../../../../shared/components/content/Empty';
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../../shared/components/navigation/tabs/Tabs';
+import usePullRefresh from '../../../../shared/hooks/usePullRefresh';
 import { gap, padding } from '../../../../shared/styles/token';
 
 import Card from '../../components/Card';
@@ -59,7 +60,7 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   // 기본 필터를 정하는 중에는 목록을 그리지 않는다 (전체 → 안 읽음으로 깜빡이지 않게)
   const isDecidingFilter = activeFilter === null;
 
-  const { letters, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useLetterBox({
+  const { letters, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetchLetters } = useLetterBox({
     userId,
     filter: activeFilter,
   });
@@ -70,6 +71,21 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   const unreadLetters = useMemo(() => letters.filter(letter => !letter.isRead), [letters]);
   const visibleLetters = isUnread ? unreadLetters : letters;
   const isEmpty = !isDecidingFilter && !isLoading && visibleLetters.length === 0;
+
+  // 위로 당기면 현재 필터의 편지 목록을 다시 불러온다
+  const { isPullRefreshing, handleRefresh } = usePullRefresh({
+    refetch: refetchLetters,
+    errorMessage: '편지함 새로고침에 실패했습니다.',
+  });
+
+  // Android 로딩 원은 Tabs 하단 그라데이션에 가리지 않게 그만큼 내린다
+  const refreshControl = (
+    <RefreshControl
+      refreshing={isPullRefreshing}
+      onRefresh={handleRefresh}
+      progressViewOffset={TABS_BOTTOM_FADE_HEIGHT}
+    />
+  );
 
   const handleChangeFilter = useCallback(index => {
     setActiveFilter(LETTER_FILTERS[index].key);
@@ -95,12 +111,15 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
         onChange={handleChangeFilter}
       />
 
+      {/* 엠티뷰에서도 당겨서 새로고침할 수 있게 ScrollView 로 감싼다 */}
       {isEmpty && (
-        <Empty
-          type="letter"
-          title={isUnread ? EMPTY_UNREAD_TITLE : EMPTY_LETTER_TITLE}
-          body={isUnread ? EMPTY_UNREAD_BODY : EMPTY_LETTER_BODY}
-        />
+        <ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
+          <Empty
+            type="letter"
+            title={isUnread ? EMPTY_UNREAD_TITLE : EMPTY_LETTER_TITLE}
+            body={isUnread ? EMPTY_UNREAD_BODY : EMPTY_LETTER_BODY}
+          />
+        </ScrollView>
       )}
 
       {/* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */}
@@ -113,6 +132,7 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
               bottomInset={bottomInset}
               onPressLetter={onPressLetter}
               onScroll={handleScroll}
+              refreshControl={refreshControl}
             />
           )}
 
@@ -124,6 +144,7 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
               }}
               onScroll={handleScroll}
               scrollEventThrottle={16}
+              refreshControl={refreshControl}
               showsVerticalScrollIndicator={false}
             >
               <View style={styles.letterContainer}>

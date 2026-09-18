@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { useIsFocused } from '@react-navigation/native';
@@ -7,14 +7,13 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
 } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
 
 import { gap, padding } from '../../../../../shared/styles/token';
 import { resolveEnvelope } from '../../../../../shared/utils/envelopeUtils';
 
 import Letter from '../../../components/Letter';
+import useLetterFlip from '../../../hooks/useLetterFlip';
 import useUnreadLetterStack, { EXPAND_SCROLL_DISTANCE } from '../hooks/useUnreadLetterStack';
 
 // Letter 원본 크기(320x232)
@@ -36,18 +35,16 @@ const HIDDEN_LETTER_REVEAL_PROGRESS = 0.05;
 // 편지 기울기 (-4, 0, 4, 0 반복)
 const LETTER_ROTATIONS = [-4, 0, 4, 0];
 
-// 뒷면 → 앞면 뒤집기 반쪽 시간 (편지 작성 화면 useLetterFlip 과 동일)
-const FLIP_TIMING = { duration: 250 };
-
 const getExpandedTop = index => EXPANDED_PADDING_VERTICAL + index * (LETTER_HEIGHT + EXPANDED_GAP);
 
 const getReceivedTime = letter => new Date(letter.receivedAt ?? 0).getTime() || 0;
 
 const UnreadLetterItem = memo(({ letter, index, progress, isFlipping, onFlipEnd }) => {
   const isFocused = useIsFocused();
-  const [face, setFace] = useState('back');
-  const flipScale = useSharedValue(1);
-  const isFlippingSelf = useRef(false);
+  const { face, flipStyle, flip, resetFace } = useLetterFlip({
+    lock: isFlipping,
+    onFlipEnd: () => onFlipEnd(letter),
+  });
 
   const { FrontSvg, FlapSvg, StampSvg } = useMemo(
     () =>
@@ -74,45 +71,14 @@ const UnreadLetterItem = memo(({ letter, index, progress, isFlipping, onFlipEnd 
     ],
   }));
 
-  const flipStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleX: flipScale.value }],
-  }));
-
-  const finishFlip = useCallback(() => {
-    isFlippingSelf.current = false;
-    isFlipping.value = false;
-    onFlipEnd(letter);
-  }, [isFlipping, letter, onFlipEnd]);
-
-  // 누르면 뒷면을 접었다가(scaleX 1 → 0) 앞면으로 바꿔 편다. 다 펴지면 상세로 이동한다
-  const handlePress = useCallback(() => {
-    if (isFlipping.value) return;
-    isFlipping.value = true;
-    isFlippingSelf.current = true;
-
-    flipScale.value = withTiming(0, FLIP_TIMING, finished => {
-      if (finished) scheduleOnRN(setFace, 'front');
-    });
-  }, [flipScale, isFlipping]);
-
-  // 앞면이 실제로 그려진 뒤에 나머지 절반을 펴야 뒷면이 잠깐 보이지 않는다
-  useEffect(() => {
-    if (face !== 'front' || !isFlippingSelf.current) return;
-
-    flipScale.value = withTiming(1, FLIP_TIMING, finished => {
-      if (finished) scheduleOnRN(finishFlip);
-    });
-  }, [face, finishFlip, flipScale]);
-
   // 상세에서 돌아왔는데 아직 목록에 남아 있으면 다시 뒷면으로 되돌린다
   useEffect(() => {
-    if (!isFocused || isFlippingSelf.current) return;
-    setFace('back');
-  }, [isFocused]);
+    if (isFocused) resetFace('back');
+  }, [isFocused, resetFace]);
 
   return (
     <Animated.View style={[styles.item, animatedStyle]}>
-      <Pressable onPress={handlePress} style={styles.letter}>
+      <Pressable onPress={flip} style={styles.letter}>
         <Animated.View style={flipStyle}>
           {face === 'back' ? (
             <Letter
@@ -145,8 +111,9 @@ const UnreadLetterItem = memo(({ letter, index, progress, isFlipping, onFlipEnd 
  * @param {number} [bottomInset] 펼쳐진 목록 하단이 FAB에 가려지지 않도록 확보할 여백
  * @param {(letter: object) => void} [onPressLetter] 편지를 눌러 앞면으로 뒤집힌 뒤 호출
  * @param {(event: object) => void} [onScroll]
+ * @param {React.ReactElement} [refreshControl] 당겨서 새로고침 RefreshControl
  */
-const UnreadLetterStack = ({ letters, topInset = 0, bottomInset = 0, onPressLetter, onScroll }) => {
+const UnreadLetterStack = ({ letters, topInset = 0, bottomInset = 0, onPressLetter, onScroll, refreshControl }) => {
   const { progress, stickyOffset, scrollHandler } = useUnreadLetterStack({ onScroll });
   const [viewportHeight, setViewportHeight] = useState(0);
 
@@ -190,6 +157,7 @@ const UnreadLetterStack = ({ letters, topInset = 0, bottomInset = 0, onPressLett
       onScroll={scrollHandler}
       scrollEventThrottle={16}
       showsVerticalScrollIndicator={false}
+      refreshControl={refreshControl}
     >
       <Animated.View style={[styles.stage, { height: contentHeight }]}>
         <Animated.View style={[styles.sticky, stickyStyle]}>

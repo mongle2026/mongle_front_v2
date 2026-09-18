@@ -1,4 +1,5 @@
-import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -30,7 +31,7 @@ import StampItem from '../components/StampItem';
 
 import useEnvelopeSelect, { TABS } from './hooks/useEnvelopeSelect';
 import useCreateLetter from './hooks/useCreateLetter';
-import useLetterFlip from './hooks/useLetterFlip';
+import useEnvelopePreviewFlip from './hooks/useEnvelopePreviewFlip';
 import useLetterPreviewSize from './hooks/useLetterPreviewSize';
 import { TEMPLATES } from './data/envelopeTemplateData';
 
@@ -62,8 +63,8 @@ const EnvelopeScreen = ({ navigation }) => {
   const recipientName = receiver?.nickname ?? '';
   const senderName = currentUser?.nickname ?? '';
 
-  const { previewFace, flipAnim, flapOpacity, handleToggleFace } =
-    useLetterFlip();
+  const { previewFace, flipStyle, flapStyle, handleToggleFace } =
+    useEnvelopePreviewFlip();
 
   const { previewSize: letterPreviewSize, onLayout: handleLetterLayout } =
     useLetterPreviewSize(LETTER_ASPECT_RATIO);
@@ -138,7 +139,7 @@ const EnvelopeScreen = ({ navigation }) => {
             previewFace === 'back' ? '봉투 앞면 보기' : '봉투 뒷면 보기'
           }
         >
-          <Animated.View style={{ transform: [{ scaleX: flipAnim }] }}>
+          <Animated.View style={flipStyle}>
             <Letter
               type={previewFace}
               BackgroundSvg={envelope.FrontSvg}
@@ -147,7 +148,7 @@ const EnvelopeScreen = ({ navigation }) => {
               recipient={recipientName}
               sender={senderName}
               style={letterPreviewSize}
-              flapOpacity={flapOpacity}
+              flapStyle={flapStyle}
             />
           </Animated.View>
         </Pressable>
