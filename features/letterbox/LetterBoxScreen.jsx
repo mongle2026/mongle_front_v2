@@ -3,15 +3,15 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 
-import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/action/WriteFab';
-import TopNavigation, { LETTER_TOP_NAVIGATION_TABS } from '../../../shared/components/navigation/topnavigation/TopNavigation';
-import TabBar from '../../../shared/components/navigation/tabbar/TabBar';
-import useCurrentUser from '../../../shared/hooks/useCurrentUser';
-import { colors } from '../../../shared/styles/color';
+import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../shared/components/action/WriteFab';
+import TopNavigation, { LETTER_TOP_NAVIGATION_TABS } from '../../shared/components/navigation/topnavigation/TopNavigation';
+import TabBar from '../../shared/components/navigation/tabbar/TabBar';
+import useCurrentUser from '../../shared/hooks/useCurrentUser';
+import { colors } from '../../shared/styles/color';
 
-import LetterSection from './components/LetterSection';
-import StampSection from './components/StampSection';
-import { prefetchStampDetail } from '../../stamp/detail/hooks/useStampDetail';
+import LetterSection from './letter/home/LetterSection';
+import StampSection from './stamp/home/StampSection';
+import { prefetchStampDetail } from './stamp/detail/hooks/useStampDetail';
 
 const LETTER_BOX_TAB = {
   LETTER: 'letter',

@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import Dim from '../../../shared/components/layout/Dim';
-import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import Dim from '../../../../shared/components/layout/Dim';
+import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 
 import StampDetailBottomSheet from './components/StampDetailBottomSheet';
 import useStampDetail from './hooks/useStampDetail';

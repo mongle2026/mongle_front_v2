@@ -1,13 +1,13 @@
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
-import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
-import useWriteImgRatio from '../../../../shared/hooks/useWriteImgRatio';
-import { colors } from '../../../../shared/styles/color';
-import { FONT } from '../../../../shared/styles/font';
-import { gap, padding } from '../../../../shared/styles/token';
-import { typo } from '../../../../shared/styles/typo';
+import SuitSafeText from '../../../../../shared/components/atomic/SuitSafeText';
+import { WriteImg } from '../../../../../shared/components/atomic/WriteImg';
+import useWriteImgRatio from '../../../../../shared/hooks/useWriteImgRatio';
+import { colors } from '../../../../../shared/styles/color';
+import { FONT } from '../../../../../shared/styles/font';
+import { gap, padding } from '../../../../../shared/styles/token';
+import { typo } from '../../../../../shared/styles/typo';
 
 const FONT_STYLES = Object.freeze({
   [FONT.KYOBO]: typo.kyoboBodyLarge,

@@ -1,11 +1,11 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '../../../../shared/styles/color';
-import { typo } from '../../../../shared/styles/typo';
-import { padding, radius } from '../../../../shared/styles/token';
+import { colors } from '../../../../../shared/styles/color';
+import { typo } from '../../../../../shared/styles/typo';
+import { padding, radius } from '../../../../../shared/styles/token';
 
-import Stamp from '../../../stamp/components/Stamp';
+import Stamp from '../../../components/Stamp';
 
 const COUNT_BADGE_SIZE = 20;
 // 우표 기준 아래/오른쪽에서 띄우는 거리

@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
-import { normalizeFont } from '../../../../shared/styles/font';
-import { getImageSources, resolveMediaUri } from '../../../../shared/utils/media';
+import { normalizeFont } from '../../../../../shared/styles/font';
+import { getImageSources, resolveMediaUri } from '../../../../../shared/utils/media';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
 

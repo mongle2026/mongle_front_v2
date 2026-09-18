@@ -6,8 +6,8 @@ import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../../shared/components/nav
 import { gap, padding } from '../../../../shared/styles/token';
 
 import Card from '../../components/Card';
-import useLetterBox from '../hooks/useLetterBox';
-import UnreadLetterStack from './UnreadLetterStack';
+import useLetterBox from './hooks/useLetterBox';
+import UnreadLetterStack from './components/UnreadLetterStack';
 
 const LETTER_FILTER = {
   UNREAD: 'unread',

@@ -2,24 +2,24 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import IlDialogDeleteletter from '../../../assets/illustrations/il_dialog_deleteletter.svg';
+import IlDialogDeleteletter from '../../../../assets/illustrations/il_dialog_deleteletter.svg';
 
-import { Dialog } from '../../../shared/components/action/Dialog';
-import Menu from '../../../shared/components/action/menu/Menu';
-import { TextButton } from '../../../shared/components/action/TextButton';
-import MusicCard from '../../../shared/components/content/MusicCard';
-import Profile from '../../../shared/components/content/profile/Profile';
-import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
-import useCurrentUser from '../../../shared/hooks/useCurrentUser';
-import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
-import { useDialog } from '../../../shared/providers/DialogProvider';
-import { colors } from '../../../shared/styles/color';
-import { FONT } from '../../../shared/styles/font';
-import { padding } from '../../../shared/styles/token';
-import { getSenderSuffix } from '../../../shared/utils/koreanUtils';
+import { Dialog } from '../../../../shared/components/action/Dialog';
+import Menu from '../../../../shared/components/action/menu/Menu';
+import { TextButton } from '../../../../shared/components/action/TextButton';
+import MusicCard from '../../../../shared/components/content/MusicCard';
+import Profile from '../../../../shared/components/content/profile/Profile';
+import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
+import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
+import { useDialog } from '../../../../shared/providers/DialogProvider';
+import { colors } from '../../../../shared/styles/color';
+import { FONT } from '../../../../shared/styles/font';
+import { padding } from '../../../../shared/styles/token';
+import { getSenderSuffix } from '../../../../shared/utils/koreanUtils';
 
-import ActionBar from '../../feed/home/components/ActionBar';
-import { formatDateOnly } from '../../feed/utils/formatDate';
+import ActionBar from '../../../feed/home/components/ActionBar';
+import { formatDateOnly } from '../../../feed/utils/formatDate';
 
 import LetterDetailContent from './components/LetterDetailContent';
 import useLetterDetail from './hooks/useLetterDetail';

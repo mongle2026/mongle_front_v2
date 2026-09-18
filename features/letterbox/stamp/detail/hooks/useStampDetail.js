@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-import { STAMPS } from '../../../../shared/data/envelopeData';
-import { resolveMediaUri } from '../../../../shared/utils/media';
+import { STAMPS } from '../../../../../shared/data/envelopeData';
+import { resolveMediaUri } from '../../../../../shared/utils/media';
 
-import { normalizeLetterboxItem } from '../../../letter/box/hooks/useLetterBox';
+import { normalizeLetterboxItem } from '../../../utils/normalizeLetter';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
 

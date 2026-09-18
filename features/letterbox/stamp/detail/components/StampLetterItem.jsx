@@ -2,9 +2,9 @@ import { memo, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
-import { resolveEnvelope } from '../../../../shared/utils/envelopeUtils';
+import { resolveEnvelope } from '../../../../../shared/utils/envelopeUtils';
 
-import Letter from '../../../letter/components/Letter';
+import Letter from '../../../components/Letter';
 
 // Letter 원본 크기(320x232)의 폭. 목록 셀이 가운데 정렬이라 폭을 정해줘야 한다.
 const LETTER_WIDTH = 320;

@@ -4,8 +4,8 @@ import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { gap, padding } from '../../../../shared/styles/token';
 import { chunk } from '../../../../shared/utils/arrayUtils';
 
-import useStampBox from '../hooks/useStampBox';
-import StampBoxItem from './StampBoxItem';
+import useStampBox from './hooks/useStampBox';
+import StampBoxItem from './components/StampBoxItem';
 
 const STAMP_COLUMNS = 3;
 

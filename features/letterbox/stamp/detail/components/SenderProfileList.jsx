@@ -3,10 +3,10 @@ import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors } from '../../../../shared/styles/color';
-import { padding } from '../../../../shared/styles/token';
+import { colors } from '../../../../../shared/styles/color';
+import { padding } from '../../../../../shared/styles/token';
 
-import Profile from '../../components/Profile';
+import Profile from '../../../components/Profile';
 
 import CenterToStartRow from './CenterToStartRow';
 

@@ -11,10 +11,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { gap, padding } from '../../../../shared/styles/token';
-import { resolveEnvelope } from '../../../../shared/utils/envelopeUtils';
+import { gap, padding } from '../../../../../shared/styles/token';
+import { resolveEnvelope } from '../../../../../shared/utils/envelopeUtils';
 
-import Letter from '../../components/Letter';
+import Letter from '../../../components/Letter';
 import useUnreadLetterStack, { EXPAND_SCROLL_DISTANCE } from '../hooks/useUnreadLetterStack';
 
 // Letter 원본 크기(320x232)

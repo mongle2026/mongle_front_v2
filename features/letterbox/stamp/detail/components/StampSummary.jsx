@@ -2,13 +2,13 @@ import { memo, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
-import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
-import { colors } from '../../../../shared/styles/color';
-import { typo } from '../../../../shared/styles/typo';
-import { gap, padding } from '../../../../shared/styles/token';
-import { formatDate } from '../../../../shared/utils/dateUtils';
+import SuitSafeText from '../../../../../shared/components/atomic/SuitSafeText';
+import { colors } from '../../../../../shared/styles/color';
+import { typo } from '../../../../../shared/styles/typo';
+import { gap, padding } from '../../../../../shared/styles/token';
+import { formatDate } from '../../../../../shared/utils/dateUtils';
 
-import Stamp, { getStampHeight } from '../../components/Stamp';
+import Stamp, { getStampHeight } from '../../../components/Stamp';
 
 import CenterToStartRow from './CenterToStartRow';
 

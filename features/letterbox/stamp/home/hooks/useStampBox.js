@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-import { STAMPS } from '../../../../shared/data/envelopeData';
+import { STAMPS } from '../../../../../shared/data/envelopeData';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
 

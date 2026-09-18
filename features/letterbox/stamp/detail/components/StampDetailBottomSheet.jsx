@@ -14,9 +14,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomSheet, {
   BottomSheetFlatList,
   DRAG_HANDLE_HEIGHT,
-} from '../../../../shared/components/overlay/BottomSheet';
-import { colors } from '../../../../shared/styles/color';
-import { gap, padding } from '../../../../shared/styles/token';
+} from '../../../../../shared/components/overlay/BottomSheet';
+import { colors } from '../../../../../shared/styles/color';
+import { gap, padding } from '../../../../../shared/styles/token';
 
 import SenderProfileList from './SenderProfileList';
 import StampLetterItem from './StampLetterItem';
