@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import IcMusicPlay from '../../../assets/icons/ic_musicplay.svg';
 import IcMusicStop from '../../../assets/icons/ic_musicstop.svg';
@@ -29,6 +29,8 @@ const MusicCard = ({
   font = FONT.KYOBO,
   isPlaying = false,
   onPressPlayback,
+  onPress,
+  pressAccessibilityLabel,
   disabled = false,
   style,
 }) => {
@@ -46,14 +48,24 @@ const MusicCard = ({
     [onPressPlayback]
   );
 
+  // 카드 본문과 재생 버튼을 형제로 분리해, 재생 버튼 터치가 onPress로 전달되지 않도록 합니다.
+  const PressArea = onPress ? Pressable : View;
+  const pressAreaProps = onPress
+    ? {
+      onPress,
+      accessibilityRole: 'button',
+      accessibilityLabel: pressAccessibilityLabel,
+    }
+    : null;
+
   return (
     <View style={[styles.container, style]}>
-      <MusicCoverImg
-        imageSource={imageSource}
-        accessibilityLabel={`${accessibilityTitle} 앨범 커버`}
-      />
+      <PressArea style={styles.pressArea} {...pressAreaProps}>
+        <MusicCoverImg
+          imageSource={imageSource}
+          accessibilityLabel={`${accessibilityTitle} 앨범 커버`}
+        />
 
-      <View style={styles.contentContainer}>
         <View style={styles.musicInfoContainer}>
           <Text
             allowFontScaling={false}
@@ -73,7 +85,9 @@ const MusicCard = ({
             {artist}
           </Text>
         </View>
+      </PressArea>
 
+      <View style={styles.playButtonContainer}>
         <IconButton
           size="L"
           icon={PlaybackIcon}
@@ -93,18 +107,24 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: padding.M,
-    paddingHorizontal: padding.L,
+    paddingRight: padding.L,
     gap: gap.M,
     backgroundColor: colors.bgLayerDefault,
   },
 
-  contentContainer: {
+  pressArea: {
     flex: 1,
     minWidth: 0,
+    alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: padding.M,
+    paddingLeft: padding.L,
     gap: gap.M,
+  },
+
+  playButtonContainer: {
+    paddingVertical: padding.M,
   },
 
   musicInfoContainer: {

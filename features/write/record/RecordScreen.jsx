@@ -430,12 +430,7 @@ const RecordScreen = ({ navigation, route }) => {
         )}
 
         {music ? (
-          <Pressable
-            style={styles.musicCardButton}
-            onPress={handleOpenMusicSelect}
-            accessibilityRole="button"
-            accessibilityLabel="음악 다시 선택"
-          >
+          <View style={styles.musicCardButton}>
             <MusicCard
               imageSource={musicArtworkUri ? { uri: musicArtworkUri } : undefined}
               title={music.musicTitle}
@@ -444,8 +439,10 @@ const RecordScreen = ({ navigation, route }) => {
               isPlaying={isMusicPlaying}
               disabled={!musicPreviewUri}
               onPressPlayback={musicPreviewUri ? handlePlayback : undefined}
+              onPress={handleOpenMusicSelect}
+              pressAccessibilityLabel="음악 다시 선택"
             />
-          </Pressable>
+          </View>
         ) : (
           <View style={styles.musicContainer}>
             <LabeledButton
