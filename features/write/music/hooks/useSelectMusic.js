@@ -4,7 +4,7 @@ import {
   useState,
 } from 'react';
 
-import axios from 'axios';
+import apiClient from '../../../../shared/api/client';
 
 import {
   useQuery,
@@ -16,9 +16,6 @@ import {
   useRecordFormStore,
 } from '../../store/useRecordFormStore';
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL;
-
 const MUSIC_PAGE_LIMIT = 20;
 
 const getMusicKey = music => {
@@ -28,8 +25,8 @@ const getMusicKey = music => {
 async function fetchPopularMusics({
   signal,
 }) {
-  const response = await axios.get(
-    `${API_BASE_URL}/music/popular`,
+  const response = await apiClient.get(
+    '/music/popular',
     {
       signal,
     },
@@ -49,8 +46,8 @@ async function fetchMusicSearchPage({
   pageParam,
   signal,
 }) {
-  const response = await axios.get(
-    `${API_BASE_URL}/music/search`,
+  const response = await apiClient.get(
+    '/music/search',
     {
       params: {
         keyword,
@@ -162,11 +159,6 @@ export default function useSelectMusic(
       setSelectedMusicId(null);
     }, []);
 
-  const handleFocusSearch =
-    useCallback(() => {
-      setSelectedMusicId(null);
-    }, []);
-
   /*
    * 기존 화면과 동일하게 externalId를
    * 전달받는 방식입니다.
@@ -219,12 +211,7 @@ export default function useSelectMusic(
 
     selectedMusicId,
 
-    error: trimmedKeyword
-      ? searchQuery.error
-      : popularQuery.error,
-
     handleChangeKeyword,
-    handleFocusSearch,
     handleSelectMusic,
 
     handleLoadMore:

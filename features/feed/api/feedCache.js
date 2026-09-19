@@ -1,6 +1,6 @@
 const normalizeId = value => String(value);
 
-export const FEED_HOME_QUERY_ROOT = ['feed-home'];
+const FEED_HOME_QUERY_ROOT = ['feed-home'];
 
 export const feedHomeKeys = {
   all: FEED_HOME_QUERY_ROOT,
@@ -8,12 +8,19 @@ export const feedHomeKeys = {
   list: (userId, feedType) => [...FEED_HOME_QUERY_ROOT, normalizeId(userId), feedType],
 };
 
-export const FEED_DETAIL_QUERY_ROOT = ['feed-detail'];
+const FEED_DETAIL_QUERY_ROOT = ['feed-detail'];
 
 export const feedDetailKeys = {
   all: FEED_DETAIL_QUERY_ROOT,
   user: userId => [...FEED_DETAIL_QUERY_ROOT, normalizeId(userId)],
   detail: (userId, feedId) => [...FEED_DETAIL_QUERY_ROOT, normalizeId(userId), normalizeId(feedId)],
+};
+
+const FEED_COMMENTS_QUERY_ROOT = ['feed-comments'];
+
+export const feedCommentKeys = {
+  all: FEED_COMMENTS_QUERY_ROOT,
+  list: (feedId, userId) => [...FEED_COMMENTS_QUERY_ROOT, feedId != null ? normalizeId(feedId) : '', Number(userId)],
 };
 
 export function updateFeedItem(queryData, feedId, updater) {

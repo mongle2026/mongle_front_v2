@@ -56,7 +56,6 @@ const TopIconNavigation = ({
           />
 
           <Text
-            allowFontScaling={false}
             style={[styles.headerText, textStyle]}
           >
             {headerText}

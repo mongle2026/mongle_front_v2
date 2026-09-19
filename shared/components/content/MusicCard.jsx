@@ -5,7 +5,7 @@ import IcMusicPlay from '../../../assets/icons/ic_musicplay.svg';
 import IcMusicStop from '../../../assets/icons/ic_musicstop.svg';
 
 import { colors } from '../../styles/color';
-import { FONT } from '../../styles/font';
+import { FONT } from '../../styles/fontType';
 import { gap, padding } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
@@ -74,7 +74,6 @@ const MusicCard = ({
 
         <View style={styles.musicInfoContainer}>
           <Text
-            allowFontScaling={false}
             style={[styles.title, titleTypography]}
             numberOfLines={1}
             ellipsizeMode="tail"
@@ -83,7 +82,6 @@ const MusicCard = ({
           </Text>
 
           <Text
-            allowFontScaling={false}
             style={[styles.artist, artistTypography]}
             numberOfLines={1}
             ellipsizeMode="tail"

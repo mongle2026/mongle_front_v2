@@ -1,3 +1,5 @@
+import { formatDate } from '../../../../shared/utils/dateUtils';
+
 const KOREA_TIMEZONE_OFFSET = '+09:00';
 
 const pad2 = value =>
@@ -142,15 +144,12 @@ export const deliveryAtToDate =
  */
 export const formatDeliveryDateLabel =
   deliveryAt => {
-    const dateString =
-      getDateString(deliveryAt);
+    const date =
+      deliveryAtToDate(deliveryAt);
 
-    if (!dateString) {
+    if (!date) {
       return '';
     }
 
-    const [year, month, day] =
-      dateString.split('-');
-
-    return `${year.slice(-2)}.${month}.${day}에 도착`;
+    return `${formatDate(date)}에 도착`;
   };

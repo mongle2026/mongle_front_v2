@@ -1,18 +1,12 @@
-import axios from 'axios';
+import apiClient, { isApiConfigured } from '../api/client';
 import { useQuery } from '@tanstack/react-query';
 
 import { mockAuth } from '../auth/mockAuth';
 import { resolveMediaUri } from '../utils/media';
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(
-    /\/+$/,
-    '',
-  );
-
 export default function useCurrentUser() {
   const isConfigured =
-    Boolean(API_BASE_URL);
+    isApiConfigured;
 
   const isAuthenticated =
     mockAuth.isAuthenticated;
@@ -22,11 +16,6 @@ export default function useCurrentUser() {
 
   const {
     data: currentUser,
-    isLoading,
-    isFetching,
-    isError,
-    error,
-    refetch,
   } = useQuery({
     queryKey: [
       'current-user',
@@ -34,8 +23,8 @@ export default function useCurrentUser() {
     ],
 
     queryFn: async () => {
-      const response = await axios.get(
-        `${API_BASE_URL}/user/${mockUserId}`,
+      const response = await apiClient.get(
+        `/user/${mockUserId}`,
       );
 
       const user = response.data;
@@ -86,22 +75,5 @@ export default function useCurrentUser() {
       currentUser?.userId ??
       mockUserId,
 
-    isAuthenticated,
-    isConfigured,
-
-    isLoadingCurrentUser:
-      isLoading,
-
-    isFetchingCurrentUser:
-      isFetching,
-
-    isCurrentUserError:
-      isError,
-
-    currentUserError:
-      error,
-
-    refetchCurrentUser:
-      refetch,
   };
 }

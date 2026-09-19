@@ -1,13 +1,15 @@
 import { useCallback, useState } from 'react';
 
-// 당겨서 새로고침. refetch 가 끝날 때까지 로딩 원을 띄운다 (피드 useFeedHomeRefresh 와 같은 방식)
+// 당겨서 새로고침. refetch 가 끝날 때까지 로딩 원을 띄운다
 // refetch: react-query 의 refetch
-const usePullRefresh = ({ refetch, errorMessage = '새로고침에 실패했습니다.' } = {}) => {
+// onBeforeRefresh: 새로고침을 시작하기 직전에 할 일 (예: 피드 음악 재생 멈춤)
+const usePullRefresh = ({ refetch, onBeforeRefresh, errorMessage = '새로고침에 실패했습니다.' } = {}) => {
   const [isPullRefreshing, setIsPullRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
     if (isPullRefreshing || !refetch) return;
 
+    onBeforeRefresh?.();
     setIsPullRefreshing(true);
 
     try {
@@ -17,7 +19,7 @@ const usePullRefresh = ({ refetch, errorMessage = '새로고침에 실패했습�
     } finally {
       setIsPullRefreshing(false);
     }
-  }, [errorMessage, isPullRefreshing, refetch]);
+  }, [errorMessage, isPullRefreshing, onBeforeRefresh, refetch]);
 
   return {
     isPullRefreshing,

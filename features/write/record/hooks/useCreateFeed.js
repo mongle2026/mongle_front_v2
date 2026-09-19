@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient, { getApiErrorDetail } from '../../../../shared/api/client';
 import {
   useMutation,
   useQueryClient,
@@ -9,16 +9,13 @@ import {
 } from '../../store/useRecordFormStore';
 
 import {
-  useFeedFormStore,
-} from '../../store/useFeedFormStore';
-
-import {
+  prepareRecordFiles,
   uploadRecordFiles,
 } from '../../utils/uploadRecordFiles';
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL
-    ?.replace(/\/+$/, '');
+import {
+  feedHomeKeys,
+} from '../../../feed/api/feedCache';
 
 const useCreateFeed = ({
   userId,
@@ -32,19 +29,8 @@ const useCreateFeed = ({
       state => state.resetRecordForm,
     );
 
-  const resetFeedForm =
-    useFeedFormStore(
-      state => state.resetFeedForm,
-    );
-
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!API_BASE_URL) {
-        throw new Error(
-          'EXPO_PUBLIC_API_BASE_URL이 설정되지 않았습니다.',
-        );
-      }
-
       if (!userId) {
         throw new Error(
           '사용자 정보가 없습니다.',
@@ -58,12 +44,16 @@ const useCreateFeed = ({
       const recordForm =
         useRecordFormStore.getState();
 
-      const feedForm =
-        useFeedFormStore.getState();
+      /*
+       * 압축은 요청 전에 끝내 둡니다.
+       * 압축이 실패하면 서버에 아무것도 반영하지 않고 끝납니다.
+       */
+      const uploadableFiles =
+        await prepareRecordFiles(recordForm.files);
 
       const response =
-        await axios.post(
-          `${API_BASE_URL}/feed`,
+        await apiClient.post(
+          '/feed',
           {
             userId: String(userId),
             music: JSON.stringify(recordForm.music),
@@ -71,21 +61,40 @@ const useCreateFeed = ({
             font: recordForm.font ?? 'KYOBO',
 
             visibility:
-              feedForm.visibility ?? 'PUBLIC',
+              recordForm.visibility ?? 'PUBLIC',
           },
         );
 
       /*
        * 이미지는 피드 생성 이후
-       * presigned URL을 통해 R2에 직접 업로드합니다.
+       * presigned URL을 통해 R2에 업로드합니다.
+       *
+       * 여기서 실패해도 피드 자체는 이미 저장된 상태라서,
+       * 실패로 처리하면 재시도할 때 피드가 중복 생성됩니다.
+       * 그래서 부분 성공(fileUploadFailed)으로 돌려주고 화면에서 안내합니다.
+       * TODO: 레코드와 파일을 한 번에 저장하도록 백엔드와 협의
        */
-      await uploadRecordFiles({
-        userId,
-        recordId: response.data.recordId,
-        files: recordForm.files,
-      });
+      let fileUploadFailed = false;
 
-      return response.data;
+      try {
+        await uploadRecordFiles({
+          userId,
+          recordId: response.data.recordId,
+          files: uploadableFiles,
+        });
+      } catch (error) {
+        console.warn(
+          '이미지 업로드에 실패했습니다.',
+          getApiErrorDetail(error),
+        );
+
+        fileUploadFailed = true;
+      }
+
+      return {
+        ...response.data,
+        fileUploadFailed,
+      };
     },
 
     onSuccess: data => {
@@ -93,7 +102,7 @@ const useCreateFeed = ({
        * 새 글이 피드 홈에 반영되게 합니다.
        */
       queryClient.invalidateQueries({
-        queryKey: ['feed-home'],
+        queryKey: feedHomeKeys.all,
       });
 
       /*
@@ -101,7 +110,6 @@ const useCreateFeed = ({
        * 작성 상태를 초기화합니다.
        */
       resetRecordForm();
-      resetFeedForm();
 
       onSuccess?.(data);
     },
@@ -109,8 +117,7 @@ const useCreateFeed = ({
     onError: error => {
       console.warn(
         '피드 저장에 실패했습니다.',
-        error.response?.data ??
-        error.message,
+        getApiErrorDetail(error),
       );
 
       onError?.(error);
@@ -119,12 +126,8 @@ const useCreateFeed = ({
 
   return {
     createFeed: mutation.mutate,
-    createFeedAsync:
-      mutation.mutateAsync,
     isCreatingFeed:
       mutation.isPending,
-    createFeedError:
-      mutation.error,
   };
 };
 

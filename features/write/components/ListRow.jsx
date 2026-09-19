@@ -73,7 +73,6 @@ const ListRow = ({
 
         <View style={styles.textContainer}>
           <Text
-            allowFontScaling={false}
             numberOfLines={1}
             style={styles.primaryText}
           >
@@ -81,7 +80,6 @@ const ListRow = ({
           </Text>
 
           <Text
-            allowFontScaling={false}
             numberOfLines={1}
             style={styles.secondaryText}
           >

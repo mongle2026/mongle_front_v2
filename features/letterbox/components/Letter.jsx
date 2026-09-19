@@ -9,6 +9,7 @@ import LetterShadow from '../../../assets/envelope/patterns/letter_shadow.png';
 import { colors } from '../../../shared/styles/color';
 import { typo } from '../../../shared/styles/typo';
 import { padding } from '../../../shared/styles/token';
+import StampImage from './StampImage';
 
 const CARD_ASPECT_RATIO = 320 / 232;
 const FLAP_ASPECT_RATIO = 318 / 164;
@@ -41,7 +42,6 @@ function Letter({
   StampSvg,
   recipient = '',
   sender = '',
-  stampSource,
   style,
   flapStyle,
 }) {
@@ -97,19 +97,11 @@ function Letter({
               </Text>
             </View>
 
-            {StampSvg ? (
-              <View style={styles.stamp} pointerEvents="none">
-                <StampSvg
-                  width="100%"
-                  height="100%"
-                  preserveAspectRatio="xMidYMid slice"
-                />
-              </View>
-            ) : stampSource ? (
-              <Image source={stampSource} style={styles.stamp} resizeMode="cover" />
-            ) : (
-              <View style={styles.stamp} />
-            )}
+            <StampImage
+              StampSvg={StampSvg}
+              style={styles.stamp}
+              pointerEvents="none"
+            />
           </View>
         </View>
       ) : null}

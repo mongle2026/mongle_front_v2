@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
 
 import { normalizeLetterboxItem } from '../../../utils/normalizeLetter';
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+import { letterboxKeys } from '../../../api/letterboxKeys';
 
 const LETTERBOX_LIMIT = 20;
 
@@ -28,36 +27,30 @@ function normalizeLetterboxPage(data) {
 }
 
 async function fetchLetterboxPage({ userId, tab, pageParam }) {
-  if (!API_BASE_URL) {
-    throw new Error('EXPO_PUBLIC_API_BASE_URL이 설정되지 않았습니다.');
-  }
-
   const params = { userId, tab, limit: LETTERBOX_LIMIT };
 
   if (pageParam !== null && pageParam !== undefined) {
     params.cursor = pageParam;
   }
 
-  const response = await axios.get(`${API_BASE_URL}/letter`, { params });
+  const response = await apiClient.get('/letter', { params });
   return normalizeLetterboxPage(response.data);
 }
 
 // 편지함 편지 목록 조회.
-// queryKey는 ['letterbox', ...]로 둔다 (useCreateLetter가 편지 전송 후 ['letterbox']를 invalidate 한다).
 const useLetterBox = ({ userId, filter } = {}) => {
   const tab = LETTERBOX_TAB[filter];
-  const isConfigured = Boolean(API_BASE_URL && Number(userId) > 0 && tab);
+  const isConfigured = Boolean(isApiConfigured && Number(userId) > 0 && tab);
 
   const {
     data,
-    error,
     isLoading,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ['letterbox', Number(userId), tab],
+    queryKey: letterboxKeys.letterList(userId, tab),
     initialPageParam: null,
     enabled: isConfigured,
     queryFn: ({ pageParam }) => fetchLetterboxPage({ userId, tab, pageParam }),
@@ -68,8 +61,6 @@ const useLetterBox = ({ userId, filter } = {}) => {
 
   return {
     letters,
-    error,
-    isConfigured,
     isLoading,
     isFetchingNextPage,
     hasNextPage,

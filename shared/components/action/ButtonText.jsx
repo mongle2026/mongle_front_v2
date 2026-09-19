@@ -27,7 +27,6 @@ const ButtonText = ({
       ]}
     >
       <Text
-        allowFontScaling={false}
         style={[
           styles.text,
           isSmall

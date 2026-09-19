@@ -20,7 +20,7 @@ import {
 import Calendar from '../../components/calendar/Calendar';
 
 import { colors } from '../../../../shared/styles/color';
-import { FONT } from '../../../../shared/styles/font';
+import { FONT } from '../../../../shared/styles/fontType';
 import {
   gap,
   padding,
@@ -30,7 +30,11 @@ import { typo } from '../../../../shared/styles/typo';
 import useDateSelect from '../hooks/useDateSelect';
 import {
   DATE_PRESET,
+  DATE_PRESET_LABEL,
 } from '../utils/dateSelect';
+
+// 즉시 · 일주일 뒤 · 한 달 뒤 · 일 년 뒤 ('즉시'는 allowToday 일 때만)
+const PRESET_BUTTONS = Object.values(DATE_PRESET);
 
 const DateSelectBottomSheet = ({
   initialDate = null,
@@ -142,83 +146,27 @@ const DateSelectBottomSheet = ({
           styles.dateButtonContainer
         }
       >
-        {allowToday && (
-          <TextButton
-            variant={
-              isPresetSelected(
-                DATE_PRESET.NOW,
-              )
-                ? TEXT_BUTTON_VARIANT.BG_INFO_WEAK
-                : TEXT_BUTTON_VARIANT.NEUTRAL_WEAK
-            }
-            size={TEXT_BUTTON_SIZE.M}
-            font={FONT.SUIT}
-            onPress={() =>
-              handlePresetPress(
-                DATE_PRESET.NOW,
-              )
-            }
-          >
-            즉시
-          </TextButton>
-        )}
-
-        <TextButton
-          variant={
-            isPresetSelected(
-              DATE_PRESET.WEEK,
-            )
-              ? TEXT_BUTTON_VARIANT.BG_INFO_WEAK
-              : TEXT_BUTTON_VARIANT.NEUTRAL_WEAK
-          }
-          size={TEXT_BUTTON_SIZE.M}
-          font={FONT.SUIT}
-          onPress={() =>
-            handlePresetPress(
-              DATE_PRESET.WEEK,
-            )
-          }
-        >
-          일주일 뒤
-        </TextButton>
-
-        <TextButton
-          variant={
-            isPresetSelected(
-              DATE_PRESET.MONTH,
-            )
-              ? TEXT_BUTTON_VARIANT.BG_INFO_WEAK
-              : TEXT_BUTTON_VARIANT.NEUTRAL_WEAK
-          }
-          size={TEXT_BUTTON_SIZE.M}
-          font={FONT.SUIT}
-          onPress={() =>
-            handlePresetPress(
-              DATE_PRESET.MONTH,
-            )
-          }
-        >
-          한 달 뒤
-        </TextButton>
-
-        <TextButton
-          variant={
-            isPresetSelected(
-              DATE_PRESET.YEAR,
-            )
-              ? TEXT_BUTTON_VARIANT.BG_INFO_WEAK
-              : TEXT_BUTTON_VARIANT.NEUTRAL_WEAK
-          }
-          size={TEXT_BUTTON_SIZE.M}
-          font={FONT.SUIT}
-          onPress={() =>
-            handlePresetPress(
-              DATE_PRESET.YEAR,
-            )
-          }
-        >
-          일 년 뒤
-        </TextButton>
+        {PRESET_BUTTONS
+          .filter(preset =>
+            allowToday || preset !== DATE_PRESET.NOW,
+          )
+          .map(preset => (
+            <TextButton
+              key={preset}
+              variant={
+                isPresetSelected(preset)
+                  ? TEXT_BUTTON_VARIANT.BG_INFO_WEAK
+                  : TEXT_BUTTON_VARIANT.NEUTRAL_WEAK
+              }
+              size={TEXT_BUTTON_SIZE.M}
+              font={FONT.SUIT}
+              onPress={() =>
+                handlePresetPress(preset)
+              }
+            >
+              {DATE_PRESET_LABEL[preset]}
+            </TextButton>
+          ))}
       </View>
 
       {/* button container */}

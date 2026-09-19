@@ -17,7 +17,7 @@ import { gap, padding } from '../../../shared/styles/token';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
-import { PATTERNS, STAMPS } from '../../../shared/data/envelopeData';
+import { PATTERNS, STAMPS, findStamp } from '../../../shared/data/envelopeData';
 import { resolvePatternColor } from '../../../shared/utils/envelopeUtils';
 import { chunk } from '../../../shared/utils/arrayUtils';
 
@@ -34,6 +34,7 @@ import useCreateLetter from './hooks/useCreateLetter';
 import useEnvelopePreviewFlip from './hooks/useEnvelopePreviewFlip';
 import useLetterPreviewSize from './hooks/useLetterPreviewSize';
 import { TEMPLATES } from './data/envelopeTemplateData';
+import { getApiErrorMessage } from '../../../shared/api/client';
 
 /* TabBar 는 인덱스 기반이라 훅의 tab key 와 매핑한다 */
 const TAB_LABELS = TABS.map((tab) => tab.label);
@@ -74,16 +75,22 @@ const EnvelopeScreen = ({ navigation }) => {
   const { createLetter, isCreatingLetter } = useCreateLetter({
     userId,
 
-    onSuccess: () => {
+    onSuccess: (data) => {
       navigation?.popToTop();
+
+      if (data?.fileUploadFailed) {
+        showToast({
+          message: '편지는 보냈지만 사진을 올리지 못했습니다.',
+          icon: 'alert',
+          iconColor: colors.fgCritical,
+          bottomOffset: insets.bottom,
+        });
+      }
     },
 
     onError: (error) => {
-      const message =
-        error.response?.data?.message ?? '편지를 보내지 못했습니다.';
-
       showToast({
-        message: Array.isArray(message) ? message[0] : message,
+        message: getApiErrorMessage(error, '편지를 보내지 못했습니다.'),
         icon: 'alert',
         iconColor: colors.fgCritical,
         bottomOffset: insets.bottom,
@@ -171,7 +178,7 @@ const EnvelopeScreen = ({ navigation }) => {
               <View key={`template-row-${rowIndex}`} style={styles.templateRow}>
                 {row.map((template) => {
                   const resolved = resolvePatternColor(template.patternColorId);
-                  const stamp = STAMPS.find((item) => item.id === template.stampId);
+                  const stamp = findStamp(template.stampId);
 
                   return (
                     <Templete

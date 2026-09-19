@@ -47,7 +47,6 @@ const LabeledButton = ({
       )}
 
       <Text
-        allowFontScaling={false}
         style={[typography, { color }]}
       >
         {label}

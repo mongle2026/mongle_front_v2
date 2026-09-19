@@ -3,16 +3,13 @@ import {
   useState,
 } from 'react';
 
-import axios from 'axios';
+import apiClient from '../../../../shared/api/client';
 
 import useInfiniteSearchQuery from '../../../../shared/hooks/useInfiniteSearchQuery';
 
 import {
   useLetterFormStore,
 } from '../../store/useLetterFormStore';
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL;
 
 const USER_PAGE_LIMIT = 20;
 
@@ -26,8 +23,8 @@ async function fetchUserSearchPage({
   signal,
   currentUserId,
 }) {
-  const response = await axios.get(
-    `${API_BASE_URL}/user/search`,
+  const response = await apiClient.get(
+    '/user/search',
     {
       params: {
         keyword,
@@ -127,11 +124,6 @@ export default function useSelectRecipient(
       setSelectedRecipientId(null);
     }, []);
 
-  const handleFocusSearch =
-    useCallback(() => {
-      setSelectedRecipientId(null);
-    }, []);
-
   const handleSelectRecipient =
     useCallback(
       recipient => {
@@ -173,11 +165,7 @@ export default function useSelectRecipient(
 
     selectedRecipientId,
 
-    error:
-      userQuery.error,
-
     handleChangeKeyword,
-    handleFocusSearch,
     handleSelectRecipient,
 
     handleLoadMore:

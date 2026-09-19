@@ -2,17 +2,13 @@
 import { useEffect, useState, } from 'react';
 
 // 서드파티
-import axios from 'axios';
+import apiClient from '../../../../shared/api/client';
 
 // 스토어
 import { useRecordFormStore, } from '../../store/useRecordFormStore.js';
-import { useFeedFormStore, } from '../../store/useFeedFormStore.js';
 
 // 유틸
 import { resolveMediaUri, } from '../../../../shared/utils/media.js';
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL;
 
 /**
  * 서버 파일 데이터(R2 URL 포함)를
@@ -105,13 +101,8 @@ export function useFeedEditForm({
       (state) => state.resetDirty,
     );
 
-  const resetFeedForm =
-    useFeedFormStore(
-      (state) => state.resetFeedForm,
-    );
-
   const setVisibility =
-    useFeedFormStore(
+    useRecordFormStore(
       (state) => state.setVisibility,
     );
 
@@ -133,10 +124,9 @@ export function useFeedEditForm({
          * 조회 전에 store를 초기화합니다.
          */
         resetRecordForm();
-        resetFeedForm();
 
-        const response = await axios.get(
-          `${API_BASE_URL}/feed/${feedId}`,
+        const response = await apiClient.get(
+          `/feed/${feedId}`,
           {
             params: {
               userId,
@@ -231,7 +221,6 @@ export function useFeedEditForm({
     feedId,
     userId,
     resetRecordForm,
-    resetFeedForm,
     setText,
     setMusic,
     setFont,
@@ -244,6 +233,5 @@ export function useFeedEditForm({
     loading,
     error,
     originalFileIds,
-    resetEditForm: resetRecordForm,
   };
 }

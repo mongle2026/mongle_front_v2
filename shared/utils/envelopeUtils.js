@@ -1,6 +1,6 @@
 import {
   PATTERNS,
-  STAMPS,
+  findStamp,
 } from '../data/envelopeData';
 
 export function resolvePatternColor(
@@ -44,14 +44,12 @@ export function resolveEnvelope({
     (item) => item.id === colorId,
   );
 
-  const stamp = STAMPS.find(
-    (item) => item.id === stampId,
-  );
+  const stamp = findStamp(stampId);
 
   return {
     pattern: pattern ?? null,
     color: color ?? null,
-    stamp: stamp ?? null,
+    stamp,
 
     /* 봉투 앞면(body) / 덮개(flap) / 우표 SVG 컴포넌트 */
     FrontSvg: color

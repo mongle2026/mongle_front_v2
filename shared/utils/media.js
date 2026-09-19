@@ -24,3 +24,11 @@ export const getImageSources = (files, limit = 2) =>
     .filter(Boolean)
     .slice(0, limit)
     .map(uri => ({ uri }));
+
+// 이미지 목록의 React key (uri가 없으면 순서로 구분)
+export const getImageKey = (imageSource, index) => {
+  if (typeof imageSource === 'string') return `${imageSource}-${index}`;
+  if (imageSource && typeof imageSource === 'object' && imageSource.uri) return `${imageSource.uri}-${index}`;
+
+  return `image-${index}`;
+};

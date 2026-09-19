@@ -7,7 +7,7 @@ import { TextButton } from '../../action/TextButton';
 import { colors } from '../../../styles/color';
 import { typo } from '../../../styles/typo';
 import { gap, padding } from '../../../styles/token';
-import { FONT, normalizeFont, } from '../../../styles/font';
+import { FONT, normalizeFont, } from '../../../styles/fontType';
 
 const PROFILE_TYPE = Object.freeze({
   FEED: 'Feed',

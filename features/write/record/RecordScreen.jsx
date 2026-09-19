@@ -1,24 +1,22 @@
 import React, { useCallback, useEffect } from 'react';
-import { Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Icons
 import IcProfile from '../../../assets/icons/ic_profile.svg';
-import IcMusic from '../../../assets/icons/ic_music.svg';
 import IcCalendar from '../../../assets/icons/ic_calendar.svg';
 
 // Shared Components & Providers
 import { DividerLine } from '../../../shared/components/atomic/DividerLine';
-import MusicCard from '../../../shared/components/content/MusicCard';
 import Profile from '../../../shared/components/content/profile/Profile';
 import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 // Shared Hooks & Utils
-import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { resolveMediaUri } from '../../../shared/utils/media';
 import { dismissKeyboardThen } from '../../../shared/utils/keyboardUtils';
+import { getApiErrorMessage } from '../../../shared/api/client';
 
 // Shared Styles
 import { colors } from '../../../shared/styles/color';
@@ -27,26 +25,18 @@ import { typo } from '../../../shared/styles/typo';
 
 // Feature Components, Stores & Utils
 import LabeledButton from '../components/LabeledButton';
-import BottomBar from '../components/bottombar/BottomBar';
-import SelectedImageList from './components/SelectedImageList';
+import RecordEditorBody from './components/RecordEditorBody';
 import RecipientSelectBottomSheet from '../recipient/components/RecipientSelectBottomSheet';
 import DateSelectBottomSheet from '../date/components/DateSelectBottomSheet';
 import { useRecordFormStore } from '../store/useRecordFormStore';
 import { useLetterFormStore } from '../store/useLetterFormStore';
-import { useFeedFormStore } from '../store/useFeedFormStore';
 import { deliveryAtToDate, formatDeliveryDateLabel, toDeliveryAt } from '../date/utils/deliveryDate';
 import { fullScreenOverlayContainerStyle } from '../utils/overlayContainerStyle';
 
 // Hooks
-import useRecordMusicPlayback from './hooks/useRecordMusicPlayback';
+import useRecordEditor from './hooks/useRecordEditor';
 import useCreateFeed from './hooks/useCreateFeed';
-import useAutoScrollTextInput from './hooks/useAutoScrollTextInput';
 import { useLeaveRecordConfirm } from './hooks/useLeaveRecordConfirm';
-import { useRecordImageManager } from './hooks/useRecordImageManager';
-import { useBottomBarPanel } from './hooks/useBottomBarPanel';
-import { useRecordTypography } from './hooks/useRecordTypography';
-import { useMusicSelectOverlay } from './hooks/useMusicSelectOverlay';
-import { useRecordTextLimit } from './hooks/useRecordTextLimit';
 
 const RECORD_TYPE = {
   FEED: 'feed',
@@ -61,35 +51,21 @@ const RecordScreen = ({ navigation, route }) => {
   /* 현재 로그인 사용자 */
   const { userId } = useCurrentUser();
 
-  /* 피드 / 편지 공통 작성 데이터 */
-  const text = useRecordFormStore(state => state.text);
-  const music = useRecordFormStore(state => state.music);
-  const resetRecordForm = useRecordFormStore(state => state.resetRecordForm);
-  const resetFeedForm = useFeedFormStore(state => state.resetFeedForm);
+  /* 피드 / 편지 공통 작성 상태 (음악 · 본문 · 이미지 · 폰트 · 하단 바) */
+  const editor = useRecordEditor({
+    navigation,
+    musicSelectOverlayId: MUSIC_SELECT_OVERLAY_ID,
+  });
 
-  /* 이미지 선택, 삭제 및 되돌리기 */
   const {
-    imageFiles,
-    isImageLimitReached,
-    handlePressImage,
-    handleRemoveImage,
-  } = useRecordImageManager();
-
-  /* 폰트 정규화 및 타이포 선택 */
-  const {
+    hasMusic,
+    hasContent,
     normalizedFont,
     dateTypography,
-    bodyTypography,
-    handleSelectFont,
-  } = useRecordTypography();
+    bottomOffset,
+  } = editor;
 
-  /* 음악 재생 */
-  const {
-    musicArtworkUri,
-    musicPreviewUri,
-    isMusicPlaying,
-    handlePlayback,
-  } = useRecordMusicPlayback({ music, navigation });
+  const resetRecordForm = useRecordFormStore(state => state.resetRecordForm);
 
   /* 편지 전용 작성 데이터 */
   const receiver = useLetterFormStore(state => state.receiver);
@@ -132,8 +108,6 @@ const RecordScreen = ({ navigation, route }) => {
   }, [isLetter, canSelectToday, deliveryAt, setDeliveryAt]);
 
   /* 다음 버튼 활성 색상 조건 */
-  const hasMusic = Boolean(music);
-  const hasContent = text.trim().length > 0 || imageFiles.length > 0;
   const hasRecipient = !isLetter || Boolean(receiver);
   const hasDeliveryDate = !isLetter || Boolean(deliveryAt);
   const isNextReady = hasMusic && hasContent && hasRecipient && hasDeliveryDate;
@@ -153,24 +127,13 @@ const RecordScreen = ({ navigation, route }) => {
     confirmText: '계속 작성하기',
     onDiscard: useCallback(() => {
       resetRecordForm();
-      resetFeedForm();
       if (isLetter) {
         resetLetterForm();
       }
-    }, [isLetter, resetFeedForm, resetLetterForm, resetRecordForm]),
+    }, [isLetter, resetLetterForm, resetRecordForm]),
   });
 
-  /* 키보드 / SafeArea 포함 BottomBar 위치 */
-  const bottomOffset = useFloatingBottomOffset();
   const { openOverlay, showToast } = useGlobalOverlay();
-
-  /* 키보드 강제로 내리기 */
-  const handlePressHideKeyboard = useCallback(() => {
-    Keyboard.dismiss();
-  }, []);
-
-  /* 본문 2,000자 제한 (초과 시 입력 차단 + Toast) */
-  const { handleChangeText } = useRecordTextLimit({ bottomOffset });
 
   /* Feed 저장 */
   const {
@@ -179,21 +142,22 @@ const RecordScreen = ({ navigation, route }) => {
   } = useCreateFeed({
     userId,
 
-    onSuccess: () => {
+    onSuccess: data => {
       navigation?.goBack();
+
+      if (data?.fileUploadFailed) {
+        showToast({
+          message: '피드는 저장했지만 사진을 올리지 못했습니다.',
+          icon: 'alert',
+          iconColor: colors.fgCritical,
+          bottomOffset,
+        });
+      }
     },
 
     onError: error => {
-      const message =
-        error.response?.data?.message ??
-        '피드를 저장하지 못했습니다.';
-
       showToast({
-        message:
-          Array.isArray(message)
-            ? message[0]
-            : message,
-
+        message: getApiErrorMessage(error, '피드를 저장하지 못했습니다.'),
         bottomOffset,
       });
     },
@@ -254,46 +218,6 @@ const RecordScreen = ({ navigation, route }) => {
       showToast,
     ]);
 
-  /* 하단 바 높이 측정 및 actions / font 모드 전환 */
-  const {
-    bottomBarHeight,
-    bottomBarMode,
-    handleBottomBarLayout,
-    handleShowFontMode,
-    handleShowActionsMode,
-  } = useBottomBarPanel();
-
-  /* 본문이 길어질 때 커서를 따라 스크롤 */
-  const {
-    scrollViewRef,
-    textInputRef,
-    textInputHeight,
-    handleScroll,
-    handleScrollViewLayout,
-    handleTextContentSizeChange,
-  } = useAutoScrollTextInput({
-    bottomBarHeight,
-    bottomOffset,
-    lineHeight: bodyTypography.lineHeight,
-  });
-
-  /* 본문 여백을 눌러도 키보드가 뜨도록 TextInput에 포커스 */
-  const handleFocusText = useCallback(() => {
-    const input = textInputRef.current;
-    if (!input) return;
-
-    /* 키보드가 이미 떠 있으면 그대로 둡니다. */
-    if (Keyboard.isVisible()) return;
-
-    if (input.isFocused?.()) {
-      input.blur();
-      requestAnimationFrame(() => textInputRef.current?.focus());
-      return;
-    }
-
-    input.focus();
-  }, [textInputRef]);
-
   /* 수신인 선택 BottomSheet 열기 */
   const handleOpenRecipientSelect = useCallback(() => {
     dismissKeyboardThen(() => {
@@ -307,9 +231,6 @@ const RecordScreen = ({ navigation, route }) => {
       });
     });
   }, [openOverlay, userId]);
-
-  /* 음악 선택 BottomSheet 열기 */
-  const handleOpenMusicSelect = useMusicSelectOverlay(MUSIC_SELECT_OVERLAY_ID);
 
   /* 날짜 선택 완료 및 BottomSheet 열기 */
   const handleConfirmDate = useCallback(
@@ -339,6 +260,71 @@ const RecordScreen = ({ navigation, route }) => {
     });
   }, [openOverlay, deliveryAt, handleConfirmDate, canSelectToday]);
 
+  const letterHeader = isLetter && (
+    <>
+      <View
+        style={[
+          styles.recipientAndDateContainer,
+          !receiver && styles.recipientAndDateContainerBeforeSelect,
+          !deliveryAt && styles.recipientAndDateContainerDateButton,
+        ]}
+      >
+        {receiver ? (
+          <Pressable
+            onPress={handleOpenRecipientSelect}
+            accessibilityRole="button"
+            accessibilityLabel="수신인 다시 선택"
+          >
+            <Profile
+              type="Letter"
+              imageUri={receiver.profileImageUrl ? resolveMediaUri(receiver.profileImageUrl) : null}
+              recipientName={`${receiver.nickname}${receiver.isMe ? '(나)' : ''}`}
+              font={normalizedFont}
+              style={styles.recipientProfile}
+            />
+          </Pressable>
+        ) : (
+          <LabeledButton
+            icon={<IcProfile />}
+            label="수신인 선택"
+            typography={typo.suitLabelLargeStrong}
+            color={colors.fgNeutralMuted}
+            iconColor={colors.fgNeutralMuted}
+            backgroundColor={colors.bgNeutralFaint}
+            onPress={handleOpenRecipientSelect}
+          />
+        )}
+
+        {deliveryAt ? (
+          <Pressable
+            style={styles.dateContainer}
+            onPress={handleOpenDateSelect}
+            accessibilityRole="button"
+            accessibilityLabel="도착 날짜 다시 선택"
+          >
+            <Text style={[styles.dateText, dateTypography]}>
+              {formatDeliveryDateLabel(deliveryAt)}
+            </Text>
+          </Pressable>
+        ) : (
+          <LabeledButton
+            icon={<IcCalendar />}
+            label="도착일 선택"
+            typography={typo.suitLabelLargeStrong}
+            color={colors.fgNeutralMuted}
+            backgroundColor={colors.bgNeutralFaint}
+            onPress={handleOpenDateSelect}
+            style={styles.dateSelectButton}
+          />
+        )}
+      </View>
+
+      <View style={styles.dividerContainer}>
+        <DividerLine />
+      </View>
+    </>
+  );
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <TopIconNavigation
@@ -350,168 +336,15 @@ const RecordScreen = ({ navigation, route }) => {
         nextTextStyle={{ color: nextTextColor }}
       />
 
-      <ScrollView
-        ref={scrollViewRef}
-        style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: bottomBarHeight + bottomOffset },
-        ]}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        onLayout={handleScrollViewLayout}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-      >
-        {isLetter && (
-          <>
-            <View
-              style={[
-                styles.recipientAndDateContainer,
-                !receiver && styles.recipientAndDateContainerBeforeSelect,
-                !deliveryAt && styles.recipientAndDateContainerDateButton,
-              ]}
-            >
-              {receiver ? (
-                <Pressable
-                  onPress={handleOpenRecipientSelect}
-                  accessibilityRole="button"
-                  accessibilityLabel="수신인 다시 선택"
-                >
-                  <Profile
-                    type="Letter"
-                    imageUri={receiver.profileImageUrl ? resolveMediaUri(receiver.profileImageUrl) : null}
-                    recipientName={`${receiver.nickname}${receiver.isMe ? '(나)' : ''}`}
-                    font={normalizedFont}
-                    style={styles.recipientProfile}
-                  />
-                </Pressable>
-              ) : (
-                <LabeledButton
-                  icon={<IcProfile />}
-                  label="수신인 선택"
-                  typography={typo.suitLabelLargeStrong}
-                  color={colors.fgNeutralMuted}
-                  iconColor={colors.fgNeutralMuted}
-                  backgroundColor={colors.bgNeutralFaint}
-                  onPress={handleOpenRecipientSelect}
-                />
-              )}
-
-              {deliveryAt ? (
-                <Pressable
-                  style={styles.dateContainer}
-                  onPress={handleOpenDateSelect}
-                  accessibilityRole="button"
-                  accessibilityLabel="도착 날짜 다시 선택"
-                >
-                  <Text allowFontScaling={false} style={[styles.dateText, dateTypography]}>
-                    {formatDeliveryDateLabel(deliveryAt)}
-                  </Text>
-                </Pressable>
-              ) : (
-                <LabeledButton
-                  icon={<IcCalendar />}
-                  label="도착일 선택"
-                  typography={typo.suitLabelLargeStrong}
-                  color={colors.fgNeutralMuted}
-                  backgroundColor={colors.bgNeutralFaint}
-                  onPress={handleOpenDateSelect}
-                  style={styles.dateSelectButton}
-                />
-              )}
-            </View>
-
-            <View style={styles.dividerContainer}>
-              <DividerLine />
-            </View>
-          </>
-        )}
-
-        {music ? (
-          <View style={styles.musicCardButton}>
-            <MusicCard
-              imageSource={musicArtworkUri ? { uri: musicArtworkUri } : undefined}
-              title={music.musicTitle}
-              artist={music.musicArtist}
-              font={normalizedFont}
-              isPlaying={isMusicPlaying}
-              disabled={!musicPreviewUri}
-              onPressPlayback={musicPreviewUri ? handlePlayback : undefined}
-              onPress={handleOpenMusicSelect}
-              pressAccessibilityLabel="음악 다시 선택"
-            />
-          </View>
-        ) : (
-          <View style={styles.musicContainer}>
-            <LabeledButton
-              icon={<IcMusic />}
-              label="음악 선택"
-              typography={typo.suitLabelLargeStrong}
-              color={colors.fgNeutralMuted}
-              iconColor={colors.fgNeutralMuted}
-              backgroundColor={colors.bgNeutralFaint}
-              onPress={handleOpenMusicSelect}
-            />
-          </View>
-        )}
-
-        <View style={styles.textContainer}>
-          <Pressable
-            style={[
-              styles.textPressable,
-              imageFiles.length === 0 && styles.textPressableFill,
-            ]}
-            onPress={handleFocusText}
-            accessible={false}
-          >
-            <TextInput
-              key={normalizedFont}
-              ref={textInputRef}
-              value={text}
-              onChangeText={handleChangeText}
-              placeholder={
-                isLetter
-                  ? '음악과 함께 보낼 메시지를 작성해 주세요.'
-                  : '음악과 함께 기록할 내용을 작성해 주세요.'
-              }
-              placeholderTextColor={colors.fgPlaceholder}
-              multiline
-              scrollEnabled={false}
-              textAlignVertical="top"
-              allowFontScaling={false}
-              onContentSizeChange={handleTextContentSizeChange}
-              style={[
-                styles.textInput,
-                bodyTypography,
-                textInputHeight > 0 && { minHeight: textInputHeight },
-              ]}
-            />
-          </Pressable>
-
-          <SelectedImageList
-            images={imageFiles}
-            onRemove={handleRemoveImage}
-          />
-        </View>
-      </ScrollView>
-
-      <View
-        style={[styles.bottomBarContainer, { bottom: bottomOffset }]}
-        onLayout={handleBottomBarLayout}
-      >
-        <BottomBar
-          mode={bottomBarMode}
-          selectedFont={normalizedFont}
-          imageDisabled={isImageLimitReached}
-          onPressImage={handlePressImage}
-          onPressFont={handleShowFontMode}
-          onPressHideKeyboard={handlePressHideKeyboard}
-          onPressBack={handleShowActionsMode}
-          onSelectFont={handleSelectFont}
-        />
-      </View>
+      <RecordEditorBody
+        editor={editor}
+        header={letterHeader}
+        placeholder={
+          isLetter
+            ? '음악과 함께 보낼 메시지를 작성해 주세요.'
+            : '음악과 함께 기록할 내용을 작성해 주세요.'
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -522,15 +355,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bgLayerDefault,
-  },
-  scrollView: {
-    flex: 1,
-    width: '100%',
-  },
-  scrollContent: {
-    width: '100%',
-    flexGrow: 1,
-    alignItems: 'flex-start',
   },
   recipientAndDateContainer: {
     width: '100%',
@@ -565,48 +389,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: padding.L,
     flexDirection: 'column',
     alignItems: 'flex-start',
-  },
-  musicCardButton: {
-    width: '100%',
-  },
-  musicContainer: {
-    width: '100%',
-    paddingVertical: padding.S,
-    paddingHorizontal: padding.L,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  textContainer: {
-    width: '100%',
-    alignSelf: 'stretch',
-    flexGrow: 1,
-    paddingVertical: padding.M,
-    paddingHorizontal: padding.L,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: gap.M,
-  },
-  textPressable: {
-    width: '100%',
-    alignSelf: 'stretch',
-  },
-  textPressableFill: {
-    flexGrow: 1,
-  },
-  textInput: {
-    width: '100%',
-    alignSelf: 'stretch',
-    padding: 0,
-    margin: 0,
-    color: colors.fgNeutralSolid,
-    textAlign: 'left',
-    includeFontPadding: false,
-  },
-  bottomBarContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 10,
   },
 });

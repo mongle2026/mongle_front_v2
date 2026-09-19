@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Defs, FeColorMatrix, Filter, G } from 'react-native-svg';
 
-import { STAMPS } from '../../../shared/data/envelopeData';
+import { findStamp } from '../../../shared/data/envelopeData';
 import { colors } from '../../../shared/styles/color';
 
 // 우표 원본 비율 (편지함 Card 의 44x64 기준)
@@ -22,7 +22,7 @@ const GRAYSCALE_FILTER_ID = 'stampGrayscale';
  */
 const Stamp = ({ stampCode, width = 44, grayscale = false, style }) => {
   const StampSvg = useMemo(
-    () => STAMPS.find(stamp => stamp.id === stampCode)?.SvgComponent ?? null,
+    () => findStamp(stampCode)?.SvgComponent ?? null,
     [stampCode],
   );
 

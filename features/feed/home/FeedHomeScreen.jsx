@@ -6,6 +6,7 @@ import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/a
 import TopNavigation, { TOP_NAVIGATION_TAB } from '../../../shared/components/navigation/topnavigation/TopNavigation';
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import usePullRefresh from '../../../shared/hooks/usePullRefresh';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding } from '../../../shared/styles/token';
 
@@ -14,7 +15,6 @@ import FeedPostItem from './components/FeedPostItem';
 import useFeedActions from '../hooks/useFeedActions';
 import useFeedHome from './hooks/useFeedHome';
 import useFeedHomeListController from './hooks/useFeedHomeListController';
-import useFeedHomeRefresh from './hooks/useFeedHomeRefresh';
 
 const VIEWABILITY_CONFIG = {
   viewAreaCoveragePercentThreshold: 50,
@@ -68,12 +68,20 @@ const FeedHomeScreen = ({ navigation }) => {
     handleChangeTab,
   } = useFeedHomeListController({ posts, activeTab, setActiveTab, resetPlayback, reservedBottomSpace: fabHeight });
 
-  const { isPullRefreshing, handleRefresh } = useFeedHomeRefresh({ refetchFeed, resetPlayback });
+  const { isPullRefreshing, handleRefresh } = usePullRefresh({
+    refetch: refetchFeed,
+    onBeforeRefresh: resetPlayback,
+    errorMessage: '피드 새로고침에 실패했습니다.',
+  });
 
   const feedExtraData = useMemo(
     () => ({ playingFeedId, pendingTargetUserId, likePendingFeedIds, bookmarkPendingFeedIds }),
     [bookmarkPendingFeedIds, likePendingFeedIds, pendingTargetUserId, playingFeedId]
   );
+
+  // 카드마다 새 객체를 넘기면 FeedPostItem memo가 깨져서
+  // 재생 중인 카드가 바뀔 때마다 보이는 카드 전부가 다시 그려진다
+  const cardStyle = useMemo(() => ({ height: postCardHeight }), [postCardHeight]);
 
   const contentContainerStyle = useMemo(
     () => [
@@ -132,7 +140,7 @@ const FeedHomeScreen = ({ navigation }) => {
         <FeedPostItem
           item={item}
           userId={userId}
-          cardStyle={{ height: postCardHeight }}
+          cardStyle={cardStyle}
           likeDisabled={likePendingFeedIds.has(feedId)}
           bookmarkDisabled={bookmarkPendingFeedIds.has(feedId)}
           followDisabled={pendingTargetUserId === targetUserId}
@@ -148,6 +156,7 @@ const FeedHomeScreen = ({ navigation }) => {
     },
     [
       bookmarkPendingFeedIds,
+      cardStyle,
       handlePressBookmark,
       handlePressComment,
       handlePressFollow,
@@ -157,7 +166,6 @@ const FeedHomeScreen = ({ navigation }) => {
       likePendingFeedIds,
       pendingTargetUserId,
       playingFeedId,
-      postCardHeight,
       userId,
     ]
   );

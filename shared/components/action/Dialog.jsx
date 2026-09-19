@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../styles/color';
 import { gap, padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
-import { FONT } from '../../styles/font';
+import { FONT } from '../../styles/fontType';
 
 import { TextButton, TEXT_BUTTON_SIZE, TEXT_BUTTON_VARIANT } from './TextButton';
 import IlDialogDelete from '../../../assets/illustrations/il_dialog_delete.svg';
@@ -25,10 +25,10 @@ export const Dialog = ({
       </View>
 
       <View style={styles.textContainer}>
-        <Text allowFontScaling={false} style={styles.title}>
+        <Text style={styles.title}>
           {title}
         </Text>
-        <Text allowFontScaling={false} style={styles.description}>
+        <Text style={styles.description}>
           {description}
         </Text>
       </View>

@@ -11,7 +11,7 @@ import {
   padding,
   radius,
 } from '../../../../shared/styles/token';
-import { FONT } from '../../../../shared/styles/font';
+import { FONT } from '../../../../shared/styles/fontType';
 
 const Item = ({
   text,
@@ -31,7 +31,6 @@ const Item = ({
       style={styles.container}
     >
       <Text
-        allowFontScaling={false}
         style={[
           styles.text,
           textTypo,

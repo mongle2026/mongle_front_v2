@@ -1,13 +1,12 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
 
-import { STAMPS } from '../../../../../shared/data/envelopeData';
+import { findStamp } from '../../../../../shared/data/envelopeData';
 import { resolveMediaUri } from '../../../../../shared/utils/media';
 
 import { normalizeLetterboxItem } from '../../../utils/normalizeLetter';
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+import { letterboxKeys } from '../../../api/letterboxKeys';
 
 function normalizeStampDetail(data) {
   const rawSenders = Array.isArray(data?.senders) ? data.senders : [];
@@ -43,16 +42,13 @@ function normalizeStampDetail(data) {
   };
 }
 
-const findStamp = stampCode => STAMPS.find(item => item.id === stampCode) ?? null;
-
 const isStampDetailConfigured = ({ stampCode, userId }) =>
-  Boolean(API_BASE_URL && Number(userId) > 0 && findStamp(stampCode));
+  Boolean(isApiConfigured && Number(userId) > 0 && findStamp(stampCode));
 
-// queryKey는 ['letterbox', 'stamp', ...]로 둔다 (편지 전송/읽음/삭제 시 함께 갱신된다).
 const getStampDetailQueryOptions = ({ stampCode, userId }) => ({
-  queryKey: ['letterbox', 'stamp', Number(userId), stampCode],
+  queryKey: letterboxKeys.stampDetail(userId, stampCode),
   queryFn: async () => {
-    const response = await axios.get(`${API_BASE_URL}/stamp/${stampCode}`, { params: { userId } });
+    const response = await apiClient.get(`/stamp/${stampCode}`, { params: { userId } });
     return normalizeStampDetail(response.data);
   },
 });
@@ -70,7 +66,7 @@ const useStampDetail = ({ stampCode, userId } = {}) => {
   const stamp = useMemo(() => findStamp(stampCode), [stampCode]);
   const isConfigured = isStampDetailConfigured({ stampCode, userId });
 
-  const { data: detail, error, isLoading, refetch } = useQuery({
+  const { data: detail, error } = useQuery({
     ...getStampDetailQueryOptions({ stampCode, userId }),
     enabled: isConfigured,
   });
@@ -79,9 +75,6 @@ const useStampDetail = ({ stampCode, userId } = {}) => {
     stamp,
     detail: detail ?? null,
     error,
-    isConfigured,
-    isLoading,
-    refetchDetail: refetch,
   };
 };
 

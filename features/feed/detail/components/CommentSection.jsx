@@ -48,6 +48,8 @@ const CommentSection = ({
               showMenu
               isMenuOpen={isMenuOpen}
               onPressMenu={position => {
+                // 남의 댓글에도 케밥 버튼은 의도적으로 노출함
+                // TODO: 남의 댓글이면 신고하기 메뉴 열기
                 if (!comment.isMine) return;
                 onPressMenu?.(comment, position);
               }}

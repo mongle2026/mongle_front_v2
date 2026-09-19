@@ -142,3 +142,7 @@ export const STAMPS = [
   { id: 's25', SvgComponent: Stamp25 },
   { id: 's26', SvgComponent: Stamp26 },
 ];
+
+// 우표 code(STAMPS[].id, 백엔드 stamp.code)로 우표 찾기. 없으면 null
+export const findStamp = stampId =>
+  STAMPS.find(stamp => stamp.id === stampId) ?? null;

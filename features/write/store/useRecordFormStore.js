@@ -8,6 +8,9 @@ const initialState = {
   files: [],
   font: 'KYOBO',
 
+  // 피드 공개 범위 (편지에서는 쓰지 않음)
+  visibility: 'PUBLIC',
+
   // 수정 화면에서 원본 데이터 대비 변경 여부를 추적하기 위한 값
   isDirty: false,
 };
@@ -36,6 +39,12 @@ export const useRecordFormStore = create((set) => ({
   setFont: (font) =>
     set({
       font,
+      isDirty: true,
+    }),
+
+  setVisibility: (visibility) =>
+    set({
+      visibility,
       isDirty: true,
     }),
 

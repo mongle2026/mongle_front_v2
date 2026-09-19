@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { typo } from '../../../../shared/styles/typo';
-import { FONT, normalizeFont } from '../../../../shared/styles/font';
+import { FONT, normalizeFont } from '../../../../shared/styles/fontType';
 import { useRecordFormStore } from '../../store/useRecordFormStore';
 
 /*

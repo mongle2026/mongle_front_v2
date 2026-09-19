@@ -1,7 +1,5 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
-import { useIsFocused } from '@react-navigation/native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -10,15 +8,9 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { gap, padding } from '../../../../../shared/styles/token';
-import { resolveEnvelope } from '../../../../../shared/utils/envelopeUtils';
 
-import Letter from '../../../components/Letter';
-import useLetterFlip from '../../../hooks/useLetterFlip';
+import FlippableLetter, { LETTER_HEIGHT, getLetterRotation } from '../../../components/FlippableLetter';
 import useUnreadLetterStack, { EXPAND_SCROLL_DISTANCE } from '../hooks/useUnreadLetterStack';
-
-// Letter 원본 크기(320x232)
-const LETTER_WIDTH = 320;
-const LETTER_HEIGHT = 232;
 
 // 모아진 상태의 영역 (375x461, 가운데 정렬)
 const STAGE_HEIGHT = 461;
@@ -32,32 +24,13 @@ const EXPANDED_GAP = gap.M;
 const COLLAPSED_VISIBLE_COUNT = 3;
 const HIDDEN_LETTER_REVEAL_PROGRESS = 0.05;
 
-// 편지 기울기 (-4, 0, 4, 0 반복)
-const LETTER_ROTATIONS = [-4, 0, 4, 0];
-
 const getExpandedTop = index => EXPANDED_PADDING_VERTICAL + index * (LETTER_HEIGHT + EXPANDED_GAP);
 
 const getReceivedTime = letter => new Date(letter.receivedAt ?? 0).getTime() || 0;
 
 const UnreadLetterItem = memo(({ letter, index, progress, isFlipping, onFlipEnd }) => {
-  const isFocused = useIsFocused();
-  const { face, flipStyle, flip, resetFace } = useLetterFlip({
-    lock: isFlipping,
-    onFlipEnd: () => onFlipEnd(letter),
-  });
-
-  const { FrontSvg, FlapSvg, StampSvg } = useMemo(
-    () =>
-      resolveEnvelope({
-        patternId: letter.envelope?.pattern,
-        colorId: letter.envelope?.color,
-        stampId: letter.envelope?.stamp,
-      }),
-    [letter.envelope?.pattern, letter.envelope?.color, letter.envelope?.stamp]
-  );
-
   const expandedTop = getExpandedTop(index);
-  const rotate = `${LETTER_ROTATIONS[index % LETTER_ROTATIONS.length]}deg`;
+  const rotate = getLetterRotation(index);
   const isHiddenWhenCollapsed = index >= COLLAPSED_VISIBLE_COUNT;
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -71,28 +44,9 @@ const UnreadLetterItem = memo(({ letter, index, progress, isFlipping, onFlipEnd 
     ],
   }));
 
-  // 상세에서 돌아왔는데 아직 목록에 남아 있으면 다시 뒷면으로 되돌린다
-  useEffect(() => {
-    if (isFocused) resetFace('back');
-  }, [isFocused, resetFace]);
-
   return (
     <Animated.View style={[styles.item, animatedStyle]}>
-      <Pressable onPress={flip} style={styles.letter}>
-        <Animated.View style={flipStyle}>
-          {face === 'back' ? (
-            <Letter
-              type="back"
-              BackgroundSvg={FrontSvg}
-              StampSvg={StampSvg}
-              recipient={letter.recipientName}
-              sender={letter.senderName}
-            />
-          ) : (
-            <Letter type="front" BackgroundSvg={FrontSvg} FlapSvg={FlapSvg} />
-          )}
-        </Animated.View>
-      </Pressable>
+      <FlippableLetter letter={letter} isFlipping={isFlipping} onPress={onFlipEnd} />
     </Animated.View>
   );
 });
@@ -110,11 +64,20 @@ const UnreadLetterItem = memo(({ letter, index, progress, isFlipping, onFlipEnd 
  * @param {number} [topInset] 목록 상단 여백 (Tabs 하단 그라데이션 밑으로 들어온 만큼)
  * @param {number} [bottomInset] 펼쳐진 목록 하단이 FAB에 가려지지 않도록 확보할 여백
  * @param {(letter: object) => void} [onPressLetter] 편지를 눌러 앞면으로 뒤집힌 뒤 호출
- * @param {(event: object) => void} [onScroll]
+ * @param {() => void} [onEndReached] 목록 끝 가까이 오면 호출 (페이지네이션)
+ * @param {number} [endReachedThreshold]
  * @param {React.ReactElement} [refreshControl] 당겨서 새로고침 RefreshControl
  */
-const UnreadLetterStack = ({ letters, topInset = 0, bottomInset = 0, onPressLetter, onScroll, refreshControl }) => {
-  const { progress, stickyOffset, scrollHandler } = useUnreadLetterStack({ onScroll });
+const UnreadLetterStack = ({
+  letters,
+  topInset = 0,
+  bottomInset = 0,
+  onPressLetter,
+  onEndReached,
+  endReachedThreshold,
+  refreshControl,
+}) => {
+  const { progress, stickyOffset, scrollHandler } = useUnreadLetterStack({ onEndReached, endReachedThreshold });
   const [viewportHeight, setViewportHeight] = useState(0);
 
   // 한 번에 한 장만 뒤집힌다
@@ -190,9 +153,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-  },
-  letter: {
-    width: LETTER_WIDTH,
   },
 });
 

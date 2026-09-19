@@ -1,3 +1,5 @@
+import { isSameDate, startOfDay } from '../../../../shared/utils/dateUtils';
+
 export const DATE_PRESET = Object.freeze({
   NOW: 'now',
   WEEK: 'week',
@@ -13,38 +15,6 @@ export const DATE_PRESET_LABEL = Object.freeze({
 });
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-/**
- * 시간을 제거한 날짜
- */
-export const startOfDay = date => {
-  const result = new Date(date);
-
-  result.setHours(0, 0, 0, 0);
-
-  return result;
-};
-
-/**
- * 같은 날짜인지 비교
- */
-export const isSameDate = (
-  dateA,
-  dateB,
-) => {
-  if (!dateA || !dateB) {
-    return false;
-  }
-
-  const a = startOfDay(dateA);
-  const b = startOfDay(dateB);
-
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-};
 
 /**
  * N일 뒤

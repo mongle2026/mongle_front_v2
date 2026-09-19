@@ -50,7 +50,6 @@ const Empty = ({
       <View style={styles.textContainer}>
         {title ? (
           <Text
-            allowFontScaling={false}
             style={styles.title}
           >
             {title}
@@ -59,7 +58,6 @@ const Empty = ({
 
         {body ? (
           <Text
-            allowFontScaling={false}
             style={styles.body}
           >
             {body}

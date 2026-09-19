@@ -23,13 +23,10 @@ const ProfileBar = ({
   onPressFollow,
 
   style,
-  containerStyle,
-  followButtonStyle,
-  followTextStyle,
 }) => {
   return (
     <View style={[styles.profileBar, style]}>
-      <View style={[styles.container, containerStyle]}>
+      <View style={styles.container}>
         <Profile
           imageUri={imageUri}
           imageSize={imageSize}
@@ -46,8 +43,7 @@ const ProfileBar = ({
             showDisabledStyle={false}
             onPress={onPressFollow}
             accessibilityLabel={`${username ?? '사용자'} ${followLabel}`}
-            style={[styles.followButton, followButtonStyle]}
-            textStyle={followTextStyle}
+            style={styles.followButton}
           >
             {followLabel}
           </TextButton>

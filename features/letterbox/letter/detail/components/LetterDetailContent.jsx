@@ -5,21 +5,9 @@ import SuitSafeText from '../../../../../shared/components/atomic/SuitSafeText';
 import { WriteImg } from '../../../../../shared/components/atomic/WriteImg';
 import useWriteImgRatio from '../../../../../shared/hooks/useWriteImgRatio';
 import { colors } from '../../../../../shared/styles/color';
-import { FONT } from '../../../../../shared/styles/font';
+import { getImageKey } from '../../../../../shared/utils/media';
+import { FONT, getBodyFontStyle } from '../../../../../shared/styles/fontType';
 import { gap, padding } from '../../../../../shared/styles/token';
-import { typo } from '../../../../../shared/styles/typo';
-
-const FONT_STYLES = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboBodyLarge,
-  [FONT.SUIT]: typo.suitBodyLarge,
-});
-
-const getImageKey = (imageSource, index) => {
-  if (typeof imageSource === 'string') return `${imageSource}-${index}`;
-  if (imageSource && typeof imageSource === 'object' && imageSource.uri) return `${imageSource.uri}-${index}`;
-
-  return `letter-image-${index}`;
-};
 
 // 가로 사진 4:3, 세로 사진 5:6
 const LetterImage = ({ imageSource }) => {
@@ -31,7 +19,7 @@ const LetterImage = ({ imageSource }) => {
 const LetterDetailContent = ({ text = '', imageSources = [], font = FONT.KYOBO }) => {
   const hasText = typeof text === 'string' && text.trim().length > 0;
   const visibleImages = imageSources.filter(Boolean);
-  const fontStyle = FONT_STYLES[font] ?? FONT_STYLES[FONT.KYOBO];
+  const fontStyle = getBodyFontStyle(font);
 
   return (
     <View style={styles.textContainer}>

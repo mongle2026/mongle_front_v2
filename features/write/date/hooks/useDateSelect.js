@@ -5,10 +5,13 @@ import {
 } from 'react';
 
 import {
-  createDateSelectCopy,
-  createPresetDates,
   isSameDate,
   startOfDay,
+} from '../../../../shared/utils/dateUtils';
+
+import {
+  createDateSelectCopy,
+  createPresetDates,
 } from '../utils/dateSelect';
 
 const useDateSelect = ({

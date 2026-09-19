@@ -1,21 +1,21 @@
 import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import IcBookmarkFill from '../../../../assets/icons/ic_bookmark_fill.svg';
-import IcBookmarkStroke from '../../../../assets/icons/ic_bookmark_stroke.svg';
-import IcComment from '../../../../assets/icons/ic_comment.svg';
-import IcHeartFill from '../../../../assets/icons/ic_heart_fill.svg';
-import IcHeartStroke from '../../../../assets/icons/ic_heart_stroke.svg';
+import IcBookmarkFill from '../../../assets/icons/ic_bookmark_fill.svg';
+import IcBookmarkStroke from '../../../assets/icons/ic_bookmark_stroke.svg';
+import IcComment from '../../../assets/icons/ic_comment.svg';
+import IcHeartFill from '../../../assets/icons/ic_heart_fill.svg';
+import IcHeartStroke from '../../../assets/icons/ic_heart_stroke.svg';
 
 import AnimatedLabeledButton, {
   ANIMATION_TYPE,
-} from '../../../../shared/components/action/AnimatedLabeledButton';
-import LabeledButton from '../../../../shared/components/action/LabeledButton';
+} from '../action/AnimatedLabeledButton';
+import LabeledButton from '../action/LabeledButton';
 
-import { colors } from '../../../../shared/styles/color';
-import { padding } from '../../../../shared/styles/token';
-import { typo } from '../../../../shared/styles/typo';
-import { formatDateDetail, formatDateOnly } from '../../utils/formatDate';
+import { colors } from '../../styles/color';
+import { padding } from '../../styles/token';
+import { typo } from '../../styles/typo';
+import { formatDate, formatDateDetail } from '../../utils/dateUtils';
 
 const ActionBar = ({
   createdAt,
@@ -42,7 +42,7 @@ const ActionBar = ({
 }) => {
   const formatCreatedAt = showTime
     ? formatDateDetail
-    : formatDateOnly;
+    : formatDate;
 
   const formattedDate = createdAt
     ? [datePrefix, formatCreatedAt(createdAt), dateSuffix]
@@ -58,7 +58,6 @@ const ActionBar = ({
   return (
     <View style={[styles.container, style]}>
       <Text
-        allowFontScaling={false}
         numberOfLines={1}
         ellipsizeMode="tail"
         style={styles.date}

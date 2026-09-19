@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { getImageSources, resolveMediaUri } from '../../../../shared/utils/media';
 import useDoubleTapLike from '../../hooks/useDoubleTapLike';
@@ -25,10 +25,15 @@ const FeedPostItem = ({
   const music = item?.music;
   const record = item?.record;
 
-  const imageSources = getImageSources(item?.files);
+  // PostCard 안의 이미지 / MusicCard가 매번 다시 그려지지 않도록 같은 값이면 같은 객체를 넘긴다
+  const imageSources = useMemo(() => getImageSources(item?.files), [item?.files]);
   const profileImageUri = resolveMediaUri(user?.profileImageUrl);
   const musicArtworkUri = resolveMediaUri(music?.musicArtwork);
   const musicPreviewUri = resolveMediaUri(music?.previewUrl);
+  const musicImageSource = useMemo(
+    () => (musicArtworkUri ? { uri: musicArtworkUri } : undefined),
+    [musicArtworkUri],
+  );
 
   const isMine = Number(user?.userId) === Number(userId);
   const isFollowing = Boolean(user?.isFollowing);
@@ -86,9 +91,7 @@ const FeedPostItem = ({
         onPressFollow: handleFollow,
       }}
       musicProps={{
-        imageSource: musicArtworkUri
-          ? { uri: musicArtworkUri }
-          : undefined,
+        imageSource: musicImageSource,
         title: music?.musicTitle ?? '',
         artist: music?.musicArtist ?? '',
         isPlaying: isMusicPlaying,

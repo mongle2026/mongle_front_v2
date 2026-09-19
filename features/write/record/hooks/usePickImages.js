@@ -3,7 +3,8 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { useRecordFormStore } from '../../store/useRecordFormStore';
 
-const MAX_IMAGES = 2;
+// 기록 / 편지 한 건에 첨부할 수 있는 최대 이미지 수
+export const MAX_IMAGES = 2;
 
 export const usePickImages = () => {
   const files = useRecordFormStore(

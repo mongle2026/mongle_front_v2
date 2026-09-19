@@ -5,11 +5,22 @@ import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottom
 
 import useFeedToggleMutation from './useFeedToggleMutation';
 
-const useFeedActions = ({ userId }) => {
+/*
+ * toastBottomOffset: 화면 하단에 CommentBar처럼 떠 있는 요소가 있으면
+ * 그 높이만큼 북마크 토스트를 위로 올린다.
+ */
+const useFeedActions = ({
+  userId,
+  toastBottomOffset = 0,
+}) => {
   const { showToast } = useGlobalOverlay();
 
   const floatingBottomOffset =
     useFloatingBottomOffset();
+
+  const bookmarkToastBottomOffset =
+    floatingBottomOffset +
+    toastBottomOffset;
 
   const {
     mutate: mutateLike,
@@ -46,7 +57,7 @@ const useFeedActions = ({ userId }) => {
           message: '기록을 북마크에 추가했습니다.',
           buttonText: '이동',
           onPressButton: handlePressBookmarkToastButton,
-          bottomOffset: floatingBottomOffset,
+          bottomOffset: bookmarkToastBottomOffset,
         });
 
         return;
@@ -54,11 +65,11 @@ const useFeedActions = ({ userId }) => {
 
       showToast({
         message: '기록을 북마크에서 삭제했습니다.',
-        bottomOffset: floatingBottomOffset,
+        bottomOffset: bookmarkToastBottomOffset,
       });
     },
     [
-      floatingBottomOffset,
+      bookmarkToastBottomOffset,
       handlePressBookmarkToastButton,
       showToast,
     ],

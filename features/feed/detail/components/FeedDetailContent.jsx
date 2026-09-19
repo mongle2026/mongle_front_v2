@@ -5,23 +5,11 @@ import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
 import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
 
 import { colors } from '../../../../shared/styles/color';
-import { FONT } from '../../../../shared/styles/font';
+import { getImageKey } from '../../../../shared/utils/media';
+import { FONT, getBodyFontStyle } from '../../../../shared/styles/fontType';
 import { gap, padding } from '../../../../shared/styles/token';
-import { typo } from '../../../../shared/styles/typo';
 
 const DETAIL_CONTENT_MIN_HEIGHT = 418;
-
-const FONT_STYLES = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboBodyLarge,
-  [FONT.SUIT]: typo.suitBodyLarge,
-});
-
-const getImageKey = (imageSource, index) => {
-  if (typeof imageSource === 'string') return `${imageSource}-${index}`;
-  if (imageSource && typeof imageSource === 'object' && imageSource.uri) return `${imageSource.uri}-${index}`;
-
-  return `detail-image-${index}`;
-};
 
 const FeedDetailContent = ({
   content = '',
@@ -32,7 +20,7 @@ const FeedDetailContent = ({
 }) => {
   const hasContent = typeof content === 'string' && content.trim().length > 0;
   const visibleImages = imageSources.filter(Boolean);
-  const fontStyle = FONT_STYLES[font] ?? FONT_STYLES[FONT.KYOBO];
+  const fontStyle = getBodyFontStyle(font);
 
   return (
     <Pressable onPress={onPress} style={styles.container}>

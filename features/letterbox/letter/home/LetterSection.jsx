@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import Empty from '../../../../shared/components/content/Empty';
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../../shared/components/navigation/tabs/Tabs';
@@ -36,6 +36,10 @@ const EMPTY_UNREAD_TITLE = '읽지 않은 편지가 없어요.';
 const EMPTY_UNREAD_BODY = '도착한 편지를 모두 확인했어요.';
 const EMPTY_LETTER_TITLE = '아직 주고받은 편지가 없어요.';
 const EMPTY_LETTER_BODY = '전송 예정인 편지는 잘 배송되고 있어요.';
+
+const letterKeyExtractor = letter => String(letter.letterId);
+
+const renderLetterSeparator = () => <View style={styles.letterSeparator} />;
 
 // bottomInset: 목록 하단이 FAB에 가려지지 않도록 확보할 여백
 // onPressLetter: 편지 카드를 누르면 letter 객체와 함께 호출
@@ -79,28 +83,34 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   });
 
   // Android 로딩 원은 Tabs 하단 그라데이션에 가리지 않게 그만큼 내린다
-  const refreshControl = (
-    <RefreshControl
-      refreshing={isPullRefreshing}
-      onRefresh={handleRefresh}
-      progressViewOffset={TABS_BOTTOM_FADE_HEIGHT}
-    />
+  const refreshControl = useMemo(
+    () => (
+      <RefreshControl
+        refreshing={isPullRefreshing}
+        onRefresh={handleRefresh}
+        progressViewOffset={TABS_BOTTOM_FADE_HEIGHT}
+      />
+    ),
+    [handleRefresh, isPullRefreshing]
   );
 
   const handleChangeFilter = useCallback(index => {
     setActiveFilter(LETTER_FILTERS[index].key);
   }, []);
 
-  const handleScroll = useCallback(
-    ({ nativeEvent }) => {
-      const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-      const distanceFromEnd = contentSize.height - (contentOffset.y + layoutMeasurement.height);
+  const handleEndReached = useCallback(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    void fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-      if (distanceFromEnd > layoutMeasurement.height * END_REACHED_THRESHOLD) return;
-      if (!hasNextPage || isFetchingNextPage) return;
-      void fetchNextPage();
-    },
-    [fetchNextPage, hasNextPage, isFetchingNextPage]
+  const listContentStyle = useMemo(
+    () => [styles.letterContainer, { paddingTop: TABS_BOTTOM_FADE_HEIGHT, paddingBottom: bottomInset }],
+    [bottomInset]
+  );
+
+  const renderLetter = useCallback(
+    ({ item }) => <Card letter={item} onPress={() => onPressLetter?.(item)} />,
+    [onPressLetter]
   );
 
   return (
@@ -131,32 +141,25 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
               letters={unreadLetters}
               bottomInset={bottomInset}
               onPressLetter={onPressLetter}
-              onScroll={handleScroll}
+              onEndReached={handleEndReached}
+              endReachedThreshold={END_REACHED_THRESHOLD}
               refreshControl={refreshControl}
             />
           )}
 
+          {/* 화면에 보이는 근처 카드만 그리고(가상화), 끝 도달은 네이티브에서 계산한다 */}
           {!isUnread && (
-            <ScrollView
-              contentContainerStyle={{
-                paddingTop: TABS_BOTTOM_FADE_HEIGHT,
-                paddingBottom: bottomInset,
-              }}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
+            <FlatList
+              data={letters}
+              keyExtractor={letterKeyExtractor}
+              renderItem={renderLetter}
+              ItemSeparatorComponent={renderLetterSeparator}
+              contentContainerStyle={listContentStyle}
+              onEndReached={handleEndReached}
+              onEndReachedThreshold={END_REACHED_THRESHOLD}
               refreshControl={refreshControl}
               showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.letterContainer}>
-                {letters.map(letter => (
-                  <Card
-                    key={letter.letterId}
-                    letter={letter}
-                    onPress={() => onPressLetter?.(letter)}
-                  />
-                ))}
-              </View>
-            </ScrollView>
+            />
           )}
         </View>
       )}
@@ -173,13 +176,12 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: -TABS_BOTTOM_FADE_HEIGHT,
   },
+  // 카드가 width 100% 라서 셀이 가로로 꽉 차야 한다 (alignItems 기본값 stretch 유지)
   letterContainer: {
-    display: 'flex',
-    width: '100%',
     paddingHorizontal: padding.M,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: gap.M,
+  },
+  letterSeparator: {
+    height: gap.M,
   },
 });
 

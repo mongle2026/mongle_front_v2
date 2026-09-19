@@ -1,14 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient, { getApiErrorDetail, isApiConfigured } from '../../../../../shared/api/client';
 
-import { normalizeFont } from '../../../../../shared/styles/font';
+import { normalizeFont } from '../../../../../shared/styles/fontType';
 import { getImageSources, resolveMediaUri } from '../../../../../shared/utils/media';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+import { letterboxKeys, letterDetailKeys } from '../../../api/letterboxKeys';
 
 const DETAIL_STALE_TIME = 2 * 60 * 1000;
-
-const getLetterDetailKey = (letterId, userId) => ['letter-detail', Number(letterId), Number(userId)];
 
 // 백엔드 편지 상세({ letter, record }) → 화면에서 쓰는 형태
 function normalizeLetterDetail(data, userId) {
@@ -56,7 +54,7 @@ function normalizeLetterDetail(data, userId) {
 
 // 편지함 목록 캐시에서 해당 편지를 읽음 처리한다 (백엔드는 상세 조회 시 읽음 처리한다)
 function markLetterAsReadInLetterbox(queryClient, userId, letterId) {
-  queryClient.setQueriesData({ queryKey: ['letterbox', Number(userId)] }, currentData => {
+  queryClient.setQueriesData({ queryKey: letterboxKeys.letters(userId) }, currentData => {
     if (!currentData?.pages) return currentData;
 
     return {
@@ -70,12 +68,12 @@ function markLetterAsReadInLetterbox(queryClient, userId, letterId) {
 
   // 안 읽음 탭은 목록에서 빠져야 하므로 다음에 보일 때 다시 불러온다
   void queryClient.invalidateQueries({
-    queryKey: ['letterbox', Number(userId), 'UNREAD'],
+    queryKey: letterboxKeys.letterList(userId, 'UNREAD'),
     refetchType: 'none',
   });
 
   // 우표 상세의 편지 목록 (useStampDetail)
-  queryClient.setQueriesData({ queryKey: ['letterbox', 'stamp', Number(userId)] }, currentData => {
+  queryClient.setQueriesData({ queryKey: letterboxKeys.stamps(userId) }, currentData => {
     if (!currentData?.letters) return currentData;
 
     return {
@@ -87,7 +85,7 @@ function markLetterAsReadInLetterbox(queryClient, userId, letterId) {
 
 // 편지함 목록 캐시(모든 탭)에서 삭제한 편지를 뺀다
 function removeLetterFromLetterbox(queryClient, userId, letterId) {
-  queryClient.setQueriesData({ queryKey: ['letterbox', Number(userId)] }, currentData => {
+  queryClient.setQueriesData({ queryKey: letterboxKeys.letters(userId) }, currentData => {
     if (!currentData?.pages) return currentData;
 
     return {
@@ -100,22 +98,22 @@ function removeLetterFromLetterbox(queryClient, userId, letterId) {
   });
 
   // 우표 수집 횟수/우표 상세도 바뀌므로 다시 불러온다 (useStampBox, useStampDetail)
-  void queryClient.invalidateQueries({ queryKey: ['letterbox', 'stamp', Number(userId)] });
+  void queryClient.invalidateQueries({ queryKey: letterboxKeys.stamps(userId) });
 }
 
 // 편지 상세 조회. GET /letter/:letterId?userId=
 // 편지 삭제(내 편지함에서만). DELETE /letter/:letterId?userId=
 const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
   const queryClient = useQueryClient();
-  const isConfigured = Boolean(API_BASE_URL);
-  const detailQueryKey = getLetterDetailKey(letterId, userId);
+  const isConfigured = isApiConfigured;
+  const detailQueryKey = letterDetailKeys.detail(letterId, userId);
 
-  const { data: letter, error, isLoading, refetch } = useQuery({
+  const { data: letter, error, isLoading } = useQuery({
     queryKey: detailQueryKey,
     enabled: isConfigured && Number(letterId) > 0 && Number(userId) > 0,
     staleTime: DETAIL_STALE_TIME,
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/letter/${letterId}`, {
+      const response = await apiClient.get(`/letter/${letterId}`, {
         params: { userId },
       });
 
@@ -131,7 +129,7 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
 
   const deleteLetterMutation = useMutation({
     mutationFn: async () => {
-      const response = await axios.delete(`${API_BASE_URL}/letter/${letterId}`, {
+      const response = await apiClient.delete(`/letter/${letterId}`, {
         params: { userId },
       });
 
@@ -148,7 +146,7 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
     },
 
     onError: mutationError => {
-      console.warn('편지 삭제에 실패했습니다.', mutationError.response?.data ?? mutationError.message);
+      console.warn('편지 삭제에 실패했습니다.', getApiErrorDetail(mutationError));
     },
   });
 
@@ -157,7 +155,6 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
     error,
     isConfigured,
     isLoading,
-    refetchLetter: refetch,
     deleteLetter: deleteLetterMutation.mutate,
     isDeletingLetter: deleteLetterMutation.isPending,
   };

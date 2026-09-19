@@ -1,8 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Dim from '../../../../shared/components/layout/Dim';
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
+import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
+import { colors } from '../../../../shared/styles/color';
 
 import StampDetailBottomSheet from './components/StampDetailBottomSheet';
 import useStampDetail from './hooks/useStampDetail';
@@ -13,12 +16,28 @@ import useStampDetail from './hooks/useStampDetail';
 const StampDetailScreen = ({ navigation, route }) => {
   const stampCode = route?.params?.stampCode;
   const { userId } = useCurrentUser();
-  const { stamp, detail } = useStampDetail({ stampCode, userId });
+  const { stamp, detail, error } = useStampDetail({ stampCode, userId });
+  const { showToast } = useGlobalOverlay();
+  const insets = useSafeAreaInsets();
 
   // 시트를 내려 닫을 때와 딤을 눌러 닫을 때가 겹쳐도 한 번만 닫는다
   const handleClose = useCallback(() => {
     if (navigation.isFocused()) navigation.goBack();
   }, [navigation]);
+
+  // 불러오기에 실패하면 빈 시트를 띄우지 않고 안내 후 닫는다
+  // (이미 받아 둔 데이터가 있으면 백그라운드 재요청 실패는 무시)
+  useEffect(() => {
+    if (!error || detail) return;
+
+    showToast({
+      message: '우표 정보를 불러오지 못했습니다.',
+      icon: 'alert',
+      iconColor: colors.fgCritical,
+      bottomOffset: insets.bottom,
+    });
+    handleClose();
+  }, [detail, error, handleClose, insets.bottom, showToast]);
 
   const handlePressLetter = useCallback(
     letter => {

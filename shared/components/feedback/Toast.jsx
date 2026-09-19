@@ -34,7 +34,6 @@ const Toast = ({
         />
 
         <Text
-          allowFontScaling={false}
           numberOfLines={1}
           style={styles.text}
         >

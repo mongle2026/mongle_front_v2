@@ -8,20 +8,15 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import ProfileBar from './ProfileBar';
-import ActionBar from './ActionBar';
+import ActionBar from '../../../../shared/components/content/ActionBar';
 
 import MusicCard from '../../../../shared/components/content/MusicCard';
 import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
 import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
 import { colors } from '../../../../shared/styles/color';
+import { getImageKey } from '../../../../shared/utils/media';
 import { gap, padding, radius } from '../../../../shared/styles/token';
-import { typo } from '../../../../shared/styles/typo';
-import { FONT, normalizeFont } from '../../../../shared/styles/font';
-
-const POST_FONT_STYLES = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboBodyLarge,
-  [FONT.SUIT]: typo.suitBodyLarge,
-});
+import { FONT, getBodyFontStyle, normalizeFont } from '../../../../shared/styles/fontType';
 
 const TEXT_LINES_WITH_IMAGES = 8;
 const TEXT_LINES_WITHOUT_IMAGES = 13;
@@ -38,16 +33,6 @@ const PRESS_OUT_SPRING_CONFIG = {
   overshootClamping: true,
 };
 
-const getImageKey = (imageSource, index) => {
-  if (typeof imageSource === 'string') return `${imageSource}-${index}`;
-
-  if (imageSource && typeof imageSource === 'object' && imageSource.uri) {
-    return `${imageSource.uri}-${index}`;
-  }
-
-  return `post-image-${index}`;
-};
-
 const PostCard = ({
   profileProps,
   musicProps,
@@ -57,11 +42,6 @@ const PostCard = ({
   imageSources = [],
   font = FONT.KYOBO,
   style,
-  contentAreaStyle,
-  textContainerStyle,
-  textStyle,
-  imageContainerStyle,
-  imageStyle,
 }) => {
   const scale = useSharedValue(1);
   const translateY = useSharedValue(0);
@@ -157,8 +137,7 @@ const PostCard = ({
   const normalizedFont = normalizeFont(font);
 
   const contentFontStyle =
-    POST_FONT_STYLES[normalizedFont] ??
-    POST_FONT_STYLES[FONT.KYOBO];
+    getBodyFontStyle(normalizedFont);
 
   const fallbackNumberOfLines = hasImages
     ? TEXT_LINES_WITH_IMAGES
@@ -221,8 +200,8 @@ const PostCard = ({
         }
         style={styles.pressArea}
       >
-        <View style={[styles.contentArea, contentAreaStyle]}>
-          <View style={[styles.textContainer, textContainerStyle]}>
+        <View style={styles.contentArea}>
+          <View style={styles.textContainer}>
             <View style={styles.textViewport} onLayout={handleTextViewportLayout}>
               {hasContent && (
                 <SuitSafeText
@@ -231,7 +210,6 @@ const PostCard = ({
                   style={[
                     styles.contentText,
                     contentFontStyle,
-                    textStyle,
                   ]}
                 >
                   {content}
@@ -241,17 +219,16 @@ const PostCard = ({
           </View>
 
           {hasImages && (
-            <View style={[styles.imageContainer, imageContainerStyle]}>
+            <View style={styles.imageContainer}>
               {visibleImages.map((imageSource, index) => (
                 <WriteImg
                   key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
-                  style={[
+                  style={
                     hasTwoImages
                       ? styles.doubleImage
-                      : styles.singleImage,
-                    imageStyle,
-                  ]}
+                      : styles.singleImage
+                  }
                 />
               ))}
             </View>

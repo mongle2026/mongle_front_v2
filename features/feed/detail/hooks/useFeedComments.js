@@ -1,5 +1,6 @@
+import { useCallback } from 'react';
 import { Alert } from 'react-native';
-import axios from 'axios';
+import apiClient, { getApiErrorDetail, getApiErrorMessage, isApiConfigured } from '../../../../shared/api/client';
 import {
   useMutation,
   useQuery,
@@ -7,10 +8,8 @@ import {
 } from '@tanstack/react-query';
 
 import { resolveMediaUri } from '../../../../shared/utils/media';
-import { formatDateDetail } from '../../utils/formatDate';
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+import { formatDateDetail } from '../../../../shared/utils/dateUtils';
+import { feedCommentKeys } from '../../api/feedCache';
 
 const normalizeComment = ({
   comment,
@@ -107,32 +106,30 @@ export default function useFeedComments({
   const queryClient = useQueryClient();
 
   const isConfigured =
-    Boolean(API_BASE_URL);
+    isApiConfigured;
 
-  const normalizedFeedId =
-    feedId != null
-      ? String(feedId)
-      : '';
+  const queryKey = feedCommentKeys.list(feedId, userId);
 
-  const queryKey = [
-    'feed-comments',
-    normalizedFeedId,
-    Number(userId),
-  ];
+  // select 함수가 매번 새로 만들어지면 react-query가 렌더마다 댓글을 다시 가공해서
+  // 새 배열을 돌려준다 → CommentSection(memo)이 화면이 그려질 때마다 같이 다시 그려진다
+  const selectComments = useCallback(
+    data =>
+      normalizeCommentGroups(
+        data,
+        userId,
+      ),
+    [userId],
+  );
 
   const {
     data: comments = [],
     isLoading: isLoadingComments,
-    isFetching: isFetchingComments,
-    isError: isCommentsError,
-    error: commentsError,
-    refetch: refetchComments,
   } = useQuery({
     queryKey,
 
     queryFn: async () => {
-      const response = await axios.get(
-        `${API_BASE_URL}/feed/${feedId}/comments`,
+      const response = await apiClient.get(
+        `/feed/${feedId}/comments`,
         {
           params: {
             userId,
@@ -143,11 +140,7 @@ export default function useFeedComments({
       return response.data;
     },
 
-    select: data =>
-      normalizeCommentGroups(
-        data,
-        userId,
-      ),
+    select: selectComments,
 
     enabled:
       enabled &&
@@ -174,8 +167,8 @@ export default function useFeedComments({
         }
 
         const response =
-          await axios.post(
-            `${API_BASE_URL}/feed/${feedId}/comments`,
+          await apiClient.post(
+            `/feed/${feedId}/comments`,
             {
               content:
                 normalizedContent,
@@ -211,14 +204,12 @@ export default function useFeedComments({
       onError: error => {
         console.warn(
           '댓글 작성에 실패했습니다.',
-          error.response?.data ??
-            error.message,
+          getApiErrorDetail(error),
         );
 
         Alert.alert(
           '댓글 작성 실패',
-          error.response?.data?.message ??
-            '댓글을 작성하지 못했습니다.',
+          getApiErrorMessage(error, '댓글을 작성하지 못했습니다.'),
         );
       },
     });
@@ -227,8 +218,8 @@ export default function useFeedComments({
     useMutation({
       mutationFn: async commentId => {
         const response =
-          await axios.delete(
-            `${API_BASE_URL}/feed/${feedId}/comments/${commentId}`,
+          await apiClient.delete(
+            `/feed/${feedId}/comments/${commentId}`,
             {
               params: {
                 userId,
@@ -251,14 +242,12 @@ export default function useFeedComments({
       onError: error => {
         console.warn(
           '댓글 삭제에 실패했습니다.',
-          error.response?.data ??
-            error.message,
+          getApiErrorDetail(error),
         );
 
         Alert.alert(
           '댓글 삭제 실패',
-          error.response?.data?.message ??
-            '댓글을 삭제하지 못했습니다.',
+          getApiErrorMessage(error, '댓글을 삭제하지 못했습니다.'),
         );
       },
     });
@@ -266,12 +255,7 @@ export default function useFeedComments({
   return {
     comments,
 
-    isConfigured,
     isLoadingComments,
-    isFetchingComments,
-    isCommentsError,
-    commentsError,
-
     createComment:
       createCommentMutation.mutateAsync,
 
@@ -284,6 +268,5 @@ export default function useFeedComments({
     isDeletingComment:
       deleteCommentMutation.isPending,
 
-    refetchComments,
   };
 }

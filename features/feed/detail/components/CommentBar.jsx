@@ -24,6 +24,7 @@ const CommentBar = ({
   value = '',
   onChangeText,
   onSubmit,
+  onClose,
 
   profileImageUri,
   targetUsername,
@@ -152,8 +153,10 @@ const CommentBar = ({
       setInputHeight(
         INPUT_MIN_HEIGHT,
       );
+
+      onClose?.();
     }
-  }, [value]);
+  }, [onClose, value]);
 
   const updateInputHeight = useCallback((height) => {
     const nextHeight = Math.min(

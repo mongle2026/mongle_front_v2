@@ -1,43 +1,47 @@
 import axios from 'axios';
 
+import apiClient from '../../../shared/api/client';
+
 import {
   compressImageFile,
 } from './compressImageFile';
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL
-    ?.replace(/\/+$/, '');
-
 /**
- * 새로 선택된 레코드 파일(이미지 등)을
- * 업로드 직전에 압축한 뒤,
- * presigned URL을 통해 Cloudflare R2에 업로드하고,
- * 업로드가 끝난 파일을 레코드에 첨부합니다.
+ * 새로 선택된 레코드 파일(이미지 등)만 골라
+ * 업로드용으로 압축합니다.
  *
- * 이미 서버에 저장되어 있는 파일(isRemote)은
- * 다시 업로드하지 않습니다.
+ * 레코드 생성(POST/PATCH) 전에 호출해서,
+ * 압축에 실패하면 서버에 아무것도 만들지 않고 끝나게 합니다.
+ * 이미 서버에 저장되어 있는 파일(isRemote)은 제외합니다.
  */
-export const uploadRecordFiles = async ({
-  userId,
-  recordId,
-  files,
-}) => {
+export const prepareRecordFiles = async files => {
   const filesToUpload =
     (files ?? []).filter(
       file => file?.uri && !file.isRemote,
     );
 
-  if (filesToUpload.length === 0) {
+  return Promise.all(
+    filesToUpload.map(compressImageFile),
+  );
+};
+
+/**
+ * prepareRecordFiles로 준비된 파일을
+ * presigned URL을 통해 Cloudflare R2에 업로드하고,
+ * 업로드가 끝난 파일을 레코드에 첨부합니다.
+ */
+export const uploadRecordFiles = async ({
+  userId,
+  recordId,
+  files: uploadableFiles,
+}) => {
+  if (!uploadableFiles?.length) {
     return;
   }
 
-  const uploadableFiles = await Promise.all(
-    filesToUpload.map(compressImageFile),
-  );
-
   const { data: uploadUrlsData } =
-    await axios.post(
-      `${API_BASE_URL}/record/${recordId}/upload-urls`,
+    await apiClient.post(
+      `/record/${recordId}/upload-urls`,
       {
         userId: String(userId),
         files: uploadableFiles.map(file => ({
@@ -85,8 +89,8 @@ export const uploadRecordFiles = async ({
     }),
   );
 
-  await axios.post(
-    `${API_BASE_URL}/record/${recordId}/files`,
+  await apiClient.post(
+    `/record/${recordId}/files`,
     {
       userId: String(userId),
       files: attachedFiles,

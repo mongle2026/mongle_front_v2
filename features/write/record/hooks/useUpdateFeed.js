@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient, { getApiErrorDetail } from '../../../../shared/api/client';
 import {
   useMutation,
   useQueryClient,
@@ -9,20 +9,14 @@ import {
 } from '../../store/useRecordFormStore';
 
 import {
-  useFeedFormStore,
-} from '../../store/useFeedFormStore';
-
-import {
+  prepareRecordFiles,
   uploadRecordFiles,
 } from '../../utils/uploadRecordFiles';
 
 import {
   feedDetailKeys,
-} from '../../../feed/home/hooks/feedHomeCache';
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL
-    ?.replace(/\/+$/, '');
+  feedHomeKeys,
+} from '../../../feed/api/feedCache';
 
 const useUpdateFeed = ({
   feedId,
@@ -38,19 +32,8 @@ const useUpdateFeed = ({
       state => state.resetRecordForm,
     );
 
-  const resetFeedForm =
-    useFeedFormStore(
-      state => state.resetFeedForm,
-    );
-
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!API_BASE_URL) {
-        throw new Error(
-          'EXPO_PUBLIC_API_BASE_URL이 설정되지 않았습니다.',
-        );
-      }
-
       if (!feedId) {
         throw new Error(
           '수정할 피드 정보가 없습니다.',
@@ -70,9 +53,6 @@ const useUpdateFeed = ({
       const recordForm =
         useRecordFormStore.getState();
 
-      const feedForm =
-        useFeedFormStore.getState();
-
       /*
        * 처음 불러온 서버 파일 중
        * 지금 store에 남아 있지 않은 파일만
@@ -88,14 +68,21 @@ const useUpdateFeed = ({
           id => !remainingServerFileIds.includes(id),
         );
 
+      /*
+       * 압축은 요청 전에 끝내 둡니다.
+       * 압축이 실패하면 서버에 아무것도 반영하지 않고 끝납니다.
+       */
+      const uploadableFiles =
+        await prepareRecordFiles(recordForm.files);
+
       const response =
-        await axios.patch(
-          `${API_BASE_URL}/feed/${feedId}`,
+        await apiClient.patch(
+          `/feed/${feedId}`,
           {
             music: JSON.stringify(recordForm.music),
             text: recordForm.text ?? '',
             font: recordForm.font ?? 'KYOBO',
-            visibility: feedForm.visibility ?? 'PUBLIC',
+            visibility: recordForm.visibility ?? 'PUBLIC',
             deleteFileIds,
           },
           {
@@ -106,16 +93,35 @@ const useUpdateFeed = ({
         );
 
       /*
-       * 새로 추가된 이미지만 presigned URL을 통해
-       * R2에 업로드합니다. (isRemote 파일은 건너뜁니다.)
+       * 이미지는 피드 수정 이후
+       * presigned URL을 통해 R2에 업로드합니다.
+       *
+       * 여기서 실패해도 수정 내용(삭제한 기존 이미지 포함)은 이미 저장된 상태라서,
+       * 실패로 처리하면 화면과 서버 상태가 어긋납니다.
+       * 그래서 부분 성공(fileUploadFailed)으로 돌려주고 화면에서 안내합니다.
+       * TODO: 레코드와 파일을 한 번에 저장하도록 백엔드와 협의
        */
-      await uploadRecordFiles({
-        userId,
-        recordId: response.data.recordId,
-        files: recordForm.files,
-      });
+      let fileUploadFailed = false;
 
-      return response.data;
+      try {
+        await uploadRecordFiles({
+          userId,
+          recordId: response.data.recordId,
+          files: uploadableFiles,
+        });
+      } catch (error) {
+        console.warn(
+          '이미지 업로드에 실패했습니다.',
+          getApiErrorDetail(error),
+        );
+
+        fileUploadFailed = true;
+      }
+
+      return {
+        ...response.data,
+        fileUploadFailed,
+      };
     },
 
     onSuccess: data => {
@@ -123,7 +129,7 @@ const useUpdateFeed = ({
        * 피드 홈과 상세 화면에 수정 내용이 반영되게 합니다.
        */
       queryClient.invalidateQueries({
-        queryKey: ['feed-home'],
+        queryKey: feedHomeKeys.all,
       });
 
       queryClient.invalidateQueries({
@@ -139,7 +145,6 @@ const useUpdateFeed = ({
        * 작성 상태를 초기화합니다.
        */
       resetRecordForm();
-      resetFeedForm();
 
       onSuccess?.(data);
     },
@@ -147,8 +152,7 @@ const useUpdateFeed = ({
     onError: error => {
       console.warn(
         '피드 수정에 실패했습니다.',
-        error.response?.data ??
-        error.message,
+        getApiErrorDetail(error),
       );
 
       onError?.(error);
@@ -157,12 +161,8 @@ const useUpdateFeed = ({
 
   return {
     updateFeed: mutation.mutate,
-    updateFeedAsync:
-      mutation.mutateAsync,
     isUpdatingFeed:
       mutation.isPending,
-    updateFeedError:
-      mutation.error,
   };
 };
 

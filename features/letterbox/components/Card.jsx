@@ -1,5 +1,4 @@
-import { useMemo } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import InboxIcon from '../../../assets/icons/ic_inbox.svg';
 import SendIcon from '../../../assets/icons/ic_send.svg';
@@ -8,10 +7,11 @@ import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 import { formatDate } from '../../../shared/utils/dateUtils';
-import { resolveEnvelope } from '../../../shared/utils/envelopeUtils';
 import CdCover from './CdCover';
 import DotMatrixText from './DotMatrixText';
 import Letter from './Letter';
+import StampImage from './StampImage';
+import useResolvedEnvelope from '../hooks/useResolvedEnvelope';
 
 // 두 번째 컨테이너의 편지 봉투. 공유 Letter(320x232)를 카드 폭에 맞춰 축소해서 사용.
 const LETTER_WIDTH = 120;
@@ -43,7 +43,6 @@ const SINGER_DOT = { dotSize: 2, colGap: 2, rowPitch: 4 }; // 3줄 12px + paddin
  * @param {boolean}  [letter.isRead]          읽음 여부 (type 미지정 시 이 값으로 결정)
  * @param {{ title?: string, singer?: string, artworkUri?: string }} [letter.music] 음악 정보 (artworkUri: 앨범 커버, CD에 사용)
  * @param {{ pattern?: string, color?: string, stamp?: string }} [letter.envelope] 봉투 패턴/색상/우표 id (envelopeData 기준)
- * @param {import('react-native').ImageSourcePropType} [letter.stampSource] 우표 이미지 (envelope.stamp 가 없을 때)
  * @param {'read' | 'unread'} [type] letter.isRead 대신 강제 지정할 때
  * @param {() => void} [onPress]
  * @param {import('react-native').StyleProp<import('react-native').ViewStyle>} [style]
@@ -54,22 +53,11 @@ function Card({ letter = {}, type, onPress, style }) {
     nickname = '',
     receivedAt,
     createdAt,
-    stampSource,
     isSent,
     isRead,
   } = letter;
   const music = letter.music ?? {};
-  const envelope = letter.envelope ?? {};
-
-  const { FrontSvg, FlapSvg, StampSvg } = useMemo(
-    () =>
-      resolveEnvelope({
-        patternId: envelope.pattern,
-        colorId: envelope.color,
-        stampId: envelope.stamp,
-      }),
-    [envelope.pattern, envelope.color, envelope.stamp],
-  );
+  const { FrontSvg, FlapSvg, StampSvg } = useResolvedEnvelope(letter.envelope);
 
   const resolvedType = type ?? (isSent || isRead ? 'read' : 'unread');
   const CaptionIcon = isSent ? SendIcon : InboxIcon;
@@ -152,18 +140,8 @@ function Card({ letter = {}, type, onPress, style }) {
         {/* 보낸 편지 / 읽은 편지는 우표 자리에 앨범 커버를 씌운 CD */}
         {isReadType ? (
           <CdCover imageUri={music.artworkUri} size={CD_SIZE} style={styles.cd} />
-        ) : StampSvg ? (
-          <View style={styles.stamp}>
-            <StampSvg
-              width="100%"
-              height="100%"
-              preserveAspectRatio="xMidYMid slice"
-            />
-          </View>
-        ) : stampSource ? (
-          <Image source={stampSource} style={styles.stamp} resizeMode="cover" />
         ) : (
-          <View style={styles.stamp} />
+          <StampImage StampSvg={StampSvg} style={styles.stamp} />
         )}
       </View>
     </Container>

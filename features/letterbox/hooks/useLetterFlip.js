@@ -81,6 +81,14 @@ export default function useLetterFlip({ initialFace = 'back', lock, onFlipEnd } 
     });
   }, [face, flipScale, isFlipping]);
 
+  // 뒤집히는 도중 언마운트되면 완료 콜백이 오지 않으므로,
+  // 공유 lock을 여기서 풀어야 다른 편지가 계속 뒤집힐 수 있다
+  useEffect(() => () => {
+    if (!isFlippingSelf.current) return;
+    isFlippingSelf.current = false;
+    isFlipping.value = false;
+  }, [isFlipping]);
+
   const resetFace = useCallback(nextFace => {
     if (isFlippingSelf.current) return;
     setFace(nextFace);

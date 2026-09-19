@@ -1,9 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+import apiClient, { getApiErrorDetail } from '../api/client';
 
 export default function useFollow({
   currentUserId,
@@ -12,10 +9,6 @@ export default function useFollow({
 } = {}) {
   const followMutation = useMutation({
     mutationFn: async ({ targetUserId, nextFollowing }) => {
-      if (!API_BASE_URL) {
-        throw new Error('EXPO_PUBLIC_API_BASE_URL이 설정되지 않았습니다.');
-      }
-
       if (!currentUserId || !targetUserId) {
         throw new Error('팔로우할 사용자 정보가 올바르지 않습니다.');
       }
@@ -24,17 +17,17 @@ export default function useFollow({
         return null;
       }
 
-      const url = `${API_BASE_URL}/follow/${targetUserId}`;
+      const url = `/follow/${targetUserId}`;
 
       if (nextFollowing) {
-        const response = await axios.post(url, null, {
+        const response = await apiClient.post(url, null, {
           params: { currentUserId },
         });
 
         return response.data;
       }
 
-      const response = await axios.delete(url, {
+      const response = await apiClient.delete(url, {
         params: { currentUserId },
       });
 
@@ -49,26 +42,12 @@ export default function useFollow({
     onError: (error, variables) => {
       console.warn(
         '팔로우 처리에 실패했습니다.',
-        error.response?.data ?? error.message,
+        getApiErrorDetail(error),
       );
 
       onError?.(error, variables);
     },
   });
-
-  const followUser = useCallback(targetUserId => {
-    followMutation.mutate({
-      targetUserId,
-      nextFollowing: true,
-    });
-  }, [followMutation.mutate]);
-
-  const unfollowUser = useCallback(targetUserId => {
-    followMutation.mutate({
-      targetUserId,
-      nextFollowing: false,
-    });
-  }, [followMutation.mutate]);
 
   const toggleFollow = useCallback((targetUserId, isFollowing) => {
     if (
@@ -94,11 +73,8 @@ export default function useFollow({
     : null;
 
   return {
-    followUser,
-    unfollowUser,
     toggleFollow,
     isFollowPending: followMutation.isPending,
     pendingTargetUserId,
-    error: followMutation.error,
   };
 }

@@ -4,7 +4,7 @@ import { Pressable } from 'react-native-gesture-handler';
 import { colors } from '../../styles/color';
 import { padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
-import { FONT, normalizeFont } from '../../styles/font';
+import { FONT, normalizeFont } from '../../styles/fontType';
 
 export const TEXT_BUTTON_VARIANT = Object.freeze({
   SOLID: 'Solid',
@@ -288,7 +288,6 @@ export const TextButton = ({
       ]}
     >
       <Text
-        allowFontScaling={false}
         numberOfLines={1}
         style={[
           typographyStyle,

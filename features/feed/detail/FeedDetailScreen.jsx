@@ -14,9 +14,6 @@ import {
 import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
-import {
-  useQueryClient,
-} from '@tanstack/react-query';
 
 import IcTrash from '../../../assets/icons/ic_trash.svg';
 
@@ -47,11 +44,10 @@ import {
 } from '../../../shared/hooks/useFloatingBottomOffset';
 
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
-import useFollow from '../../../shared/hooks/useFollow';
 
 import { colors, shadow, } from '../../../shared/styles/color';
 import { padding, radius, } from '../../../shared/styles/token';
-import { normalizeFont } from '../../../shared/styles/font';
+import { normalizeFont } from '../../../shared/styles/fontType';
 
 import {
   getImageSources,
@@ -62,19 +58,16 @@ import {
   shareFeed,
 } from '../../../shared/utils/shareFeed';
 
-import ActionBar from '../home/components/ActionBar';
+import ActionBar from '../../../shared/components/content/ActionBar';
 import ProfileBar from '../home/components/ProfileBar';
 
-import {
-  syncFollowState,
-} from '../home/hooks/feedHomeCache';
-
 import useFeedActions from '../hooks/useFeedActions';
+import useFeedFollow from '../hooks/useFeedFollow';
 import useDoubleTapLike from '../hooks/useDoubleTapLike';
 
 import FeedDetailContent from './components/FeedDetailContent';
 import CommentSection from './components/CommentSection';
-import CommentBar from './components/CommentBar';
+import CommentComposer from './components/CommentComposer';
 
 import useFeedDetail from './hooks/useFeedDetail';
 import useFeedComments from './hooks/useFeedComments';
@@ -99,9 +92,6 @@ const FeedDetailScreen = ({
     currentUser,
     userId,
   } = useCurrentUser();
-
-  const queryClient =
-    useQueryClient();
 
   const commentBarRef =
     useRef(null);
@@ -150,6 +140,18 @@ const FeedDetailScreen = ({
     onDeleteSuccess: () => {
       navigation.goBack();
     },
+    onDeleteError: () => {
+      showToast({
+        message:
+          '기록을 삭제하지 못했습니다.',
+        icon: 'alert',
+        iconColor:
+          colors.fgCritical,
+        bottomOffset:
+          floatingBottomOffset +
+          commentBarHeight,
+      });
+    },
   });
 
   const {
@@ -165,13 +167,12 @@ const FeedDetailScreen = ({
   });
 
   const {
-    commentText,
-    setCommentText,
     replyTarget,
     replyFocusRequestKey,
     handleSubmitComment,
     handlePressReply:
     handleStartReply,
+    clearReplyTarget,
   } = useCommentComposer({
     createComment,
   });
@@ -200,40 +201,16 @@ const FeedDetailScreen = ({
     bookmarkPendingFeedIds,
   } = useFeedActions({
     userId,
+    // 토스트를 CommentBar(닫힌/열린 상태 모두) 위로 띄운다.
+    toastBottomOffset:
+      commentBarHeight,
   });
-
-  const handleFollowSuccess =
-    useCallback(
-      (
-        _,
-        {
-          targetUserId,
-          nextFollowing,
-        },
-      ) => {
-        syncFollowState(
-          queryClient,
-          {
-            userId,
-            targetUserId,
-            nextFollowing,
-          },
-        );
-      },
-      [
-        queryClient,
-        userId,
-      ],
-    );
 
   const {
     toggleFollow,
     isFollowPending,
-  } = useFollow({
-    currentUserId:
-      userId,
-    onSuccess:
-      handleFollowSuccess,
+  } = useFeedFollow({
+    userId,
   });
 
   const normalizedFeedId =
@@ -289,60 +266,13 @@ const FeedDetailScreen = ({
       toggleLike,
     ]);
 
-  const handlePressBookmarkToastButton =
-    useCallback(() => {
-      // 북마크 화면 route가 만들어지면
-      // navigation.navigate 추가
-    }, []);
-
   const handlePressBookmark =
     useCallback(() => {
       if (!feed) return;
 
-      const isAddingBookmark =
-        !feed.isBookmarked;
-
-      // 토스트를 CommentBar(닫힌/열린 상태 모두) 위로 띄운다.
-      const toastBottomOffset =
-        floatingBottomOffset +
-        commentBarHeight;
-
-      toggleBookmark(
-        feed,
-        {
-          onSuccess: () => {
-            if (
-              isAddingBookmark
-            ) {
-              showToast({
-                message:
-                  '기록을 북마크에 추가했습니다.',
-                buttonText:
-                  '이동',
-                onPressButton:
-                  handlePressBookmarkToastButton,
-                bottomOffset:
-                  toastBottomOffset,
-              });
-
-              return;
-            }
-
-            showToast({
-              message:
-                '기록을 북마크에서 삭제했습니다.',
-              bottomOffset:
-                toastBottomOffset,
-            });
-          },
-        },
-      );
+      toggleBookmark(feed);
     }, [
-      commentBarHeight,
       feed,
-      floatingBottomOffset,
-      handlePressBookmarkToastButton,
-      showToast,
       toggleBookmark,
     ]);
 
@@ -640,9 +570,6 @@ const FeedDetailScreen = ({
 
           {!isConfigured && (
             <Text
-              allowFontScaling={
-                false
-              }
               style={
                 styles.stateText
               }
@@ -653,9 +580,6 @@ const FeedDetailScreen = ({
 
           {error && (
             <Text
-              allowFontScaling={
-                false
-              }
               style={
                 styles.stateText
               }
@@ -961,15 +885,12 @@ const FeedDetailScreen = ({
           },
         ]}
       >
-        <CommentBar
-          value={
-            commentText
-          }
-          onChangeText={
-            setCommentText
-          }
+        <CommentComposer
           onSubmit={
             handleSubmitComment
+          }
+          onClose={
+            clearReplyTarget
           }
           disabled={
             isCreatingComment

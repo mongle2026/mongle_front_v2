@@ -1,12 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Keyboard } from 'react-native';
 
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 import { useFloatingBottomOffset } from '../../../../shared/hooks/useFloatingBottomOffset';
 import { useRecordFormStore } from '../../store/useRecordFormStore';
-import { usePickImages } from './usePickImages';
-
-const MAX_IMAGES = 2;
+import { MAX_IMAGES, usePickImages } from './usePickImages';
 
 /*
  * RecordScreen / RecordEditScreen에서 공통으로 사용하는
@@ -17,7 +15,11 @@ export const useRecordImageManager = () => {
   const removeFile = useRecordFormStore(state => state.removeFile);
   const restoreFile = useRecordFormStore(state => state.restoreFile);
 
-  const imageFiles = files.filter(file => file.fileType === 'IMAGE');
+  // 매번 새 배열을 만들면 SelectedImageList(memo)가 화면이 그려질 때마다 같이 다시 그려진다
+  const imageFiles = useMemo(
+    () => files.filter(file => file.fileType === 'IMAGE'),
+    [files],
+  );
   const isImageLimitReached = imageFiles.length >= MAX_IMAGES;
 
   const pickImages = usePickImages();

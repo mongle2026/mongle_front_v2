@@ -17,17 +17,21 @@ import {
 import { colors } from '../../../../shared/styles/color';
 import { padding } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
+import { startOfDay } from '../../../../shared/utils/dateUtils';
 
 import IconButton from '../../../../shared/components/action/IconButton';
 import Item, { CALENDAR_ITEM_SIZE } from './Item';
+import MonthPage from './MonthPage';
+import {
+  DAYS_GAP,
+  WEEK_COUNT,
+  WEEK_DAYS,
+  createMonths,
+  findMonthIndex,
+  getMaxDate,
+  getMinDate,
+} from './calendarUtils';
 
-const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
-
-const DAYS_PER_WEEK = 7;
-const WEEK_COUNT = 6;
-const CALENDAR_CELL_COUNT = DAYS_PER_WEEK * WEEK_COUNT;
-
-const DAYS_GAP = padding.XS;
 const CALENDAR_HORIZONTAL_PADDING = padding.XL;
 
 /**
@@ -94,69 +98,27 @@ const Calendar = ({
    * 선택 가능 최소 날짜
    * = 기본은 내일, allowToday면 오늘
    */
-  const minDate = useMemo(() => {
-    const date = new Date(today);
-
-    if (!allowToday) {
-      date.setDate(date.getDate() + 1);
-    }
-
-    return date;
-  }, [today, allowToday]);
+  const minDate = useMemo(
+    () => getMinDate(today, allowToday),
+    [today, allowToday],
+  );
 
   /**
    * 선택 가능 최대 날짜
    * = 오늘로부터 정확히 1년 뒤
    */
-  const maxDate = useMemo(() => {
-    const date = new Date(today);
-    date.setFullYear(date.getFullYear() + 1);
-
-    return date;
-  }, [today]);
+  const maxDate = useMemo(
+    () => getMaxDate(today),
+    [today],
+  );
 
   /**
-   * 표시 가능한 월 목록
-   *
-   * 예:
-   * 2026년 8월 현재라면
-   *
-   * 2026.08
-   * 2026.09
-   * ...
-   * 2027.08
-   *
-   * 총 13개월
+   * 표시 가능한 월 목록 (이번 달 ~ 1년 뒤 달, 총 13개월)
    */
-  const months = useMemo(() => {
-    const startMonth = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      1,
-    );
-
-    const endMonth = new Date(
-      maxDate.getFullYear(),
-      maxDate.getMonth(),
-      1,
-    );
-
-    const result = [];
-
-    let cursor = new Date(startMonth);
-
-    while (cursor <= endMonth) {
-      result.push(new Date(cursor));
-
-      cursor = new Date(
-        cursor.getFullYear(),
-        cursor.getMonth() + 1,
-        1,
-      );
-    }
-
-    return result;
-  }, [today, maxDate]);
+  const months = useMemo(
+    () => createMonths(today, maxDate),
+    [today, maxDate],
+  );
 
   /**
    * 처음 선택된 날짜가 있는 달에서 바로 시작합니다.
@@ -403,179 +365,6 @@ const Calendar = ({
   );
 };
 
-const MonthPage = memo(
-  ({
-    month,
-    pageWidth,
-    selectedDate,
-    minDate,
-    maxDate,
-    onSelectDate,
-  }) => {
-    const weeks = useMemo(() => {
-      return createMonthWeeks(month);
-    }, [month]);
-
-    return (
-      <View
-        style={[
-          styles.containerDays,
-          {
-            width: pageWidth,
-          },
-        ]}
-      >
-        {weeks.map((week, weekIndex) => (
-          <View
-            key={weekIndex}
-            style={styles.containerWeek}
-          >
-            {week.map((date, dayIndex) => {
-              /**
-               * 해당 월에 포함되지 않는 빈 칸
-               */
-              if (!date) {
-                return (
-                  <View
-                    key={`empty-${weekIndex}-${dayIndex}`}
-                    style={styles.emptyItem}
-                  />
-                );
-              }
-
-              const normalizedDate = startOfDay(date);
-
-              const isDisabled =
-                normalizedDate < minDate ||
-                normalizedDate > maxDate;
-
-              const isSelected =
-                selectedDate &&
-                isSameDate(
-                  normalizedDate,
-                  selectedDate,
-                );
-
-              const state = isDisabled
-                ? 'disabled'
-                : isSelected
-                  ? 'current'
-                  : 'default';
-
-              return (
-                <Item
-                  key={normalizedDate.getTime()}
-                  state={state}
-                  onPress={
-                    isDisabled
-                      ? undefined
-                      : () => {
-                        onSelectDate?.(
-                          new Date(normalizedDate),
-                        );
-                      }
-                  }
-                >
-                  {normalizedDate.getDate()}
-                </Item>
-              );
-            })}
-          </View>
-        ))}
-      </View>
-    );
-  },
-);
-
-/**
- * 한 달을 6주 × 7일 배열로 변환
- *
- * 예:
- *
- * [
- *   [null, null, 1, 2, 3, 4, 5],
- *   [6, 7, 8, 9, 10, 11, 12],
- *   ...
- * ]
- */
-const createMonthWeeks = month => {
-  const year = month.getFullYear();
-  const monthIndex = month.getMonth();
-
-  const firstDay = new Date(
-    year,
-    monthIndex,
-    1,
-  ).getDay();
-
-  const lastDate = new Date(
-    year,
-    monthIndex + 1,
-    0,
-  ).getDate();
-
-  const cells = Array(
-    CALENDAR_CELL_COUNT,
-  ).fill(null);
-
-  for (let day = 1; day <= lastDate; day += 1) {
-    const cellIndex = firstDay + day - 1;
-
-    cells[cellIndex] = new Date(
-      year,
-      monthIndex,
-      day,
-    );
-  }
-
-  const weeks = [];
-
-  for (
-    let index = 0;
-    index < CALENDAR_CELL_COUNT;
-    index += DAYS_PER_WEEK
-  ) {
-    weeks.push(
-      cells.slice(
-        index,
-        index + DAYS_PER_WEEK,
-      ),
-    );
-  }
-
-  return weeks;
-};
-
-const findMonthIndex = (months, date) => {
-  if (!date) {
-    return -1;
-  }
-
-  return months.findIndex(month => (
-    month.getFullYear() === date.getFullYear() &&
-    month.getMonth() === date.getMonth()
-  ));
-};
-
-const startOfDay = date => {
-  const result = new Date(date);
-
-  result.setHours(0, 0, 0, 0);
-
-  return result;
-};
-
-const isSameDate = (dateA, dateB) => {
-  const a = startOfDay(dateA);
-  const b = startOfDay(dateB);
-
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-};
-
 const styles = StyleSheet.create({
   container: {
     width: '100%',
@@ -622,32 +411,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     height: DAYS_HEIGHT,
     overflow: 'hidden',
-  },
-
-  // container_days
-  containerDays: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: DAYS_GAP,
-  },
-
-  // container_week
-  containerWeek: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    alignSelf: 'stretch',
-  },
-
-  /**
-   * Item과 정확히 같은 크기.
-   *
-   * 이전/다음 달 날짜를 표시하지 않더라도
-   * 요일 위치가 틀어지지 않도록 공간만 차지합니다.
-   */
-  emptyItem: {
-    width: CALENDAR_ITEM_SIZE,
-    height: CALENDAR_ITEM_SIZE,
   },
 });
 

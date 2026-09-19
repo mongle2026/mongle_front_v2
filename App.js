@@ -39,6 +39,9 @@ const linking = {
     'mongle://',
   ],
   config: {
+    // 콜드 스타트로 딥링크를 열어도 MainTabs를 아래에 깔아서
+    // FeedDetail에서 뒤로 가기로 나갈 수 있게 함
+    initialRouteName: 'MainTabs',
     screens: {
       FeedDetail: {
         path: 'share',
@@ -50,10 +53,20 @@ const linking = {
   },
 };
 
+// 따로 staleTime을 정하지 않은 조회(편지함 · 우표 · 검색 등)는 30초 동안 새 데이터로 본다.
+// 0이면 화면이 열릴 때마다 다시 요청해서, 우표 상세처럼 미리 불러온(prefetch) 데이터도 바로 다시 요청한다
+const DEFAULT_STALE_TIME = 30 * 1000;
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      staleTime: DEFAULT_STALE_TIME,
+      // 4xx(없는 글, 권한 없음 등)는 다시 요청해도 같은 결과라 재시도하지 않는다
+      retry: (failureCount, error) => {
+        const status = error?.response?.status;
+        if (status >= 400 && status < 500) return false;
+        return failureCount < 1;
+      },
       refetchOnWindowFocus: false,
     },
   },

@@ -14,12 +14,12 @@ import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
 import { useDialog } from '../../../../shared/providers/DialogProvider';
 import { colors } from '../../../../shared/styles/color';
-import { FONT } from '../../../../shared/styles/font';
+import { FONT } from '../../../../shared/styles/fontType';
 import { padding } from '../../../../shared/styles/token';
 import { getSenderSuffix } from '../../../../shared/utils/koreanUtils';
 
-import ActionBar from '../../../feed/home/components/ActionBar';
-import { formatDateOnly } from '../../../feed/utils/formatDate';
+import ActionBar from '../../../../shared/components/content/ActionBar';
+import { formatDate } from '../../../../shared/utils/dateUtils';
 
 import LetterDetailContent from './components/LetterDetailContent';
 import useLetterDetail from './hooks/useLetterDetail';
@@ -112,7 +112,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
   // 보낸 날짜와 도착 날짜가 다를 때만(예약 발송) 전송/도착을 나눠 보여준다
   const isDeliveredLater =
     Boolean(letter?.createdAt && letter?.deliveryAt) &&
-    formatDateOnly(letter.createdAt) !== formatDateOnly(letter.deliveryAt);
+    formatDate(letter.createdAt) !== formatDate(letter.deliveryAt);
 
   return (
     <View style={styles.screen}>

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient, { getApiErrorDetail, isApiConfigured } from '../../../../shared/api/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -6,29 +6,25 @@ import {
   feedHomeKeys,
   findFeedItemInHomeCache,
   removeFeedItem,
-} from '../../home/hooks/feedHomeCache';
+} from '../../api/feedCache';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
 const DETAIL_STALE_TIME = 2 * 60 * 1000;
 const DETAIL_GC_TIME = 30 * 60 * 1000;
 
-export default function useFeedDetail({ feedId, userId, onDeleteSuccess }) {
+export default function useFeedDetail({ feedId, userId, onDeleteSuccess, onDeleteError }) {
   const queryClient = useQueryClient();
-  const isConfigured = Boolean(API_BASE_URL);
+  const isConfigured = isApiConfigured;
   const detailQueryKey = feedDetailKeys.detail(userId, feedId);
 
   const {
     data: feed,
     isLoading,
-    isFetching,
-    isError,
     error,
-    refetch,
   } = useQuery({
     queryKey: detailQueryKey,
 
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/feed/${feedId}`, {
+      const response = await apiClient.get(`/feed/${feedId}`, {
         params: { userId },
       });
 
@@ -49,7 +45,7 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess }) {
 
   const deleteFeedMutation = useMutation({
     mutationFn: async () => {
-      const response = await axios.delete(`${API_BASE_URL}/feed/${feedId}`, {
+      const response = await apiClient.delete(`/feed/${feedId}`, {
         params: { userId },
       });
 
@@ -69,8 +65,10 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess }) {
     onError: mutationError => {
       console.warn(
         '피드 삭제에 실패했습니다.',
-        mutationError.response?.data ?? mutationError.message,
+        getApiErrorDetail(mutationError),
       );
+
+      onDeleteError?.(mutationError);
     },
   });
 
@@ -78,12 +76,8 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess }) {
     feed,
     isConfigured,
     isLoading,
-    isFetching,
-    isError,
     error,
-    refetch,
     deleteFeed: deleteFeedMutation.mutate,
     isDeletingFeed: deleteFeedMutation.isPending,
-    deleteFeedError: deleteFeedMutation.error,
   };
 }

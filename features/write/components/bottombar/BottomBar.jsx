@@ -11,7 +11,7 @@ import Item from './Item';
 
 import { colors } from '../../../../shared/styles/color';
 import { padding } from '../../../../shared/styles/token';
-import { FONT, normalizeFont, } from '../../../../shared/styles/font';
+import { FONT, normalizeFont, } from '../../../../shared/styles/fontType';
 
 const BottomBarActions = ({
   onPressImage,

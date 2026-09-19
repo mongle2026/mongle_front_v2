@@ -57,8 +57,13 @@ const DialogProvider = ({ children }) => {
       onClose,
     };
 
+    // 기존 다이얼로그를 덮어쓰기 전에 닫힘을 알림
+    const previousDialog = dialogRef.current;
+
     dialogRef.current = nextDialog;
     setDialog(nextDialog);
+
+    previousDialog?.onClose?.();
   }, []);
 
   const closeDialog = useCallback(id => {
@@ -111,15 +116,14 @@ const DialogProvider = ({ children }) => {
     dialog,
   ]);
 
+  // 여는 / 닫는 함수만 넣어서 다이얼로그가 열리고 닫힐 때
+  // useDialog를 쓰는 화면들이 다시 그려지지 않게 한다 (열림 여부는 isDialogOpen으로 확인)
   const contextValue = useMemo(() => ({
-    activeDialogId:
-      dialog?.id ?? null,
     openDialog,
     closeDialog,
     isDialogOpen,
   }), [
     closeDialog,
-    dialog?.id,
     isDialogOpen,
     openDialog,
   ]);

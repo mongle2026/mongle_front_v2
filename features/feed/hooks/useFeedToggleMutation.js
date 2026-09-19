@@ -1,15 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient, { getApiErrorDetail } from '../../../shared/api/client';
 
 import {
   feedDetailKeys,
   feedHomeKeys,
   findFeedItem,
   updateFeedItem,
-} from '../home/hooks/feedHomeCache';
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, '');
+} from '../api/feedCache';
 
 const normalizeFeedId = feedId => String(feedId);
 
@@ -29,16 +27,15 @@ export default function useFeedToggleMutation({
     mutationKey: ['feed-toggle', String(userId), endpoint],
 
     mutationFn: async ({ feedId, nextValue }) => {
-      if (!API_BASE_URL) throw new Error('EXPO_PUBLIC_API_BASE_URL이 설정되지 않았습니다.');
       if (userId === null || userId === undefined) throw new Error('사용자 ID가 없습니다.');
 
-      const url = `${API_BASE_URL}/feed/${feedId}/${endpoint}`;
+      const url = `/feed/${feedId}/${endpoint}`;
 
       if (nextValue) {
-        return axios.post(url, null, { params: { userId } });
+        return apiClient.post(url, null, { params: { userId } });
       }
 
-      return axios.delete(url, { params: { userId } });
+      return apiClient.delete(url, { params: { userId } });
     },
 
     onMutate: async ({ feedId, nextValue }) => {
@@ -141,7 +138,7 @@ export default function useFeedToggleMutation({
 
       console.warn(
         errorMessage,
-        mutationError.response?.data ?? mutationError.message,
+        getApiErrorDetail(mutationError),
       );
     },
 
@@ -168,7 +165,6 @@ export default function useFeedToggleMutation({
 
   return {
     mutate: mutation.mutate,
-    mutateAsync: mutation.mutateAsync,
     pendingFeedIds,
   };
 }

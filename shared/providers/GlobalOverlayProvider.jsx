@@ -86,8 +86,15 @@ const GlobalOverlayProvider = ({
       onClose,
     };
 
+    // 기존 오버레이를 덮어쓰기 전에 닫힘을 알려서
+    // 여는 쪽 상태(예: WriteFab isOpen)가 남지 않게 함
+    const previousOverlay =
+      overlayRef.current;
+
     overlayRef.current =
       nextOverlay;
+
+    previousOverlay?.onClose?.();
 
     setOverlay(nextOverlay);
   }, []);
