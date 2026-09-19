@@ -9,7 +9,7 @@ import LetterShadow from '../../../assets/envelope/patterns/letter_shadow.png';
 import { colors } from '../../../shared/styles/color';
 import { typo } from '../../../shared/styles/typo';
 import { padding } from '../../../shared/styles/token';
-import StampImage from './StampImage';
+import { StampImage } from './Stamp';
 
 const CARD_ASPECT_RATIO = 320 / 232;
 const FLAP_ASPECT_RATIO = 318 / 164;
@@ -225,11 +225,10 @@ const styles = StyleSheet.create({
     color: colors.fgNeutralSolid,
     ...typo.kyoboTitleSmall,
   },
-  // width 72px 고정, 높이는 원본 비율. lightgray 는 이미지 로딩 전 플레이스홀더.
+  // width 72px 고정, 높이는 원본 비율.
   stamp: {
     width: 72,
     aspectRatio: STAMP_ASPECT_RATIO,
-    backgroundColor: colors.bgDisabled,
   },
 });
 

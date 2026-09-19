@@ -10,7 +10,7 @@ import { formatDate } from '../../../shared/utils/dateUtils';
 import CdCover from './CdCover';
 import DotMatrixText from './DotMatrixText';
 import Letter from './Letter';
-import StampImage from './StampImage';
+import { StampImage } from './Stamp';
 import useResolvedEnvelope from '../hooks/useResolvedEnvelope';
 
 // 두 번째 컨테이너의 편지 봉투. 공유 Letter(320x232)를 카드 폭에 맞춰 축소해서 사용.
@@ -260,7 +260,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 64,
     marginTop: -STAMP_OVERLAP,
-    backgroundColor: colors.bgDisabled,
     transform: [{ rotate: '4deg' }],
   },
   cd: {
