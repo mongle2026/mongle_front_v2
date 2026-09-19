@@ -4,8 +4,8 @@ import { Pressable } from 'react-native-gesture-handler';
 import { useIsFocused } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
-import Letter from './Letter';
-import useLetterFlip from '../hooks/useLetterFlip';
+import Letter from '../../../shared/components/content/Letter';
+import useLetterFlip from '../../../shared/hooks/useLetterFlip';
 import useResolvedEnvelope from '../hooks/useResolvedEnvelope';
 
 // Letter 원본 크기(320x232)

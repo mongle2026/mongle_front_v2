@@ -2,8 +2,8 @@ import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Defs, FeColorMatrix, Filter, G } from 'react-native-svg';
 
-import { findStamp } from '../../../shared/data/envelopeData';
-import { colors } from '../../../shared/styles/color';
+import { findStamp } from '../../data/envelopeData';
+import { colors } from '../../styles/color';
 
 // 우표 원본 비율 (편지함 Card 의 44x64 기준)
 const STAMP_RATIO = 64 / 44;

@@ -9,8 +9,8 @@ import { typo } from '../../../shared/styles/typo';
 import { formatDate } from '../../../shared/utils/dateUtils';
 import CdCover from './CdCover';
 import DotMatrixText from './DotMatrixText';
-import Letter from './Letter';
-import { StampImage } from './Stamp';
+import Letter from '../../../shared/components/content/Letter';
+import { StampImage } from '../../../shared/components/content/Stamp';
 import useResolvedEnvelope from '../hooks/useResolvedEnvelope';
 
 // 두 번째 컨테이너의 편지 봉투. 공유 Letter(320x232)를 카드 폭에 맞춰 축소해서 사용.

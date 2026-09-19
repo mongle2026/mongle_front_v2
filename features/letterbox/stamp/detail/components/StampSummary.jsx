@@ -8,7 +8,7 @@ import { typo } from '../../../../../shared/styles/typo';
 import { gap, padding } from '../../../../../shared/styles/token';
 import { formatDate } from '../../../../../shared/utils/dateUtils';
 
-import Stamp, { getStampHeight } from '../../../components/Stamp';
+import Stamp, { getStampHeight } from '../../../../../shared/components/content/Stamp';
 
 import CenterToStartRow from './CenterToStartRow';
 

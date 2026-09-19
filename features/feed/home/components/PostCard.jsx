@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import ProfileBar from './ProfileBar';
+import ProfileBar from '../../components/ProfileBar';
 import ActionBar from '../../../../shared/components/content/ActionBar';
 
 import MusicCard from '../../../../shared/components/content/MusicCard';

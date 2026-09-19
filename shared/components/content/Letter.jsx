@@ -6,9 +6,9 @@ import LetterBackground from '../../../assets/envelope/patterns/letter_cover_def
 import LetterFlap from '../../../assets/envelope/patterns/letter_flap_default.png';
 import FlapShadow from '../../../assets/envelope/patterns/flap_shadow.png';
 import LetterShadow from '../../../assets/envelope/patterns/letter_shadow.png';
-import { colors } from '../../../shared/styles/color';
-import { typo } from '../../../shared/styles/typo';
-import { padding } from '../../../shared/styles/token';
+import { colors } from '../../styles/color';
+import { typo } from '../../styles/typo';
+import { padding } from '../../styles/token';
 import { StampImage } from './Stamp';
 
 const CARD_ASPECT_RATIO = 320 / 232;

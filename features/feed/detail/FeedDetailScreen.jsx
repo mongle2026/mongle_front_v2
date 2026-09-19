@@ -46,7 +46,7 @@ import {
 } from '../../../shared/utils/shareFeed';
 
 import ActionBar from '../../../shared/components/content/ActionBar';
-import ProfileBar from '../home/components/ProfileBar';
+import ProfileBar from '../components/ProfileBar';
 
 import useFeedActions from '../hooks/useFeedActions';
 import useFeedFollow from '../hooks/useFeedFollow';

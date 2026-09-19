@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import Profile from '../../../../shared/components/content/profile/Profile';
-import { TextButton } from '../../../../shared/components/action/TextButton';
-import { DividerLine } from '../../../../shared/components/atomic/DividerLine';
+import Profile from '../../../shared/components/content/profile/Profile';
+import { TextButton } from '../../../shared/components/action/TextButton';
+import { DividerLine } from '../../../shared/components/atomic/DividerLine';
 
-import { colors } from '../../../../shared/styles/color';
-import { gap, padding } from '../../../../shared/styles/token';
+import { colors } from '../../../shared/styles/color';
+import { gap, padding } from '../../../shared/styles/token';
 
 const ProfileBar = ({
   imageUri,

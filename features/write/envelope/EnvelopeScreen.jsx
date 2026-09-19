@@ -23,7 +23,7 @@ import { chunk } from '../../../shared/utils/arrayUtils';
 
 import { useLetterFormStore } from '../store/useLetterFormStore';
 
-import Letter from '../../letterbox/components/Letter';
+import Letter from '../../../shared/components/content/Letter';
 import Templete from '../components/Templete';
 import PatternItem from '../components/PatternItem';
 import ColorItem from '../components/ColorItem';

@@ -6,7 +6,7 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
-import useLetterFlip from '../../../letterbox/hooks/useLetterFlip';
+import useLetterFlip from '../../../../shared/hooks/useLetterFlip';
 
 /* 편지 봉투 미리보기의 앞/뒷면 전환 애니메이션을 관리한다.
  * 뒤집기는 공통 useLetterFlip 을 쓰고, 뒤집히는 동안 flap 을 잠깐 숨기는 것만 이 화면에서 더한다. */

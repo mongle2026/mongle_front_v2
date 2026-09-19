@@ -5,7 +5,7 @@ import { colors } from '../../../../../shared/styles/color';
 import { typo } from '../../../../../shared/styles/typo';
 import { padding, radius } from '../../../../../shared/styles/token';
 
-import Stamp from '../../../components/Stamp';
+import Stamp from '../../../../../shared/components/content/Stamp';
 
 const COUNT_BADGE_SIZE = 20;
 // 우표 기준 아래/오른쪽에서 띄우는 거리
