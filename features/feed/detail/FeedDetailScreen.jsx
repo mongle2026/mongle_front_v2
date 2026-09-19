@@ -4,24 +4,12 @@ import React, {
   useState,
 } from 'react';
 import {
-  ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
-
-import IcTrash from '../../../assets/icons/ic_trash.svg';
 
 import MusicCard from '../../../shared/components/content/MusicCard';
-import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
-
-import Menu from '../../../shared/components/action/menu/Menu';
-import Item from '../../../shared/components/action/menu/Item';
 
 import ImageViewer from '../../../shared/components/content/ImageViewer';
 
@@ -45,8 +33,7 @@ import {
 
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 
-import { colors, shadow, } from '../../../shared/styles/color';
-import { padding, radius, } from '../../../shared/styles/token';
+import { colors } from '../../../shared/styles/color';
 import { normalizeFont } from '../../../shared/styles/fontType';
 
 import {
@@ -68,11 +55,15 @@ import useDoubleTapLike from '../hooks/useDoubleTapLike';
 import FeedDetailContent from './components/FeedDetailContent';
 import CommentSection from './components/CommentSection';
 import CommentComposer from './components/CommentComposer';
+import FeedDetailHeader from './components/FeedDetailHeader';
+import FeedDetailStateView from './components/FeedDetailStateView';
+import CommentMenuOverlay from './components/CommentMenuOverlay';
 
 import useFeedDetail from './hooks/useFeedDetail';
 import useFeedComments from './hooks/useFeedComments';
 import useCommentMenu from './hooks/useCommentMenu';
 import useCommentComposer from './hooks/useCommentComposer';
+import useScrollToComment from './hooks/useScrollToComment';
 
 const FeedDetailScreen = ({
   navigation,
@@ -96,15 +87,6 @@ const FeedDetailScreen = ({
   const commentBarRef =
     useRef(null);
 
-  const scrollViewRef =
-    useRef(null);
-
-  const commentSectionYRef =
-    useRef(0);
-
-  const hasScrolledToCommentRef =
-    useRef(false);
-
   const feedId =
     route?.params?.feedId;
 
@@ -113,6 +95,14 @@ const FeedDetailScreen = ({
       route?.params
         ?.scrollToComment,
     );
+
+  const {
+    scrollViewRef,
+    lockAutoScroll,
+    handleCommentSectionLayout,
+  } = useScrollToComment({
+    shouldScrollToComment,
+  });
 
   const floatingBottomOffset =
     useFloatingBottomOffset();
@@ -494,7 +484,7 @@ const FeedDetailScreen = ({
   const handleScrollBeginDrag =
     useCallback(() => {
       // 사용자가 직접 스크롤을 시작하면 자동 스크롤을 잠근다.
-      hasScrolledToCommentRef.current = true;
+      lockAutoScroll();
 
       closeCommentMenu();
 
@@ -503,35 +493,8 @@ const FeedDetailScreen = ({
       );
     }, [
       closeCommentMenu,
+      lockAutoScroll,
     ]);
-
-  const handleCommentSectionLayout =
-    useCallback(
-      event => {
-        commentSectionYRef.current =
-          event.nativeEvent
-            .layout.y;
-
-        if (
-          !shouldScrollToComment ||
-          hasScrolledToCommentRef.current
-        ) {
-          return;
-        }
-
-        // 위쪽 콘텐츠(이미지 등)의 레이아웃이 늦게 잡히며 y가 바뀔 수 있어
-        // 사용자가 직접 스크롤하기 전까지는 댓글 위치로 계속 맞춰준다.
-        requestAnimationFrame(() => {
-          scrollViewRef.current?.scrollTo(
-            {
-              y: commentSectionYRef.current,
-              animated: true,
-            },
-          );
-        });
-      },
-      [shouldScrollToComment],
-    );
 
   if (!feed) {
     return (
@@ -540,54 +503,29 @@ const FeedDetailScreen = ({
           styles.screen
         }
       >
-        <SafeAreaView
-          edges={['top']}
-          style={
-            styles.topSafeArea
+        <FeedDetailHeader
+          onPressClose={
+            handlePressClose
           }
-        >
-          <TopIconNavigation
-            onPressClose={
-              handlePressClose
-            }
-            onPressShare={
-              handlePressShare
-            }
-            onPressMore={
-              handlePressMore
-            }
-          />
-        </SafeAreaView>
-
-        <View
-          style={
-            styles.state
+          onPressShare={
+            handlePressShare
           }
-        >
-          {isLoading && (
-            <ActivityIndicator />
-          )}
+          onPressMore={
+            handlePressMore
+          }
+        />
 
-          {!isConfigured && (
-            <Text
-              style={
-                styles.stateText
-              }
-            >
-              EXPO_PUBLIC_API_BASE_URL을 확인해 주세요.
-            </Text>
-          )}
-
-          {error && (
-            <Text
-              style={
-                styles.stateText
-              }
-            >
-              기록을 불러오지 못했습니다.
-            </Text>
-          )}
-        </View>
+        <FeedDetailStateView
+          isLoading={
+            isLoading
+          }
+          isConfigured={
+            isConfigured
+          }
+          error={
+            error
+          }
+        />
       </View>
     );
   }
@@ -657,48 +595,30 @@ const FeedDetailScreen = ({
         styles.screen
       }
     >
-      <SafeAreaView
-        edges={['top']}
-        style={
-          styles.topSafeArea
+      <FeedDetailHeader
+        onPressClose={
+          handlePressClose
         }
-      >
-        <View
-          style={
-            styles.topNavigationContainer
-          }
-        >
-          <TopIconNavigation
-            onPressClose={
-              handlePressClose
-            }
-            onPressShare={
-              handlePressShare
-            }
-            onPressMore={
-              handlePressMore
-            }
-          />
-
-          {isMine &&
-            isFeedMenuOpen && (
-              <Menu
-                style={
-                  styles.menu
-                }
-                onPressEdit={
-                  handlePressEdit
-                }
-                onPressDelete={
-                  handlePressDelete
-                }
-                deleteDisabled={
-                  isDeletingFeed
-                }
-              />
-            )}
-        </View>
-      </SafeAreaView>
+        onPressShare={
+          handlePressShare
+        }
+        onPressMore={
+          handlePressMore
+        }
+        isMenuOpen={
+          isMine &&
+          isFeedMenuOpen
+        }
+        onPressEdit={
+          handlePressEdit
+        }
+        onPressDelete={
+          handlePressDelete
+        }
+        deleteDisabled={
+          isDeletingFeed
+        }
+      />
 
       <ScrollView
         ref={scrollViewRef}
@@ -912,63 +832,26 @@ const FeedDetailScreen = ({
       </View>
 
       {commentMenu && (
-        <View
+        <CommentMenuOverlay
           ref={
             commentMenuOverlayRef
           }
-          collapsable={
-            false
+          menu={
+            commentMenu
           }
-          style={
-            styles.commentMenuOverlay
+          onClose={
+            closeCommentMenu
           }
-        >
-          <Pressable
-            style={
-              StyleSheet.absoluteFill
-            }
-            onPress={
-              closeCommentMenu
-            }
-          />
-
-          <View
-            onLayout={
-              handleCommentMenuLayout
-            }
-            style={[
-              styles.commentMenu,
-              {
-                top:
-                  commentMenu.top,
-                opacity:
-                  commentMenu.isMeasured
-                    ? 1
-                    : 0,
-              },
-            ]}
-          >
-            <Item
-              icon={
-                IcTrash
-              }
-              label="삭제"
-              color={
-                colors.fgCritical
-              }
-              onPress={
-                handlePressDeleteComment
-              }
-              disabled={
-                isDeletingComment
-              }
-              accessibilityLabel="댓글 삭제"
-              style={
-                styles.commentDeleteItem
-              }
-            />
-          </View>
-        </View>
+          onMenuLayout={
+            handleCommentMenuLayout
+          }
+          onPressDelete={
+            handlePressDeleteComment
+          }
+          deleteDisabled={
+            isDeletingComment
+          }
+        />
       )}
     </View>
   );
@@ -980,30 +863,6 @@ const styles =
       flex: 1,
       backgroundColor:
         colors.bgLayerDefault,
-    },
-
-    topSafeArea: {
-      width: '100%',
-      position:
-        'relative',
-      backgroundColor:
-        colors.bgLayerDefault,
-      zIndex: 20,
-    },
-
-    topNavigationContainer: {
-      width: '100%',
-      position:
-        'relative',
-      zIndex: 20,
-    },
-
-    menu: {
-      position:
-        'absolute',
-      top: '100%',
-      right: padding.L,
-      zIndex: 30,
     },
 
     scroll: {
@@ -1032,43 +891,6 @@ const styles =
         colors.bgLayerDefault,
       zIndex: 10,
       elevation: 10,
-    },
-
-    commentMenuOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      zIndex: 100,
-      elevation: 100,
-    },
-
-    commentMenu: {
-      position:
-        'absolute',
-      right: 8,
-      zIndex: 1,
-      elevation: 101,
-    },
-
-    state: {
-      flex: 1,
-      alignItems:
-        'center',
-      justifyContent:
-        'center',
-    },
-
-    stateText: {
-      color:
-        colors.fgNeutralMuted,
-    },
-
-    commentDeleteItem: {
-      borderRadius:
-        radius.M,
-      ...shadow.middleDown,
     },
   });
 
