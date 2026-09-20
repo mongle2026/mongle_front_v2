@@ -30,6 +30,7 @@ const TopIconNavigation = ({
 
   // type = icon
   showShare = true,
+  showMore = true,
 
   style,
   textStyle,
@@ -89,13 +90,15 @@ const TopIconNavigation = ({
               />
             )}
 
-            <IconButton
-              icon={IcKebab}
-              color={colors.fgNeutralSolid}
-              size="XL"
-              onPress={onPressMore}
-              accessibilityLabel="더보기"
-            />
+            {showMore && (
+              <IconButton
+                icon={IcKebab}
+                color={colors.fgNeutralSolid}
+                size="XL"
+                onPress={onPressMore}
+                accessibilityLabel="더보기"
+              />
+            )}
           </View>
         </>
       )}

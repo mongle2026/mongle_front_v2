@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import IlDialogCancelletter from '../../../../assets/illustrations/il_dialog_cancelletter.svg';
 import IlDialogDeleteletter from '../../../../assets/illustrations/il_dialog_deleteletter.svg';
 
 import { Dialog } from '../../../../shared/components/action/Dialog';
@@ -13,6 +14,7 @@ import TopIconNavigation from '../../../../shared/components/navigation/topnavig
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
 import { useDialog } from '../../../../shared/providers/DialogProvider';
+import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 import { colors } from '../../../../shared/styles/color';
 import { FONT } from '../../../../shared/styles/fontType';
 import { padding } from '../../../../shared/styles/token';
@@ -31,10 +33,11 @@ const LetterDetailScreen = ({ navigation, route }) => {
   const letterId = route?.params?.letterId;
   const { userId } = useCurrentUser();
   const { openDialog } = useDialog();
+  const { showToast } = useGlobalOverlay();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { letter, error, isConfigured, isLoading, deleteLetter, isDeletingLetter } = useLetterDetail({
+  const { letter, error, isConfigured, isLoading, refetchLetter, deleteLetter, isDeletingLetter } = useLetterDetail({
     letterId,
     userId,
     onDeleteSuccess: () => {
@@ -49,6 +52,17 @@ const LetterDetailScreen = ({ navigation, route }) => {
   // 음악 재생 훅은 feedId 기준이라 편지는 prefix를 붙여 구분한다
   const playbackId = letter ? `letter-${letter.letterId}` : null;
   const previewUri = letter?.music.previewUri;
+
+  // 나에게 쓴 편지는 받은 편지로 취급한다 (편지함 목록과 동일)
+  const isSent = Boolean(letter?.isSender && !letter?.isReceiver);
+
+  // 예약 발송해서 아직 도착 시각이 지나지 않은 편지는 상대방이 아직 받지 못했다.
+  // 화면을 열어둔 사이에 도착 시각이 지나도 버튼은 그대로 남아서, 누를 때 다시 확인한다.
+  const deliveryAtTime = letter?.deliveryAt ? new Date(letter.deliveryAt).getTime() : null;
+  const isDelivered = deliveryAtTime === null || deliveryAtTime <= Date.now();
+
+  // 도착 전인 보낸 편지만 전송 취소할 수 있다 (케밥 메뉴 대신 하단 버튼)
+  const canCancelSend = isSent && !isDelivered;
 
   const handlePressClose = useCallback(() => {
     navigation.goBack();
@@ -80,7 +94,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
           illustration={IlDialogDeleteletter}
           title="편지를 영구 삭제할까요?"
           description="삭제한 편지는 되돌릴 수 없습니다."
-          cancelText="취소"
+          cancelText="닫기"
           confirmText="삭제"
           onCancel={close}
           onConfirm={() => {
@@ -91,6 +105,54 @@ const LetterDetailScreen = ({ navigation, route }) => {
       ),
     });
   }, [deleteLetter, isDeletingLetter, openDialog]);
+
+  // 버튼을 누른 시점에 이미 도착한 편지면 취소를 막고 상세를 다시 불러온다.
+  // 상세를 다시 받으면 isDelivered가 바뀌면서 취소 버튼이 케밥 메뉴로 전환된다.
+  const guardCancelSend = useCallback(() => {
+    if (deliveryAtTime === null || deliveryAtTime > Date.now()) return true;
+
+    showToast({
+      message: '도착 시간이 지나 전송을 취소할 수 없습니다.',
+      icon: 'alert',
+      iconColor: colors.fgCritical,
+      bottomOffset: insets.bottom,
+    });
+
+    void refetchLetter();
+
+    return false;
+  }, [deliveryAtTime, insets.bottom, refetchLetter, showToast]);
+
+  // 도착 전에 보낸 사람이 지우면 백엔드가 양쪽 편지함에서 지워 상대방에게 도착하지 않는다
+  const handlePressCancelSend = useCallback(() => {
+    if (isDeletingLetter) return;
+    if (!guardCancelSend()) return;
+
+    openDialog({
+      id: 'letter-cancel-send-dialog',
+      closeOnDimPress: true,
+      closeOnBackPress: true,
+      accessibilityLabel: '전송 취소 확인 창 닫기',
+      renderContent: ({ close }) => (
+        <Dialog
+          illustration={IlDialogCancelletter}
+          title="편지 전송을 취소할까요?"
+          description="전송을 취소한 편지는 삭제됩니다."
+          cancelText="닫기"
+          confirmText="전송 취소"
+          onCancel={close}
+          onConfirm={() => {
+            close();
+
+            // 다이얼로그를 열어둔 사이에 도착했을 수 있어 한 번 더 확인한다
+            if (!guardCancelSend()) return;
+
+            deleteLetter();
+          }}
+        />
+      ),
+    });
+  }, [deleteLetter, guardCancelSend, isDeletingLetter, openDialog]);
 
   // TODO: 답장 작성 화면으로 이동
   const handlePressReply = useCallback(() => {
@@ -103,13 +165,10 @@ const LetterDetailScreen = ({ navigation, route }) => {
     handlePressPlayback({ feedId: playbackId, previewUrl: previewUri });
   }, [handlePressPlayback, playbackId, previewUri]);
 
-  // 나에게 쓴 편지는 받은 편지로 취급한다 (편지함 목록과 동일)
-  const isSent = Boolean(letter?.isSender && !letter?.isReceiver);
-
   // 보낸 편지는 받는 사람, 받은 편지는 보낸 사람을 보여준다
   const counterpart = isSent ? letter?.receiver : letter?.sender;
 
-  // 보낸 날짜와 도착 날짜가 다를 때만(예약 발송) 전송/도착을 나눠 보여준다
+  // 작성 날짜와 도착 날짜가 다를 때만(예약 발송) 작성/도착을 나눠 보여준다
   const isDeliveredLater =
     Boolean(letter?.createdAt && letter?.deliveryAt) &&
     formatDate(letter.createdAt) !== formatDate(letter.deliveryAt);
@@ -118,9 +177,14 @@ const LetterDetailScreen = ({ navigation, route }) => {
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
         <View style={styles.topNavigationContainer}>
-          <TopIconNavigation showShare={false} onPressClose={handlePressClose} onPressMore={handlePressMore} />
+          <TopIconNavigation
+            showShare={false}
+            showMore={!canCancelSend}
+            onPressClose={handlePressClose}
+            onPressMore={handlePressMore}
+          />
 
-          {letter && isMenuOpen && (
+          {letter && isMenuOpen && !canCancelSend && (
             <Menu
               showEdit={false}
               deleteLabel="편지 삭제"
@@ -145,8 +209,8 @@ const LetterDetailScreen = ({ navigation, route }) => {
             style={styles.scroll}
             contentContainerStyle={[
               styles.contentContainer,
-              // 답장 버튼이 없으면 스크롤 끝이 안드로이드 네비게이션 바에 가리지 않게 한다
-              !letter.isReceiver && { paddingBottom: padding.XXL + insets.bottom },
+              // 하단 버튼이 없으면 스크롤 끝이 안드로이드 네비게이션 바에 가리지 않게 한다
+              !letter.isReceiver && !canCancelSend && { paddingBottom: padding.XXL + insets.bottom },
             ]}
             showsVerticalScrollIndicator={false}
             onScrollBeginDrag={closeMenu}
@@ -176,7 +240,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
             <ActionBar
               createdAt={letter.createdAt}
               showTime={false}
-              dateSuffix={isDeliveredLater ? '전송' : undefined}
+              datePrefix={isDeliveredLater ? '작성 날짜' : undefined}
               showCommentButton={false}
               showLikeButton={false}
               showBookmarkButton={false}
@@ -186,8 +250,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
               <ActionBar
                 createdAt={letter.deliveryAt}
                 showTime={false}
-                datePrefix=">"
-                dateSuffix="도착"
+                datePrefix="도착 날짜"
                 showCommentButton={false}
                 showLikeButton={false}
                 showBookmarkButton={false}
@@ -203,9 +266,25 @@ const LetterDetailScreen = ({ navigation, route }) => {
                 size="XL"
                 font={FONT.SUIT}
                 onPress={handlePressReply}
-                style={styles.replyButton}
+                style={styles.bottomButton}
               >
                 {`${letter.sender.nickname}에게 답장하기`}
+              </TextButton>
+            </View>
+          )}
+
+          {/* 전송 취소는 아직 도착하지 않은 보낸 편지에서만 */}
+          {canCancelSend && (
+            <View style={[styles.buttonContainer, { paddingBottom: padding.XXL + insets.bottom }]}>
+              <TextButton
+                variant="NeutralWeak"
+                size="XL"
+                font={FONT.SUIT}
+                disabled={isDeletingLetter}
+                onPress={handlePressCancelSend}
+                style={styles.bottomButton}
+              >
+                전송 취소
               </TextButton>
             </View>
           )}
@@ -269,7 +348,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     alignSelf: 'stretch',
   },
-  replyButton: {
+  bottomButton: {
     alignSelf: 'stretch',
   },
   state: {

@@ -108,7 +108,7 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
   const isConfigured = isApiConfigured;
   const detailQueryKey = letterDetailKeys.detail(letterId, userId);
 
-  const { data: letter, error, isLoading } = useQuery({
+  const { data: letter, error, isLoading, refetch } = useQuery({
     queryKey: detailQueryKey,
     enabled: isConfigured && Number(letterId) > 0 && Number(userId) > 0,
     staleTime: DETAIL_STALE_TIME,
@@ -155,6 +155,7 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
     error,
     isConfigured,
     isLoading,
+    refetchLetter: refetch,
     deleteLetter: deleteLetterMutation.mutate,
     isDeletingLetter: deleteLetterMutation.isPending,
   };
