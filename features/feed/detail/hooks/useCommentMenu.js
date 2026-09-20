@@ -132,7 +132,7 @@ const useCommentMenu = ({
         <Dialog
           title="댓글을 영구 삭제할까요?"
           description="삭제한 댓글은 다시 되돌릴 수 없습니다."
-          cancelText="취소"
+          cancelText="닫기"
           confirmText="삭제"
           onCancel={close}
           onConfirm={async () => {

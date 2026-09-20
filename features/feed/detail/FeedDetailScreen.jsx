@@ -433,7 +433,7 @@ const FeedDetailScreen = ({
           <Dialog
             title="기록을 삭제하시겠어요?"
             description="삭제한 기록은 다시 복구할 수 없어요."
-            cancelText="취소"
+            cancelText="닫기"
             confirmText="삭제"
             onCancel={
               close

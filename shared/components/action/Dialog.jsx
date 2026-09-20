@@ -12,7 +12,7 @@ export const Dialog = ({
   illustration: Illustration = IlDialogDelete,
   title,
   description,
-  cancelText = '취소',
+  cancelText = '닫기',
   confirmText = '삭제',
   onCancel,
   onConfirm,
