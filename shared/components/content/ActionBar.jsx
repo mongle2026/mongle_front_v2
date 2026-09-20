@@ -15,11 +15,28 @@ import LabeledButton from '../action/LabeledButton';
 import { colors } from '../../styles/color';
 import { padding } from '../../styles/token';
 import { typo } from '../../styles/typo';
-import { formatDate, formatRelativeDate } from '../../utils/dateUtils';
+import {
+  formatDate,
+  formatDateDetail,
+  formatRelativeDate,
+} from '../../utils/dateUtils';
+
+// relative: n분 전/n시간 전(24시간 이상은 yy.mm.dd hh:mm) / datetime: yy.mm.dd hh:mm / date: yy.mm.dd
+export const DATE_FORMAT = {
+  RELATIVE: 'relative',
+  DATETIME: 'datetime',
+  DATE: 'date',
+};
+
+const DATE_FORMATTERS = {
+  [DATE_FORMAT.RELATIVE]: formatRelativeDate,
+  [DATE_FORMAT.DATETIME]: formatDateDetail,
+  [DATE_FORMAT.DATE]: formatDate,
+};
 
 const ActionBar = ({
   createdAt,
-  showTime = true,
+  dateFormat = DATE_FORMAT.RELATIVE,
   // 날짜 앞뒤에 붙는 말. 예) '>' + 날짜 + '도착'
   datePrefix,
   dateSuffix,
@@ -40,10 +57,8 @@ const ActionBar = ({
   onBookmarkPress,
   style,
 }) => {
-  // showTime: 상대 시간 표기 (피드) / false: yy.mm.dd (편지)
-  const formatCreatedAt = showTime
-    ? formatRelativeDate
-    : formatDate;
+  const formatCreatedAt =
+    DATE_FORMATTERS[dateFormat] ?? formatRelativeDate;
 
   const formattedDate = createdAt
     ? [datePrefix, formatCreatedAt(createdAt), dateSuffix]

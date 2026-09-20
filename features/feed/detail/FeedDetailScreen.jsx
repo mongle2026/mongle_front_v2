@@ -21,7 +21,7 @@ import { normalizeFont } from '../../../shared/styles/fontType';
 import { getImageSources, resolveMediaUri } from '../../../shared/utils/media';
 import { shareFeed } from '../../../shared/utils/shareFeed';
 
-import ActionBar from '../../../shared/components/content/ActionBar';
+import ActionBar, { DATE_FORMAT } from '../../../shared/components/content/ActionBar';
 import ProfileBar from '../components/ProfileBar';
 
 import useFeedActions from '../hooks/useFeedActions';
@@ -415,6 +415,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
 
         <ActionBar
           createdAt={feed.createdAt}
+          dateFormat={DATE_FORMAT.DATETIME}
           isLiked={Boolean(feed.isLiked)}
           isBookmarked={Boolean(feed.isBookmarked)}
           bookmarkCount={feed.bookmarkCount}

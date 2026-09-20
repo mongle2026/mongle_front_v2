@@ -20,7 +20,7 @@ import { FONT } from '../../../../shared/styles/fontType';
 import { padding } from '../../../../shared/styles/token';
 import { getSenderSuffix } from '../../../../shared/utils/koreanUtils';
 
-import ActionBar from '../../../../shared/components/content/ActionBar';
+import ActionBar, { DATE_FORMAT } from '../../../../shared/components/content/ActionBar';
 import { formatDate } from '../../../../shared/utils/dateUtils';
 
 import { useLetterFormStore } from '../../../write/store/useLetterFormStore';
@@ -260,7 +260,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
             <ActionBar
               createdAt={letter.createdAt}
-              showTime={false}
+              dateFormat={DATE_FORMAT.DATE}
               datePrefix={isDeliveredLater ? '작성 날짜' : undefined}
               showCommentButton={false}
               showLikeButton={false}
@@ -270,7 +270,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
             {isDeliveredLater && (
               <ActionBar
                 createdAt={letter.deliveryAt}
-                showTime={false}
+                dateFormat={DATE_FORMAT.DATE}
                 datePrefix="도착 날짜"
                 showCommentButton={false}
                 showLikeButton={false}
