@@ -38,16 +38,16 @@ const { S, M, L, XL } = TEXT_BUTTON_SIZE;
  *
  * Solid       S / L / XL
  * Ghost       S
- * NeutralWeak M / L
- * Critical    L
+ * NeutralWeak M / L / XL
+ * Critical    L / XL
  * BgInfoWeak  M
  * Disabled    L / XL
  */
 const ALLOWED_SIZES = {
   [SOLID]: [S, L, XL],
   [GHOST]: [S],
-  [NEUTRAL_WEAK]: [M, L],
-  [CRITICAL]: [L],
+  [NEUTRAL_WEAK]: [M, L, XL],
+  [CRITICAL]: [L, XL],
   [BG_INFO_WEAK]: [M],
   [DISABLED]: [L, XL],
 };
@@ -176,6 +176,10 @@ const VARIANT_STYLES = {
       },
 
       [L]: {
+        color: colors.fgNeutralSubtle,
+      },
+
+      [XL]: {
         color: colors.fgNeutralSubtle,
       },
     },
