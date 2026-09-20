@@ -15,7 +15,7 @@ import LabeledButton from '../action/LabeledButton';
 import { colors } from '../../styles/color';
 import { padding } from '../../styles/token';
 import { typo } from '../../styles/typo';
-import { formatDate, formatDateDetail } from '../../utils/dateUtils';
+import { formatDate, formatRelativeDate } from '../../utils/dateUtils';
 
 const ActionBar = ({
   createdAt,
@@ -40,8 +40,9 @@ const ActionBar = ({
   onBookmarkPress,
   style,
 }) => {
+  // showTime: 상대 시간 표기 (피드) / false: yy.mm.dd (편지)
   const formatCreatedAt = showTime
-    ? formatDateDetail
+    ? formatRelativeDate
     : formatDate;
 
   const formattedDate = createdAt

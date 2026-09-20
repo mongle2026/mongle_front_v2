@@ -19,6 +19,25 @@ export function formatDateDetail(isoString) {
   return `${formatDate(isoString)} ${hh}:${min}`;
 }
 
+const MINUTE_MS = 60 * 1000;
+const HOUR_MS = 60 * MINUTE_MS;
+const DAY_MS = 24 * HOUR_MS;
+
+// 백엔드 값 → 현재 시각 기준 상대 표기
+// 1분 미만 "1분 전" / 60분 미만 "n분 전" / 24시간 미만 "n시간 전"(내림) / 그 이상 "yy.mm.dd"
+export function formatRelativeDate(value) {
+  if (value == null || value === '') return '';
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return formatDate(value);
+
+  const diffMs = Date.now() - date.getTime();
+
+  if (diffMs < MINUTE_MS) return '1분 전';
+  if (diffMs < HOUR_MS) return `${Math.floor(diffMs / MINUTE_MS)}분 전`;
+  if (diffMs < DAY_MS) return `${Math.floor(diffMs / HOUR_MS)}시간 전`;
+  return formatDate(date);
+}
+
 // 시간을 제거한 날짜 (그날 0시)
 export function startOfDay(date) {
   const result = new Date(date);
