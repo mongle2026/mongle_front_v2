@@ -23,6 +23,8 @@ import { getSenderSuffix } from '../../../../shared/utils/koreanUtils';
 import ActionBar from '../../../../shared/components/content/ActionBar';
 import { formatDate } from '../../../../shared/utils/dateUtils';
 
+import { useLetterFormStore } from '../../../write/store/useLetterFormStore';
+
 import LetterDetailContent from './components/LetterDetailContent';
 import useLetterDetail from './hooks/useLetterDetail';
 
@@ -34,6 +36,9 @@ const LetterDetailScreen = ({ navigation, route }) => {
   const { userId } = useCurrentUser();
   const { openDialog } = useDialog();
   const { showToast } = useGlobalOverlay();
+
+  // 답장은 편지 작성 화면과 수신인 상태를 공유한다
+  const setReceiver = useLetterFormStore(state => state.setReceiver);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -154,10 +159,26 @@ const LetterDetailScreen = ({ navigation, route }) => {
     });
   }, [deleteLetter, guardCancelSend, isDeletingLetter, openDialog]);
 
-  // TODO: 답장 작성 화면으로 이동
+  // 보낸이를 수신인으로 미리 채운 채 편지 작성 화면으로 이동한다
   const handlePressReply = useCallback(() => {
+    if (!letter) return;
+
     setIsMenuOpen(false);
-  }, []);
+
+    /*
+     * 수신인 선택 BottomSheet가 저장하는 값과 같은 형태로 맞춘다.
+     * (편지 상세의 profileImageUri는 이미 resolveMediaUri를 거친 값이다)
+     */
+    setReceiver({
+      id: letter.sender.userId,
+      nickname: letter.sender.nickname,
+      profileImageUrl: letter.sender.profileImageUri,
+      // 나에게 쓴 편지에 답장하면 수신인도 나다
+      isMe: letter.isSender,
+    });
+
+    navigation.navigate('Record', { type: 'letter' });
+  }, [letter, navigation, setReceiver]);
 
   const handleMusicPlayback = useCallback(() => {
     if (!playbackId || !previewUri) return;

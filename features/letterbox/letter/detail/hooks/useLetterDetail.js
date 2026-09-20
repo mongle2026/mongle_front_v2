@@ -39,7 +39,7 @@ function normalizeLetterDetail(data, userId) {
       nickname: letter.receiver?.nickname ?? '',
       profileImageUri: resolveMediaUri(letter.receiver?.profileImageUrl),
     },
-    // 보낸이가 선택한 폰트. TODO: 백엔드 편지 생성/상세에 font 추가 필요
+    // 보낸이가 선택한 폰트
     font: normalizeFont(record?.font),
     text: record?.text ?? '',
     imageSources: getImageSources(record?.files),
