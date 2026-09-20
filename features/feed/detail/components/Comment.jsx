@@ -1,5 +1,6 @@
 import React, { memo, useRef } from 'react';
 import {
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -30,9 +31,16 @@ const Comment = ({
   style,
 }) => {
   const isReply = depth > 0;
+  const containerRef = useRef(null);
   const menuButtonRef = useRef(null);
 
   const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
+
+  // 키보드가 올라온 뒤 이 댓글이 가려졌는지 다시 재야 해서
+  // 좌표 대신 View ref를 넘긴다.
+  const handlePressReply = () => {
+    onPressReply?.(containerRef);
+  };
 
   const handlePressMenu = () => {
     menuButtonRef.current?.measureInWindow(
@@ -49,16 +57,23 @@ const Comment = ({
 
   return (
     <View
+      ref={containerRef}
+      collapsable={false}
       style={[
         styles.container,
         isReply && styles.replyContainer,
         style,
       ]}
     >
-      <View
-        style={[
+      {/* 댓글 본문을 누르면 답글 달기로 이어진다.
+          답댓글에는 '답글 달기' 버튼이 없어서, 터치가 유일한 진입점이다. */}
+      <Pressable
+        onPress={handlePressReply}
+        accessibilityRole="button"
+        accessibilityLabel="답글 달기"
+        style={({ pressed }) => [
           styles.content,
-          isMenuOpen && styles.menuOpenContent,
+          (isMenuOpen || pressed) && styles.activeContent,
         ]}
       >
         <ProfileImg
@@ -101,17 +116,19 @@ const Comment = ({
             {comment}
           </SuitSafeText>
 
-          <LabeledButton
-            label="답글 달기"
-            icon={IcComment}
-            size="S"
-            color={colors.fgNeutralWeak}
-            iconColor={colors.fgNeutralWeak}
-            onPress={onPressReply}
-            accessibilityLabel="답글 달기"
-          />
+          {!isReply && (
+            <LabeledButton
+              label="답글 달기"
+              icon={IcComment}
+              size="S"
+              color={colors.fgNeutralWeak}
+              iconColor={colors.fgNeutralWeak}
+              onPress={handlePressReply}
+              accessibilityLabel="답글 달기"
+            />
+          )}
         </View>
-      </View>
+      </Pressable>
     </View>
   );
 };
@@ -143,7 +160,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgLayerDefault,
   },
 
-  menuOpenContent: {
+  // 케밥 메뉴가 열렸을 때와 손가락이 닿아 있을 때 같은 색으로 강조한다
+  activeContent: {
     backgroundColor: colors.bgLayerBasement,
   },
 

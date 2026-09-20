@@ -42,11 +42,6 @@ const normalizeComment = ({
 
     depth,
 
-    parentCommentId:
-      comment.parentCommentId != null
-        ? Number(comment.parentCommentId)
-        : null,
-
     rootCommentId:
       rootCommentId != null
         ? Number(rootCommentId)
@@ -155,7 +150,7 @@ export default function useFeedComments({
     useMutation({
       mutationFn: async ({
         content,
-        parentCommentId = null,
+        rootCommentId = null,
       }) => {
         const normalizedContent =
           String(content ?? '').trim();
@@ -173,11 +168,11 @@ export default function useFeedComments({
               content:
                 normalizedContent,
 
-              ...(parentCommentId
+              ...(rootCommentId
                 ? {
-                    parentCommentId:
+                    rootCommentId:
                       Number(
-                        parentCommentId,
+                        rootCommentId,
                       ),
                   }
                 : {}),

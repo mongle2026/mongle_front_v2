@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
@@ -20,6 +20,32 @@ const CommentSection = ({
   onPressMenu,
   onPressReply,
 }) => {
+  const commentsById = useMemo(
+    () =>
+      new Map(
+        comments.map(comment => [
+          String(comment.commentId),
+          comment,
+        ]),
+      ),
+    [comments],
+  );
+
+  // 답글은 답글에 다시 달 수 없으므로, 달리는 위치는 언제나 뿌리 댓글이다.
+  // 다만 @멘션은 내가 실제로 누른 댓글의 작성자를 가리킨다.
+  const resolveReplyTarget = comment => {
+    const root =
+      comment.depth === 0 || comment.rootCommentId == null
+        ? comment
+        : commentsById.get(String(comment.rootCommentId)) ?? comment;
+
+    return {
+      rootCommentId: root.commentId,
+      userId: comment.userId,
+      userCode: comment.userCode,
+    };
+  };
+
   return (
     <View>
       <ListHeader title="댓글" />
@@ -53,7 +79,9 @@ const CommentSection = ({
                 if (!comment.isMine) return;
                 onPressMenu?.(comment, position);
               }}
-              onPressReply={() => onPressReply?.(comment)}
+              onPressReply={commentRef => {
+                onPressReply?.(resolveReplyTarget(comment), commentRef);
+              }}
             />
           );
         })

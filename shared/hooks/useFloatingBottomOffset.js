@@ -6,9 +6,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export function useFloatingBottomOffset() {
-  const insets = useSafeAreaInsets();
-
+/**
+ * 지금 키보드가 화면을 얼마나 덮고 있는지(px).
+ * 키보드가 내려가 있으면 0.
+ */
+export function useKeyboardHeight() {
   const [keyboardBottom, setKeyboardBottom] =
     useState(0);
 
@@ -68,7 +70,15 @@ export function useFloatingBottomOffset() {
     };
   }, []);
 
-  return keyboardBottom > 0
-    ? keyboardBottom
+  return keyboardBottom;
+}
+
+export function useFloatingBottomOffset() {
+  const insets = useSafeAreaInsets();
+
+  const keyboardHeight = useKeyboardHeight();
+
+  return keyboardHeight > 0
+    ? keyboardHeight
     : insets.bottom;
 }

@@ -10,7 +10,7 @@ const useCommentComposer=({createComment})=>{
     try{
       await createComment({
         content,
-        parentCommentId:replyTarget?.commentId??null,
+        rootCommentId:replyTarget?.rootCommentId??null,
       });
 
       setReplyTarget(null);
@@ -20,13 +20,15 @@ const useCommentComposer=({createComment})=>{
     }
   },[createComment,replyTarget]);
 
-  const handlePressReply=useCallback(comment=>{
-    if(!comment?.commentId)return;
+  // target 은 CommentSection 이 만들어 준다:
+  // 답글이 달릴 자리는 뿌리 댓글, 멘션되는 사람은 내가 누른 댓글의 작성자
+  const handlePressReply=useCallback(target=>{
+    if(!target?.rootCommentId)return;
 
     setReplyTarget({
-      commentId:comment.commentId,
-      userId:comment.userId,
-      userCode:comment.userCode,
+      rootCommentId:target.rootCommentId,
+      userId:target.userId,
+      userCode:target.userCode,
     });
 
     setReplyFocusRequestKey(previous=>previous+1);

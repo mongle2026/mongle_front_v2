@@ -29,6 +29,7 @@ import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 
 import {
   useFloatingBottomOffset,
+  useKeyboardHeight,
 } from '../../../shared/hooks/useFloatingBottomOffset';
 
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
@@ -64,6 +65,7 @@ import useFeedComments from './hooks/useFeedComments';
 import useCommentMenu from './hooks/useCommentMenu';
 import useCommentComposer from './hooks/useCommentComposer';
 import useScrollToComment from './hooks/useScrollToComment';
+import useScrollToReplyTarget from './hooks/useScrollToReplyTarget';
 
 const FeedDetailScreen = ({
   navigation,
@@ -106,6 +108,9 @@ const FeedDetailScreen = ({
 
   const floatingBottomOffset =
     useFloatingBottomOffset();
+
+  const keyboardHeight =
+    useKeyboardHeight();
 
   const [
     isFeedMenuOpen,
@@ -165,6 +170,21 @@ const FeedDetailScreen = ({
     clearReplyTarget,
   } = useCommentComposer({
     createComment,
+  });
+
+  const {
+    handleScroll,
+    handleScrollViewLayout,
+    setReplyScrollTarget,
+    clearReplyScrollTarget,
+  } = useScrollToReplyTarget({
+    scrollViewRef,
+    commentBarRef,
+    requestKey:
+      replyFocusRequestKey,
+    isKeyboardVisible:
+      keyboardHeight > 0,
+    commentBarHeight,
   });
 
   const {
@@ -468,23 +488,50 @@ const FeedDetailScreen = ({
 
   const handlePressReply =
     useCallback(
-      comment => {
+      (
+        replyTarget,
+        commentRef,
+      ) => {
         closeCommentMenu();
 
+        // 알림으로 들어왔을 때의 자동 스크롤이 뒤늦게 끼어들지 않게 막는다.
+        lockAutoScroll();
+
+        // 키보드가 올라오면 이 댓글이 가리지 않게 스크롤을 맞춘다.
+        setReplyScrollTarget(
+          commentRef,
+        );
+
         handleStartReply(
-          comment,
+          replyTarget,
         );
       },
       [
         closeCommentMenu,
         handleStartReply,
+        lockAutoScroll,
+        setReplyScrollTarget,
       ],
     );
+
+  // 입력창이 닫히면 답글 대상 위치도 함께 잊는다.
+  const handleCloseComposer =
+    useCallback(() => {
+      clearReplyTarget();
+
+      clearReplyScrollTarget();
+    }, [
+      clearReplyScrollTarget,
+      clearReplyTarget,
+    ]);
 
   const handleScrollBeginDrag =
     useCallback(() => {
       // 사용자가 직접 스크롤을 시작하면 자동 스크롤을 잠근다.
       lockAutoScroll();
+
+      // 직접 스크롤했다면 답글 대상 위치도 더는 따라가지 않는다.
+      clearReplyScrollTarget();
 
       closeCommentMenu();
 
@@ -492,6 +539,7 @@ const FeedDetailScreen = ({
         false,
       );
     }, [
+      clearReplyScrollTarget,
       closeCommentMenu,
       lockAutoScroll,
     ]);
@@ -637,6 +685,13 @@ const FeedDetailScreen = ({
           false
         }
         keyboardShouldPersistTaps="handled"
+        onLayout={
+          handleScrollViewLayout
+        }
+        onScroll={
+          handleScroll
+        }
+        scrollEventThrottle={16}
         onScrollBeginDrag={
           handleScrollBeginDrag
         }
@@ -810,7 +865,7 @@ const FeedDetailScreen = ({
             handleSubmitComment
           }
           onClose={
-            clearReplyTarget
+            handleCloseComposer
           }
           disabled={
             isCreatingComment
