@@ -124,7 +124,7 @@ const RecordScreen = ({ navigation, route }) => {
     hasChanges: hasWrittenAnything,
     title: '작성을 그만둘까요?',
     description: '작성한 글은 다시 되돌릴 수 없습니다.',
-    confirmText: '계속 작성하기',
+    cancelText: '계속 작성하기',
     onDiscard: useCallback(() => {
       resetRecordForm();
       if (isLetter) {

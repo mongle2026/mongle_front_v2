@@ -58,7 +58,7 @@ const RecordEditScreen = ({ navigation, route }) => {
     hasChanges: isDirty,
     title: '수정을 그만둘까요?',
     description: '수정된 내용은 저장되지 않습니다.',
-    confirmText: '계속 수정하기',
+    cancelText: '계속 수정하기',
     onDiscard: useCallback(() => {
       resetRecordForm();
     }, [resetRecordForm]),

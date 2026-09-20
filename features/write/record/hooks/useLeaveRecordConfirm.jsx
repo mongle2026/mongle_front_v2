@@ -23,7 +23,7 @@ export function useLeaveRecordConfirm({
   hasChanges,
   title,
   description,
-  confirmText,
+  cancelText,
   onDiscard,
 }) {
   const { openDialog } = useDialog();
@@ -47,7 +47,7 @@ export function useLeaveRecordConfirm({
           illustration={IlDialogStopwrite}
           title={title}
           description={description}
-          cancelText={confirmText}
+          cancelText={cancelText}
           confirmText="그만두기"
           onCancel={close}
           onConfirm={() => {
@@ -57,7 +57,7 @@ export function useLeaveRecordConfirm({
         />
       ),
     });
-  }, [confirmText, description, handleLeave, hasChanges, openDialog, title]);
+  }, [cancelText, description, handleLeave, hasChanges, openDialog, title]);
 
   /*
    * 스택 위에 다른 화면(EnvelopeScreen 등)이 올라가도 이 화면은 마운트된 상태이므로,
