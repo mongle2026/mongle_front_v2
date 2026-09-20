@@ -14,7 +14,7 @@ import {
 
 import {
   prepareRecordFiles,
-  uploadRecordFiles,
+  uploadRecordFilesAfterSave,
 } from '../../utils/uploadRecordFiles';
 
 import {
@@ -92,28 +92,13 @@ const useCreateLetter = ({
       /*
        * 이미지는 편지 생성 이후
        * presigned URL을 통해 R2에 업로드합니다.
-       *
-       * 여기서 실패해도 편지 자체는 이미 저장된 상태라서,
-       * 실패로 처리하면 재시도할 때 편지가 중복 생성됩니다.
-       * 그래서 부분 성공(fileUploadFailed)으로 돌려주고 화면에서 안내합니다.
-       * TODO: 레코드와 파일을 한 번에 저장하도록 백엔드와 협의
        */
-      let fileUploadFailed = false;
-
-      try {
-        await uploadRecordFiles({
+      const fileUploadFailed =
+        await uploadRecordFilesAfterSave({
           userId,
           recordId: response.data.recordId,
           files: uploadableFiles,
         });
-      } catch (error) {
-        console.warn(
-          '이미지 업로드에 실패했습니다.',
-          getApiErrorDetail(error),
-        );
-
-        fileUploadFailed = true;
-      }
 
       return {
         ...response.data,
