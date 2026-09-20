@@ -142,17 +142,8 @@ const RecordScreen = ({ navigation, route }) => {
   } = useCreateFeed({
     userId,
 
-    onSuccess: data => {
+    onSuccess: () => {
       navigation?.goBack();
-
-      if (data?.fileUploadFailed) {
-        showToast({
-          message: '피드는 저장했지만 사진을 올리지 못했습니다.',
-          icon: 'alert',
-          iconColor: colors.fgCritical,
-          bottomOffset,
-        });
-      }
     },
 
     onError: error => {

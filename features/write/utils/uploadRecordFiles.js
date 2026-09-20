@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import apiClient, { getApiErrorDetail } from '../../../shared/api/client';
+import apiClient from '../../../shared/api/client';
 
 import {
   compressImageFile,
@@ -28,20 +28,23 @@ export const prepareRecordFiles = async files => {
 /**
  * prepareRecordFiles로 준비된 파일을
  * presigned URL을 통해 Cloudflare R2에 업로드하고,
- * 업로드가 끝난 파일을 레코드에 첨부합니다.
+ * 저장 요청에 실어 보낼 첨부 정보를 돌려줍니다.
+ *
+ * 레코드가 만들어지기 전에 호출합니다.
+ * 업로드가 실패하면 서버에는 아무것도 만들어지지 않으므로,
+ * 화면에서는 그냥 저장 실패로 안내하고 다시 시도하면 됩니다.
  */
 export const uploadRecordFiles = async ({
   userId,
-  recordId,
   files: uploadableFiles,
 }) => {
   if (!uploadableFiles?.length) {
-    return;
+    return [];
   }
 
   const { data: uploadUrlsData } =
     await apiClient.post(
-      `/record/${recordId}/upload-urls`,
+      '/record/upload-urls',
       {
         userId: String(userId),
         files: uploadableFiles.map(file => ({
@@ -55,7 +58,7 @@ export const uploadRecordFiles = async ({
 
   const uploads = uploadUrlsData.uploads;
 
-  const attachedFiles = await Promise.all(
+  return Promise.all(
     uploadableFiles.map(async (file, index) => {
       const upload = uploads[index];
 
@@ -78,7 +81,6 @@ export const uploadRecordFiles = async ({
 
       return {
         key: upload.key,
-        mimeType: upload.mimeType,
         size: fileBlob.size,
 
         originalName:
@@ -88,45 +90,4 @@ export const uploadRecordFiles = async ({
       };
     }),
   );
-
-  await apiClient.post(
-    `/record/${recordId}/files`,
-    {
-      userId: String(userId),
-      files: attachedFiles,
-    },
-  );
-};
-
-/**
- * 피드 / 편지 저장(생성 · 수정) 직후 파일을 업로드하고,
- * 업로드 실패 여부(fileUploadFailed)를 돌려줍니다.
- *
- * 업로드가 실패해도 피드나 편지 자체는 이미 서버에 저장된 상태입니다.
- * 이를 실패로 처리하면 재시도할 때 중복 생성되거나
- * 화면과 서버 상태가 어긋나므로,
- * 부분 성공으로 돌려주고 화면에서 안내합니다.
- * TODO: 레코드와 파일을 한 번에 저장하도록 백엔드와 협의
- */
-export const uploadRecordFilesAfterSave = async ({
-  userId,
-  recordId,
-  files,
-}) => {
-  try {
-    await uploadRecordFiles({
-      userId,
-      recordId,
-      files,
-    });
-
-    return false;
-  } catch (error) {
-    console.warn(
-      '이미지 업로드에 실패했습니다.',
-      getApiErrorDetail(error),
-    );
-
-    return true;
-  }
 };

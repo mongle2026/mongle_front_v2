@@ -10,7 +10,7 @@ import {
 
 import {
   prepareRecordFiles,
-  uploadRecordFilesAfterSave,
+  uploadRecordFiles,
 } from '../../utils/uploadRecordFiles';
 
 import {
@@ -69,12 +69,22 @@ const useUpdateFeed = ({
         );
 
       /*
-       * 압축은 요청 전에 끝내 둡니다.
-       * 압축이 실패하면 서버에 아무것도 반영하지 않고 끝납니다.
+       * 압축과 업로드를 요청 전에 끝내 둡니다.
+       * 여기서 실패하면 서버에 아무것도 반영하지 않고 끝납니다.
        */
       const uploadableFiles =
         await prepareRecordFiles(recordForm.files);
 
+      const files =
+        await uploadRecordFiles({
+          userId,
+          files: uploadableFiles,
+        });
+
+      /*
+       * 업로드가 끝난 파일 정보를 같이 보내면
+       * 서버가 피드와 파일을 한 트랜잭션에서 저장합니다.
+       */
       const response =
         await apiClient.patch(
           `/feed/${feedId}`,
@@ -84,6 +94,7 @@ const useUpdateFeed = ({
             font: recordForm.font ?? 'KYOBO',
             visibility: recordForm.visibility ?? 'PUBLIC',
             deleteFileIds,
+            files,
           },
           {
             params: {
@@ -92,21 +103,7 @@ const useUpdateFeed = ({
           },
         );
 
-      /*
-       * 이미지는 피드 수정 이후
-       * presigned URL을 통해 R2에 업로드합니다.
-       */
-      const fileUploadFailed =
-        await uploadRecordFilesAfterSave({
-          userId,
-          recordId: response.data.recordId,
-          files: uploadableFiles,
-        });
-
-      return {
-        ...response.data,
-        fileUploadFailed,
-      };
+      return response.data;
     },
 
     onSuccess: data => {

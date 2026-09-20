@@ -79,17 +79,8 @@ const RecordEditScreen = ({ navigation, route }) => {
     userId,
     originalFileIds,
 
-    onSuccess: data => {
+    onSuccess: () => {
       navigation?.goBack();
-
-      if (data?.fileUploadFailed) {
-        showToast({
-          message: '피드는 수정했지만 새 사진을 올리지 못했습니다.',
-          icon: 'alert',
-          iconColor: colors.fgCritical,
-          bottomOffset,
-        });
-      }
     },
 
     onError: error => {
