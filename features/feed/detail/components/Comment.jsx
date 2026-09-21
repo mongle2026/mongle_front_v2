@@ -42,10 +42,12 @@ const Comment = ({
     onPressReply?.(containerRef);
   };
 
-  const handlePressMenu = () => {
+  // 키보드가 내려가면서 레이아웃이 바뀌면 위치를 다시 재야 해서
+  // 좌표 대신 재는 함수를 넘긴다. 언제 잴지는 useCommentMenu가 정한다.
+  const measureMenuButton = callback => {
     menuButtonRef.current?.measureInWindow(
       (x, y, width, height) => {
-        onPressMenu?.({
+        callback({
           x,
           y,
           width,
@@ -53,6 +55,10 @@ const Comment = ({
         });
       },
     );
+  };
+
+  const handlePressMenu = () => {
+    onPressMenu?.(measureMenuButton);
   };
 
   return (
@@ -65,70 +71,77 @@ const Comment = ({
         style,
       ]}
     >
-      {/* 댓글 본문을 누르면 답글 달기로 이어진다.
-          답댓글에는 '답글 달기' 버튼이 없어서, 터치가 유일한 진입점이다. */}
-      <Pressable
-        onPress={handlePressReply}
-        accessibilityRole="button"
-        accessibilityLabel="답글 달기"
-        style={({ pressed }) => [
-          styles.content,
-          (isMenuOpen || pressed) && styles.activeContent,
-        ]}
-      >
-        <ProfileImg
-          imageUri={profileImageUrl}
-          size={isReply ? 'M' : 'L'}
-        />
+      <View style={styles.contentWrapper}>
+        {/* 댓글 본문을 누르면 답글 달기로 이어진다.
+            답댓글에는 '답글 달기' 버튼이 없어서, 터치가 유일한 진입점이다. */}
+        <Pressable
+          onPress={handlePressReply}
+          accessibilityRole="button"
+          accessibilityLabel="답글 달기"
+          style={({ pressed }) => [
+            styles.content,
+            (isMenuOpen || pressed) && styles.activeContent,
+          ]}
+        >
+          <ProfileImg
+            imageUri={profileImageUrl}
+            size={isReply ? 'M' : 'L'}
+          />
 
-        <View style={styles.body}>
-          <View style={styles.header}>
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              style={styles.userId}
-            >
-              @{normalizedUserCode}
-            </Text>
-
-            <Text style={styles.date}>
-              {createdAt}
-            </Text>
-
-            {showMenu && (
-              <View
-                ref={menuButtonRef}
-                collapsable={false}
-                style={styles.menuButton}
+          <View style={styles.body}>
+            <View style={styles.header}>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={styles.userId}
               >
-                <IconButton
-                  size="S"
-                  icon={IcKebab}
-                  color={colors.fgNeutralWeak}
-                  onPress={handlePressMenu}
-                  accessibilityLabel="댓글 메뉴"
-                />
-              </View>
+                @{normalizedUserCode}
+              </Text>
+
+              <Text style={styles.date}>
+                {createdAt}
+              </Text>
+
+              {/* 케밥 자리만 잡아 둔다. 실제 버튼은 Pressable 밖에 겹쳐 그린다. */}
+              {showMenu && <View style={styles.menuPlaceholder} />}
+            </View>
+
+            <SuitSafeText style={styles.comment}>
+              {comment}
+            </SuitSafeText>
+
+            {!isReply && (
+              <LabeledButton
+                label="답글 달기"
+                icon={IcComment}
+                size="S"
+                color={colors.fgNeutralWeak}
+                iconColor={colors.fgNeutralWeak}
+                onPress={handlePressReply}
+                accessibilityLabel="답글 달기"
+              />
             )}
           </View>
+        </Pressable>
 
-          <SuitSafeText style={styles.comment}>
-            {comment}
-          </SuitSafeText>
-
-          {!isReply && (
-            <LabeledButton
-              label="답글 달기"
-              icon={IcComment}
+        {/* 케밥이 본문 Pressable 안에 있으면 터치를 본문이 가져가서
+            케밥이 눌리지 않는다. 그래서 밖으로 빼서 헤더 오른쪽 위에 겹친다. */}
+        {showMenu && (
+          <View
+            ref={menuButtonRef}
+            collapsable={false}
+            style={styles.menuButton}
+          >
+            <IconButton
               size="S"
+              icon={IcKebab}
               color={colors.fgNeutralWeak}
-              iconColor={colors.fgNeutralWeak}
-              onPress={handlePressReply}
-              accessibilityLabel="답글 달기"
+              onPress={handlePressMenu}
+              accessibilityLabel="댓글 메뉴"
             />
-          )}
-        </View>
-      </Pressable>
+          </View>
+        )}
+      </View>
     </View>
   );
 };
@@ -193,8 +206,22 @@ const styles = StyleSheet.create({
     color: colors.fgNeutralWeak,
   },
 
-  menuButton: {
+  contentWrapper: {
+    width: '100%',
+  },
+
+  // IconButton S 크기 (아이콘 14 + padding XS * 2)
+  menuPlaceholder: {
+    width: 14 + padding.XS * 2,
+    height: 14 + padding.XS * 2,
     marginLeft: 'auto',
+  },
+
+  // content의 padding 안쪽, 헤더 오른쪽 끝(menuPlaceholder 자리)에 맞춘다
+  menuButton: {
+    position: 'absolute',
+    top: padding.M,
+    right: padding.M,
   },
 
   comment: {

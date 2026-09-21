@@ -125,10 +125,12 @@ const FeedDetailScreen = ({ navigation, route }) => {
     handlePressCommentMenu,
     handleCommentMenuLayout,
     handlePressDeleteComment,
+    refreshCommentMenuPosition,
   } = useCommentMenu({
     commentBarRef,
     commentBarHeight,
     floatingBottomOffset,
+    isKeyboardVisible: keyboardHeight > 0,
     deleteComment,
     isDeletingComment,
   });
@@ -276,10 +278,10 @@ const FeedDetailScreen = ({ navigation, route }) => {
   }, []);
 
   const handleOpenCommentMenu = useCallback(
-    (comment, anchor) => {
+    (comment, measureAnchor) => {
       setIsFeedMenuOpen(false);
 
-      handlePressCommentMenu(comment, anchor);
+      handlePressCommentMenu(comment, measureAnchor);
     },
     [handlePressCommentMenu],
   );
@@ -304,6 +306,18 @@ const FeedDetailScreen = ({ navigation, route }) => {
     clearReplyTarget();
     clearReplyScrollTarget();
   }, [clearReplyScrollTarget, clearReplyTarget]);
+
+  const handleScrollContent = useCallback(
+    event => {
+      handleScroll(event);
+
+      // 메뉴가 열린 채로 스크롤이 움직이면 메뉴가 케밥을 따라가게 한다.
+      if (commentMenu) {
+        refreshCommentMenuPosition();
+      }
+    },
+    [commentMenu, handleScroll, refreshCommentMenuPosition],
+  );
 
   const handleScrollBeginDrag = useCallback(() => {
     // 사용자가 직접 스크롤을 시작하면 자동 스크롤을 잠근다.
@@ -381,7 +395,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         onLayout={handleScrollViewLayout}
-        onScroll={handleScroll}
+        onScroll={handleScrollContent}
         scrollEventThrottle={16}
         onScrollBeginDrag={handleScrollBeginDrag}
       >

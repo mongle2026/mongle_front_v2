@@ -73,11 +73,11 @@ const CommentSection = ({
               depth={comment.depth}
               showMenu
               isMenuOpen={isMenuOpen}
-              onPressMenu={position => {
+              onPressMenu={measureAnchor => {
                 // 남의 댓글에도 케밥 버튼은 의도적으로 노출함
                 // TODO: 남의 댓글이면 신고하기 메뉴 열기
                 if (!comment.isMine) return;
-                onPressMenu?.(comment, position);
+                onPressMenu?.(comment, measureAnchor);
               }}
               onPressReply={commentRef => {
                 onPressReply?.(resolveReplyTarget(comment), commentRef);
