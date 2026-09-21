@@ -4,12 +4,30 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
 import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
 
+import useWriteImgRatio from '../../../../shared/hooks/useWriteImgRatio';
+
 import { colors } from '../../../../shared/styles/color';
 import { getImageKey } from '../../../../shared/utils/media';
 import { FONT, getBodyFontStyle } from '../../../../shared/styles/fontType';
 import { gap, padding } from '../../../../shared/styles/token';
 
 const DETAIL_CONTENT_MIN_HEIGHT = 418;
+
+// 가로 사진 4:3, 세로 사진 5:6
+const DetailImage = ({ imageSource, onPress }) => {
+  const ratio = useWriteImgRatio(imageSource);
+
+  return (
+    <Pressable onPress={onPress} style={styles.imageButton}>
+      <WriteImg
+        imageSource={imageSource}
+        ratio={ratio}
+        pointerEvents="none"
+        style={styles.image}
+      />
+    </Pressable>
+  );
+};
 
 const FeedDetailContent = ({
   content = '',
@@ -35,17 +53,11 @@ const FeedDetailContent = ({
       {visibleImages.length > 0 && (
         <View style={styles.imgContainer}>
           {visibleImages.map((imageSource, index) => (
-            <Pressable
+            <DetailImage
               key={getImageKey(imageSource, index)}
+              imageSource={imageSource}
               onPress={() => onPressImage?.(imageSource, index)}
-              style={styles.imageButton}
-            >
-              <WriteImg
-                imageSource={imageSource}
-                pointerEvents="none"
-                style={styles.image}
-              />
-            </Pressable>
+            />
           ))}
         </View>
       )}
