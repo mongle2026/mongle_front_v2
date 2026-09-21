@@ -344,6 +344,8 @@ const CommentBar = ({
             <Text
               style={[
                 styles.currentCount,
+                textLength === 0 &&
+                styles.currentCountEmpty,
                 isOverLimit &&
                 styles.currentCountCritical,
               ]}
@@ -520,6 +522,10 @@ const styles = StyleSheet.create({
 
     color: colors.fgNeutralSubtle,
     textAlign: 'right',
+  },
+
+  currentCountEmpty: {
+    color: colors.fgNeutralWeak,
   },
 
   currentCountCritical: {
