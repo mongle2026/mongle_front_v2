@@ -16,7 +16,7 @@ import { typo } from '../../../../shared/styles/typo';
 
 const MAX_COMMENT_LENGTH = 400;
 
-const INPUT_LINE_HEIGHT = 21;
+const INPUT_LINE_HEIGHT = 25.5;
 const INPUT_MIN_HEIGHT = INPUT_LINE_HEIGHT;
 const INPUT_MAX_HEIGHT = INPUT_LINE_HEIGHT * 4;
 
@@ -249,7 +249,7 @@ const CommentBar = ({
           </Pressable>
 
           <IconButton
-            size="S"
+            size="M"
             icon={IcArrowUp}
             color={colors.fgDisabled}
             disabled
@@ -359,7 +359,7 @@ const CommentBar = ({
           </View>
 
           <IconButton
-            size="S"
+            size="M"
             icon={IcArrowUp}
             color={
               isSubmitDisabled
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   },
 
   placeholder: {
-    ...typo.suitBodyLarge,
+    ...typo.suitBodyXLarge,
 
     width: '100%',
 
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    ...typo.suitBodyLarge,
+    ...typo.suitBodyXLarge,
 
     width: '100%',
     minHeight: INPUT_MIN_HEIGHT,
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   },
 
   inputMeasure: {
-    ...typo.suitBodyLarge,
+    ...typo.suitBodyXLarge,
 
     position: 'absolute',
     top: 0,
