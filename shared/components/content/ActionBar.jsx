@@ -40,6 +40,8 @@ const ActionBar = ({
   // 날짜 앞뒤에 붙는 말. 예) '>' + 날짜 + '도착'
   datePrefix,
   dateSuffix,
+  // 수정된 글이면 날짜 뒤에 '수정됨' 표시
+  isEdited = false,
   isLiked = false,
   isBookmarked = false,
   bookmarkCount,
@@ -61,7 +63,7 @@ const ActionBar = ({
     DATE_FORMATTERS[dateFormat] ?? formatRelativeDate;
 
   const formattedDate = createdAt
-    ? [datePrefix, formatCreatedAt(createdAt), dateSuffix]
+    ? [datePrefix, formatCreatedAt(createdAt), dateSuffix, isEdited && '수정됨']
       .filter(Boolean)
       .join(' ')
     : '';

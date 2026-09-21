@@ -58,3 +58,14 @@ export function isSameDate(dateA, dateB) {
     a.getDate() === b.getDate()
   );
 }
+
+// 수정된 글인지 (updatedAt이 createdAt보다 이후면 true)
+export function isEdited(createdAt, updatedAt) {
+  if (!createdAt || !updatedAt) return false;
+
+  const created = new Date(createdAt).getTime();
+  const updated = new Date(updatedAt).getTime();
+  if (Number.isNaN(created) || Number.isNaN(updated)) return false;
+
+  return updated > created;
+}
