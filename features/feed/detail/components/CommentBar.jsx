@@ -28,6 +28,7 @@ const CommentBar = ({
 
   profileImageUri,
   targetUsername,
+  isReply = false,
 
   focusRequestKey = 0,
 
@@ -287,7 +288,11 @@ const CommentBar = ({
           onContentSizeChange={
             handleContentSizeChange
           }
-          placeholder="댓글을 남겨보세요."
+          placeholder={
+            isReply
+              ? '답글을 남겨보세요.'
+              : '댓글을 남겨보세요.'
+          }
           placeholderTextColor={
             colors.fgPlaceholder
           }
@@ -326,7 +331,9 @@ const CommentBar = ({
                 numberOfLines={1}
                 style={styles.targetDescription}
               >
-                님에게 댓글 작성
+                {isReply
+                  ? '님에게 답글 작성'
+                  : '님에게 댓글 작성'}
               </Text>
             </>
           )}

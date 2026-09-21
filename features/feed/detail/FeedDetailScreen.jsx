@@ -469,6 +469,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
           disabled={isCreatingComment}
           profileImageUri={currentUser?.profileImageUri}
           targetUsername={replyTarget?.userCode ?? user.userCode ?? ''}
+          isReply={!!replyTarget}
           focusRequestKey={replyFocusRequestKey}
         />
       </View>
