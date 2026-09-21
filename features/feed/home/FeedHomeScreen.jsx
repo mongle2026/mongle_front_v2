@@ -53,8 +53,6 @@ const FeedHomeScreen = ({ navigation }) => {
   const {
     handlePressLike,
     handlePressBookmark,
-    likePendingFeedIds,
-    bookmarkPendingFeedIds,
   } = useFeedActions({ userId });
 
   const {
@@ -75,8 +73,8 @@ const FeedHomeScreen = ({ navigation }) => {
   });
 
   const feedExtraData = useMemo(
-    () => ({ playingFeedId, pendingTargetUserId, likePendingFeedIds, bookmarkPendingFeedIds }),
-    [bookmarkPendingFeedIds, likePendingFeedIds, pendingTargetUserId, playingFeedId]
+    () => ({ playingFeedId, pendingTargetUserId }),
+    [pendingTargetUserId, playingFeedId]
   );
 
   // 카드마다 새 객체를 넘기면 FeedPostItem memo가 깨져서
@@ -141,8 +139,6 @@ const FeedHomeScreen = ({ navigation }) => {
           item={item}
           userId={userId}
           cardStyle={cardStyle}
-          likeDisabled={likePendingFeedIds.has(feedId)}
-          bookmarkDisabled={bookmarkPendingFeedIds.has(feedId)}
           followDisabled={pendingTargetUserId === targetUserId}
           isMusicPlaying={isMusicPlaying}
           onPressPost={handlePressPost}
@@ -155,7 +151,6 @@ const FeedHomeScreen = ({ navigation }) => {
       );
     },
     [
-      bookmarkPendingFeedIds,
       cardStyle,
       handlePressBookmark,
       handlePressComment,
@@ -163,7 +158,6 @@ const FeedHomeScreen = ({ navigation }) => {
       handlePressLike,
       handlePressMusicPlayback,
       handlePressPost,
-      likePendingFeedIds,
       pendingTargetUserId,
       playingFeedId,
       userId,

@@ -9,8 +9,6 @@ const FeedPostItem = ({
   item,
   userId,
   cardStyle,
-  likeDisabled = false,
-  bookmarkDisabled = false,
   followDisabled = false,
   isMusicPlaying = false,
   onPressPost,
@@ -71,7 +69,6 @@ const FeedPostItem = ({
 
   const { likeButtonRef, handleTap } = useDoubleTapLike({
     isLiked,
-    disabled: likeDisabled,
     onLike: handleLike,
     onSingleTap: handlePressPost,
   });
@@ -106,8 +103,6 @@ const FeedPostItem = ({
         createdAt: item?.createdAt,
         isLiked,
         isBookmarked,
-        likeDisabled,
-        bookmarkDisabled,
         likeButtonRef,
         onCommentPress: handleComment,
         onLikePress: handleLike,

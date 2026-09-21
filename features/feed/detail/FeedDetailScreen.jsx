@@ -138,8 +138,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
   const {
     handlePressLike: toggleLike,
     handlePressBookmark: toggleBookmark,
-    likePendingFeedIds,
-    bookmarkPendingFeedIds,
   } = useFeedActions({
     userId,
     // 토스트를 CommentBar(닫힌/열린 상태 모두) 위로 띄운다.
@@ -152,12 +150,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
 
   const isMine =
     feed != null && Number(feed.user?.userId) === Number(userId);
-
-  const isLikePending =
-    normalizedFeedId != null && likePendingFeedIds.has(normalizedFeedId);
-
-  const isBookmarkPending =
-    normalizedFeedId != null && bookmarkPendingFeedIds.has(normalizedFeedId);
 
   const handlePressFollow = useCallback(() => {
     if (!feed || isMine) return;
@@ -201,7 +193,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
     handleTap: handleContentTap,
   } = useDoubleTapLike({
     isLiked: Boolean(feed?.isLiked),
-    disabled: isLikePending,
     onLike: handlePressLike,
   });
 
@@ -435,8 +426,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
           isLiked={Boolean(feed.isLiked)}
           isBookmarked={Boolean(feed.isBookmarked)}
           bookmarkCount={feed.bookmarkCount}
-          likeDisabled={isLikePending}
-          bookmarkDisabled={isBookmarkPending}
           showCommentButton={false}
           likeButtonRef={likeButtonRef}
           onLikePress={handlePressLike}

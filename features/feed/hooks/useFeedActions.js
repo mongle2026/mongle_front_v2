@@ -22,26 +22,42 @@ const useFeedActions = ({
     floatingBottomOffset +
     toastBottomOffset;
 
-  const {
-    mutate: mutateLike,
-    pendingFeedIds: likePendingFeedIds,
-  } = useFeedToggleMutation({
+  const showFailureToast = useCallback(
+    message => {
+      showToast({
+        message,
+        bottomOffset: bookmarkToastBottomOffset,
+      });
+    },
+    [bookmarkToastBottomOffset, showToast],
+  );
+
+  const handleLikeError = useCallback(
+    () => showFailureToast('좋아요 처리에 실패했습니다.'),
+    [showFailureToast],
+  );
+
+  const handleBookmarkError = useCallback(
+    () => showFailureToast('북마크 처리에 실패했습니다.'),
+    [showFailureToast],
+  );
+
+  const { toggle: toggleLike } = useFeedToggleMutation({
     userId,
     endpoint: 'like',
     valueKey: 'isLiked',
     countKey: 'likeCount',
     errorMessage: '좋아요 처리에 실패했습니다.',
+    onError: handleLikeError,
   });
 
-  const {
-    mutate: mutateBookmark,
-    pendingFeedIds: bookmarkPendingFeedIds,
-  } = useFeedToggleMutation({
+  const { toggle: toggleBookmark } = useFeedToggleMutation({
     userId,
     endpoint: 'bookmark',
     valueKey: 'isBookmarked',
     countKey: 'bookmarkCount',
     errorMessage: '북마크 처리에 실패했습니다.',
+    onError: handleBookmarkError,
   });
 
   const handlePressBookmarkToastButton =
@@ -76,59 +92,35 @@ const useFeedActions = ({
   );
 
   const handlePressLike = useCallback(
-    (feed, options) => {
+    feed => {
       if (!feed?.feedId) return;
 
-      mutateLike(
-        {
-          feedId: feed.feedId,
-          nextValue: !feed.isLiked,
-        },
-        options,
-      );
+      toggleLike({
+        feedId: feed.feedId,
+        currentValue: feed.isLiked,
+      });
     },
-    [mutateLike],
+    [toggleLike],
   );
 
+  // 서버 응답을 기다리지 않고 바로 토스트를 띄운다. 실패하면 되돌리고 실패 토스트로 바뀐다.
   const handlePressBookmark = useCallback(
-    (feed, options) => {
+    feed => {
       if (!feed?.feedId) return;
 
-      const isAddingBookmark =
-        !feed.isBookmarked;
+      const isAddingBookmark = toggleBookmark({
+        feedId: feed.feedId,
+        currentValue: feed.isBookmarked,
+      });
 
-      mutateBookmark(
-        {
-          feedId: feed.feedId,
-          nextValue: isAddingBookmark,
-        },
-        {
-          ...options,
-
-          onSuccess: (...args) => {
-            showBookmarkToast(
-              isAddingBookmark,
-            );
-
-            options?.onSuccess?.(
-              ...args,
-            );
-          },
-        },
-      );
+      showBookmarkToast(isAddingBookmark);
     },
-    [
-      mutateBookmark,
-      showBookmarkToast,
-    ],
+    [showBookmarkToast, toggleBookmark],
   );
 
   return {
     handlePressLike,
     handlePressBookmark,
-
-    likePendingFeedIds,
-    bookmarkPendingFeedIds,
   };
 };
 
