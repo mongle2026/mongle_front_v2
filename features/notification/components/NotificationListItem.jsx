@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 import SuitSafeText from '../../../shared/components/atomic/SuitSafeText';
@@ -96,6 +96,7 @@ const NotificationListItem = ({
   isToSelf = false,
   // 알림이 뜬 시각
   createdAt,
+  onPress,
   style,
 }) => {
   const getContent = NOTIFICATION_CONTENT[type]?.[status];
@@ -109,7 +110,7 @@ const NotificationListItem = ({
   });
 
   return (
-    <View style={[styles.container, style]}>
+    <Pressable style={[styles.container, style]} onPress={onPress} disabled={!onPress}>
       {showLogo ? (
         // TODO: 앱 로고 나오면 교체
         <View style={styles.logo} />
@@ -122,7 +123,7 @@ const NotificationListItem = ({
         <SuitSafeText style={styles.body}>{body}</SuitSafeText>
         <Text style={styles.date}>{formatNotificationDate(createdAt)}</Text>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

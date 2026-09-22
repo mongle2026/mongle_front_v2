@@ -7,16 +7,27 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dongle.mongle",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
-      "package": "com.mongle.app"
+      "package": "com.dongle.mongle"
     },
     "plugins": [
       "expo-audio",
       "expo-asset",
       "expo-splash-screen",
-      "expo-status-bar"
-    ]
+      "expo-status-bar",
+      "expo-notifications"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9e37a753-32b7-4ca4-a598-eecbabaed0c9"
+      }
+    },
+    "owner": "enokimushroom"
   }
 }

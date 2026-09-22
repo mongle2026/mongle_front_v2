@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { setAudioModeAsync } from 'expo-audio';
-import { NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  createNavigationContainerRef,
+} from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
@@ -24,12 +27,16 @@ import LetterBoxScreen from './features/letterbox/LetterBoxScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
+import PushNotificationHandler from './features/notification/push/PushNotificationHandler';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
 import { MAIN_TAB_ROUTES } from './shared/components/navigation/bottomnavigation/routeNames';
 
 SplashScreen.preventAutoHideAsync();
+
+// 푸시 알림을 눌렀을 때처럼 화면 밖에서 이동해야 할 때 쓴다
+const navigationRef = createNavigationContainerRef();
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -184,6 +191,7 @@ const RootNavigator = () => (
 
 export default function App() {
   const [loaded, error] = useFonts(fontMap);
+  const [isNavigationReady, setIsNavigationReady] = useState(false);
 
   useEffect(() => {
     const configureAudio = async () => {
@@ -219,9 +227,17 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <DialogProvider>
             <GlobalOverlayProvider>
-              <NavigationContainer linking={linking}>
+              <NavigationContainer
+                ref={navigationRef}
+                linking={linking}
+                onReady={() => setIsNavigationReady(true)}
+              >
                 <RootNavigator />
               </NavigationContainer>
+              <PushNotificationHandler
+                navigationRef={navigationRef}
+                isNavigationReady={isNavigationReady}
+              />
               <StatusBar style="dark" />
             </GlobalOverlayProvider>
           </DialogProvider>

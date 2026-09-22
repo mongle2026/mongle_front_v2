@@ -35,6 +35,9 @@ yarn-error.*
 .env.*
 .env*.local
 
+# Firebase 설정. 공개 저장소라 올리지 않고, EAS 빌드에는 파일 환경변수(GOOGLE_SERVICES_JSON)로 넘긴다
+google-services.json
+
 # typescript
 *.tsbuildinfo
 

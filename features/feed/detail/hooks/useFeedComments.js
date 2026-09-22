@@ -151,6 +151,7 @@ export default function useFeedComments({
       mutationFn: async ({
         content,
         rootCommentId = null,
+        replyToUserId = null,
       }) => {
         const normalizedContent =
           String(content ?? '').trim();
@@ -173,6 +174,17 @@ export default function useFeedComments({
                     rootCommentId:
                       Number(
                         rootCommentId,
+                      ),
+                  }
+                : {}),
+
+              // 답글 알림은 답글 대상으로 고른 사람에게만 간다
+              ...(rootCommentId &&
+              replyToUserId
+                ? {
+                    replyToUserId:
+                      Number(
+                        replyToUserId,
                       ),
                   }
                 : {}),

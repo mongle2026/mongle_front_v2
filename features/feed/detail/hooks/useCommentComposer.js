@@ -11,6 +11,7 @@ const useCommentComposer=({createComment})=>{
       await createComment({
         content,
         rootCommentId:replyTarget?.rootCommentId??null,
+        replyToUserId:replyTarget?.userId??null,
       });
 
       setReplyTarget(null);

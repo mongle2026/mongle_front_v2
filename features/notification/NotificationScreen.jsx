@@ -17,7 +17,9 @@ import InfoBanner from './components/InfoBanner';
 import NotificationListItem, {
   NOTIFICATION_TYPE,
 } from './components/NotificationListItem';
-import { MOCK_NOTIFICATIONS } from './data/mockNotifications';
+import useNotifications from './hooks/useNotifications';
+import { getNotificationRoute } from './utils/getNotificationRoute';
+import useCurrentUser from '../../shared/hooks/useCurrentUser';
 
 // type이 null이면 전체
 const NOTIFICATION_FILTERS = [
@@ -33,8 +35,6 @@ const NOTIFICATION_FILTER_LABELS = NOTIFICATION_FILTERS.map(filter => filter.lab
 const notificationKeyExtractor = notification =>
   String(notification.notificationId);
 
-const renderNotification = ({ item }) => <NotificationListItem {...item} />;
-
 const renderNotificationSeparator = () => (
   <View style={styles.notificationSeparator} />
 );
@@ -42,16 +42,36 @@ const renderNotificationSeparator = () => (
 const NotificationScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [activeFilterIndex, setActiveFilterIndex] = useState(0);
+  const { userId } = useCurrentUser();
 
-  // TODO: 알림 API 연결
-  const notifications = MOCK_NOTIFICATIONS;
+  // 페이지 단위로 받아서 탭마다 서버에서 걸러 받는다
+  const { type } = NOTIFICATION_FILTERS[activeFilterIndex];
+  const {
+    notifications,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useNotifications({ userId, type });
 
-  const filteredNotifications = useMemo(() => {
-    const { type } = NOTIFICATION_FILTERS[activeFilterIndex];
-    if (!type) return notifications;
+  const handleEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-    return notifications.filter(notification => notification.type === type);
-  }, [notifications, activeFilterIndex]);
+  const renderNotification = useCallback(
+    ({ item }) => {
+      const route = getNotificationRoute(item);
+
+      return (
+        <NotificationListItem
+          {...item}
+          onPress={route ? () => navigation.navigate(route.name, route.params) : undefined}
+        />
+      );
+    },
+    [navigation]
+  );
 
   const listContentStyle = useMemo(
     () => [
@@ -89,9 +109,11 @@ const NotificationScreen = ({ navigation }) => {
       {/* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */}
       <View style={styles.listContainer}>
         <FlatList
-          data={filteredNotifications}
+          data={notifications}
           keyExtractor={notificationKeyExtractor}
           renderItem={renderNotification}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
           ItemSeparatorComponent={renderNotificationSeparator}
           contentContainerStyle={listContentStyle}
           showsVerticalScrollIndicator={false}
