@@ -185,8 +185,8 @@ const FeedHomeScreen = ({ navigation }) => {
   }, [error, isConfigured, isLoading]);
 
   const handlePressBell = useCallback(() => {
-    // navigation.navigate('Notification');
-  }, []);
+    navigation.navigate('Notification');
+  }, [navigation]);
 
   return (
     <View style={styles.screen}>

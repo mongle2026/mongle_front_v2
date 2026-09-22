@@ -15,8 +15,12 @@ const Tabs = ({
   tabs = DEFAULT_TABS,
   activeIndex = 0,
   onChange,
+  // 탭 영역과 그라데이션 색. #rrggbb 형식이어야 한다 (뒤에 00을 붙여 투명색을 만든다)
+  backgroundColor = colors.bgLayerBasement,
   style,
 }) => {
+  const fadeColors = [`${backgroundColor}00`, backgroundColor];
+
   const [showRightFade, setShowRightFade] = useState(false);
   const scrollRef = useRef({ layoutWidth: 0, contentWidth: 0, x: 0 });
 
@@ -29,11 +33,11 @@ const Tabs = ({
   return (
     <View style={[styles.container, style]}>
       {/* 탭 영역은 단색, 하단 패딩 영역은 배경색 → 투명 그라데이션 */}
-      <View style={styles.background} />
+      <View style={[styles.background, { backgroundColor }]} />
 
       <LinearGradient
         pointerEvents="none"
-        colors={['rgba(241, 242, 244, 0)', colors.bgLayerBasement]}
+        colors={fadeColors}
         start={{ x: 0, y: 1 }}
         end={{ x: 0, y: 0 }}
         style={styles.fade}
@@ -73,7 +77,7 @@ const Tabs = ({
       {showRightFade && (
         <LinearGradient
           pointerEvents="none"
-          colors={['rgba(241, 242, 244, 0)', colors.bgLayerBasement]}
+          colors={fadeColors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.rightFade}
@@ -107,7 +111,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: TABS_BOTTOM_FADE_HEIGHT,
-    backgroundColor: colors.bgLayerBasement,
   },
 
   rightFade: {

@@ -40,8 +40,8 @@ const LetterBoxScreen = ({ navigation }) => {
   const [fabHeight, setFabHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
 
   const handlePressBell = useCallback(() => {
-    // navigation.navigate('Notification');
-  }, []);
+    navigation.navigate('Notification');
+  }, [navigation]);
 
   const handlePressLetter = useCallback(letter => {
     navigation.navigate('LetterDetail', { letterId: letter.letterId });

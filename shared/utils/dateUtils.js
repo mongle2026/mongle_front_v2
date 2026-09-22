@@ -25,7 +25,8 @@ const DAY_MS = 24 * HOUR_MS;
 
 // 백엔드 값 → 현재 시각 기준 상대 표기
 // 1분 미만 "1분 전" / 60분 미만 "n분 전" / 24시간 미만 "n시간 전"(내림) / 그 이상 "yy.mm.dd hh:mm"
-export function formatRelativeDate(value) {
+// 24시간 이상일 때 형식은 fallback으로 바꿀 수 있다. (예: formatDate → "yy.mm.dd")
+export function formatRelativeDate(value, fallback = formatDateDetail) {
   if (value == null || value === '') return '';
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return formatDate(value);
@@ -35,7 +36,7 @@ export function formatRelativeDate(value) {
   if (diffMs < MINUTE_MS) return '1분 전';
   if (diffMs < HOUR_MS) return `${Math.floor(diffMs / MINUTE_MS)}분 전`;
   if (diffMs < DAY_MS) return `${Math.floor(diffMs / HOUR_MS)}시간 전`;
-  return formatDateDetail(date);
+  return fallback(date);
 }
 
 // 시간을 제거한 날짜 (그날 0시)

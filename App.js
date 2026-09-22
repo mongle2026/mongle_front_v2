@@ -23,6 +23,7 @@ import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
 import LetterBoxScreen from './features/letterbox/LetterBoxScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
+import NotificationScreen from './features/notification/NotificationScreen';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
@@ -173,6 +174,10 @@ const RootNavigator = () => (
     <Stack.Screen
       name="Envelope"
       component={EnvelopeScreen}
+    />
+    <Stack.Screen
+      name="Notification"
+      component={NotificationScreen}
     />
   </Stack.Navigator>
 );

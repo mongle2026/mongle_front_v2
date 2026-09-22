@@ -28,6 +28,9 @@ const TopIconNavigation = ({
   onPressShare,
   onPressMore,
 
+  // type = text. false면 오른쪽 버튼을 숨긴다
+  showNext = true,
+
   // type = icon
   showShare = true,
   showMore = true,
@@ -62,12 +65,24 @@ const TopIconNavigation = ({
             {headerText}
           </Text>
 
-          <ButtonText
-            text={nextText}
-            size="ButtonText"
-            onPress={onPressNext}
-            textStyle={nextTextStyle}
-          />
+          {showNext ? (
+            <ButtonText
+              text={nextText}
+              size="ButtonText"
+              onPress={onPressNext}
+              textStyle={nextTextStyle}
+            />
+          ) : (
+            // 제목이 가운데에 오도록 왼쪽 아이콘과 같은 크기의 빈 자리를 둔다
+            <View
+              style={styles.hidden}
+              pointerEvents="none"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <IconButton icon={leftIcon} size="M" />
+            </View>
+          )}
         </View>
       ) : (
         <>
@@ -144,6 +159,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+
+  hidden: {
+    opacity: 0,
   },
 
   headerText: {
