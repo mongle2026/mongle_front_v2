@@ -21,7 +21,7 @@ const Item = ({
 }) => {
   const contentColor = isActive
     ? colors.fgNeutralMuted
-    : colors.fgNeutralWeak;
+    : colors.fgDisabled;
 
   return (
     <Pressable
