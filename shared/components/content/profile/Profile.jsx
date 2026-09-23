@@ -206,17 +206,20 @@ const styles = StyleSheet.create({
   usernameButtonArea: {
     alignSelf: 'flex-end',
     flexShrink: 0,
+  },
+
+  // 회전은 border를 가진 TextButton 자신에게 걸어야 합니다.
+  usernameButton: {
+    // TextButton의 기본 width: '100%'를 덮어씁니다.
+    width: 'auto',
+
+    overflow: 'hidden',
 
     transform: [
       {
         rotate: `${USERNAME_ROTATION_DEGREE}deg`,
       },
     ],
-  },
-
-  usernameButton: {
-    // TextButton의 기본 width: '100%'를 덮어씁니다.
-    width: 'auto',
   },
 
   // ── Letter ───────────────────────────────────
