@@ -150,16 +150,14 @@ const RootNavigator = () => (
       name="FeedDetail"
       component={FeedDetailRoute}
       options={{
-        presentation: 'transparentModal',
-        animation: 'slide_from_right',
+        animation: 'ios_from_right',
       }}
     />
     <Stack.Screen
       name="LetterDetail"
       component={LetterDetailScreen}
       options={{
-        presentation: 'transparentModal',
-        animation: 'slide_from_right',
+        animation: 'ios_from_right',
       }}
     />
     <Stack.Screen
