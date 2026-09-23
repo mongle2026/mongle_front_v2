@@ -12,8 +12,6 @@ import { colors } from '../../../styles/color';
 import { padding } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
 
-const ICON_SIZE = 22;
-
 const TopIconNavigation = ({
   type = 'icon',
 
@@ -89,7 +87,7 @@ const TopIconNavigation = ({
           <IconButton
             icon={IcX}
             color={colors.fgNeutralMuted}
-            size="XL"
+            size="M"
             onPress={onPressClose}
             accessibilityLabel="닫기"
           />
