@@ -18,7 +18,7 @@ const LETTER_FILTER = {
   SELF: 'self',
 };
 
-const LETTER_FILTERS = [
+const LETTER_FILTERS_UNREAD_FIRST = [
   { key: LETTER_FILTER.UNREAD, label: '안 읽음' },
   { key: LETTER_FILTER.ALL, label: '전체 편지' },
   { key: LETTER_FILTER.RECEIVED, label: '받은 편지' },
@@ -26,8 +26,15 @@ const LETTER_FILTERS = [
   { key: LETTER_FILTER.SELF, label: '나에게 쓴 편지' },
 ];
 
+// 안 읽은 편지가 없으면 '안 읽음' 을 맨 뒤로 보낸다
+const LETTER_FILTERS_UNREAD_LAST = [
+  ...LETTER_FILTERS_UNREAD_FIRST.slice(1),
+  LETTER_FILTERS_UNREAD_FIRST[0],
+];
+
 /* Tabs 는 인덱스 기반이라 key 와 매핑한다 */
-const LETTER_FILTER_LABELS = LETTER_FILTERS.map(filter => filter.label);
+const LETTER_FILTER_LABELS_UNREAD_FIRST = LETTER_FILTERS_UNREAD_FIRST.map(filter => filter.label);
+const LETTER_FILTER_LABELS_UNREAD_LAST = LETTER_FILTERS_UNREAD_LAST.map(filter => filter.label);
 
 // 스크롤이 끝에서 화면 높이의 이 비율 이내로 오면 다음 페이지를 불러온다
 const END_REACHED_THRESHOLD = 0.4;
@@ -46,6 +53,8 @@ const renderLetterSeparator = () => <View style={styles.letterSeparator} />;
 const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   // 기본 필터가 정해지기 전에는 null
   const [activeFilter, setActiveFilter] = useState(null);
+  // 편지 탭에 들어올 때 안 읽은 편지가 있었는지 (탭 순서를 정한다). 정해지기 전에는 null
+  const [enteredWithUnread, setEnteredWithUnread] = useState(null);
 
   // 안 읽은 편지가 있으면 '안 읽음', 모두 읽었으면 '전체 편지'가 기본 화면이다
   const { letters: unreadQueryLetters, isLoading: isUnreadLoading } = useLetterBox({
@@ -58,9 +67,15 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   // 상세에서 마지막 안 읽은 편지를 읽고 돌아와도 '전체 편지'로 넘어가지 않고 엠티뷰를 보여준다
   if (activeFilter === null && !isUnreadLoading) {
     setActiveFilter(hasUnread ? LETTER_FILTER.UNREAD : LETTER_FILTER.ALL);
+    setEnteredWithUnread(hasUnread);
   }
 
-  const activeFilterIndex = LETTER_FILTERS.findIndex(filter => filter.key === activeFilter);
+  // 탭 순서도 편지 탭에 들어올 때 한 번만 정해 목록을 보는 도중에 바뀌지 않게 한다
+  const showsUnreadLast = enteredWithUnread === false;
+  const filters = showsUnreadLast ? LETTER_FILTERS_UNREAD_LAST : LETTER_FILTERS_UNREAD_FIRST;
+  const filterLabels = showsUnreadLast ? LETTER_FILTER_LABELS_UNREAD_LAST : LETTER_FILTER_LABELS_UNREAD_FIRST;
+
+  const activeFilterIndex = filters.findIndex(filter => filter.key === activeFilter);
   // 기본 필터를 정하는 중에는 목록을 그리지 않는다 (전체 → 안 읽음으로 깜빡이지 않게)
   const isDecidingFilter = activeFilter === null;
 
@@ -95,8 +110,8 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   );
 
   const handleChangeFilter = useCallback(index => {
-    setActiveFilter(LETTER_FILTERS[index].key);
-  }, []);
+    setActiveFilter(filters[index].key);
+  }, [filters]);
 
   const handleEndReached = useCallback(() => {
     if (!hasNextPage || isFetchingNextPage) return;
@@ -122,7 +137,7 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
   return (
     <View style={styles.container}>
       <Tabs
-        tabs={LETTER_FILTER_LABELS}
+        tabs={filterLabels}
         activeIndex={activeFilterIndex}
         onChange={handleChangeFilter}
       />
