@@ -109,7 +109,7 @@ const MainTabNavigator = () => (
       component={LetterBoxScreen}
     />
     <Tab.Screen
-      name={MAIN_TAB_ROUTES.PROFILE}
+      name={MAIN_TAB_ROUTES.ARCHIVE}
       component={TemporaryScreen}
     />
   </Tab.Navigator>
