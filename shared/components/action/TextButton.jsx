@@ -36,7 +36,7 @@ const { S, M, L, XL } = TEXT_BUTTON_SIZE;
 /**
  * Variant별 허용 사이즈
  *
- * Solid       S / L / XL
+ * Solid       S / M / L / XL
  * Ghost       S
  * NeutralWeak M / L / XL
  * Critical    L / XL
@@ -44,7 +44,7 @@ const { S, M, L, XL } = TEXT_BUTTON_SIZE;
  * Disabled    L / XL
  */
 const ALLOWED_SIZES = {
-  [SOLID]: [S, L, XL],
+  [SOLID]: [S, M, L, XL],
   [GHOST]: [S],
   [NEUTRAL_WEAK]: [M, L, XL],
   [CRITICAL]: [L, XL],

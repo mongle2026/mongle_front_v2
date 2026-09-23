@@ -6,14 +6,28 @@ import IlEmptyRecipient from '../../../assets/illustrations/il_empty_recipient.s
 import IlEmptyMusic from '../../../assets/illustrations/il_empty_music.svg';
 import IlEmptyLetter from '../../../assets/illustrations/il_empty_letter.svg';
 
+import {
+  TextButton,
+  TEXT_BUTTON_SIZE,
+  TEXT_BUTTON_VARIANT,
+} from '../action/TextButton';
+
 import { colors } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
 import { typo } from '../../styles/typo';
+import { FONT } from '../../styles/fontType';
 
 const Empty = ({
   type,
   title,
   body,
+
+  /**
+   * buttonLabel을 넘기지 않으면 버튼은 렌더되지 않습니다.
+   * (버튼 없음이 기본)
+   */
+  buttonLabel,
+  onButtonPress,
 }) => {
   const getIllustration = () => {
     switch (type) {
@@ -64,6 +78,17 @@ const Empty = ({
           </Text>
         ) : null}
       </View>
+
+      {buttonLabel ? (
+        <TextButton
+          variant={TEXT_BUTTON_VARIANT.SOLID}
+          size={TEXT_BUTTON_SIZE.M}
+          font={FONT.SUIT}
+          onPress={onButtonPress}
+        >
+          {buttonLabel}
+        </TextButton>
+      ) : null}
     </View>
   );
 };
