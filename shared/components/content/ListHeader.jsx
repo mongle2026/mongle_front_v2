@@ -5,12 +5,15 @@ import {
   View,
 } from 'react-native';
 
+import IcArrowRight from '../../../assets/icons/ic_arrow_right.svg';
 import { colors } from '../../styles/color';
 import {
   gap,
   padding,
 } from '../../styles/token';
 import { typo } from '../../styles/typo';
+
+import IconButton from '../action/IconButton';
 
 const SIZE = {
   S: 'S',
@@ -21,6 +24,9 @@ const ListHeader = ({
   size = SIZE.S,
   title,
   informativeText,
+  showIconButton = false,
+  onIconButtonPress,
+  iconButtonAccessibilityLabel,
   style,
   textStyle,
   informativeTextStyle,
@@ -55,12 +61,25 @@ const ListHeader = ({
           <Text
             style={[
               styles.titleM,
+              styles.titleMFill,
               styles.neutralText,
               textStyle,
             ]}
           >
             {title}
           </Text>
+
+          {showIconButton ? (
+            <IconButton
+              icon={IcArrowRight}
+              size="S"
+              color={colors.fgNeutralWeak}
+              onPress={onIconButtonPress}
+              accessibilityLabel={
+                iconButtonAccessibilityLabel
+              }
+            />
+          ) : null}
         </>
       ) : (
         <Text
@@ -109,6 +128,10 @@ const styles = StyleSheet.create({
   titleM: {
     ...typo.suitTitleMediumStrong,
     textAlign: 'justify',
+  },
+
+  titleMFill: {
+    flex: 1,
   },
 
   informativeText: {
