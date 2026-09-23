@@ -64,9 +64,10 @@ const RecordEditScreen = ({ navigation, route }) => {
     }, [resetRecordForm]),
   });
 
-  /* 다음 버튼 활성 색상 조건 */
+  /* 다음 버튼 활성 색상 조건 (수정 사항이 없으면 비활성) */
   const isNextReady = hasMusic && hasContent;
-  const nextTextColor = isNextReady ? colors.fgNeutralMuted : colors.fgDisabled;
+  const canSubmit = isNextReady && isDirty;
+  const nextTextColor = canSubmit ? colors.fgNeutralMuted : colors.fgDisabled;
 
   const { showToast } = useGlobalOverlay();
 
@@ -93,6 +94,14 @@ const RecordEditScreen = ({ navigation, route }) => {
 
   const handlePressNext =
     useCallback(() => {
+      /*
+       * 수정된 내용이 없으면 완료 버튼을 막아둡니다.
+       * (안내할 누락 항목이 없으므로 Toast는 띄우지 않습니다.)
+       */
+      if (!isDirty) {
+        return;
+      }
+
       /*
        * 회색 상태에서도 실제 disabled는 하지 않고,
        * 비어 있는 항목을 Toast로 안내합니다.
@@ -126,6 +135,7 @@ const RecordEditScreen = ({ navigation, route }) => {
     }, [
       bottomOffset,
       hasMusic,
+      isDirty,
       isNextReady,
       isUpdatingFeed,
       showToast,
@@ -138,6 +148,7 @@ const RecordEditScreen = ({ navigation, route }) => {
         <TopIconNavigation
           type="text"
           headerText="피드 수정하기"
+          nextText="완료"
           onPressClose={handlePressClose}
           nextTextStyle={{ color: colors.fgDisabled }}
         />
@@ -160,6 +171,7 @@ const RecordEditScreen = ({ navigation, route }) => {
       <TopIconNavigation
         type="text"
         headerText="피드 수정하기"
+        nextText="완료"
         onPressClose={handlePressClose}
         onPressNext={handlePressNext}
         nextTextStyle={{ color: nextTextColor }}
