@@ -1,4 +1,4 @@
-import React, { useCallback, useSyncExternalStore } from 'react';
+import React, { useCallback, useRef, useSyncExternalStore } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,7 +13,15 @@ import { padding } from '../../../styles/token';
 import { MAIN_TAB_ROUTES } from './routeNames';
 
 let bottomNavigationHeight = 0;
-const heightListeners = new Set();
+
+// BottomNavigation 윗변의 '창 좌표' y.
+let bottomNavigationWindowTop = 0;
+
+const metricsListeners = new Set();
+
+const notifyMetricsChanged = () => {
+  metricsListeners.forEach(listener => listener());
+};
 
 const setBottomNavigationHeight = nextHeight => {
   if (bottomNavigationHeight === nextHeight) {
@@ -21,24 +29,44 @@ const setBottomNavigationHeight = nextHeight => {
   }
 
   bottomNavigationHeight = nextHeight;
-  heightListeners.forEach(listener => listener());
+  notifyMetricsChanged();
 };
 
-const subscribeBottomNavigationHeight = listener => {
-  heightListeners.add(listener);
+const setBottomNavigationWindowTop = nextWindowTop => {
+  if (bottomNavigationWindowTop === nextWindowTop) {
+    return;
+  }
+
+  bottomNavigationWindowTop = nextWindowTop;
+  notifyMetricsChanged();
+};
+
+const subscribeBottomNavigationMetrics = listener => {
+  metricsListeners.add(listener);
 
   return () => {
-    heightListeners.delete(listener);
+    metricsListeners.delete(listener);
   };
 };
 
 const getBottomNavigationHeight = () => bottomNavigationHeight;
 
+const getBottomNavigationWindowTop = () => bottomNavigationWindowTop;
+
 export const useBottomNavigationHeight = () => {
   return useSyncExternalStore(
-    subscribeBottomNavigationHeight,
+    subscribeBottomNavigationMetrics,
     getBottomNavigationHeight,
     getBottomNavigationHeight,
+  );
+};
+
+/** 아직 측정 전이면 0. */
+export const useBottomNavigationWindowTop = () => {
+  return useSyncExternalStore(
+    subscribeBottomNavigationMetrics,
+    getBottomNavigationWindowTop,
+    getBottomNavigationWindowTop,
   );
 };
 
@@ -64,6 +92,8 @@ const BottomNavigation = ({
 }) => {
   const insets = useSafeAreaInsets();
 
+  const containerRef = useRef(null);
+
   const additionalBottomPadding = Math.max(
     insets.bottom - padding.XXL,
     0,
@@ -73,10 +103,17 @@ const BottomNavigation = ({
     setBottomNavigationHeight(
       event.nativeEvent.layout.height,
     );
+
+    containerRef.current?.measureInWindow((x, y) => {
+      if (typeof y !== 'number') return;
+
+      setBottomNavigationWindowTop(y);
+    });
   }, []);
 
   return (
     <View
+      ref={containerRef}
       accessibilityRole="tablist"
       onLayout={handleLayout}
       style={[

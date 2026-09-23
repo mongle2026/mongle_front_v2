@@ -1,9 +1,13 @@
 import React, { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
 import { BackHandler, Pressable, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 import FAB, { FAB_EXPAND_DURATION } from './FAB';
-import { useBottomNavigationHeight } from '../navigation/bottomnavigation/BottomNavigation';
+import {
+  useBottomNavigationHeight,
+  useBottomNavigationWindowTop,
+} from '../navigation/bottomnavigation/BottomNavigation';
 import { useGlobalOverlay } from '../../providers/GlobalOverlayProvider';
 import { colors } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
@@ -81,7 +85,23 @@ WriteFabOverlayContent.displayName = 'WriteFabOverlayContent';
 const WriteFab = ({ navigation, expandedLabel, onHeightChange }) => {
   const overlayId = `write-fab-${useId()}`;
   const bottomNavigationHeight = useBottomNavigationHeight();
+  const bottomNavigationWindowTop = useBottomNavigationWindowTop();
+  const frame = useSafeAreaFrame();
   const { openOverlay, closeOverlay } = useGlobalOverlay();
+
+  /*
+   * 닫힌 FAB 는 화면(탭 네비게이터의 scene) 안에서 bottom: 0,
+   * 열린 FAB 는 전역 오버레이(루트 전체) 안에서 bottom: 0 이라
+   * 두 기준선이 Android 에서 시스템 내비게이션 바만큼 어긋난다.
+   *
+   * scene 의 아래 끝 = BottomNavigation 의 윗변이므로,
+   * 오버레이 아래 끝(frame.y + frame.height)에서 그 지점까지의 거리를
+   * marginBottom 으로 주면 FAB 가 눌린 자리에 그대로 머문다.
+   * 측정 전(첫 프레임)에는 BottomNavigation 높이로 대신한다.
+   */
+  const overlayBottomInset = bottomNavigationWindowTop > 0
+    ? Math.max(0, frame.y + frame.height - bottomNavigationWindowTop)
+    : bottomNavigationHeight;
 
   const [isOpen, setIsOpen] = useState(false);
   const [height, setHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
@@ -115,12 +135,12 @@ const WriteFab = ({ navigation, expandedLabel, onHeightChange }) => {
   const renderOverlayContent = useCallback(() => (
     <WriteFabOverlayContent
       expandedLabel={expandedLabel}
-      bottomInset={bottomNavigationHeight}
+      bottomInset={overlayBottomInset}
       onClosed={handleClosed}
       onFeedPress={handleFeedPress}
       onLetterPress={handleLetterPress}
     />
-  ), [bottomNavigationHeight, expandedLabel, handleClosed, handleFeedPress, handleLetterPress]);
+  ), [overlayBottomInset, expandedLabel, handleClosed, handleFeedPress, handleLetterPress]);
 
   // isOpen 변경에 반응하는 useEffect로 openOverlay를 호출하면 커밋이 한 프레임
   // 늦게 일어나서(로컬 상태 변경 → effect 실행 → 상위 Provider 리렌더) 그 사이에

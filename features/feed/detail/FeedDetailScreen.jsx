@@ -10,7 +10,7 @@ import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvide
 
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import {
-  useFloatingBottomOffset,
+  useFloatingBarPlacement,
   useKeyboardHeight,
 } from '../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
@@ -59,7 +59,16 @@ const FeedDetailScreen = ({ navigation, route }) => {
     handleCommentSectionLayout,
   } = useScrollToComment({ shouldScrollToComment });
 
-  const floatingBottomOffset = useFloatingBottomOffset();
+  /*
+   * commentBarBottom  : 댓글 입력바를 화면 아래에서 띄우는 값(키보드 높이)
+   * commentBarPadding : 입력바 안쪽 SafeArea 여백(홈 인디케이터)
+   * floatingBottomOffset : Toast 처럼 바 없이 떠야 하는 요소용 총 여백
+   */
+  const {
+    bottom: commentBarBottom,
+    paddingBottom: commentBarPadding,
+    total: floatingBottomOffset,
+  } = useFloatingBarPlacement();
   const keyboardHeight = useKeyboardHeight();
 
   const [isFeedMenuOpen, setIsFeedMenuOpen] = useState(false);
@@ -83,7 +92,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
         message: '기록을 삭제하지 못했습니다.',
         icon: 'alert',
         iconColor: colors.fgCritical,
-        bottomOffset: floatingBottomOffset + commentBarHeight,
+        bottomOffset: commentBarBottom + commentBarHeight,
       });
     },
   });
@@ -129,7 +138,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
   } = useCommentMenu({
     commentBarRef,
     commentBarHeight,
-    floatingBottomOffset,
+    commentBarBottom,
     isKeyboardVisible: keyboardHeight > 0,
     deleteComment,
     isDeletingComment,
@@ -141,7 +150,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
   } = useFeedActions({
     userId,
     // 토스트를 CommentBar(닫힌/열린 상태 모두) 위로 띄운다.
-    toastBottomOffset: commentBarHeight,
+    floatingBarOffset: commentBarBottom + commentBarHeight,
   });
 
   const { toggleFollow, isFollowPending } = useFeedFollow({ userId });
@@ -381,7 +390,8 @@ const FeedDetailScreen = ({ navigation, route }) => {
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: commentBarHeight + floatingBottomOffset },
+          /* commentBarHeight 에 SafeArea 여백이 이미 포함돼 있습니다. */
+          { paddingBottom: commentBarHeight + commentBarBottom },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -449,7 +459,10 @@ const FeedDetailScreen = ({ navigation, route }) => {
         onLayout={handleCommentBarLayout}
         style={[
           styles.commentBarContainer,
-          { bottom: floatingBottomOffset },
+          {
+            bottom: commentBarBottom,
+            paddingBottom: commentBarPadding,
+          },
         ]}
       >
         <CommentComposer

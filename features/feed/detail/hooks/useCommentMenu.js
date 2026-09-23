@@ -8,7 +8,7 @@ import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProv
 const useCommentMenu = ({
   commentBarRef,
   commentBarHeight,
-  floatingBottomOffset,
+  commentBarBottom,
   isKeyboardVisible,
   deleteComment,
   isDeletingComment,
@@ -131,7 +131,7 @@ const useCommentMenu = ({
       updateMenuPosition(
         anchor,
         overlayY,
-        windowHeight - floatingBottomOffset - commentBarHeight,
+        windowHeight - commentBarBottom - commentBarHeight,
       );
     };
 
@@ -186,7 +186,7 @@ const useCommentMenu = ({
   }, [
     commentBarHeight,
     commentBarRef,
-    floatingBottomOffset,
+    commentBarBottom,
     isKeyboardVisible,
     layoutKey,
     measureAnchor,

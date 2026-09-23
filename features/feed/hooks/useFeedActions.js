@@ -6,12 +6,14 @@ import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottom
 import useFeedToggleMutation from './useFeedToggleMutation';
 
 /*
- * toastBottomOffset: 화면 하단에 CommentBar처럼 떠 있는 요소가 있으면
- * 그 높이만큼 북마크 토스트를 위로 올린다.
+ * floatingBarOffset: 화면 하단에 CommentBar처럼 떠 있는 바가 있으면
+ * 그 바가 가리는 높이(바 위치 + 바 높이). 이 값이 있으면 SafeArea 가
+ * 이미 바 높이에 포함돼 있으므로 그대로 사용하고,
+ * 없으면 SafeArea 만큼만 띄운다.
  */
 const useFeedActions = ({
   userId,
-  toastBottomOffset = 0,
+  floatingBarOffset = 0,
 }) => {
   const { showToast } = useGlobalOverlay();
 
@@ -19,8 +21,9 @@ const useFeedActions = ({
     useFloatingBottomOffset();
 
   const bookmarkToastBottomOffset =
-    floatingBottomOffset +
-    toastBottomOffset;
+    floatingBarOffset > 0
+      ? floatingBarOffset
+      : floatingBottomOffset;
 
   const showFailureToast = useCallback(
     message => {

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Keyboard } from 'react-native';
 
-import { useFloatingBottomOffset } from '../../../../shared/hooks/useFloatingBottomOffset';
+import { useFloatingBarPlacement } from '../../../../shared/hooks/useFloatingBottomOffset';
 import { useRecordFormStore } from '../../store/useRecordFormStore';
 
 import useRecordMusicPlayback from './useRecordMusicPlayback';
@@ -53,8 +53,17 @@ export default function useRecordEditor({
   const hasMusic = Boolean(music);
   const hasContent = hasText || imageFiles.length > 0;
 
-  /* 키보드 / SafeArea 포함 BottomBar 위치 */
-  const bottomOffset = useFloatingBottomOffset();
+  /*
+   * BottomBar 위치.
+   * bottomBarBottom  : 바를 화면 아래에서 띄우는 값(키보드 높이)
+   * bottomBarPadding : 바 안쪽 SafeArea 여백(홈 인디케이터)
+   * bottomOffset     : Toast 처럼 바 없이 떠야 하는 요소용 총 여백
+   */
+  const {
+    bottom: bottomBarBottom,
+    paddingBottom: bottomBarPadding,
+    total: bottomOffset,
+  } = useFloatingBarPlacement();
 
   /* 키보드 강제로 내리기 */
   const handlePressHideKeyboard = useCallback(() => {
@@ -83,7 +92,7 @@ export default function useRecordEditor({
     handleTextContentSizeChange,
   } = useAutoScrollTextInput({
     bottomBarHeight,
-    bottomOffset,
+    bottomOffset: bottomBarBottom,
     lineHeight: bodyTypography.lineHeight,
   });
 
@@ -134,6 +143,8 @@ export default function useRecordEditor({
     handleOpenMusicSelect,
 
     bottomOffset,
+    bottomBarBottom,
+    bottomBarPadding,
     handlePressHideKeyboard,
     handleChangeText,
 

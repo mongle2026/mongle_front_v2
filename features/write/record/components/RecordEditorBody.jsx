@@ -76,7 +76,8 @@ const RecordEditorBody = ({
     isMusicPlaying,
     handlePlayback,
     handleOpenMusicSelect,
-    bottomOffset,
+    bottomBarBottom,
+    bottomBarPadding,
     handlePressHideKeyboard,
     handleChangeText,
     bottomBarHeight,
@@ -100,7 +101,8 @@ const RecordEditorBody = ({
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: bottomBarHeight + bottomOffset },
+          /* bottomBarHeight 에 SafeArea 여백이 이미 포함돼 있습니다. */
+          { paddingBottom: bottomBarHeight + bottomBarBottom },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -167,7 +169,13 @@ const RecordEditorBody = ({
       </ScrollView>
 
       <View
-        style={[styles.bottomBarContainer, { bottom: bottomOffset }]}
+        style={[
+          styles.bottomBarContainer,
+          {
+            bottom: bottomBarBottom,
+            paddingBottom: bottomBarPadding,
+          },
+        ]}
         onLayout={handleBottomBarLayout}
       >
         <BottomBar
@@ -239,5 +247,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
+    backgroundColor: colors.bgLayerDefault,
   },
 });
