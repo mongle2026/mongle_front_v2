@@ -108,6 +108,12 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
     [bottomInset]
   );
 
+  // 엠티뷰는 Tabs 와 FAB 사이 남은 공간의 가운데에 둔다
+  const emptyContentStyle = useMemo(
+    () => [styles.emptyContainer, { paddingBottom: bottomInset }],
+    [bottomInset]
+  );
+
   const renderLetter = useCallback(
     ({ item }) => <Card letter={item} onPress={() => onPressLetter?.(item)} />,
     [onPressLetter]
@@ -123,7 +129,12 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
 
       {/* 엠티뷰에서도 당겨서 새로고침할 수 있게 ScrollView 로 감싼다 */}
       {isEmpty && (
-        <ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.emptyScroll}
+          contentContainerStyle={emptyContentStyle}
+          refreshControl={refreshControl}
+          showsVerticalScrollIndicator={false}
+        >
           <Empty
             type="letter"
             title={isUnread ? EMPTY_UNREAD_TITLE : EMPTY_LETTER_TITLE}
@@ -171,6 +182,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+  },
+  emptyScroll: {
+    flex: 1,
+  },
+  emptyContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   listContainer: {
     flex: 1,
