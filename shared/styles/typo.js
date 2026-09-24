@@ -50,10 +50,10 @@ export const typo = {
   kyoboTitleMedium:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 20, lineHeight: 30,    letterSpacing: 0 },
   kyoboTitleSmall:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 27,    letterSpacing: 0 },
   // body: lineHeight 150%
-  kyoboBodyXLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 19, lineHeight: 28.5,  letterSpacing: 0 },
-  kyoboBodyLarge:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 27,    letterSpacing: 0 },
-  kyoboBodyMedium:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 16, lineHeight: 24,    letterSpacing: 0 },
-  kyoboBodySmall:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 14, lineHeight: 21,    letterSpacing: 0 },
+  kyoboBodyXLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 19, lineHeight: 26.6,  letterSpacing: 0 },
+  kyoboBodyLarge:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 25.2,  letterSpacing: 0 },
+  kyoboBodyMedium:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 16, lineHeight: 22.4,  letterSpacing: 0 },
+  kyoboBodySmall:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 14, lineHeight: 19.6,  letterSpacing: 0 },
   // label: lineHeight 125%
   kyoboLabelXLarge:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 19, lineHeight: 23.75, letterSpacing: 0 },
   kyoboLabelLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 17, lineHeight: 21.25, letterSpacing: 0 },
