@@ -16,12 +16,69 @@ import {
 import Animated, {
   SlideInDown,
   SlideOutDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import Toast from '../components/feedback/Toast';
 import Dim from '../components/layout/Dim';
 import WindowOverlay from '../components/layout/WindowOverlay';
 
 const DEFAULT_TOAST_DURATION = 3000;
+const DIM_FADE_DURATION = 200;
+
+// 오버레이 Dim. visible이 바뀌면 페이드 인/아웃하고,
+// 페이드 아웃이 끝나면 onHidden으로 알려서 그때 언마운트한다
+const OverlayDim = memo(({
+  visible,
+  onPress,
+  accessibilityLabel,
+  style,
+  onHidden,
+}) => {
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withTiming(
+      visible ? 1 : 0,
+      { duration: DIM_FADE_DURATION },
+      finished => {
+        if (finished && !visible) {
+          scheduleOnRN(onHidden);
+        }
+      },
+    );
+  }, [onHidden, opacity, visible]);
+
+  const animatedStyle =
+    useAnimatedStyle(() => ({
+      opacity: opacity.value,
+    }));
+
+  return (
+    <Animated.View
+      pointerEvents={
+        visible ? 'box-none' : 'none'
+      }
+      style={[
+        StyleSheet.absoluteFill,
+        animatedStyle,
+      ]}
+    >
+      <Dim
+        visible
+        onPress={onPress}
+        accessibilityLabel={
+          accessibilityLabel
+        }
+        style={style}
+      />
+    </Animated.View>
+  );
+});
+
+OverlayDim.displayName = 'OverlayDim';
 
 const GlobalOverlayContext =
   createContext(null);
@@ -43,8 +100,17 @@ const GlobalOverlayProvider = ({
       bottomOffset: 0,
     });
 
+  // 닫힌 뒤에도 페이드 아웃이 끝날 때까지 Dim을 남겨두기 위한 상태
+  const [isDimMounted, setIsDimMounted] =
+    useState(false);
+  const [isDimHidden, setIsDimHidden] =
+    useState(false);
+  const [dimStyle, setDimStyle] =
+    useState(undefined);
+
   const overlayRef = useRef(null);
   const toastTimerRef = useRef(null);
+  const isDimShownRef = useRef(false);
 
   const openOverlay = useCallback(({
     id,
@@ -97,6 +163,12 @@ const GlobalOverlayProvider = ({
     previousOverlay?.onClose?.();
 
     setOverlay(nextOverlay);
+    setIsDimHidden(false);
+
+    if (showDim) {
+      setDimStyle(dimStyle);
+      setIsDimMounted(true);
+    }
   }, []);
 
   const closeOverlay =
@@ -245,6 +317,33 @@ const GlobalOverlayProvider = ({
       overlay,
     ]);
 
+  // 콘텐츠가 자체 닫힘 애니메이션을 하는 동안 Dim을 먼저 페이드 아웃할 때 사용
+  // (예: FAB의 expandedRow가 내려가는 동안 Dim도 같이 사라지게)
+  const hideDim =
+    useCallback(id => {
+      if (
+        overlayRef.current?.id !== id
+      ) {
+        return;
+      }
+
+      setIsDimHidden(true);
+    }, []);
+
+  const isDimShown =
+    Boolean(overlay?.showDim) &&
+    !isDimHidden;
+
+  isDimShownRef.current = isDimShown;
+
+  const handleDimHidden =
+    useCallback(() => {
+      // 페이드 아웃 도중 다시 열렸으면 언마운트하지 않는다
+      if (isDimShownRef.current) return;
+
+      setIsDimMounted(false);
+    }, []);
+
   const isOverlayOpen =
     useCallback(id => {
       return (
@@ -273,6 +372,7 @@ const GlobalOverlayProvider = ({
 
   const hasWindowContent =
     Boolean(overlay) ||
+    isDimMounted ||
     toast.visible;
 
   return (
@@ -284,13 +384,25 @@ const GlobalOverlayProvider = ({
 
         {hasWindowContent && (
           <WindowOverlay>
+            {isDimMounted && (
+              <OverlayDim
+                visible={isDimShown}
+                onPress={
+                  overlay?.closeOnDimPress
+                    ? handlePressDim
+                    : undefined
+                }
+                accessibilityLabel={
+                  overlay?.accessibilityLabel
+                }
+                style={dimStyle}
+                onHidden={handleDimHidden}
+              />
+            )}
+
             {overlay && (
               <View
-                pointerEvents={
-                  overlay.showDim
-                    ? 'auto'
-                    : 'box-none'
-                }
+                pointerEvents="box-none"
                 accessibilityViewIsModal={
                   overlay.showDim
                 }
@@ -298,22 +410,6 @@ const GlobalOverlayProvider = ({
                   styles.overlay
                 }
               >
-                {overlay.showDim && (
-                  <Dim
-                    visible
-                    onPress={
-                      overlay.closeOnDimPress
-                        ? handlePressDim
-                        : undefined
-                    }
-                    accessibilityLabel={
-                      overlay.accessibilityLabel
-                    }
-                    style={
-                      overlay.dimStyle
-                    }
-                  />
-                )}
 
                 <View
                   pointerEvents="box-none"
@@ -331,6 +427,10 @@ const GlobalOverlayProvider = ({
                     {overlay.renderContent({
                       close: () =>
                         closeOverlay(
+                          overlay.id,
+                        ),
+                      hideDim: () =>
+                        hideDim(
                           overlay.id,
                         ),
                     })}

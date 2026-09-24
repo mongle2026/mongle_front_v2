@@ -22,8 +22,15 @@ const BACKGROUND_GRADIENT_LOCATIONS = [0, 0.5, 1];
 
 // 전역 오버레이 안에 렌더링되는 열린 상태의 FAB.
 // 닫기 요청이 오면 먼저 FAB를 닫아 expandedRow가 기본 버튼 뒤로 내려가는 애니메이션을 보여주고,
-// 애니메이션이 끝난 뒤 onClosed로 오버레이를 제거한다.
-const WriteFabOverlayContent = memo(({ expandedLabel, bottomInset, onClosed, onFeedPress, onLetterPress }) => {
+// 애니메이션이 끝난 뒤 onClosed로 오버레이를 제거한다. Dim은 onCloseStart로 같이 페이드 아웃한다.
+const WriteFabOverlayContent = memo(({
+  expandedLabel,
+  bottomInset,
+  onCloseStart,
+  onClosed,
+  onFeedPress,
+  onLetterPress,
+}) => {
   const [open, setOpen] = useState(true);
   const closeTimerRef = useRef(null);
 
@@ -31,8 +38,9 @@ const WriteFabOverlayContent = memo(({ expandedLabel, bottomInset, onClosed, onF
     if (closeTimerRef.current) return;
 
     setOpen(false);
+    onCloseStart?.();
     closeTimerRef.current = setTimeout(onClosed, FAB_EXPAND_DURATION);
-  }, [onClosed]);
+  }, [onCloseStart, onClosed]);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -132,10 +140,11 @@ const WriteFab = ({ navigation, expandedLabel, onHeightChange }) => {
   const handleFeedPress = useCallback(() => navigateToRecord('feed'), [navigateToRecord]);
   const handleLetterPress = useCallback(() => navigateToRecord('letter'), [navigateToRecord]);
 
-  const renderOverlayContent = useCallback(() => (
+  const renderOverlayContent = useCallback(({ hideDim }) => (
     <WriteFabOverlayContent
       expandedLabel={expandedLabel}
       bottomInset={overlayBottomInset}
+      onCloseStart={hideDim}
       onClosed={handleClosed}
       onFeedPress={handleFeedPress}
       onLetterPress={handleLetterPress}
