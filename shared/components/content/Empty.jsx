@@ -5,6 +5,7 @@ import IlEmptyComment from '../../../assets/illustrations/il_empty_comment.svg';
 import IlEmptyRecipient from '../../../assets/illustrations/il_empty_recipient.svg';
 import IlEmptyMusic from '../../../assets/illustrations/il_empty_music.svg';
 import IlEmptyLetter from '../../../assets/illustrations/il_empty_letter.svg';
+import IlEmptyArchive from '../../../assets/illustrations/il_empty_archive.svg';
 
 import {
   TextButton,
@@ -42,6 +43,9 @@ const Empty = ({
 
       case 'letter':
         return IlEmptyLetter;
+
+      case 'archive':
+        return IlEmptyArchive;
 
       default:
         return null;
@@ -85,6 +89,7 @@ const Empty = ({
           size={TEXT_BUTTON_SIZE.M}
           font={FONT.SUIT}
           onPress={onButtonPress}
+          style={styles.button}
         >
           {buttonLabel}
         </TextButton>
@@ -131,5 +136,10 @@ const styles = StyleSheet.create({
 
     color: colors.fgNeutralWeak,
     textAlign: 'center',
+  },
+
+  // TextButton 기본 alignSelf(flex-start)를 덮어써 가운데 정렬
+  button: {
+    alignSelf: 'center',
   },
 });

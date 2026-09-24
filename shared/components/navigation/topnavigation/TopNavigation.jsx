@@ -14,6 +14,7 @@ export const TOP_NAVIGATION_TAB = {
   RECOMMENDED: 'recommended',
   FOLLOWING: 'following',
   LETTER_BOX: 'letterBox',
+  ARCHIVE: 'archive',
 };
 
 // 피드: 추천 / 팔로잉 탭 전환
@@ -25,6 +26,11 @@ export const FEED_TOP_NAVIGATION_TABS = [
 // 편지함: 화면 탭 구분은 TabBar에서 하므로 편지함 탭 하나만 노출
 export const LETTER_TOP_NAVIGATION_TABS = [
   { key: TOP_NAVIGATION_TAB.LETTER_BOX, label: '편지함' },
+];
+
+// 보관함: 화면 탭 구분은 TabBar에서 하므로 보관함 탭 하나만 노출
+export const ARCHIVE_TOP_NAVIGATION_TABS = [
+  { key: TOP_NAVIGATION_TAB.ARCHIVE, label: '보관함' },
 ];
 
 const TopNavigation = ({
