@@ -8,7 +8,6 @@ import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 
-const CARD_WIDTH = 171.5;
 const COVER_SIZE = 32;
 const ICON_SIZE = 14;
 
@@ -43,7 +42,6 @@ const GridCard = ({ title, imageSource, onPress, style }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     padding: padding.M,
     flexDirection: 'row',
     alignItems: 'center',

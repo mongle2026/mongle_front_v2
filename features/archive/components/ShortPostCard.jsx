@@ -9,6 +9,8 @@ import { colors } from '../../../shared/styles/color';
 import { FONT, normalizeFont } from '../../../shared/styles/fontType';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
+import { formatDateDetail } from '../../../shared/utils/dateUtils';
+import { getImageKey } from '../../../shared/utils/media';
 
 const CARD_WIDTH = 320;
 const CONTENT_HEIGHT = 44;
@@ -25,13 +27,15 @@ const ShortPostCard = ({
   onPressPlayback,
   font = FONT.KYOBO,
   content = '',
-  imageSource,
+  // 이미지 목록. 텍스트가 없을 때 개수만큼 나란히 보여준다
+  imageSources = [],
+  // 백엔드 값(ISO 문자열 등). 상대 시간 없이 yy.mm.dd hh:mm 으로 표기
   date = '',
   onPress,
   style,
 }) => {
   const hasContent = Boolean(content?.trim());
-  const hasImage = Boolean(imageSource);
+  const hasImage = imageSources.length > 0;
   const normalizedFont = normalizeFont(font);
 
   const PressArea = onPress ? Pressable : View;
@@ -53,7 +57,7 @@ const ShortPostCard = ({
       />
 
       <PressArea style={styles.pressArea} {...pressAreaProps}>
-        {/* TODO: 텍스트·이미지가 모두 있는 경우 시안 확정 후 반영 (현재는 텍스트 우선) */}
+        {/* 텍스트·이미지가 모두 있으면 텍스트만, 이미지만 있으면 이미지를 모두 노출한다 */}
         {(hasContent || hasImage) && (
           <View style={styles.contentContainer}>
             {hasContent ? (
@@ -65,19 +69,22 @@ const ShortPostCard = ({
                 {content}
               </SuitSafeText>
             ) : (
-              <WriteImg
-                imageSource={imageSource}
-                ratio={WRITE_IMG_RATIO.FOUR_THREE}
-                pointerEvents="none"
-                style={styles.image}
-              />
+              imageSources.map((imageSource, index) => (
+                <WriteImg
+                  key={getImageKey(imageSource, index)}
+                  imageSource={imageSource}
+                  ratio={WRITE_IMG_RATIO.FOUR_THREE}
+                  pointerEvents="none"
+                  style={styles.image}
+                />
+              ))
             )}
           </View>
         )}
 
         <View style={styles.dateContainer}>
           <Text style={styles.date} numberOfLines={1} ellipsizeMode="tail">
-            {date}
+            {date ? formatDateDetail(date) : ''}
           </Text>
         </View>
       </PressArea>

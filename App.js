@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { setAudioModeAsync } from 'expo-audio';
@@ -24,6 +23,7 @@ import RecordScreen from './features/write/record/RecordScreen';
 import RecordEditScreen from './features/write/record/RecordEditScreen';
 import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
 import LetterBoxScreen from './features/letterbox/LetterBoxScreen';
+import ArchiveScreen from './features/archive/ArchiveScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
@@ -80,15 +80,6 @@ const queryClient = new QueryClient({
   },
 });
 
-const TemporaryScreen = () => (
-  <View
-    style={{
-      flex: 1,
-      backgroundColor: '#FFFFFF',
-    }}
-  />
-);
-
 const MainTabNavigator = () => (
   <Tab.Navigator
     initialRouteName={MAIN_TAB_ROUTES.FEED}
@@ -110,7 +101,7 @@ const MainTabNavigator = () => (
     />
     <Tab.Screen
       name={MAIN_TAB_ROUTES.ARCHIVE}
-      component={TemporaryScreen}
+      component={ArchiveScreen}
     />
   </Tab.Navigator>
 );
