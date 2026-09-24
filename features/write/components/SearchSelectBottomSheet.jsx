@@ -6,6 +6,7 @@ import BottomSheet, {
 } from '../../../shared/components/overlay/BottomSheet';
 import SearchField from '../../../shared/components/action/SearchField';
 import Empty from '../../../shared/components/content/Empty';
+import useCollapseOnScroll from '../../../shared/hooks/useCollapseOnScroll';
 
 import { colors } from '../../../shared/styles/color';
 import { padding } from '../../../shared/styles/token';
@@ -42,6 +43,14 @@ const SearchSelectBottomSheet = ({
 }) => {
   const isSearching = keyword.trim().length > 0;
 
+  // 검색어가 없을 때만 아래로 스크롤하면 검색창을 접습니다.
+  const {
+    collapsed: isSearchFieldCollapsed,
+    scrollEventsHandlersHook,
+  } = useCollapseOnScroll({
+    enabled: keyword.length === 0,
+  });
+
   const renderFooter = () => {
     if (!loadingMore) return null;
 
@@ -58,6 +67,7 @@ const SearchSelectBottomSheet = ({
         value={keyword}
         onChangeText={onChangeKeyword}
         placeholder={placeholder}
+        collapsed={isSearchFieldCollapsed}
         returnKeyType="search"
         autoCorrect={false}
       />
@@ -68,6 +78,7 @@ const SearchSelectBottomSheet = ({
         data={data}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
+        scrollEventsHandlersHook={scrollEventsHandlersHook}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
