@@ -16,8 +16,13 @@ import {
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import {
+  Gesture,
+  GestureDetector,
+} from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import Toast from '../components/feedback/Toast';
 import Dim from '../components/layout/Dim';
@@ -80,6 +85,96 @@ const toastExiting = () => {
     },
   };
 };
+
+// 토스트를 아래로 끌어서 닫기. 이 거리(토스트 높이 대비 비율)나 속도를 넘기면 닫는다
+const TOAST_DISMISS_DISTANCE_RATIO = 0.5;
+const TOAST_DISMISS_VELOCITY = 500;
+// 위로 끌 때는 이 비율만큼만 따라가서 저항감을 준다
+const TOAST_UPWARD_RESISTANCE = 0.15;
+const TOAST_SWIPE_ACTIVE_OFFSET = 8;
+
+const TOAST_RETURN_SPRING_CONFIG = {
+  damping: 18,
+  stiffness: 260,
+  mass: 0.5,
+  overshootClamping: true,
+};
+
+// 토스트를 잡고 있는 동안 자동 닫힘 타이머를 멈추고, 아래로 충분히 끌었다 놓으면 닫는다.
+// 닫힐 때는 끌린 위치에서 토스트 퇴장 애니메이션(exiting)이 이어진다
+const ToastSwipeArea = memo(({
+  children,
+  onTouchStart,
+  onTouchEnd,
+  onDismiss,
+}) => {
+  const dragY = useSharedValue(0);
+  const height = useSharedValue(0);
+  // 제스처 콜백(워클릿)끼리 공유해야 해서 지역 변수 대신 shared value로 둔다
+  const isDismissed = useSharedValue(false);
+
+  const handleLayout = useCallback(event => {
+    height.value = event.nativeEvent.layout.height;
+  }, [height]);
+
+  const gesture = useMemo(() => (
+    Gesture.Pan()
+      .activeOffsetY([
+        -TOAST_SWIPE_ACTIVE_OFFSET,
+        TOAST_SWIPE_ACTIVE_OFFSET,
+      ])
+      .onBegin(() => {
+        isDismissed.value = false;
+        scheduleOnRN(onTouchStart);
+      })
+      .onUpdate(event => {
+        dragY.value = event.translationY > 0
+          ? event.translationY
+          : event.translationY * TOAST_UPWARD_RESISTANCE;
+      })
+      .onEnd(event => {
+        const shouldDismiss =
+          dragY.value > height.value * TOAST_DISMISS_DISTANCE_RATIO ||
+          event.velocityY > TOAST_DISMISS_VELOCITY;
+
+        if (shouldDismiss) {
+          isDismissed.value = true;
+          scheduleOnRN(onDismiss);
+          return;
+        }
+
+        dragY.value = withSpring(0, TOAST_RETURN_SPRING_CONFIG);
+      })
+      .onFinalize(() => {
+        if (isDismissed.value) {
+          return;
+        }
+
+        // 탭만 하고 뗐을 때 등 onEnd 없이 끝난 경우에도 제자리로
+        dragY.value = withSpring(0, TOAST_RETURN_SPRING_CONFIG);
+        scheduleOnRN(onTouchEnd);
+      })
+  ), [dragY, height, isDismissed, onDismiss, onTouchEnd, onTouchStart]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: dragY.value },
+    ],
+  }));
+
+  return (
+    <GestureDetector gesture={gesture}>
+      <Animated.View
+        onLayout={handleLayout}
+        style={animatedStyle}
+      >
+        {children}
+      </Animated.View>
+    </GestureDetector>
+  );
+});
+
+ToastSwipeArea.displayName = 'ToastSwipeArea';
 
 // 오버레이 Dim. visible이 바뀌면 페이드 인/아웃하고,
 // 페이드 아웃이 끝나면 onHidden으로 알려서 그때 언마운트한다
@@ -174,6 +269,9 @@ const GlobalOverlayProvider = ({
 
   const overlayRef = useRef(null);
   const toastTimerRef = useRef(null);
+  // 토스트를 잡고 있는 동안 타이머를 멈췄다가 남은 시간만큼 다시 돌리기 위한 값
+  const toastTimerStartRef = useRef(0);
+  const toastRemainingRef = useRef(0);
   // 토스트가 떠 있는 동안 새 토스트가 오면(같은 문구여도) 내용 전환을 알리기 위한 id
   const toastIdRef = useRef(0);
   const isDimShownRef = useRef(false);
@@ -323,9 +421,64 @@ const GlobalOverlayProvider = ({
       toastTimerRef.current = null;
     }, []);
 
+  const startToastTimer =
+    useCallback(duration => {
+      clearToastTimer();
+
+      toastTimerStartRef.current =
+        Date.now();
+      toastRemainingRef.current =
+        duration;
+
+      toastTimerRef.current =
+        setTimeout(() => {
+          setToast(previous => ({
+            ...previous,
+            visible: false,
+          }));
+
+          toastTimerRef.current =
+            null;
+          toastRemainingRef.current = 0;
+        }, duration);
+    }, [clearToastTimer]);
+
+  const pauseToastTimer =
+    useCallback(() => {
+      if (!toastTimerRef.current) {
+        return;
+      }
+
+      toastRemainingRef.current =
+        Math.max(
+          0,
+          toastRemainingRef.current -
+            (Date.now() -
+              toastTimerStartRef.current),
+        );
+
+      clearToastTimer();
+    }, [clearToastTimer]);
+
+  const resumeToastTimer =
+    useCallback(() => {
+      // 이미 돌고 있거나(새 토스트) 닫힌 뒤면 다시 켜지 않는다
+      if (
+        toastTimerRef.current ||
+        toastRemainingRef.current <= 0
+      ) {
+        return;
+      }
+
+      startToastTimer(
+        toastRemainingRef.current,
+      );
+    }, [startToastTimer]);
+
   const hideToast =
     useCallback(() => {
       clearToastTimer();
+      toastRemainingRef.current = 0;
 
       setToast(previous => ({
         ...previous,
@@ -366,17 +519,8 @@ const GlobalOverlayProvider = ({
         bottomOffset,
       });
 
-      toastTimerRef.current =
-        setTimeout(() => {
-          setToast(previous => ({
-            ...previous,
-            visible: false,
-          }));
-
-          toastTimerRef.current =
-            null;
-        }, duration);
-    }, [clearToastTimer]);
+      startToastTimer(duration);
+    }, [clearToastTimer, startToastTimer]);
 
   const handlePressToastButton =
     useCallback(() => {
@@ -583,20 +727,26 @@ const GlobalOverlayProvider = ({
                   },
                 ]}
               >
-                <Toast
-                  contentKey={toast.id}
-                  text={toast.message}
-                  icon={toast.icon}
-                  iconColor={toast.iconColor}
-                  buttonText={
-                    toast.buttonText
-                  }
-                  onPressButton={
-                    toast.buttonText
-                      ? handlePressToastButton
-                      : undefined
-                  }
-                />
+                <ToastSwipeArea
+                  onTouchStart={pauseToastTimer}
+                  onTouchEnd={resumeToastTimer}
+                  onDismiss={hideToast}
+                >
+                  <Toast
+                    contentKey={toast.id}
+                    text={toast.message}
+                    icon={toast.icon}
+                    iconColor={toast.iconColor}
+                    buttonText={
+                      toast.buttonText
+                    }
+                    onPressButton={
+                      toast.buttonText
+                        ? handlePressToastButton
+                        : undefined
+                    }
+                  />
+                </ToastSwipeArea>
               </Animated.View>
             )}
           </WindowOverlay>
