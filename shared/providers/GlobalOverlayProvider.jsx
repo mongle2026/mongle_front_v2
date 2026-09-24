@@ -14,8 +14,6 @@ import {
   View,
 } from 'react-native';
 import Animated, {
-  SlideInDown,
-  SlideOutDown,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -27,6 +25,61 @@ import WindowOverlay from '../components/layout/WindowOverlay';
 
 const DEFAULT_TOAST_DURATION = 3000;
 const DIM_FADE_DURATION = 200;
+const TOAST_ANIMATION_DURATION = 250;
+// 토스트가 등장/퇴장할 때 제자리에서 아래로 떨어진 거리
+const TOAST_ANIMATION_OFFSET = 24;
+
+// 토스트 등장/퇴장. 제자리보다 TOAST_ANIMATION_OFFSET 아래에서 이동하면서 페이드한다
+const toastEntering = () => {
+  'worklet';
+
+  const timing = {
+    duration: TOAST_ANIMATION_DURATION,
+  };
+
+  return {
+    initialValues: {
+      opacity: 0,
+      transform: [
+        { translateY: TOAST_ANIMATION_OFFSET },
+      ],
+    },
+    animations: {
+      opacity: withTiming(1, timing),
+      transform: [
+        { translateY: withTiming(0, timing) },
+      ],
+    },
+  };
+};
+
+const toastExiting = () => {
+  'worklet';
+
+  const timing = {
+    duration: TOAST_ANIMATION_DURATION,
+  };
+
+  return {
+    initialValues: {
+      opacity: 1,
+      transform: [
+        { translateY: 0 },
+      ],
+    },
+    animations: {
+      opacity: withTiming(0, timing),
+      transform: [
+        {
+          translateY: withTiming(
+            TOAST_ANIMATION_OFFSET,
+            timing,
+          ),
+        },
+      ],
+    },
+  };
+};
 
 // 오버레이 Dim. visible이 바뀌면 페이드 인/아웃하고,
 // 페이드 아웃이 끝나면 onHidden으로 알려서 그때 언마운트한다
@@ -98,6 +151,7 @@ const GlobalOverlayProvider = ({
 
   const [toast, setToast] =
     useState({
+      id: 0,
       visible: false,
       message: '',
       icon: undefined,
@@ -120,6 +174,8 @@ const GlobalOverlayProvider = ({
 
   const overlayRef = useRef(null);
   const toastTimerRef = useRef(null);
+  // 토스트가 떠 있는 동안 새 토스트가 오면(같은 문구여도) 내용 전환을 알리기 위한 id
+  const toastIdRef = useRef(0);
   const isDimShownRef = useRef(false);
   const closeRequestRef = useRef(null);
 
@@ -297,7 +353,10 @@ const GlobalOverlayProvider = ({
 
       clearToastTimer();
 
+      toastIdRef.current += 1;
+
       setToast({
+        id: toastIdRef.current,
         visible: true,
         message,
         icon,
@@ -513,8 +572,8 @@ const GlobalOverlayProvider = ({
 
             {toast.visible && (
               <Animated.View
-                entering={SlideInDown.duration(250)}
-                exiting={SlideOutDown.duration(250)}
+                entering={toastEntering}
+                exiting={toastExiting}
                 pointerEvents="box-none"
                 style={[
                   styles.toastLayer,
@@ -525,6 +584,7 @@ const GlobalOverlayProvider = ({
                 ]}
               >
                 <Toast
+                  contentKey={toast.id}
                   text={toast.message}
                   icon={toast.icon}
                   iconColor={toast.iconColor}
