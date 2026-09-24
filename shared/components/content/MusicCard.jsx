@@ -35,6 +35,7 @@ const MusicCard = ({
   onPressOut,
   pressAccessibilityLabel,
   disabled = false,
+  inset = true,
   style,
 }) => {
   const PlaybackIcon = isPlaying ? IcMusicStop : IcMusicPlay;
@@ -65,8 +66,11 @@ const MusicCard = ({
     : null;
 
   return (
-    <View style={[styles.container, style]}>
-      <PressArea style={styles.pressArea} {...pressAreaProps}>
+    <View style={[styles.container, !inset && styles.containerNoInset, style]}>
+      <PressArea
+        style={[styles.pressArea, !inset && styles.pressAreaNoInset]}
+        {...pressAreaProps}
+      >
         <MusicCoverImg
           imageSource={imageSource}
           accessibilityLabel={`${accessibilityTitle} 앨범 커버`}
@@ -91,7 +95,7 @@ const MusicCard = ({
         </View>
       </PressArea>
 
-      <View style={styles.playButtonContainer}>
+      <View style={inset && styles.playButtonContainer}>
         <IconButton
           size="L"
           icon={PlaybackIcon}
@@ -125,6 +129,16 @@ const styles = StyleSheet.create({
     paddingVertical: padding.M,
     paddingLeft: padding.L,
     gap: gap.M,
+  },
+
+  // inset=false: 부모 카드가 패딩을 가질 때 내부 패딩 제거
+  containerNoInset: {
+    paddingRight: 0,
+  },
+
+  pressAreaNoInset: {
+    paddingVertical: 0,
+    paddingLeft: 0,
   },
 
   playButtonContainer: {
