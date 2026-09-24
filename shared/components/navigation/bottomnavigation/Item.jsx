@@ -4,7 +4,9 @@ import {
   StyleSheet,
   Text,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import usePressAnimation from '../../../hooks/usePressAnimation';
 import { colors } from '../../../styles/color';
 import { gap, padding } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
@@ -23,34 +25,34 @@ const Item = ({
     ? colors.fgNeutralMuted
     : colors.fgDisabled;
 
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="tab"
-      accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ selected: isActive }}
-      style={({ pressed }) => [
-        styles.container,
-        style,
-        pressed && styles.pressed,
-      ]}
-    >
-      <Icon
-        width={ICON_SIZE}
-        height={ICON_SIZE}
-        color={contentColor}
-      />
+  const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
 
-      <Text
-        numberOfLines={1}
-        style={[
-          styles.label,
-          { color: contentColor },
-        ]}
+  return (
+    <Animated.View style={[style, animatedStyle]}>
+      <Pressable
+        accessibilityRole="tab"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityState={{ selected: isActive }}
+        {...pressHandlers}
+        style={styles.container}
       >
-        {label}
-      </Text>
-    </Pressable>
+        <Icon
+          width={ICON_SIZE}
+          height={ICON_SIZE}
+          color={contentColor}
+        />
+
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.label,
+            { color: contentColor },
+          ]}
+        >
+          {label}
+        </Text>
+      </Pressable>
+    </Animated.View>
   );
 };
 
@@ -62,10 +64,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: gap.S,
     backgroundColor: colors.bgLayerDefault,
-  },
-
-  pressed: {
-    backgroundColor: colors.bgLayerDefaultPressed,
   },
 
   label: {
