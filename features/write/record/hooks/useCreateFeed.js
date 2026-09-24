@@ -16,6 +16,7 @@ import {
 import {
   feedHomeKeys,
 } from '../../../feed/api/feedCache';
+import { archiveKeys } from '../../../archive/api/archiveKeys';
 
 const useCreateFeed = ({
   userId,
@@ -82,10 +83,14 @@ const useCreateFeed = ({
 
     onSuccess: data => {
       /*
-       * 새 글이 피드 홈에 반영되게 합니다.
+       * 새 글이 피드 홈과 보관함에 반영되게 합니다.
        */
       queryClient.invalidateQueries({
         queryKey: feedHomeKeys.all,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: archiveKeys.all,
       });
 
       /*

@@ -17,6 +17,7 @@ import {
   feedDetailKeys,
   feedHomeKeys,
 } from '../../../feed/api/feedCache';
+import { archiveKeys } from '../../../archive/api/archiveKeys';
 
 const useUpdateFeed = ({
   feedId,
@@ -108,10 +109,14 @@ const useUpdateFeed = ({
 
     onSuccess: data => {
       /*
-       * 피드 홈과 상세 화면에 수정 내용이 반영되게 합니다.
+       * 피드 홈, 상세 화면, 보관함에 수정 내용이 반영되게 합니다.
        */
       queryClient.invalidateQueries({
         queryKey: feedHomeKeys.all,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: archiveKeys.all,
       });
 
       queryClient.invalidateQueries({

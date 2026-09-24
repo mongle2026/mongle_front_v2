@@ -7,6 +7,7 @@ import {
   findFeedItemInHomeCache,
   removeFeedItem,
 } from '../../api/feedCache';
+import { archiveKeys } from '../../../archive/api/archiveKeys';
 
 const DETAIL_STALE_TIME = 2 * 60 * 1000;
 const DETAIL_GC_TIME = 30 * 60 * 1000;
@@ -59,6 +60,7 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess, onDelet
       );
 
       queryClient.removeQueries({ queryKey: detailQueryKey });
+      queryClient.invalidateQueries({ queryKey: archiveKeys.all });
       onDeleteSuccess?.();
     },
 
