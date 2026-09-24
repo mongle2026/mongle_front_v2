@@ -9,6 +9,7 @@ import LetterIcon from '../../../assets/icons/ic_letter.svg';
 import PlusIcon from '../../../assets/icons/ic_plus.svg';
 import XIcon from '../../../assets/icons/ic_x.svg';
 
+import usePressAnimation from '../../hooks/usePressAnimation';
 import { colors, shadow } from '../../styles/color';
 import { gap, padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
@@ -26,27 +27,33 @@ const DEFAULT_LABEL = '새로운 기록 남기기';
 const EXPANDED_LABEL = '피드 더 둘러보기';
 
 const ExpandedActionButton = memo(
-  ({ icon: Icon, label, onPress, accessibilityLabel }) => (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
-      style={styles.expandedButton}
-    >
-      <Icon
-        width={ACTION_ICON_SIZE}
-        height={ACTION_ICON_SIZE}
-        color={colors.fgNeutralInverted}
-      />
+  ({ icon: Icon, label, onPress, accessibilityLabel }) => {
+    const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
 
-      <Text
-        numberOfLines={1}
-        style={styles.expandedLabel}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  ),
+    return (
+      <Animated.View style={[styles.expandedButtonWrapper, animatedStyle]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel}
+          {...pressHandlers}
+          style={styles.expandedButton}
+        >
+          <Icon
+            width={ACTION_ICON_SIZE}
+            height={ACTION_ICON_SIZE}
+            color={colors.fgNeutralInverted}
+          />
+
+          <Text
+            numberOfLines={1}
+            style={styles.expandedLabel}
+          >
+            {label}
+          </Text>
+        </Pressable>
+      </Animated.View>
+    );
+  },
 );
 
 ExpandedActionButton.displayName = 'ExpandedActionButton';
@@ -108,6 +115,11 @@ const FAB = ({
     handleActionPress(onFeedPress);
   }, [handleActionPress, onFeedPress]);
 
+  const {
+    animatedStyle: toggleAnimatedStyle,
+    pressHandlers: togglePressHandlers,
+  } = usePressAnimation({ onPress: handleToggle });
+
   const [isRowMounted, setIsRowMounted] = useState(isOpen);
   const progress = useSharedValue(0);
   const toggleHeight = useSharedValue(0);
@@ -164,40 +176,42 @@ const FAB = ({
         </Animated.View>
       )}
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={
-          isOpen ? '작성 메뉴 닫기' : '작성 메뉴 열기'
-        }
-        accessibilityState={{ expanded: isOpen }}
-        onPress={handleToggle}
-        onLayout={handleToggleLayout}
-        style={styles.defaultButton}
-      >
-        <Text
-          numberOfLines={1}
-          style={[
-            styles.defaultLabel,
-            isOpen && styles.defaultLabelExpanded,
-          ]}
+      <Animated.View style={[styles.defaultButtonWrapper, toggleAnimatedStyle]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={
+            isOpen ? '작성 메뉴 닫기' : '작성 메뉴 열기'
+          }
+          accessibilityState={{ expanded: isOpen }}
+          {...togglePressHandlers}
+          onLayout={handleToggleLayout}
+          style={styles.defaultButton}
         >
-          {isOpen ? expandedLabel : label}
-        </Text>
+          <Text
+            numberOfLines={1}
+            style={[
+              styles.defaultLabel,
+              isOpen && styles.defaultLabelExpanded,
+            ]}
+          >
+            {isOpen ? expandedLabel : label}
+          </Text>
 
-        {isOpen ? (
-          <XIcon
-            width={TOGGLE_ICON_SIZE}
-            height={TOGGLE_ICON_SIZE}
-            color={colors.fgNeutralMuted}
-          />
-        ) : (
-          <PlusIcon
-            width={TOGGLE_ICON_SIZE}
-            height={TOGGLE_ICON_SIZE}
-            color={colors.fgNeutralMuted}
-          />
-        )}
-      </Pressable>
+          {isOpen ? (
+            <XIcon
+              width={TOGGLE_ICON_SIZE}
+              height={TOGGLE_ICON_SIZE}
+              color={colors.fgNeutralMuted}
+            />
+          ) : (
+            <PlusIcon
+              width={TOGGLE_ICON_SIZE}
+              height={TOGGLE_ICON_SIZE}
+              color={colors.fgNeutralMuted}
+            />
+          )}
+        </Pressable>
+      </Animated.View>
     </View>
   );
 };
@@ -216,8 +230,11 @@ const styles = StyleSheet.create({
     gap: gap.M,
   },
 
-  expandedButton: {
+  expandedButtonWrapper: {
     flex: 1,
+  },
+
+  expandedButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: gap.M,
@@ -233,6 +250,12 @@ const styles = StyleSheet.create({
     ...typo.suitLabelMediumStrong,
   },
 
+  defaultButtonWrapper: {
+    width: '100%',
+    // expandedRow가 이 버튼 뒤로 올라오고 내려가도록 항상 앞에 그린다
+    zIndex: 1,
+  },
+
   defaultButton: {
     width: '100%',
     flexDirection: 'row',
@@ -242,8 +265,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.S,
     backgroundColor: colors.bgLayerDefault,
     ...shadow.weakDown,
-    // expandedRow가 이 버튼 뒤로 올라오고 내려가도록 항상 앞에 그린다
-    zIndex: 1,
   },
 
   defaultLabel: {
