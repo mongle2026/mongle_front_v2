@@ -1,15 +1,17 @@
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable as GesturePressable } from 'react-native-gesture-handler';
+import Animated from 'react-native-reanimated';
 
 import IcMusicPlay from '../../../assets/icons/ic_musicplay.svg';
 import IcMusicStop from '../../../assets/icons/ic_musicstop.svg';
 
 import { colors } from '../../styles/color';
 import { FONT } from '../../styles/fontType';
+import usePressAnimation from '../../hooks/usePressAnimation';
 import { gap, padding } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
-import IconButton from '../action/IconButton';
 import MusicCoverImg from '../atomic/MusicCoverImg';
 
 const TITLE_TYPOGRAPHY = Object.freeze({
@@ -21,6 +23,8 @@ const ARTIST_TYPOGRAPHY = Object.freeze({
   [FONT.KYOBO]: typo.kyoboLabelMedium,
   [FONT.SUIT]: typo.suitLabelMedium,
 });
+
+const PLAY_ICON_SIZE = 20;
 
 const MusicCard = ({
   imageSource,
@@ -50,6 +54,11 @@ const MusicCard = ({
     },
     [onPressPlayback]
   );
+
+  const {
+    animatedStyle: playButtonAnimatedStyle,
+    pressHandlers: playButtonPressHandlers,
+  } = usePressAnimation({ onPress: disabled ? undefined : handlePressPlayback });
 
   // 카드 본문과 재생 버튼을 형제로 분리해, 재생 버튼 터치가 onPress로 전달되지 않도록 합니다.
   const PressArea = onPress ? Pressable : View;
@@ -91,17 +100,25 @@ const MusicCard = ({
         </View>
       </PressArea>
 
-      <View style={styles.playButtonContainer}>
-        <IconButton
-          size="L"
-          icon={PlaybackIcon}
-          color={colors.fgNeutralSolid}
-          onPress={handlePressPlayback}
+      <Animated.View style={[styles.playButtonContainer, playButtonAnimatedStyle]}>
+        <GesturePressable
+          {...playButtonPressHandlers}
           disabled={disabled}
+          accessibilityRole="button"
           accessibilityLabel={`${accessibilityTitle} 음악 ${isPlaying ? '일시정지' : '재생'}`}
-          style={styles.playButton}
-        />
-      </View>
+          accessibilityState={{ disabled }}
+          style={[styles.playButton, disabled && styles.playButtonDisabled]}
+        >
+          <View pointerEvents="none" style={styles.playIcon}>
+            <PlaybackIcon
+              width={PLAY_ICON_SIZE}
+              height={PLAY_ICON_SIZE}
+              color={colors.fgNeutralSolid}
+              fill={colors.fgNeutralSolid}
+            />
+          </View>
+        </GesturePressable>
+      </Animated.View>
     </View>
   );
 };
@@ -149,8 +166,20 @@ const styles = StyleSheet.create({
   },
 
   playButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: padding.L,
     borderRadius: 999,
     backgroundColor: colors.bgNeutralFaint,
+  },
+
+  playButtonDisabled: {
+    opacity: 0.4,
+  },
+
+  playIcon: {
+    width: PLAY_ICON_SIZE,
+    height: PLAY_ICON_SIZE,
   },
 });
 
