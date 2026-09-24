@@ -83,6 +83,13 @@ OverlayDim.displayName = 'OverlayDim';
 const GlobalOverlayContext =
   createContext(null);
 
+// 오버레이 콘텐츠가 닫힐 때(Dim/뒤로가기/renderContent의 close) 자체 닫힘
+// 애니메이션을 먼저 보여주고 싶으면 여기에 닫기 요청 핸들러를 등록한다 (예: BottomSheet).
+// 핸들러가 true를 반환하면 콘텐츠가 애니메이션 후 close를 다시 부르고,
+// false를 반환하거나 등록된 핸들러가 없으면 바로 닫는다.
+export const OverlayCloseRequestContext =
+  createContext(null);
+
 const GlobalOverlayProvider = ({
   children,
 }) => {
@@ -107,10 +114,14 @@ const GlobalOverlayProvider = ({
     useState(false);
   const [dimStyle, setDimStyle] =
     useState(undefined);
+  // 콘텐츠가 닫힘 애니메이션 중인지. 이 동안은 Dim이 사라져도 뒤 화면 터치를 막는다
+  const [isOverlayClosing, setIsOverlayClosing] =
+    useState(false);
 
   const overlayRef = useRef(null);
   const toastTimerRef = useRef(null);
   const isDimShownRef = useRef(false);
+  const closeRequestRef = useRef(null);
 
   const openOverlay = useCallback(({
     id,
@@ -164,6 +175,7 @@ const GlobalOverlayProvider = ({
 
     setOverlay(nextOverlay);
     setIsDimHidden(false);
+    setIsOverlayClosing(false);
 
     if (showDim) {
       setDimStyle(dimStyle);
@@ -187,9 +199,60 @@ const GlobalOverlayProvider = ({
 
       overlayRef.current = null;
       setOverlay(null);
+      setIsOverlayClosing(false);
 
       currentOverlay.onClose?.();
     }, []);
+
+  // 콘텐츠가 자체 닫힘 애니메이션을 하는 동안 Dim을 먼저 페이드 아웃할 때 사용
+  // (예: FAB의 expandedRow가 내려가는 동안 Dim도 같이 사라지게)
+  const hideDim =
+    useCallback(id => {
+      if (
+        overlayRef.current?.id !== id
+      ) {
+        return;
+      }
+
+      setIsDimHidden(true);
+    }, []);
+
+  const registerCloseRequest =
+    useCallback((id, handler) => {
+      closeRequestRef.current = {
+        id,
+        handler,
+      };
+
+      return () => {
+        if (
+          closeRequestRef.current
+            ?.handler === handler
+        ) {
+          closeRequestRef.current =
+            null;
+        }
+      };
+    }, []);
+
+  // Dim/뒤로가기/close로 닫을 때: 콘텐츠가 닫힘 애니메이션을 맡으면
+  // Dim만 같이 페이드 아웃하고, 아니면 바로 닫는다
+  const requestCloseOverlay =
+    useCallback(id => {
+      const request =
+        closeRequestRef.current;
+
+      if (
+        request?.id === id &&
+        request.handler()
+      ) {
+        hideDim(id);
+        setIsOverlayClosing(true);
+        return;
+      }
+
+      closeOverlay(id);
+    }, [closeOverlay, hideDim]);
 
   const clearToastTimer =
     useCallback(() => {
@@ -281,7 +344,7 @@ const GlobalOverlayProvider = ({
       BackHandler.addEventListener(
         'hardwareBackPress',
         () => {
-          closeOverlay(
+          requestCloseOverlay(
             overlay.id,
           );
 
@@ -293,7 +356,7 @@ const GlobalOverlayProvider = ({
       subscription.remove();
     };
   }, [
-    closeOverlay,
+    requestCloseOverlay,
     overlay,
   ]);
 
@@ -311,24 +374,11 @@ const GlobalOverlayProvider = ({
         return;
       }
 
-      closeOverlay(overlay.id);
+      requestCloseOverlay(overlay.id);
     }, [
-      closeOverlay,
+      requestCloseOverlay,
       overlay,
     ]);
-
-  // 콘텐츠가 자체 닫힘 애니메이션을 하는 동안 Dim을 먼저 페이드 아웃할 때 사용
-  // (예: FAB의 expandedRow가 내려가는 동안 Dim도 같이 사라지게)
-  const hideDim =
-    useCallback(id => {
-      if (
-        overlayRef.current?.id !== id
-      ) {
-        return;
-      }
-
-      setIsDimHidden(true);
-    }, []);
 
   const isDimShown =
     Boolean(overlay?.showDim) &&
@@ -370,6 +420,17 @@ const GlobalOverlayProvider = ({
       showToast,
     ]);
 
+  const overlayId = overlay?.id;
+
+  const closeRequestValue =
+    useMemo(() => ({
+      register: handler =>
+        registerCloseRequest(
+          overlayId,
+          handler,
+        ),
+    }), [overlayId, registerCloseRequest]);
+
   const hasWindowContent =
     Boolean(overlay) ||
     isDimMounted ||
@@ -410,6 +471,13 @@ const GlobalOverlayProvider = ({
                   styles.overlay
                 }
               >
+                {isOverlayClosing && (
+                  <View
+                    style={
+                      StyleSheet.absoluteFill
+                    }
+                  />
+                )}
 
                 <View
                   pointerEvents="box-none"
@@ -424,16 +492,20 @@ const GlobalOverlayProvider = ({
                       overlay.contentContainerStyle,
                     ]}
                   >
-                    {overlay.renderContent({
-                      close: () =>
-                        closeOverlay(
-                          overlay.id,
-                        ),
-                      hideDim: () =>
-                        hideDim(
-                          overlay.id,
-                        ),
-                    })}
+                    <OverlayCloseRequestContext.Provider
+                      value={closeRequestValue}
+                    >
+                      {overlay.renderContent({
+                        close: () =>
+                          requestCloseOverlay(
+                            overlay.id,
+                          ),
+                        hideDim: () =>
+                          hideDim(
+                            overlay.id,
+                          ),
+                      })}
+                    </OverlayCloseRequestContext.Provider>
                   </View>
                 </View>
               </View>

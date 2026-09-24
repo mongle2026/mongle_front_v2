@@ -31,6 +31,9 @@ import {
   gap,
   radius,
 } from '../../styles/token';
+import {
+  OverlayCloseRequestContext,
+} from '../../providers/GlobalOverlayProvider';
 
 const DEFAULT_HEIGHT = 720;
 
@@ -161,6 +164,8 @@ const BottomSheet = ({
   const sheetRef = useRef(null);
   const hasStartedOpeningRef =
     useRef(false);
+  // 내려가는 애니메이션까지 끝나 완전히 닫혔는지
+  const hasClosedRef = useRef(false);
 
   // 마운트 직후에는 gorhom 내부 초기화가 끝나지 않아서
   // 리스트 data는 두 프레임 뒤에 채웁니다. (BottomSheetFlatList 참고)
@@ -218,6 +223,39 @@ const BottomSheet = ({
     };
   }, [ready, isContentReady]);
 
+  // GlobalOverlay 안에서 Dim/뒤로가기/선택 완료 등으로 닫을 때도
+  // 드래그로 닫을 때처럼 아래로 내려간 뒤 onClose가 불리게 합니다.
+  // 아직 올라가기 전이거나 이미 다 내려갔으면 오버레이가 바로 닫게 둡니다.
+  // (내려가는 중에 또 요청이 오면 close를 다시 불러도 이어서 내려갑니다)
+  const overlayCloseRequest = useContext(
+    OverlayCloseRequestContext,
+  );
+
+  useEffect(() => {
+    if (!overlayCloseRequest) {
+      return undefined;
+    }
+
+    return overlayCloseRequest.register(
+      () => {
+        if (
+          !hasStartedOpeningRef.current ||
+          hasClosedRef.current
+        ) {
+          return false;
+        }
+
+        sheetRef.current?.close();
+        return true;
+      },
+    );
+  }, [overlayCloseRequest]);
+
+  const handleClose = useCallback(() => {
+    hasClosedRef.current = true;
+    onClose?.();
+  }, [onClose]);
+
   const handleAnimate = useCallback(
     (fromIndex, toIndex) => {
       if (toIndex >= 0) {
@@ -251,7 +289,7 @@ const BottomSheet = ({
         // 방향 임계값을 좁혀 넘겨줄 수 있게 pass-through 합니다.
         activeOffsetY={activeOffsetY}
         failOffsetX={failOffsetX}
-        onClose={onClose}
+        onClose={handleClose}
         animatedIndex={animatedIndex}
         footerComponent={footerComponent}
         handleComponent={
