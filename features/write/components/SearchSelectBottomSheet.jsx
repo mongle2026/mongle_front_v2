@@ -4,7 +4,9 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import BottomSheet, {
   BottomSheetFlatList,
 } from '../../../shared/components/overlay/BottomSheet';
-import SearchField from '../../../shared/components/action/SearchField';
+import SearchField, {
+  SEARCH_FIELD_BOTTOM_FADE_HEIGHT,
+} from '../../../shared/components/action/SearchField';
 import Empty from '../../../shared/components/content/Empty';
 import useCollapseOnScroll from '../../../shared/hooks/useCollapseOnScroll';
 
@@ -42,6 +44,7 @@ const SearchSelectBottomSheet = ({
   empty,
 }) => {
   const isSearching = keyword.trim().length > 0;
+  const showHeader = !isSearching && !!header;
 
   // 검색어가 없을 때만 아래로 스크롤하면 검색창을 접습니다.
   const {
@@ -72,9 +75,19 @@ const SearchSelectBottomSheet = ({
         autoCorrect={false}
       />
 
-      {!isSearching && header}
+      {showHeader && (
+        <View
+          style={[
+            styles.underSearchFieldFade,
+            styles.fadeInset,
+          ]}
+        >
+          {header}
+        </View>
+      )}
 
       <BottomSheetFlatList
+        style={!showHeader && styles.underSearchFieldFade}
         data={data}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
@@ -102,7 +115,10 @@ const SearchSelectBottomSheet = ({
           ) : null
         }
         ListFooterComponent={renderFooter}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          !showHeader && styles.fadeInset,
+        ]}
       />
     </BottomSheet>
   );
@@ -111,6 +127,14 @@ const SearchSelectBottomSheet = ({
 export default SearchSelectBottomSheet;
 
 const styles = StyleSheet.create({
+  // 검색창 바로 아래 요소는 검색창 하단 그라데이션 밑으로 들어가도록
+  // 그 높이만큼 끌어올리고, 처음 위치는 같은 만큼의 안쪽 여백으로 되돌린다
+  underSearchFieldFade: {
+    marginTop: -SEARCH_FIELD_BOTTOM_FADE_HEIGHT,
+  },
+  fadeInset: {
+    paddingTop: SEARCH_FIELD_BOTTOM_FADE_HEIGHT,
+  },
   listContent: {
     flexGrow: 1,
   },
