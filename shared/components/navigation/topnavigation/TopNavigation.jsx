@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import IcBell from '../../../../assets/icons/ic_bell.svg';
 
@@ -7,6 +7,7 @@ import { colors } from '../../../styles/color';
 import { gap, padding } from '../../../styles/token';
 
 import IconButton from '../../action/IconButton';
+import ProfileImg from '../../atomic/ProfileImg';
 import Item from './Item';
 
 export const TOP_NAVIGATION_TAB = {
@@ -31,6 +32,9 @@ const TopNavigation = ({
   activeTab = tabs[0]?.key,
   onChangeTab,
   onPressBell,
+  showProfile = false,
+  profileImageUri,
+  onPressProfile,
   style,
 }) => {
   return (
@@ -47,13 +51,24 @@ const TopNavigation = ({
         ))}
       </View>
 
-      <IconButton
-        size="XL"
-        icon={IcBell}
-        color={colors.fgNeutralSolid}
-        onPress={onPressBell}
-        accessibilityLabel="알림 보기"
-      />
+      {showProfile ? (
+        <Pressable
+          onPress={onPressProfile}
+          disabled={!onPressProfile}
+          accessibilityRole="button"
+          accessibilityLabel="프로필 보기"
+        >
+          <ProfileImg size="M" imageUri={profileImageUri} style={styles.profileImg} />
+        </Pressable>
+      ) : (
+        <IconButton
+          size="XL"
+          icon={IcBell}
+          color={colors.fgNeutralSolid}
+          onPress={onPressBell}
+          accessibilityLabel="알림 보기"
+        />
+      )}
     </View>
   );
 };
@@ -73,8 +88,13 @@ const styles = StyleSheet.create({
   itemContainer: {
     flex: 1,
     flexDirection: 'row',
+    paddingVertical: padding.XXS,
     alignItems: 'center',
     gap: gap.L,
+  },
+
+  profileImg: {
+    borderRadius: 999,
   },
 });
 

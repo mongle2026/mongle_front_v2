@@ -15,7 +15,7 @@ const CONTENT_HEIGHT = 44;
 const IMAGE_WIDTH = (CONTENT_HEIGHT * 4) / 3;
 
 const CONTENT_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: { ...typo.kyoboBodyMedium, lineHeight: 22.4 }, // 시안 140% (typo 토큰은 150%)
+  [FONT.KYOBO]: typo.kyoboBodyMedium,
   [FONT.SUIT]: typo.suitBodyMedium,
 });
 

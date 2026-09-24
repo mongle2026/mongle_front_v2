@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 
 import IconButton from '../../action/IconButton';
 import ButtonText from '../../action/ButtonText';
@@ -7,9 +8,10 @@ import ButtonText from '../../action/ButtonText';
 import IcX from '../../../../assets/icons/ic_x.svg';
 import IcShare from '../../../../assets/icons/ic_share.svg';
 import IcKebab from '../../../../assets/icons/ic_kebab.svg';
+import IcChevron from '../../../../assets/icons/ic_chevron.svg';
 
 import { colors } from '../../../styles/color';
-import { padding } from '../../../styles/token';
+import { gap, padding } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
 
 const TopIconNavigation = ({
@@ -25,9 +27,14 @@ const TopIconNavigation = ({
   onPressNext,
   onPressShare,
   onPressMore,
+  // type = text. showChevron일 때 제목(텍스트 + chevron)을 누르면 호출
+  onPressHeader,
 
   // type = text. false면 오른쪽 버튼을 숨긴다
   showNext = true,
+
+  // type = text. 제목 옆 chevron 아이콘 (기본 숨김)
+  showChevron = false,
 
   // type = icon
   showShare = true,
@@ -57,11 +64,30 @@ const TopIconNavigation = ({
             accessibilityLabel={leftAccessibilityLabel}
           />
 
-          <Text
-            style={[styles.headerText, textStyle]}
+          {/* chevron이 보일 때만 제목 영역 전체(텍스트 + 아이콘)를 누를 수 있다 */}
+          <Pressable
+            onPress={onPressHeader}
+            disabled={!showChevron}
+            accessibilityRole={showChevron ? 'button' : 'header'}
+            style={({ pressed }) => [
+              styles.headerTextContainer,
+              showChevron && pressed && styles.pressed,
+            ]}
           >
-            {headerText}
-          </Text>
+            <Text
+              style={[styles.headerText, textStyle]}
+            >
+              {headerText}
+            </Text>
+
+            {showChevron && (
+              <IcChevron
+                width={16}
+                height={16}
+                color={colors.fgNeutralSolid}
+              />
+            )}
+          </Pressable>
 
           {showNext ? (
             <ButtonText
@@ -161,6 +187,18 @@ const styles = StyleSheet.create({
 
   hidden: {
     opacity: 0,
+  },
+
+  headerTextContainer: {
+    paddingVertical: padding.L,
+
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: gap.S,
+  },
+
+  pressed: {
+    opacity: 0.6,
   },
 
   headerText: {

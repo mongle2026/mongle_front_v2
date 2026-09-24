@@ -15,6 +15,7 @@ const PROFILE_IMG_SIZE = {
 const ProfileImg = ({
   imageUri,
   size = 'M',
+  style,
 }) => {
   const [hasError, setHasError] = useState(false);
 
@@ -41,6 +42,7 @@ const ProfileImg = ({
           width: imageSize,
           height: imageSize,
         },
+        style,
       ]}
     />
   );
