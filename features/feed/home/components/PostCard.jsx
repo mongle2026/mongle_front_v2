@@ -1,11 +1,6 @@
-import React, { memo, useCallback, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import React, { memo, useCallback, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import ProfileBar from '../../components/ProfileBar';
 import ActionBar from '../../../../shared/components/content/ActionBar';
@@ -13,6 +8,7 @@ import ActionBar from '../../../../shared/components/content/ActionBar';
 import MusicCard from '../../../../shared/components/content/MusicCard';
 import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
 import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
+import usePressAnimation from '../../../../shared/hooks/usePressAnimation';
 import { colors } from '../../../../shared/styles/color';
 import { getImageKey } from '../../../../shared/utils/media';
 import { gap, padding, radius } from '../../../../shared/styles/token';
@@ -20,18 +16,6 @@ import { FONT, getBodyFontStyle, normalizeFont } from '../../../../shared/styles
 
 const TEXT_LINES_WITH_IMAGES = 8;
 const TEXT_LINES_WITHOUT_IMAGES = 13;
-
-const PRESSED_SCALE = 0.99;
-const PRESSED_TRANSLATE_Y = 1;
-const PRESS_IN_DURATION = 90;
-const PRESS_MOVE_THRESHOLD = 8;
-
-const PRESS_OUT_SPRING_CONFIG = {
-  damping: 18,
-  stiffness: 260,
-  mass: 0.5,
-  overshootClamping: true,
-};
 
 const PostCard = ({
   profileProps,
@@ -43,8 +27,7 @@ const PostCard = ({
   font = FONT.KYOBO,
   style,
 }) => {
-  const scale = useSharedValue(1);
-  const translateY = useSharedValue(0);
+  const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
 
   // textViewport가 실제로 차지하는 높이를 측정해서, 남는 공간이 있으면
   // 고정 줄 수(TEXT_LINES_*)보다 더 많은 줄을 보여주기 위한 값
@@ -54,78 +37,6 @@ const PostCard = ({
     const nextHeight = Math.round(event.nativeEvent.layout.height);
     setTextViewportHeight(currentHeight => (currentHeight === nextHeight ? currentHeight : nextHeight));
   }, []);
-
-  const pressStartRef = useRef(null);
-  const didMoveRef = useRef(false);
-
-  const animatedCardStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        scale: scale.value,
-      },
-      {
-        translateY: translateY.value,
-      },
-    ],
-  }));
-
-  const handlePressIn = useCallback(event => {
-    const { pageX, pageY } = event.nativeEvent;
-
-    pressStartRef.current = {
-      x: pageX,
-      y: pageY,
-    };
-
-    didMoveRef.current = false;
-
-    scale.value = withTiming(PRESSED_SCALE, {
-      duration: PRESS_IN_DURATION,
-    });
-
-    translateY.value = withTiming(
-      PRESSED_TRANSLATE_Y,
-      {
-        duration: PRESS_IN_DURATION,
-      },
-    );
-  }, [scale, translateY]);
-
-  const handlePressMove = useCallback(event => {
-    const start = pressStartRef.current;
-
-    if (!start || didMoveRef.current) return;
-
-    const { pageX, pageY } = event.nativeEvent;
-
-    const deltaX = pageX - start.x;
-    const deltaY = pageY - start.y;
-
-    const distance = Math.hypot(
-      deltaX,
-      deltaY,
-    );
-
-    if (distance >= PRESS_MOVE_THRESHOLD) {
-      didMoveRef.current = true;
-    }
-  }, []);
-
-  const handleCardPress = useCallback(event => {
-    const didMove = didMoveRef.current;
-
-    pressStartRef.current = null;
-    didMoveRef.current = false;
-
-    if (didMove) return;
-
-    onPress?.(event);
-  }, [onPress]);
-
-  const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, PRESS_OUT_SPRING_CONFIG);
-    translateY.value = withSpring(0, PRESS_OUT_SPRING_CONFIG);
-  }, [scale, translateY]);
 
   const hasContent =
     typeof content === 'string' && content.trim().length > 0;
@@ -152,14 +63,12 @@ const PostCard = ({
 
   const textNumberOfLines = Math.max(fallbackNumberOfLines, measuredNumberOfLines);
 
-  const isPressable = typeof onPress === 'function';
-
   return (
     <Animated.View
       style={[
         styles.card,
         style,
-        animatedCardStyle,
+        animatedStyle,
       ]}
     >
       {/*
@@ -175,29 +84,11 @@ const PostCard = ({
       <MusicCard
         {...musicProps}
         font={normalizedFont}
-        onPress={isPressable ? handleCardPress : undefined}
-        onPressIn={isPressable ? handlePressIn : undefined}
-        onPressMove={isPressable ? handlePressMove : undefined}
-        onPressOut={isPressable ? handlePressOut : undefined}
+        {...pressHandlers}
       />
 
       <Pressable
-        onPress={handleCardPress}
-        onPressIn={
-          isPressable
-            ? handlePressIn
-            : undefined
-        }
-        onPressMove={
-          isPressable
-            ? handlePressMove
-            : undefined
-        }
-        onPressOut={
-          isPressable
-            ? handlePressOut
-            : undefined
-        }
+        {...pressHandlers}
         style={styles.pressArea}
       >
         <View style={styles.contentArea}>
