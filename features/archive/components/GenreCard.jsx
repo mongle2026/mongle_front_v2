@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { memo, useCallback, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import MusicCoverImg from '../../../shared/components/atomic/MusicCoverImg';
@@ -8,20 +8,33 @@ import { colors, palette } from '../../../shared/styles/color';
 import { padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 
-const CARD_SIZE = 144;
-
 // linear-gradient(0deg, neutral/950 @ 50% → neutral/950 @ 0%)
 const GRADIENT_COLORS = [palette.overlay.default, '#1e212500'];
 
-const GenreCard = ({ genre, imageSource, style }) => {
+// 크기는 부모(style.width 등)가 정하고 카드는 1:1 비율만 유지한다.
+// MusicCoverImg(Skia)는 숫자 size가 필요해서 레이아웃 후 측정한 폭을 넘긴다.
+const GenreCard = ({ genre, imageSource, onPress, style }) => {
+  const [cardSize, setCardSize] = useState(0);
+
+  const handleLayout = useCallback(e => {
+    setCardSize(e.nativeEvent.layout.width);
+  }, []);
+
+  const Container = onPress ? Pressable : View;
+  const containerProps = onPress
+    ? { onPress, accessibilityRole: 'button', accessibilityLabel: `${genre} 장르 기록 보기` }
+    : null;
+
   return (
-    <View style={[styles.container, style]}>
-      <MusicCoverImg
-        imageSource={imageSource}
-        size={CARD_SIZE}
-        accessibilityLabel={`${genre} 장르 커버`}
-        style={styles.cover}
-      />
+    <Container style={[styles.container, style]} onLayout={handleLayout} {...containerProps}>
+      {cardSize > 0 && (
+        <MusicCoverImg
+          imageSource={imageSource}
+          size={cardSize}
+          accessibilityLabel={`${genre} 장르 커버`}
+          style={styles.cover}
+        />
+      )}
 
       <LinearGradient
         pointerEvents="none"
@@ -34,14 +47,13 @@ const GenreCard = ({ genre, imageSource, style }) => {
       <Text style={styles.label} numberOfLines={1} ellipsizeMode="tail">
         {genre}
       </Text>
-    </View>
+    </Container>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_SIZE,
-    height: CARD_SIZE,
+    aspectRatio: 1,
     padding: padding.L,
     flexDirection: 'column',
     justifyContent: 'flex-end',
@@ -57,9 +69,9 @@ const styles = StyleSheet.create({
   gradient: {
     position: 'absolute',
     left: 0,
+    right: 0,
     bottom: 0,
-    width: CARD_SIZE,
-    height: CARD_SIZE / 2,
+    height: '50%',
   },
   label: {
     alignSelf: 'stretch',

@@ -18,8 +18,26 @@ const Menu = ({
   showEdit = true,
   deleteLabel = '삭제',
   deleteAccessibilityLabel = '게시물 삭제',
+  // [{ key, label, onPress }] 를 넘기면 수정/삭제 대신 이 항목들을 보여준다 (정렬 선택 등)
+  items,
   style,
 }) => {
+  if (items) {
+    return (
+      <View style={[styles.shadowContainer, style]}>
+        <View style={styles.container}>
+          {items.map(item => (
+            <Item
+              key={item.key}
+              label={item.label}
+              onPress={item.onPress}
+            />
+          ))}
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.shadowContainer, style]}>
       <View style={styles.container}>

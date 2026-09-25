@@ -4,10 +4,10 @@ import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
 import { resolveMediaUri } from '../../../../../shared/utils/media';
 
 import { archiveKeys } from '../../../api/archiveKeys';
-import { pickSessionCover } from '../../utils/sessionCover';
+import { SESSION_COVER_SEED } from '../../utils/sessionCover';
 
-// 장르별 기록. GET /feed/me/genres?userId=&limit=
-// 한 곡이 가진 모든 장르에 글이 들어간다. 커버는 그 장르 곡들 커버 중 랜덤 하나(앱 실행 동안 고정).
+// 장르별 기록. GET /feed/me/genres?userId=&limit=&coverSeed=
+// 한 곡이 가진 모든 장르에 글이 들어간다. 커버는 서버가 그 장르 곡들 커버 중 하나를 골라 준다(앱 실행 동안 고정).
 const useMyFeedGenres = ({ userId, limit }) => {
   const isConfigured = Boolean(isApiConfigured && Number(userId) > 0);
 
@@ -15,14 +15,16 @@ const useMyFeedGenres = ({ userId, limit }) => {
     queryKey: archiveKeys.myFeedGenres(userId, limit),
     enabled: isConfigured,
     queryFn: async () => {
-      const response = await apiClient.get('/feed/me/genres', { params: { userId, limit } });
+      const response = await apiClient.get('/feed/me/genres', {
+        params: { userId, limit, coverSeed: SESSION_COVER_SEED },
+      });
       return Array.isArray(response.data?.items) ? response.data.items : [];
     },
   });
 
   const genres = useMemo(
     () => (data ?? []).map(item => {
-      const coverUri = resolveMediaUri(pickSessionCover(`genre:${item.genre}`, item.artworks));
+      const coverUri = resolveMediaUri(item.artwork);
 
       return {
         genre: item.genre,

@@ -11,6 +11,8 @@ export const archiveKeys = {
   recentMyFeeds: (userId, limit) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'recent', limit],
   // 장르별 기록 (장르 + 커버 후보)
   myFeedGenres: (userId, limit) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'genres', limit],
+  // 선택한 장르의 기록 목록 (커서 페이지네이션, 정렬별로 따로 캐시)
+  genreFeeds: (userId, genre, sort) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'genre', genre, sort],
   // 모든 기록의 월 목록 (월 + 커버 후보)
   myFeedMonths: (userId, limit) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'months', limit],
 };

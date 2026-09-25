@@ -36,6 +36,14 @@ const ArchiveScreen = ({ navigation }) => {
     navigation.navigate('Record', { type: 'feed' });
   }, [navigation]);
 
+  const handlePressGenreMore = useCallback(() => {
+    navigation.navigate('MyFeedGenre');
+  }, [navigation]);
+
+  const handlePressGenre = useCallback(genre => {
+    navigation.navigate('MyFeedGenreDetail', { genre });
+  }, [navigation]);
+
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
@@ -53,7 +61,13 @@ const ArchiveScreen = ({ navigation }) => {
       />
 
       {activeTab === ARCHIVE_TAB.MYFEED && (
-        <MyFeedSection userId={userId} onPressWriteFeed={handlePressWriteFeed} />
+        <MyFeedSection
+          navigation={navigation}
+          userId={userId}
+          onPressWriteFeed={handlePressWriteFeed}
+          onPressGenreMore={handlePressGenreMore}
+          onPressGenre={handlePressGenre}
+        />
       )}
     </View>
   );

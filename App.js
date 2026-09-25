@@ -27,6 +27,8 @@ import ArchiveScreen from './features/archive/ArchiveScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
+import GenreScreen from './features/archive/myfeed/genre/GenreScreen';
+import GenreDetailScreen from './features/archive/myfeed/genre/detail/GenreDetailScreen';
 import PushNotificationHandler from './features/notification/push/PushNotificationHandler';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
@@ -174,6 +176,20 @@ const RootNavigator = () => (
     <Stack.Screen
       name="Notification"
       component={NotificationScreen}
+    />
+    <Stack.Screen
+      name="MyFeedGenre"
+      component={GenreScreen}
+      options={{
+        animation: 'ios_from_right',
+      }}
+    />
+    <Stack.Screen
+      name="MyFeedGenreDetail"
+      component={GenreDetailScreen}
+      options={{
+        animation: 'ios_from_right',
+      }}
     />
   </Stack.Navigator>
 );

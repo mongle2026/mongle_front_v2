@@ -60,9 +60,10 @@ const Item = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignSelf: 'flex-start',
+    // 메뉴 폭만큼 채워서 항목마다 배경이 끝까지 칠해지고, 내용은 가운데에 온다
+    alignSelf: 'stretch',
     paddingVertical: padding.XL,
-    paddingHorizontal: padding.XXL,
+    paddingHorizontal: padding.XXXL,
     justifyContent: 'center',
     alignItems: 'center',
     gap: gap.M,

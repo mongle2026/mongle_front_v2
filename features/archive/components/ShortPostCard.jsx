@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import SuitSafeText from '../../../shared/components/atomic/SuitSafeText';
@@ -12,7 +12,6 @@ import { typo } from '../../../shared/styles/typo';
 import { formatDateDetail } from '../../../shared/utils/dateUtils';
 import { getImageKey } from '../../../shared/utils/media';
 
-const CARD_WIDTH = 320;
 const CONTENT_HEIGHT = 44;
 const IMAGE_WIDTH = (CONTENT_HEIGHT * 4) / 3;
 
@@ -22,6 +21,8 @@ const CONTENT_TYPOGRAPHY = Object.freeze({
 });
 
 const ShortPostCard = ({
+  feedId,
+  // music.previewUrl 이 있어야 재생 버튼이 활성화된다
   music = {},
   isPlaying = false,
   onPressPlayback,
@@ -37,6 +38,13 @@ const ShortPostCard = ({
   const hasContent = Boolean(content?.trim());
   const hasImage = imageSources.length > 0;
   const normalizedFont = normalizeFont(font);
+  const previewUrl = music.previewUrl;
+
+  // 피드와 같이 { feedId, previewUrl } 를 넘겨 useFeedMusicPlayback 의 handlePressPlayback 에 바로 연결한다
+  const handlePressPlayback = useCallback(() => {
+    if (!previewUrl) return;
+    onPressPlayback?.({ feedId, previewUrl });
+  }, [feedId, previewUrl, onPressPlayback]);
 
   const PressArea = onPress ? Pressable : View;
   const pressAreaProps = onPress
@@ -50,7 +58,8 @@ const ShortPostCard = ({
         title={music.title}
         artist={music.artist}
         isPlaying={isPlaying}
-        onPressPlayback={onPressPlayback}
+        disabled={!previewUrl}
+        onPressPlayback={previewUrl ? handlePressPlayback : undefined}
         font={normalizedFont}
         onPress={onPress}
         inset={false}
@@ -94,7 +103,6 @@ const ShortPostCard = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     padding: padding.L,
     alignItems: 'flex-end',
     gap: gap.XS,
