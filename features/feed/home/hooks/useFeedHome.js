@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { InteractionManager } from 'react-native';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../../shared/api/client';
 
@@ -102,11 +101,11 @@ export default function useFeedHome({ userId, isFollowing = false }) {
   useEffect(() => {
     if (!isConfigured || isFollowing || !data?.pages?.length) return;
 
-    const task = InteractionManager.runAfterInteractions(() => {
+    const handle = requestIdleCallback(() => {
       void queryClient.prefetchInfiniteQuery(followingQueryOptions);
     });
 
-    return () => task.cancel();
+    return () => cancelIdleCallback(handle);
   }, [data?.pages?.length, followingQueryOptions, isConfigured, isFollowing, queryClient]);
 
   // 새로 팔로우하면 팔로잉 피드를 미리 불러온다
