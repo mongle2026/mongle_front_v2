@@ -3,20 +3,24 @@ import {
   useEffect,
 } from 'react';
 
-import { useSharedValue } from 'react-native-reanimated';
+import {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useScrollEventsHandlersDefault } from '@gorhom/bottom-sheet';
 
 // 이 거리(px)보다 작은 흔들림은 방향 전환으로 보지 않습니다.
 const DIRECTION_THRESHOLD = 4;
 
 /**
- * gorhom BottomSheetFlatList 스크롤 방향에 따라 접힘 상태를 알려주는 훅.
+ * 스크롤 방향에 따라 접힘 상태를 알려주는 훅.
  * 아래로 스크롤하면 collapsed = true, 위로 스크롤하거나 맨 위에 닿으면 false.
  * 모든 계산은 UI 스레드(worklet)에서 합니다.
  *
  * @param {boolean} enabled false면 항상 펼친 상태로 되돌리고 스크롤을 무시합니다.
- * @returns {{ collapsed: SharedValue<boolean>, scrollEventsHandlersHook: Function }}
- *   scrollEventsHandlersHook 은 BottomSheetFlatList 에 그대로 넘깁니다.
+ * @returns {{ collapsed: SharedValue<boolean>, scrollEventsHandlersHook: Function, scrollHandler: Function }}
+ *   scrollEventsHandlersHook 은 BottomSheetFlatList 에,
+ *   scrollHandler 는 Animated.FlatList 같은 일반 스크롤 뷰의 onScroll 에 넘깁니다.
  */
 export default function useCollapseOnScroll({
   enabled = true,
@@ -26,6 +30,7 @@ export default function useCollapseOnScroll({
 
   const lastOffsetY = useSharedValue(0);
   const lastLayoutHeight = useSharedValue(0);
+  const lastContentHeight = useSharedValue(0);
 
   useEffect(() => {
     isEnabled.value = enabled;
@@ -59,16 +64,25 @@ export default function useCollapseOnScroll({
       const isLayoutChanged =
         layoutMeasurement.height !==
         lastLayoutHeight.value;
+      const isContentChanged =
+        contentSize.height !==
+        lastContentHeight.value;
 
       lastOffsetY.value = offsetY;
       lastLayoutHeight.value =
         layoutMeasurement.height;
+      lastContentHeight.value =
+        contentSize.height;
 
       if (!isEnabled.value) return;
 
       // 접히고 펼쳐지면서 리스트 높이가 바뀌면 오프셋도 같이
       // 밀리는데, 이걸 사용자 스크롤로 보면 접힘/펼침이 반복됩니다.
       if (isLayoutChanged) return;
+
+      // 위에 페이지가 붙어 maintainVisibleContentPosition 으로
+      // 오프셋이 밀릴 때도 사용자 스크롤이 아니므로 무시합니다.
+      if (isContentChanged) return;
 
       if (offsetY <= 0) {
         collapsed.value = false;
@@ -86,6 +100,7 @@ export default function useCollapseOnScroll({
       isEnabled,
       lastOffsetY,
       lastLayoutHeight,
+      lastContentHeight,
     ],
   );
 
@@ -119,8 +134,17 @@ export default function useCollapseOnScroll({
     [handleCollapseOnScroll],
   );
 
+  // BottomSheet 밖의 일반 스크롤 뷰용 (Animated.FlatList onScroll)
+  const scrollHandler = useAnimatedScrollHandler(
+    {
+      onScroll: handleCollapseOnScroll,
+    },
+    [handleCollapseOnScroll],
+  );
+
   return {
     collapsed,
     scrollEventsHandlersHook,
+    scrollHandler,
   };
 }

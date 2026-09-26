@@ -12,11 +12,13 @@ const COLUMNS = 2;
 
 // 첫 칸은 항상 '전체'(커버 = 가장 최신 글의 앨범 커버), 나머지는 글을 쓴 달 (yy년 m월)
 // allImageSource: 전체 카드 커버 / months: useMyFeedMonths 결과
-const AllFeedPreview = ({ allImageSource, months }) => {
+// onPressCard(month): 월 카드면 'YYYY-MM', 전체 카드면 undefined
+const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
   const cards = [
-    { key: 'all', title: '전체', imageSource: allImageSource },
+    { key: 'all', title: '전체', imageSource: allImageSource, month: undefined },
     ...months.map(item => ({
       key: item.month,
+      month: item.month,
       title: formatMonthLabel(item.month),
       imageSource: item.imageSource,
     })),
@@ -30,12 +32,26 @@ const AllFeedPreview = ({ allImageSource, months }) => {
 
   return (
     <>
-      <ListHeader size="M" title="모든 기록" showIconButton style={styles.listHeader} />
+      <ListHeader
+        size="M"
+        title="모든 기록"
+        showIconButton
+        onIconButtonPress={() => onPressCard?.()}
+        iconButtonAccessibilityLabel="모든 기록 전체 보기"
+        style={styles.listHeader}
+      />
       <View style={styles.grid}>
         {rows.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
+            {/* padding 있는 카드에 바로 flex를 주면 빈 칸보다 넓어지므로 View로 감싸 너비를 맞춤 */}
             {row.map(card => (
-              <GridCard key={card.key} title={card.title} imageSource={card.imageSource} style={styles.cell} />
+              <View key={card.key} style={styles.cell}>
+                <GridCard
+                  title={card.title}
+                  imageSource={card.imageSource}
+                  onPress={() => onPressCard?.(card.month)}
+                />
+              </View>
             ))}
             {row.length < COLUMNS && <View style={styles.cell} />}
           </View>

@@ -1,9 +1,10 @@
 import React, { memo } from 'react';
 import {
-  Pressable,
   StyleSheet,
   Text,
 } from 'react-native';
+// BottomSheet 안에서 시트 드래그 제스처에 탭이 먹히지 않도록 gesture-handler 의 Pressable 을 쓴다
+import { Pressable } from 'react-native-gesture-handler';
 
 import { colors } from '../../styles/color';
 import { padding } from '../../styles/token';

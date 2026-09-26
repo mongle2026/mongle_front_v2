@@ -44,6 +44,11 @@ const ArchiveScreen = ({ navigation }) => {
     navigation.navigate('MyFeedGenreDetail', { genre });
   }, [navigation]);
 
+  // month 없으면 전체
+  const handlePressAllFeed = useCallback(month => {
+    navigation.navigate('MyFeedAll', month ? { month } : undefined);
+  }, [navigation]);
+
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
@@ -67,6 +72,7 @@ const ArchiveScreen = ({ navigation }) => {
           onPressWriteFeed={handlePressWriteFeed}
           onPressGenreMore={handlePressGenreMore}
           onPressGenre={handlePressGenre}
+          onPressAllFeed={handlePressAllFeed}
         />
       )}
     </View>

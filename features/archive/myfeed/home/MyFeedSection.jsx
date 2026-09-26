@@ -19,7 +19,7 @@ const MAX_GENRES = 8;
 const MAX_MONTHS = 5;
 
 // 보관함 - 내 기록. 편지는 들어가지 않고 내가 쓴 피드만 보여준다.
-const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore, onPressGenre }) => {
+const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore, onPressGenre, onPressAllFeed }) => {
   const { recentFeeds, isRecentFeedsLoading } = useRecentMyFeeds({ userId, limit: MAX_RECENT_FEEDS });
   const { genres } = useMyFeedGenres({ userId, limit: MAX_GENRES });
   const { months } = useMyFeedMonths({ userId, limit: MAX_MONTHS });
@@ -61,7 +61,7 @@ const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore,
             onPressFeed={handlePressFeed}
           />
           <GenrePreview genres={genres} onPressMore={onPressGenreMore} onPressGenre={onPressGenre} />
-          <AllFeedPreview allImageSource={allImageSource} months={months} />
+          <AllFeedPreview allImageSource={allImageSource} months={months} onPressCard={onPressAllFeed} />
         </>
       )}
     </ScrollView>

@@ -31,6 +31,7 @@ export const SEARCH_FIELD_BOTTOM_FADE_HEIGHT = padding.XL;
  * @param {string} [backgroundColor] 검색창 뒤 배경과 하단 그라데이션 색.
  *   그라데이션은 위 불투명(100%) → 아래 투명(0%).
  *   #rrggbb 형식이어야 합니다 (뒤에 00을 붙여 투명색을 만듭니다).
+ * @param {string} [fieldBackgroundColor] 안쪽 입력창 배경색.
  */
 const SearchField = ({
   value,
@@ -38,6 +39,7 @@ const SearchField = ({
   placeholder = DEFAULT_PLACEHOLDER,
   collapsed,
   backgroundColor = colors.bgLayerDefault,
+  fieldBackgroundColor = colors.bgLayerBasement,
   ...textInputProps
 }) => {
   const hasValue = value?.length > 0;
@@ -109,7 +111,11 @@ const SearchField = ({
         />
 
         <Animated.View
-          style={[styles.searchField, searchFieldStyle]}
+          style={[
+            styles.searchField,
+            { backgroundColor: fieldBackgroundColor },
+            searchFieldStyle,
+          ]}
         >
           <IcSearch
             width={20}
@@ -170,7 +176,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: gap.M,
     borderRadius: radius.S,
-    backgroundColor: colors.bgLayerBasement,
   },
 
   input: {
