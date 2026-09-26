@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,7 +19,7 @@ import useGenreFeeds from './hooks/useGenreFeeds';
 const SORT_OPTIONS = [
   { key: 'latest', label: '최신순' },
   { key: 'oldest', label: '오래된순' },
-  { key: 'music', label: '음악순' },
+  { key: 'title', label: '제목순' },
 ];
 
 const postKeyExtractor = post => String(post.feedId);
@@ -75,15 +75,36 @@ const GenreDetailScreen = ({ navigation, route }) => {
   // 메뉴를 ListControlBar 바로 밑에 두기 위한 ListControlBar 아래쪽 y
   const [sortMenuTop, setSortMenuTop] = useState(0);
 
+  // ListControlBar가 리스트 헤더로 같이 스크롤되므로, 메뉴를 열 때 리스트 위치·헤더 높이·스크롤 오프셋으로 위치를 계산한다
+  const listTopRef = useRef(0);
+  const controlBarHeightRef = useRef(0);
+  const scrollOffsetRef = useRef(0);
+
   const sortLabel = SORT_OPTIONS.find(option => option.key === sortKey)?.label ?? '';
 
-  const openSortMenu = useCallback(() => setIsSortMenuOpen(true), []);
+  const openSortMenu = useCallback(() => {
+    setSortMenuTop(listTopRef.current + controlBarHeightRef.current - scrollOffsetRef.current);
+    setIsSortMenuOpen(true);
+  }, []);
   const closeSortMenu = useCallback(() => setIsSortMenuOpen(false), []);
 
-  const handleControlBarLayout = useCallback(e => {
-    const { y, height } = e.nativeEvent.layout;
-    setSortMenuTop(y + height);
+  const handleListLayout = useCallback(e => {
+    listTopRef.current = e.nativeEvent.layout.y;
   }, []);
+
+  const handleControlBarLayout = useCallback(e => {
+    controlBarHeightRef.current = e.nativeEvent.layout.height;
+  }, []);
+
+  const handleScroll = useCallback(e => {
+    scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+  }, []);
+
+  const listHeader = useMemo(() => (
+    <View onLayout={handleControlBarLayout}>
+      <ListControlBar text={sortLabel} onPress={openSortMenu} />
+    </View>
+  ), [handleControlBarLayout, sortLabel, openSortMenu]);
 
   const sortMenuItems = useMemo(
     () => SORT_OPTIONS.map(option => ({
@@ -110,14 +131,15 @@ const GenreDetailScreen = ({ navigation, route }) => {
           style={styles.topNavigation}
         />
 
-        <View onLayout={handleControlBarLayout}>
-          <ListControlBar text={sortLabel} onPress={openSortMenu} />
-        </View>
-
         <FlatList
           data={posts}
           keyExtractor={postKeyExtractor}
           renderItem={renderPost}
+          ListHeaderComponent={listHeader}
+          ListHeaderComponentStyle={styles.listHeader}
+          onLayout={handleListLayout}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.5}
           contentContainerStyle={containerStyle}
@@ -151,9 +173,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: padding.L,
   },
+  // ListControlBar는 자체 좌우 패딩이 있어서 컨테이너엔 좌우·상단 패딩을 두지 않고 카드에 좌우 여백을 준다
   container: {
-    paddingTop: padding.L,
-    paddingHorizontal: padding.L,
     paddingBottom: padding.XXL,
     flexDirection: 'column',
     // FlatList는 카드마다 셀 View로 감싼다. flex-start면 셀이 카드 폭(320)으로 줄어들어서 stretch로 둔다
@@ -161,9 +182,14 @@ const styles = StyleSheet.create({
     gap: gap.M,
     alignSelf: 'stretch',
   },
+  // 헤더 뒤에도 gap이 붙으므로, ListControlBar와 첫 카드 사이가 기존처럼 padding.L이 되도록 모자란 만큼만 더한다
+  listHeader: {
+    marginBottom: padding.L - gap.M,
+  },
   card: {
     // ShortPostCard 기본 폭(320)을 풀어 화면 폭에 맞춘다
     width: 'auto',
+    marginHorizontal: padding.L,
   },
 });
 
