@@ -50,6 +50,13 @@ const useFeedHomeListController = ({
     [activeTab, resetPlayback, setActiveTab]
   );
 
+  // 스크롤 끝 이벤트가 안 올 수도 있어서(안드로이드의 코드 스크롤) 오프셋 기록을 직접 0으로 맞춘다
+  const scrollToTop = useCallback(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+    currentOffsetRef.current = 0;
+    tabOffsetsRef.current[activeTab] = 0;
+  }, [activeTab]);
+
   useEffect(() => {
     if (pendingRestoreTabRef.current !== activeTab) return;
     if (posts.length === 0) return;
@@ -73,6 +80,7 @@ const useFeedHomeListController = ({
     handleListLayout,
     handleListScrollEnd,
     handleChangeTab,
+    scrollToTop,
   };
 };
 

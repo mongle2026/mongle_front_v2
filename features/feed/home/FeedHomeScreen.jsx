@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -64,6 +64,7 @@ const FeedHomeScreen = ({ navigation }) => {
     handleListLayout,
     handleListScrollEnd,
     handleChangeTab,
+    scrollToTop,
   } = useFeedHomeListController({ posts, activeTab, setActiveTab, resetPlayback, reservedBottomSpace: fabHeight });
 
   const { isPullRefreshing, handleRefresh } = usePullRefresh({
@@ -71,6 +72,15 @@ const FeedHomeScreen = ({ navigation }) => {
     onBeforeRefresh: resetPlayback,
     errorMessage: '피드 새로고침에 실패했습니다.',
   });
+
+  // 피드 탭에 있는 상태에서 하단 피드 버튼을 다시 누르면 새로고침 없이 맨 위로만 올린다
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('tabPress', () => {
+      if (navigation.isFocused()) scrollToTop();
+    });
+
+    return unsubscribe;
+  }, [navigation, scrollToTop]);
 
   const feedExtraData = useMemo(
     () => ({ playingFeedId, pendingTargetUserId }),
