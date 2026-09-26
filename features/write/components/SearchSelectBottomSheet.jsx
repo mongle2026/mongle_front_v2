@@ -75,19 +75,8 @@ const SearchSelectBottomSheet = ({
         autoCorrect={false}
       />
 
-      {showHeader && (
-        <View
-          style={[
-            styles.underSearchFieldFade,
-            styles.fadeInset,
-          ]}
-        >
-          {header}
-        </View>
-      )}
-
       <BottomSheetFlatList
-        style={!showHeader && styles.underSearchFieldFade}
+        style={styles.underSearchFieldFade}
         data={data}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
@@ -114,10 +103,11 @@ const SearchSelectBottomSheet = ({
             />
           ) : null
         }
+        ListHeaderComponent={showHeader ? header : null}
         ListFooterComponent={renderFooter}
         contentContainerStyle={[
           styles.listContent,
-          !showHeader && styles.fadeInset,
+          styles.fadeInset,
         ]}
       />
     </BottomSheet>
