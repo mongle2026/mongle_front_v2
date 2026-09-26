@@ -89,9 +89,16 @@ const toastExiting = () => {
 // 토스트를 아래로 끌어서 닫기. 이 거리(토스트 높이 대비 비율)나 속도를 넘기면 닫는다
 const TOAST_DISMISS_DISTANCE_RATIO = 0.5;
 const TOAST_DISMISS_VELOCITY = 500;
+// 토스트를 좌우로 끌어서 닫기. 이 거리(토스트 너비 대비 비율)나 속도를 넘기면 옆으로 밀려나며 닫는다
+const TOAST_HORIZONTAL_DISMISS_DISTANCE_RATIO = 0.3;
 // 위로 끌 때는 이 비율만큼만 따라가서 저항감을 준다
 const TOAST_UPWARD_RESISTANCE = 0.15;
 const TOAST_SWIPE_ACTIVE_OFFSET = 8;
+
+// 드래그 방향. 제스처가 시작될 때 한 축으로 고정한다
+const SWIPE_AXIS_NONE = 0;
+const SWIPE_AXIS_X = 1;
+const SWIPE_AXIS_Y = 2;
 
 const TOAST_RETURN_SPRING_CONFIG = {
   damping: 18,
@@ -100,39 +107,96 @@ const TOAST_RETURN_SPRING_CONFIG = {
   overshootClamping: true,
 };
 
-// 토스트를 잡고 있는 동안 자동 닫힘 타이머를 멈추고, 아래로 충분히 끌었다 놓으면 닫는다.
-// 닫힐 때는 끌린 위치에서 토스트 퇴장 애니메이션(exiting)이 이어진다
+// 토스트를 잡고 있는 동안 자동 닫힘 타이머를 멈추고, 아래나 좌우로 충분히 끌었다 놓으면 닫는다.
+// 아래로 닫힐 때는 끌린 위치에서 토스트 퇴장 애니메이션(exiting)이 이어지고,
+// 좌우로 닫힐 때는 끌던 방향으로 화면 밖까지 밀려난 뒤 닫힌다
 const ToastSwipeArea = memo(({
   children,
   onTouchStart,
   onTouchEnd,
   onDismiss,
 }) => {
+  const dragX = useSharedValue(0);
   const dragY = useSharedValue(0);
+  const width = useSharedValue(0);
   const height = useSharedValue(0);
   // 제스처 콜백(워클릿)끼리 공유해야 해서 지역 변수 대신 shared value로 둔다
   const isDismissed = useSharedValue(false);
+  const axis = useSharedValue(SWIPE_AXIS_NONE);
 
   const handleLayout = useCallback(event => {
+    width.value = event.nativeEvent.layout.width;
     height.value = event.nativeEvent.layout.height;
-  }, [height]);
+  }, [width, height]);
 
   const gesture = useMemo(() => (
     Gesture.Pan()
+      .activeOffsetX([
+        -TOAST_SWIPE_ACTIVE_OFFSET,
+        TOAST_SWIPE_ACTIVE_OFFSET,
+      ])
       .activeOffsetY([
         -TOAST_SWIPE_ACTIVE_OFFSET,
         TOAST_SWIPE_ACTIVE_OFFSET,
       ])
       .onBegin(() => {
         isDismissed.value = false;
+        axis.value = SWIPE_AXIS_NONE;
         scheduleOnRN(onTouchStart);
       })
       .onUpdate(event => {
-        dragY.value = event.translationY > 0
-          ? event.translationY
-          : event.translationY * TOAST_UPWARD_RESISTANCE;
+        // 처음 더 많이 움직인 방향으로 고정해서 대각선으로 끌려다니지 않게 한다.
+        // (Android는 거의 움직이지 않은 상태로도 활성화되어서, 충분히 움직인 뒤에 정한다)
+        if (axis.value === SWIPE_AXIS_NONE) {
+          const absX = Math.abs(event.translationX);
+          const absY = Math.abs(event.translationY);
+
+          if (Math.max(absX, absY) < TOAST_SWIPE_ACTIVE_OFFSET) {
+            return;
+          }
+
+          axis.value = absX > absY ? SWIPE_AXIS_X : SWIPE_AXIS_Y;
+        }
+
+        if (axis.value === SWIPE_AXIS_X) {
+          dragX.value = event.translationX;
+          return;
+        }
+
+        if (axis.value === SWIPE_AXIS_Y) {
+          dragY.value = event.translationY > 0
+            ? event.translationY
+            : event.translationY * TOAST_UPWARD_RESISTANCE;
+        }
       })
       .onEnd(event => {
+        if (axis.value === SWIPE_AXIS_X) {
+          const isFlung =
+            Math.abs(event.velocityX) > TOAST_DISMISS_VELOCITY &&
+            Math.sign(event.velocityX) === Math.sign(dragX.value);
+          const shouldDismiss =
+            Math.abs(dragX.value) >
+              width.value * TOAST_HORIZONTAL_DISMISS_DISTANCE_RATIO ||
+            isFlung;
+
+          if (shouldDismiss) {
+            isDismissed.value = true;
+            dragX.value = withTiming(
+              Math.sign(dragX.value) * width.value,
+              { duration: TOAST_ANIMATION_DURATION },
+              finished => {
+                if (finished) {
+                  scheduleOnRN(onDismiss);
+                }
+              },
+            );
+            return;
+          }
+
+          dragX.value = withSpring(0, TOAST_RETURN_SPRING_CONFIG);
+          return;
+        }
+
         const shouldDismiss =
           dragY.value > height.value * TOAST_DISMISS_DISTANCE_RATIO ||
           event.velocityY > TOAST_DISMISS_VELOCITY;
@@ -151,13 +215,25 @@ const ToastSwipeArea = memo(({
         }
 
         // 탭만 하고 뗐을 때 등 onEnd 없이 끝난 경우에도 제자리로
+        dragX.value = withSpring(0, TOAST_RETURN_SPRING_CONFIG);
         dragY.value = withSpring(0, TOAST_RETURN_SPRING_CONFIG);
         scheduleOnRN(onTouchEnd);
       })
-  ), [dragY, height, isDismissed, onDismiss, onTouchEnd, onTouchStart]);
+  ), [
+    axis,
+    dragX,
+    dragY,
+    height,
+    isDismissed,
+    onDismiss,
+    onTouchEnd,
+    onTouchStart,
+    width,
+  ]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
+      { translateX: dragX.value },
       { translateY: dragY.value },
     ],
   }));
