@@ -1,5 +1,5 @@
 // 보관함 react-query 키.
-// 내 기록은 모두 ['archive', 'myfeed', userId, ...] 아래에 둔다
+// 내 기록은 모두 ['archive', 'myfeed', userId, ...], 북마크는 ['archive', 'bookmark', userId, ...] 아래에 둔다
 // → 피드 작성/수정/삭제 후 archiveKeys.all 하나만 invalidate 하면 보관함 전체가 갱신된다.
 
 const ARCHIVE_QUERY_ROOT = ['archive'];
@@ -17,4 +17,8 @@ export const archiveKeys = {
   myFeedMonths: (userId, limit) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'months', limit],
   // 모든 기록 목록 (양방향 커서 페이지네이션). anchorMonth: 목록을 시작한 달 'YYYY-MM' 또는 'all'(가장 최근 글부터)
   allMyFeeds: (userId, anchorMonth) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'all', anchorMonth],
+  // 북마크 전체. 북마크를 켜고 끈 뒤 이 키로 invalidate 한다
+  bookmark: userId => [...ARCHIVE_QUERY_ROOT, 'bookmark', Number(userId)],
+  // 북마크 목록 (커서 페이지네이션). filter: all / following, sort: latest / oldest
+  bookmarkFeeds: (userId, filter, sort) => [...ARCHIVE_QUERY_ROOT, 'bookmark', Number(userId), filter, sort],
 };

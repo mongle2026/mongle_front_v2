@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import Svg, { ClipPath, Defs, Image, Path } from 'react-native-svg';
 
-import { palette } from '../../../shared/styles/color';
+import { palette } from '../../styles/color';
 
 // 디자인 CD 원본 크기 (104x104). viewBox 로 size 에 맞춰 자동 스케일된다.
 const CD_VIEWBOX_SIZE = 104;

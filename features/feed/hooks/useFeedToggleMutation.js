@@ -27,6 +27,7 @@ export default function useFeedToggleMutation({
   countKey,
   errorMessage,
   onError,
+  invalidateQueryKey,
 }) {
   const queryClient = useQueryClient();
 
@@ -102,6 +103,11 @@ export default function useFeedToggleMutation({
       request
         .then(() => {
           state.confirmedValue = requestValue;
+
+          // 이 캐시에 없는 목록(보관함 북마크 등)은 서버 반영 후 다시 불러온다
+          if (invalidateQueryKey) {
+            queryClient.invalidateQueries({ queryKey: invalidateQueryKey });
+          }
         })
         .catch(requestError => {
           console.warn(errorMessage, getApiErrorDetail(requestError));
@@ -127,7 +133,7 @@ export default function useFeedToggleMutation({
           if (!state.timer) sync(feedId);
         });
     },
-    [endpoint, errorMessage, queryClient, userId, writeCachedValue],
+    [endpoint, errorMessage, invalidateQueryKey, queryClient, userId, writeCachedValue],
   );
 
   const applyToggle = useCallback(

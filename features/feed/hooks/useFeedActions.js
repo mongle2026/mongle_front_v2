@@ -1,5 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
+import { archiveKeys } from '../../archive/api/archiveKeys';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottomOffset';
 
@@ -40,6 +41,8 @@ const useFeedActions = ({
     [showFailureToast],
   );
 
+  const bookmarkQueryKey = useMemo(() => archiveKeys.bookmark(userId), [userId]);
+
   const handleBookmarkError = useCallback(
     () => showFailureToast('북마크 처리에 실패했습니다.'),
     [showFailureToast],
@@ -61,6 +64,7 @@ const useFeedActions = ({
     countKey: 'bookmarkCount',
     errorMessage: '북마크 처리에 실패했습니다.',
     onError: handleBookmarkError,
+    invalidateQueryKey: bookmarkQueryKey,
   });
 
   const handlePressBookmarkToastButton =

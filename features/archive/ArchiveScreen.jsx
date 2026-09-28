@@ -7,6 +7,7 @@ import TabBar from '../../shared/components/navigation/tabbar/TabBar';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';
 import { colors } from '../../shared/styles/color';
 
+import BookmarkSection from './bookmark/BookmarkSection';
 import MyFeedSection from './myfeed/home/MyFeedSection';
 
 const ARCHIVE_TAB = {
@@ -74,6 +75,10 @@ const ArchiveScreen = ({ navigation }) => {
           onPressGenre={handlePressGenre}
           onPressAllFeed={handlePressAllFeed}
         />
+      )}
+
+      {activeTab === ARCHIVE_TAB.BOOKMARK && (
+        <BookmarkSection navigation={navigation} userId={userId} />
       )}
     </View>
   );

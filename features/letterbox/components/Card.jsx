@@ -7,7 +7,7 @@ import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 import { formatDate } from '../../../shared/utils/dateUtils';
-import CdCover from './CdCover';
+import CdCover from '../../../shared/components/atomic/CdCover';
 import DotMatrixText from './DotMatrixText';
 import Letter from '../../../shared/components/content/Letter';
 import { StampImage } from '../../../shared/components/content/Stamp';

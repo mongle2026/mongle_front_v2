@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { StyleSheet, Text, View, } from 'react-native';
 
 import ProfileImg from '../../atomic/ProfileImg';
-import { TextButton } from '../../action/TextButton';
+import { TextButton, TEXT_BUTTON_VARIANT } from '../../action/TextButton';
 
 import { colors } from '../../../styles/color';
 import { typo } from '../../../styles/typo';
@@ -45,6 +45,8 @@ const Profile = ({
   imageSize = 'M',
   username,
   onPress,
+  // username 버튼 TextButton variant. 보관함 북마크에서 팔로우한 사람은 Solid
+  variant = TEXT_BUTTON_VARIANT.GHOST,
 
   // Letter
   recipientName,
@@ -171,7 +173,7 @@ const Profile = ({
         style={styles.usernameButtonArea}
       >
         <TextButton
-          variant="Ghost"
+          variant={variant}
           font={font}
           onPress={onPress}
           accessibilityLabel={`${profileId} 프로필 보기`}
