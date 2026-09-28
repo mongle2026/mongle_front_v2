@@ -15,6 +15,7 @@ import FeedPostItem from './components/FeedPostItem';
 import useFeedActions from '../hooks/useFeedActions';
 import useFeedHome from './hooks/useFeedHome';
 import useFeedHomeListController from './hooks/useFeedHomeListController';
+import { useCreatedFeedStore } from '../store/useCreatedFeedStore';
 
 const VIEWABILITY_CONFIG = {
   viewAreaCoveragePercentThreshold: 50,
@@ -81,6 +82,27 @@ const FeedHomeScreen = ({ navigation }) => {
 
     return unsubscribe;
   }, [navigation, scrollToTop]);
+
+  // 피드를 작성하고 돌아오면 새 글이 맨 위에 온 뒤에 스크롤을 올린다
+  // 팔로잉 피드에는 내 글이 없어서 추천 탭으로 옮긴다
+  const createdFeedId = useCreatedFeedStore(state => state.createdFeedId);
+  const clearCreatedFeedId = useCreatedFeedStore(state => state.clearCreatedFeedId);
+  const firstFeedId = posts[0]?.feedId;
+
+  useEffect(() => {
+    if (createdFeedId == null) return;
+
+    if (activeTab !== TOP_NAVIGATION_TAB.RECOMMENDED) {
+      resetPlayback();
+      setActiveTab(TOP_NAVIGATION_TAB.RECOMMENDED);
+      return;
+    }
+
+    if (String(firstFeedId) !== String(createdFeedId)) return;
+
+    scrollToTop();
+    clearCreatedFeedId();
+  }, [activeTab, clearCreatedFeedId, createdFeedId, firstFeedId, resetPlayback, scrollToTop]);
 
   const feedExtraData = useMemo(
     () => ({ playingFeedId, pendingTargetUserId }),

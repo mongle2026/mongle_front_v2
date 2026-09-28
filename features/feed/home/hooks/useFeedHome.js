@@ -9,7 +9,7 @@ const FEED_LIMIT = 20;
 const FEED_STALE_TIME = 2 * 60 * 1000;
 const FEED_GC_TIME = 30 * 60 * 1000;
 
-function normalizeFeedItem(item) {
+export function normalizeFeedItem(item) {
   if (!item?.feedId) return null;
 
   return {
