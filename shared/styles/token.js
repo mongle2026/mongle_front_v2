@@ -4,4 +4,4 @@ export const padding = { XXS: 2, XS: 4, S: 6, M: 8, L: 12, XL: 16, XXL: 20, XXXL
 
 export const gap = { XS: 2, S: 4, M: 8, L: 12, XL: 20, XXL: 32 };
 
-export const radius = { XS: 2, S: 4, M: 6, XL: 12 };
+export const radius = { XS: 4, S: 8, M: 10, XL: 12, 999: 999 };
