@@ -111,11 +111,11 @@ const TopIconNavigation = ({
       ) : (
         <>
           <IconButton
-            icon={IcX}
+            icon={leftIcon}
             color={colors.fgNeutralMuted}
             size="M"
             onPress={onPressClose}
-            accessibilityLabel="닫기"
+            accessibilityLabel={leftAccessibilityLabel}
           />
 
           <View style={styles.tail}>

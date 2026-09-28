@@ -5,11 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
 import Menu from '../../../../shared/components/action/menu/Menu';
 
+import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
+
 import { colors } from '../../../../shared/styles/color';
 import { padding } from '../../../../shared/styles/token';
 
 /**
- * 피드 상세 상단 (닫기 · 공유 · 더보기)과 내 피드 수정/삭제 메뉴.
+ * 피드 상세 상단 (뒤로가기 · 공유 · 더보기)과 내 피드 수정/삭제 메뉴.
  * 메뉴를 열고 닫는 상태는 화면(FeedDetailScreen)이 가지고, 여기서는 그리기만 합니다.
  */
 const FeedDetailHeader = ({
@@ -27,6 +29,8 @@ const FeedDetailHeader = ({
   >
     <View style={styles.topNavigationContainer}>
       <TopIconNavigation
+        leftIcon={IcArrowLeft}
+        leftAccessibilityLabel="뒤로가기"
         onPressClose={onPressClose}
         onPressShare={onPressShare}
         onPressMore={onPressMore}
