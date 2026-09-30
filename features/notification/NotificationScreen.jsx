@@ -7,6 +7,7 @@ import {
 
 import IcArrowLeft from '../../assets/icons/ic_arrow_left.svg';
 
+import Empty from '../../shared/components/content/Empty';
 import TopIconNavigation from '../../shared/components/navigation/topnavigation/TopIconNavigation';
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../shared/components/navigation/tabs/Tabs';
 
@@ -39,6 +40,8 @@ const renderNotificationSeparator = () => (
   <View style={styles.notificationSeparator} />
 );
 
+const EMPTY_NOTIFICATION_BODY = '아직 알림이 없어요.\n새로운 소식이 생기면 알려드릴게요!';
+
 const NotificationScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [activeFilterIndex, setActiveFilterIndex] = useState(0);
@@ -48,6 +51,7 @@ const NotificationScreen = ({ navigation }) => {
   const { type } = NOTIFICATION_FILTERS[activeFilterIndex];
   const {
     notifications,
+    isLoading,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -71,6 +75,17 @@ const NotificationScreen = ({ navigation }) => {
       );
     },
     [navigation]
+  );
+
+  // 로딩 중에는 엠티뷰가 깜빡이지 않게 띄우지 않는다
+  const renderListEmpty = useCallback(
+    () =>
+      isLoading ? null : (
+        <View style={styles.emptyContainer}>
+          <Empty type="notification" body={EMPTY_NOTIFICATION_BODY} />
+        </View>
+      ),
+    [isLoading]
   );
 
   const listContentStyle = useMemo(
@@ -115,6 +130,7 @@ const NotificationScreen = ({ navigation }) => {
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.5}
           ItemSeparatorComponent={renderNotificationSeparator}
+          ListEmptyComponent={renderListEmpty}
           contentContainerStyle={listContentStyle}
           showsVerticalScrollIndicator={false}
         />
@@ -133,8 +149,14 @@ const styles = StyleSheet.create({
     marginTop: -TABS_BOTTOM_FADE_HEIGHT,
   },
   // 아이템이 width 100% 라서 셀이 가로로 꽉 차야 한다 (alignItems 기본값 stretch 유지)
+  // 엠티뷰가 남은 높이 가운데에 오도록 flexGrow 로 채운다
   notificationContainer: {
+    flexGrow: 1,
     paddingHorizontal: padding.XS,
+  },
+  emptyContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   notificationSeparator: {
     height: gap.S,

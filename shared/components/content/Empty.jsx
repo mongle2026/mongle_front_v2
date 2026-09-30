@@ -6,6 +6,7 @@ import IlEmptyRecipient from '../../../assets/illustrations/il_empty_recipient.s
 import IlEmptyMusic from '../../../assets/illustrations/il_empty_music.svg';
 import IlEmptyLetter from '../../../assets/illustrations/il_empty_letter.svg';
 import IlEmptyArchive from '../../../assets/illustrations/il_empty_archive.svg';
+import IlEmptyNotification from '../../../assets/illustrations/il_empty_notification.svg';
 
 import {
   TextButton,
@@ -46,6 +47,9 @@ const Empty = ({
 
       case 'archive':
         return IlEmptyArchive;
+
+      case 'notification':
+        return IlEmptyNotification;
 
       default:
         return null;
