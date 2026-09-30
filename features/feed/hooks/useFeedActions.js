@@ -1,6 +1,9 @@
 import { useCallback, useMemo } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
+import { ARCHIVE_TAB } from '../../archive/ArchiveScreen';
 import { archiveKeys } from '../../archive/api/archiveKeys';
+import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottomOffset';
 
@@ -16,6 +19,7 @@ const useFeedActions = ({
   userId,
   floatingBarOffset = 0,
 }) => {
+  const navigation = useNavigation();
   const { showToast } = useGlobalOverlay();
 
   const floatingBottomOffset =
@@ -67,11 +71,14 @@ const useFeedActions = ({
     invalidateQueryKey: bookmarkQueryKey,
   });
 
+  // 피드 홈(탭)·피드 상세(스택) 어디서든 MainTabs 로 돌아가 보관함의 북마크 탭을 연다
   const handlePressBookmarkToastButton =
     useCallback(() => {
-      // 북마크 화면 route가 만들어지면
-      // 여기에서 navigation 처리
-    }, []);
+      navigation.popTo('MainTabs', {
+        screen: MAIN_TAB_ROUTES.ARCHIVE,
+        params: { tab: ARCHIVE_TAB.BOOKMARK },
+      });
+    }, [navigation]);
 
   const showBookmarkToast = useCallback(
     isAddingBookmark => {

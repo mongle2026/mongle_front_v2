@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import MyFeedSection from './myfeed/home/MyFeedSection';
 import { prefetchAllMyFeeds } from './myfeed/all/hooks/useAllMyFeeds';
 import { prefetchGenreFeeds } from './myfeed/genre/detail/hooks/useGenreFeeds';
 
-const ARCHIVE_TAB = {
+export const ARCHIVE_TAB = {
   MYFEED: 'myfeed',
   BOOKMARK: 'bookmark',
 };
@@ -26,12 +26,26 @@ const ARCHIVE_TABS = [
 /* TabBar 는 인덱스 기반이라 key 와 매핑한다 */
 const ARCHIVE_TAB_LABELS = ARCHIVE_TABS.map(tab => tab.label);
 
-const ArchiveScreen = ({ navigation }) => {
+// route.params.tab 으로 열 탭을 지정할 수 있다 (예: 북마크 토스트의 '이동' → ARCHIVE_TAB.BOOKMARK)
+const ArchiveScreen = ({ navigation, route }) => {
   const { currentUser, userId } = useCurrentUser();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState(ARCHIVE_TAB.MYFEED);
   const activeTabIndex = ARCHIVE_TABS.findIndex(tab => tab.key === activeTab);
+
+  // 탭 화면은 이미 떠 있을 수 있어 param 이 바뀔 때마다 반영하고,
+  // 같은 param 으로 다시 들어와도 반영되도록 적용 후 비운다
+  const routeTab = route?.params?.tab;
+
+  useEffect(() => {
+    if (!routeTab) return;
+
+    if (ARCHIVE_TABS.some(tab => tab.key === routeTab)) {
+      setActiveTab(routeTab);
+    }
+    navigation.setParams({ tab: undefined });
+  }, [navigation, routeTab]);
 
   const handleChangeTab = useCallback(index => {
     setActiveTab(ARCHIVE_TABS[index].key);
