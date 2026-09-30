@@ -7,6 +7,7 @@ import IlEmptyMusic from '../../../assets/illustrations/il_empty_music.svg';
 import IlEmptyLetter from '../../../assets/illustrations/il_empty_letter.svg';
 import IlEmptyArchive from '../../../assets/illustrations/il_empty_archive.svg';
 import IlEmptyNotification from '../../../assets/illustrations/il_empty_notification.svg';
+import IlEmptyBookmark from '../../../assets/illustrations/il_empty_bookmark.svg';
 
 import {
   TextButton,
@@ -50,6 +51,9 @@ const Empty = ({
 
       case 'notification':
         return IlEmptyNotification;
+
+      case 'bookmark':
+        return IlEmptyBookmark;
 
       default:
         return null;

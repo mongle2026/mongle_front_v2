@@ -4,6 +4,7 @@ import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } fro
 import ListControlBar from '../../../shared/components/action/ListControlBar';
 import Menu from '../../../shared/components/action/menu/Menu';
 import Empty from '../../../shared/components/content/Empty';
+import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../shared/components/navigation/tabs/Tabs';
 import usePullRefresh from '../../../shared/hooks/usePullRefresh';
 import { gap, padding } from '../../../shared/styles/token';
@@ -101,6 +102,11 @@ const BookmarkSection = ({ navigation, userId }) => {
     [navigation],
   );
 
+  const handlePressBrowseFeed = useCallback(
+    () => navigation.navigate(MAIN_TAB_ROUTES.FEED),
+    [navigation],
+  );
+
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -174,7 +180,13 @@ const BookmarkSection = ({ navigation, userId }) => {
           refreshControl={refreshControl}
           showsVerticalScrollIndicator={false}
         >
-          <Empty type="archive" title="북마크한 기록이 없어요." />
+          <Empty
+            type="bookmark"
+            title="아직 북마크한 피드가 없어요."
+            body="마음에 드는 피드를 북마크해 보세요."
+            buttonLabel="피드 둘러보기"
+            onButtonPress={handlePressBrowseFeed}
+          />
         </ScrollView>
       )}
 
