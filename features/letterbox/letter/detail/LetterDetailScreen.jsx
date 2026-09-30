@@ -4,6 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import IlDialogCancelletter from '../../../../assets/illustrations/il_dialog_cancelletter.svg';
 import IlDialogDeleteletter from '../../../../assets/illustrations/il_dialog_deleteletter.svg';
+import IlDialogDeletedletter from '../../../../assets/illustrations/il_dialog_deletedletter.svg';
 
 import { Dialog } from '../../../../shared/components/action/Dialog';
 import Menu from '../../../../shared/components/action/menu/Menu';
@@ -12,6 +13,7 @@ import MusicCard from '../../../../shared/components/content/MusicCard';
 import Profile from '../../../../shared/components/content/profile/Profile';
 import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
+import useDeletedContentDialog, { isDeletedContentError } from '../../../../shared/hooks/useDeletedContentDialog';
 import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
 import { useDialog } from '../../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
@@ -48,6 +50,29 @@ const LetterDetailScreen = ({ navigation, route }) => {
     onDeleteSuccess: () => {
       navigation.goBack();
     },
+  });
+
+  // 알림 등으로 이미 삭제된 편지에 들어오면 내용 없이 안내 Dialog만 띄운다
+  const isDeleted = isDeletedContentError(error);
+
+  useDeletedContentDialog({
+    navigation,
+    isDeleted,
+    id: 'letter-deleted-dialog',
+    accessibilityLabel: '삭제된 편지 안내',
+    renderContent: ({ close }) => (
+      <Dialog
+        illustration={IlDialogDeletedletter}
+        title="이미 삭제된 편지예요."
+        description="삭제된 편지는 다시 확인할 수 없어요."
+        cancelText="돌아가기"
+        confirmText={null}
+        onCancel={() => {
+          close();
+          navigation.goBack();
+        }}
+      />
+    ),
   });
 
   const { playingFeedId, handlePressPlayback } = useFeedMusicPlayback({
@@ -218,11 +243,12 @@ const LetterDetailScreen = ({ navigation, route }) => {
         </View>
       </SafeAreaView>
 
-      {!letter ? (
+      {/* 삭제됐으면 캐시에 예전 편지가 남아 있어도 내용을 보여주지 않는다 */}
+      {!letter || isDeleted ? (
         <View style={styles.state}>
           {isLoading && <ActivityIndicator />}
           {!isConfigured && <Text style={styles.stateText}>EXPO_PUBLIC_API_BASE_URL을 확인해 주세요.</Text>}
-          {error && <Text style={styles.stateText}>편지를 불러오지 못했습니다.</Text>}
+          {error && !isDeleted && <Text style={styles.stateText}>편지를 불러오지 못했습니다.</Text>}
         </View>
       ) : (
         <View style={styles.container}>

@@ -4,6 +4,10 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import MusicCard from '../../../shared/components/content/MusicCard';
 import ImageViewer from '../../../shared/components/content/ImageViewer';
 import { Dialog } from '../../../shared/components/action/Dialog';
+import { TEXT_BUTTON_VARIANT } from '../../../shared/components/action/TextButton';
+import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
+
+import IlDialogDeletedfeed from '../../../assets/illustrations/il_dialog_deletedfeed.svg';
 
 import { useDialog } from '../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
@@ -14,6 +18,7 @@ import {
   useKeyboardHeight,
 } from '../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import useDeletedContentDialog, { isDeletedContentError } from '../../../shared/hooks/useDeletedContentDialog';
 
 import { colors } from '../../../shared/styles/color';
 import { normalizeFont } from '../../../shared/styles/fontType';
@@ -95,6 +100,34 @@ const FeedDetailScreen = ({ navigation, route }) => {
         bottomOffset: commentBarBottom + commentBarHeight,
       });
     },
+  });
+
+  // 알림 등으로 이미 삭제된 피드에 들어오면 내용 없이 안내 Dialog만 띄운다
+  const isDeleted = isDeletedContentError(error);
+
+  useDeletedContentDialog({
+    navigation,
+    isDeleted,
+    id: 'feed-deleted-dialog',
+    accessibilityLabel: '삭제된 피드 안내',
+    renderContent: ({ close }) => (
+      <Dialog
+        illustration={IlDialogDeletedfeed}
+        title="피드를 확인할 수 없어요."
+        description="해당 피드는 이미 삭제되었어요."
+        cancelText="돌아가기"
+        confirmText="피드 둘러보기"
+        confirmVariant={TEXT_BUTTON_VARIANT.SOLID}
+        onCancel={() => {
+          close();
+          navigation.goBack();
+        }}
+        onConfirm={() => {
+          close();
+          navigation.popTo('MainTabs', { screen: MAIN_TAB_ROUTES.FEED });
+        }}
+      />
+    ),
   });
 
   const {
@@ -330,7 +363,8 @@ const FeedDetailScreen = ({ navigation, route }) => {
     setIsFeedMenuOpen(false);
   }, [clearReplyScrollTarget, closeCommentMenu, lockAutoScroll]);
 
-  if (!feed) {
+  // 삭제됐으면 캐시에 예전 피드가 남아 있어도 내용을 보여주지 않는다
+  if (!feed || isDeleted) {
     return (
       <View style={styles.screen}>
         <FeedDetailHeader
@@ -342,7 +376,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
         <FeedDetailStateView
           isLoading={isLoading}
           isConfigured={isConfigured}
-          error={error}
+          error={isDeleted ? null : error}
         />
       </View>
     );

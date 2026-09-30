@@ -8,12 +8,16 @@ import { FONT } from '../../styles/fontType';
 import { TextButton, TEXT_BUTTON_SIZE, TEXT_BUTTON_VARIANT } from './TextButton';
 import IlDialogDelete from '../../../assets/illustrations/il_dialog_delete.svg';
 
+/*
+ * confirmText에 null을 넘기면 오른쪽 버튼 없이 왼쪽 버튼만 보여준다.
+ */
 export const Dialog = ({
   illustration: Illustration = IlDialogDelete,
   title,
   description,
   cancelText = '닫기',
   confirmText = '삭제',
+  confirmVariant = TEXT_BUTTON_VARIANT.CRITICAL,
   onCancel,
   onConfirm,
   style,
@@ -44,15 +48,17 @@ export const Dialog = ({
           {cancelText}
         </TextButton>
 
-        <TextButton
-          variant={TEXT_BUTTON_VARIANT.CRITICAL}
-          size={TEXT_BUTTON_SIZE.L}
-          font={FONT.SUIT}
-          onPress={onConfirm}
-          style={styles.button}
-        >
-          {confirmText}
-        </TextButton>
+        {confirmText != null && (
+          <TextButton
+            variant={confirmVariant}
+            size={TEXT_BUTTON_SIZE.L}
+            font={FONT.SUIT}
+            onPress={onConfirm}
+            style={styles.button}
+          >
+            {confirmText}
+          </TextButton>
+        )}
       </View>
     </View>
   );
