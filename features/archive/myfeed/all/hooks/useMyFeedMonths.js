@@ -6,19 +6,20 @@ import { resolveMediaUri } from '../../../../../shared/utils/media';
 import { archiveKeys } from '../../../api/archiveKeys';
 import { SESSION_COVER_SEED } from '../../utils/sessionCover';
 
-// 모든 기록의 월 목록. GET /feed/me/months?userId=&limit=&coverSeed=
+// 모든 기록의 월 목록. GET /feed/me/months?userId=&limit=&coverSeed=&keyword=
+// keyword 가 있으면 노래 제목 또는 아티스트에 검색어가 포함된 글이 있는 달만 온다.
 // 글을 쓴 달만 최신 달부터 온다(month: 한국 시간 'YYYY-MM').
 // 커버는 서버가 그 달 글들의 앨범 커버 중 하나를 골라 준다(앱 실행 동안 고정).
 // latestFeedId: 그 달의 가장 최신 글. 모든 기록에서 그 달부터 목록을 시작할 때 커서로 쓴다.
-const useMyFeedMonths = ({ userId, limit }) => {
+const useMyFeedMonths = ({ userId, limit, keyword = '' }) => {
   const isConfigured = Boolean(isApiConfigured && Number(userId) > 0);
 
   const { data, isPending } = useQuery({
-    queryKey: archiveKeys.myFeedMonths(userId, limit),
+    queryKey: archiveKeys.myFeedMonths(userId, limit, keyword),
     enabled: isConfigured,
     queryFn: async () => {
       const response = await apiClient.get('/feed/me/months', {
-        params: { userId, limit, coverSeed: SESSION_COVER_SEED },
+        params: { userId, limit, coverSeed: SESSION_COVER_SEED, keyword: keyword || undefined },
       });
       return Array.isArray(response.data?.items) ? response.data.items : [];
     },

@@ -10,6 +10,7 @@ import SearchField, { SEARCH_FIELD_BOTTOM_FADE_HEIGHT } from '../../../../shared
 import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
 import useCollapseOnScroll from '../../../../shared/hooks/useCollapseOnScroll';
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
+import useDebouncedValue from '../../../../shared/hooks/useDebouncedValue';
 import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 import { colors } from '../../../../shared/styles/color';
@@ -24,8 +25,11 @@ import MonthSelectBottomSheet from './components/MonthSelectBottomSheet';
 import useAllMyFeeds from './hooks/useAllMyFeeds';
 import useMyFeedMonths from './hooks/useMyFeedMonths';
 
-const SEARCH_PLACEHOLDER = '음악, 제목, 아티스트를 검색해 보세요.';
+const SEARCH_PLACEHOLDER = '음악 제목, 아티스트를 검색해 보세요.';
 const MONTH_SELECT_OVERLAY_ID = 'archive-month-select';
+
+// 입력을 멈추고 이 시간이 지나면 검색한다
+const SEARCH_DEBOUNCE_MS = 300;
 
 // 스크롤이 목록 끝(위/아래)에서 화면 높이의 이 비율 안으로 들어오면 다음 페이지를 불러온다
 const END_REACHED_THRESHOLD = 0.5;
@@ -57,6 +61,7 @@ const rowKeyExtractor = row => row.key;
 // route.params.month('YYYY-MM')로 들어오거나 BottomSheet에서 달을 고르면 중간 글을 건너뛰고 그 달부터 새로 불러온다
 // (그 달이 맨 위, 위로 스크롤하면 더 최근 글, 아래로 스크롤하면 더 오래된 글).
 // 제목은 화면 맨 위에 보이는 카드의 달 (전체로 들어오면 가장 최근에 글을 쓴 달). 제목을 누르면 달을 고르는 BottomSheet가 뜬다
+// 검색어(노래 제목·아티스트)가 있으면 목록과 BottomSheet의 달 모두 검색어가 포함된 글 기준으로 좁힌다
 const AllScreen = ({ navigation, route }) => {
   const { userId } = useCurrentUser();
   const insets = useSafeAreaInsets();
@@ -72,7 +77,9 @@ const AllScreen = ({ navigation, route }) => {
     enabled: keyword.length === 0,
   });
 
-  const { months, isMonthsLoading } = useMyFeedMonths({ userId });
+  const searchKeyword = useDebouncedValue(keyword.trim(), SEARCH_DEBOUNCE_MS);
+
+  const { months, isMonthsLoading } = useMyFeedMonths({ userId, keyword: searchKeyword });
 
   // 이동한 달. null 이면 가장 최근 글부터
   const [selectedMonth, setSelectedMonth] = useState(route?.params?.month ?? null);
@@ -101,6 +108,7 @@ const AllScreen = ({ navigation, route }) => {
     userId,
     anchorMonth: anchor.month,
     anchorCursor: anchor.cursor,
+    keyword: searchKeyword,
     enabled: anchor.isReady,
   });
 
@@ -125,6 +133,20 @@ const AllScreen = ({ navigation, route }) => {
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   }, [jumpVersion]);
 
+  // 검색어가 바뀌면 이동했던 달을 풀고 (새) 결과의 가장 최근 글부터 보여준다
+  const isFirstSearchRef = useRef(true);
+
+  useEffect(() => {
+    if (isFirstSearchRef.current) {
+      isFirstSearchRef.current = false;
+      return;
+    }
+
+    setSelectedMonth(null);
+    setVisibleMonth(null);
+    setJumpVersion(version => version + 1);
+  }, [searchKeyword]);
+
   const headerMonth = visibleMonth ?? selectedMonth ?? rows[0]?.month;
   const headerText = headerMonth ? formatMonthLabel(headerMonth) : '';
 
@@ -136,7 +158,7 @@ const AllScreen = ({ navigation, route }) => {
     // 같은 달을 다시 고르면 key 가 그대로라 캐시(위로 불러온 페이지 포함)를 비우고 그 달부터 다시 불러온다
     if (nextAnchorMonth === anchor.month) {
       queryClient.resetQueries({
-        queryKey: archiveKeys.allMyFeeds(userId, nextAnchorMonth ?? 'all'),
+        queryKey: archiveKeys.allMyFeeds(userId, nextAnchorMonth ?? 'all', searchKeyword),
         exact: true,
       });
     }
@@ -144,7 +166,7 @@ const AllScreen = ({ navigation, route }) => {
     setSelectedMonth(month);
     setVisibleMonth(null);
     setJumpVersion(version => version + 1);
-  }, [months, anchor.month, queryClient, userId]);
+  }, [months, anchor.month, queryClient, userId, searchKeyword]);
 
   const handlePressHeader = useCallback(() => {
     if (months.length === 0) return;

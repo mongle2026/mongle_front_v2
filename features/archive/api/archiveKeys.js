@@ -13,10 +13,11 @@ export const archiveKeys = {
   myFeedGenres: (userId, limit) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'genres', limit],
   // 선택한 장르의 기록 목록 (커서 페이지네이션, 정렬별로 따로 캐시)
   genreFeeds: (userId, genre, sort) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'genre', genre, sort],
-  // 모든 기록의 월 목록 (월 + 커버 후보)
-  myFeedMonths: (userId, limit) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'months', limit],
+  // 모든 기록의 월 목록 (월 + 커버 후보). keyword: 노래 제목·아티스트 검색어 ('' 이면 전체)
+  myFeedMonths: (userId, limit, keyword = '') => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'months', limit, keyword],
   // 모든 기록 목록 (양방향 커서 페이지네이션). anchorMonth: 목록을 시작한 달 'YYYY-MM' 또는 'all'(가장 최근 글부터)
-  allMyFeeds: (userId, anchorMonth) => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'all', anchorMonth],
+  // keyword: 노래 제목·아티스트 검색어 ('' 이면 전체)
+  allMyFeeds: (userId, anchorMonth, keyword = '') => [...ARCHIVE_QUERY_ROOT, 'myfeed', Number(userId), 'all', anchorMonth, keyword],
   // 북마크 전체. 북마크를 켜고 끈 뒤 이 키로 invalidate 한다
   bookmark: userId => [...ARCHIVE_QUERY_ROOT, 'bookmark', Number(userId)],
   // 북마크 목록 (커서 페이지네이션). filter: all / following, sort: latest / oldest

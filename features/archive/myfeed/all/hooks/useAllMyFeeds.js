@@ -12,10 +12,14 @@ const DIRECTION = {
   NEWER: 'newer',
 };
 
-async function fetchAllFeedPage({ userId, pageParam }) {
+async function fetchAllFeedPage({ userId, keyword, pageParam }) {
   const { direction, cursor } = pageParam;
   const isNewer = direction === DIRECTION.NEWER;
   const params = { userId, limit: ALL_FEED_LIMIT };
+
+  if (keyword) {
+    params.keyword = keyword;
+  }
 
   if (isNewer) {
     params.sort = 'oldest';
@@ -38,12 +42,13 @@ async function fetchAllFeedPage({ userId, pageParam }) {
   };
 }
 
-// 모든 기록 (최신순). GET /feed/me?userId=&cursor=&limit=
+// 모든 기록 (최신순). GET /feed/me?userId=&cursor=&limit=&keyword=
 // anchorMonth('YYYY-MM') + anchorCursor(그 달 latestFeedId + 1)를 넘기면 중간 글을 건너뛰고 그 달부터 시작한다.
 //   아래로: 더 오래된 글 (fetchNextPage) / 위로: 더 최근 글 (fetchPreviousPage, sort=oldest)
 // anchorMonth 가 없으면 가장 최근 글부터 시작하고 위로 불러올 글은 없다.
+// keyword 가 있으면 노래 제목 또는 아티스트에 검색어가 포함된 글만 불러온다.
 // enabled: false 면 요청하지 않는다 (이동할 달의 커서를 아직 모를 때 등)
-const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, enabled = true }) => {
+const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, keyword = '', enabled = true }) => {
   const isConfigured = Boolean(isApiConfigured && Number(userId) > 0 && enabled);
   const isAnchored = Boolean(anchorMonth);
 
@@ -57,13 +62,13 @@ const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, enabled = true }) =>
     fetchNextPage,
     fetchPreviousPage,
   } = useInfiniteQuery({
-    queryKey: archiveKeys.allMyFeeds(userId, anchorMonth ?? 'all'),
+    queryKey: archiveKeys.allMyFeeds(userId, anchorMonth ?? 'all', keyword),
     initialPageParam: { direction: DIRECTION.OLDER, cursor: isAnchored ? anchorCursor : null },
     enabled: isConfigured,
     // 화면을 떠나거나 다른 달로 이동하면 바로 버린다.
     // 남겨 두면 다시 그 달로 왔을 때 위쪽(더 최근) 페이지까지 같이 복원돼 그 달이 맨 위에 오지 않는다
     gcTime: 0,
-    queryFn: ({ pageParam }) => fetchAllFeedPage({ userId, pageParam }),
+    queryFn: ({ pageParam }) => fetchAllFeedPage({ userId, keyword, pageParam }),
     getNextPageParam: lastPage => {
       // 아래 끝 = 마지막 older 페이지. newer 페이지는 항상 위에만 붙는다
       if (lastPage.direction !== DIRECTION.OLDER || !lastPage.hasNext) return undefined;
