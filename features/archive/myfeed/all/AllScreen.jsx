@@ -22,7 +22,7 @@ import { formatMonthLabel } from '../utils/formatMonthLabel';
 import { toKstMonth } from '../utils/toKstMonth';
 import { toShortPost } from '../utils/toShortPost';
 import MonthSelectBottomSheet from './components/MonthSelectBottomSheet';
-import useAllMyFeeds from './hooks/useAllMyFeeds';
+import useAllMyFeeds, { removeAllMyFeedsWithNewerPages } from './hooks/useAllMyFeeds';
 import useMyFeedMonths from './hooks/useMyFeedMonths';
 
 const SEARCH_PLACEHOLDER = '음악 제목, 아티스트를 검색해 보세요.';
@@ -59,6 +59,8 @@ const rowKeyExtractor = row => row.key;
 
 // 모든 기록. 최신 달부터 카드를 나열하고, 달이 바뀌는 곳은 간격을 넓혀 구분한다.
 // route.params.month('YYYY-MM')로 들어오거나 BottomSheet에서 달을 고르면 중간 글을 건너뛰고 그 달부터 새로 불러온다
+// 보관함 홈에서는 route.params.anchorCursor(그 달 latestFeedId + 1, 가장 최근 달이면 null)도 같이 넘겨
+// 월 목록 응답을 기다리지 않고 바로 불러온다.
 // (그 달이 맨 위, 위로 스크롤하면 더 최근 글, 아래로 스크롤하면 더 오래된 글).
 // 제목은 화면 맨 위에 보이는 카드의 달 (전체로 들어오면 가장 최근에 글을 쓴 달). 제목을 누르면 달을 고르는 BottomSheet가 뜬다
 // 검색어(노래 제목·아티스트)가 있으면 목록과 BottomSheet의 달 모두 검색어가 포함된 글 기준으로 좁힌다
@@ -84,9 +86,20 @@ const AllScreen = ({ navigation, route }) => {
   // 이동한 달. null 이면 가장 최근 글부터
   const [selectedMonth, setSelectedMonth] = useState(route?.params?.month ?? null);
 
+  const routeMonth = route?.params?.month;
+  const routeAnchorCursor = route?.params?.anchorCursor;
+
   // 목록을 시작할 달과 커서. 가장 최근 달이거나 목록에 없는 달(그 사이 글이 지워짐 등)이면 처음부터
   const anchor = useMemo(() => {
     if (!selectedMonth) return { month: null, isReady: true };
+
+    // 보관함 홈이 넘겨준 커서. 검색어가 있으면 달 목록이 달라지므로 쓰지 않는다
+    if (selectedMonth === routeMonth && routeAnchorCursor !== undefined && !searchKeyword) {
+      return Number.isInteger(routeAnchorCursor)
+        ? { month: selectedMonth, cursor: routeAnchorCursor, isReady: true }
+        : { month: null, isReady: true };
+    }
+
     if (isMonthsLoading) return { month: null, isReady: false };
 
     const index = months.findIndex(item => item.month === selectedMonth);
@@ -94,7 +107,7 @@ const AllScreen = ({ navigation, route }) => {
     if (index <= 0 || !Number.isInteger(latestFeedId)) return { month: null, isReady: true };
 
     return { month: selectedMonth, cursor: latestFeedId + 1, isReady: true };
-  }, [selectedMonth, isMonthsLoading, months]);
+  }, [selectedMonth, routeMonth, routeAnchorCursor, searchKeyword, isMonthsLoading, months]);
 
   const {
     feeds,
@@ -161,6 +174,9 @@ const AllScreen = ({ navigation, route }) => {
         queryKey: archiveKeys.allMyFeeds(userId, nextAnchorMonth ?? 'all', searchKeyword),
         exact: true,
       });
+    } else {
+      // 전에 봤던 달이면 캐시가 남아 있다. 위쪽 페이지까지 불러온 캐시면 버려서 그 달이 맨 위에 오게 한다
+      removeAllMyFeedsWithNewerPages(queryClient, { userId, anchorMonth: nextAnchorMonth, keyword: searchKeyword });
     }
 
     setSelectedMonth(month);

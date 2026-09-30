@@ -1,6 +1,7 @@
 import { memo, useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useQueryClient } from '@tanstack/react-query';
 
 import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
 
@@ -10,6 +11,7 @@ import { colors } from '../../../../shared/styles/color';
 import { gap, padding } from '../../../../shared/styles/token';
 
 import GenreCard from '../../components/GenreCard';
+import { prefetchGenreFeeds } from './detail/hooks/useGenreFeeds';
 import useMyFeedGenres from './hooks/useMyFeedGenres';
 
 const COLUMN_COUNT = 2;
@@ -20,10 +22,12 @@ const GenreScreen = ({ navigation }) => {
   const { genres } = useMyFeedGenres({ userId });
   const insets = useSafeAreaInsets();
 
-  const handlePressGenre = useCallback(
-    genre => navigation.navigate('MyFeedGenreDetail', { genre }),
-    [navigation],
-  );
+  const queryClient = useQueryClient();
+
+  const handlePressGenre = useCallback(genre => {
+    prefetchGenreFeeds(queryClient, { userId, genre });
+    navigation.navigate('MyFeedGenreDetail', { genre });
+  }, [navigation, queryClient, userId]);
 
   const genreRows = useMemo(() => {
     const rows = [];

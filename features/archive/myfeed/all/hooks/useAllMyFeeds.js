@@ -42,32 +42,14 @@ async function fetchAllFeedPage({ userId, keyword, pageParam }) {
   };
 }
 
-// 모든 기록 (최신순). GET /feed/me?userId=&cursor=&limit=&keyword=
-// anchorMonth('YYYY-MM') + anchorCursor(그 달 latestFeedId + 1)를 넘기면 중간 글을 건너뛰고 그 달부터 시작한다.
-//   아래로: 더 오래된 글 (fetchNextPage) / 위로: 더 최근 글 (fetchPreviousPage, sort=oldest)
-// anchorMonth 가 없으면 가장 최근 글부터 시작하고 위로 불러올 글은 없다.
-// keyword 가 있으면 노래 제목 또는 아티스트에 검색어가 포함된 글만 불러온다.
-// enabled: false 면 요청하지 않는다 (이동할 달의 커서를 아직 모를 때 등)
-const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, keyword = '', enabled = true }) => {
-  const isConfigured = Boolean(isApiConfigured && Number(userId) > 0 && enabled);
+const isAllMyFeedsConfigured = ({ userId }) => Boolean(isApiConfigured && Number(userId) > 0);
+
+const getAllMyFeedsQueryOptions = ({ userId, anchorMonth, anchorCursor, keyword }) => {
   const isAnchored = Boolean(anchorMonth);
 
-  const {
-    data,
-    isPending,
-    isFetchingNextPage,
-    isFetchingPreviousPage,
-    hasNextPage,
-    hasPreviousPage,
-    fetchNextPage,
-    fetchPreviousPage,
-  } = useInfiniteQuery({
+  return {
     queryKey: archiveKeys.allMyFeeds(userId, anchorMonth ?? 'all', keyword),
     initialPageParam: { direction: DIRECTION.OLDER, cursor: isAnchored ? anchorCursor : null },
-    enabled: isConfigured,
-    // 화면을 떠나거나 다른 달로 이동하면 바로 버린다.
-    // 남겨 두면 다시 그 달로 왔을 때 위쪽(더 최근) 페이지까지 같이 복원돼 그 달이 맨 위에 오지 않는다
-    gcTime: 0,
     queryFn: ({ pageParam }) => fetchAllFeedPage({ userId, keyword, pageParam }),
     getNextPageParam: lastPage => {
       // 아래 끝 = 마지막 older 페이지. newer 페이지는 항상 위에만 붙는다
@@ -83,6 +65,49 @@ const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, keyword = '', enable
 
       return { direction: DIRECTION.NEWER, cursor: newestFeedId };
     },
+  };
+};
+
+// 위쪽(더 최근) 페이지까지 불러온 캐시는 버린다.
+// 그대로 두면 다시 그 달로 왔을 때 위쪽 페이지까지 같이 복원돼 그 달이 맨 위에 오지 않는다
+export const removeAllMyFeedsWithNewerPages = (queryClient, { userId, anchorMonth, keyword = '' }) => {
+  const queryKey = archiveKeys.allMyFeeds(userId, anchorMonth ?? 'all', keyword);
+  const data = queryClient.getQueryData(queryKey);
+
+  if (data?.pages?.[0]?.direction === DIRECTION.NEWER) {
+    queryClient.removeQueries({ queryKey, exact: true });
+  }
+};
+
+// 달(또는 전체)을 누르는 순간 첫 페이지를 불러오기 시작해서, 화면이 넘어오는 동안 받아 둔다
+export const prefetchAllMyFeeds = (queryClient, { userId, anchorMonth, anchorCursor, keyword = '' }) => {
+  if (!isAllMyFeedsConfigured({ userId })) return;
+
+  removeAllMyFeedsWithNewerPages(queryClient, { userId, anchorMonth, keyword });
+  void queryClient.prefetchInfiniteQuery(getAllMyFeedsQueryOptions({ userId, anchorMonth, anchorCursor, keyword }));
+};
+
+// 모든 기록 (최신순). GET /feed/me?userId=&cursor=&limit=&keyword=
+// anchorMonth('YYYY-MM') + anchorCursor(그 달 latestFeedId + 1)를 넘기면 중간 글을 건너뛰고 그 달부터 시작한다.
+//   아래로: 더 오래된 글 (fetchNextPage) / 위로: 더 최근 글 (fetchPreviousPage, sort=oldest)
+// anchorMonth 가 없으면 가장 최근 글부터 시작하고 위로 불러올 글은 없다.
+// keyword 가 있으면 노래 제목 또는 아티스트에 검색어가 포함된 글만 불러온다.
+// enabled: false 면 요청하지 않는다 (이동할 달의 커서를 아직 모를 때 등)
+const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, keyword = '', enabled = true }) => {
+  const isConfigured = isAllMyFeedsConfigured({ userId }) && enabled;
+
+  const {
+    data,
+    isPending,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+    fetchNextPage,
+    fetchPreviousPage,
+  } = useInfiniteQuery({
+    ...getAllMyFeedsQueryOptions({ userId, anchorMonth, anchorCursor, keyword }),
+    enabled: isConfigured,
   });
 
   const feeds = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data?.pages]);

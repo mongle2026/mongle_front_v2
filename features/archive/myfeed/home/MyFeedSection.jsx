@@ -30,6 +30,21 @@ const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore,
     [navigation],
   );
 
+  // 달 카드면 그 달부터 시작할 커서(latestFeedId + 1)를 같이 넘겨 모든 기록이 월 목록을 기다리지 않게 한다.
+  // 가장 최근 달은 처음부터 보여주므로 null
+  const handlePressAllFeed = useCallback(month => {
+    if (!month) {
+      onPressAllFeed?.();
+      return;
+    }
+
+    const index = months.findIndex(item => item.month === month);
+    const latestFeedId = months[index]?.latestFeedId;
+    const anchorCursor = index > 0 && Number.isInteger(latestFeedId) ? latestFeedId + 1 : null;
+
+    onPressAllFeed?.(month, anchorCursor);
+  }, [months, onPressAllFeed]);
+
   // 전체 카드 커버 = 가장 최신 글의 앨범 커버
   const latestArtworkUri = resolveMediaUri(recentFeeds[0]?.music?.musicArtwork);
   const allImageSource = useMemo(
@@ -61,7 +76,7 @@ const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore,
             onPressFeed={handlePressFeed}
           />
           <GenrePreview genres={genres} onPressMore={onPressGenreMore} onPressGenre={onPressGenre} />
-          <AllFeedPreview allImageSource={allImageSource} months={months} onPressCard={onPressAllFeed} />
+          <AllFeedPreview allImageSource={allImageSource} months={months} onPressCard={handlePressAllFeed} />
         </>
       )}
     </ScrollView>

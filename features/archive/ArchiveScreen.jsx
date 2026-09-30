@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useQueryClient } from '@tanstack/react-query';
 
 import TopNavigation, { ARCHIVE_TOP_NAVIGATION_TABS } from '../../shared/components/navigation/topnavigation/TopNavigation';
 import TabBar from '../../shared/components/navigation/tabbar/TabBar';
@@ -9,6 +10,8 @@ import { colors } from '../../shared/styles/color';
 
 import BookmarkSection from './bookmark/BookmarkSection';
 import MyFeedSection from './myfeed/home/MyFeedSection';
+import { prefetchAllMyFeeds } from './myfeed/all/hooks/useAllMyFeeds';
+import { prefetchGenreFeeds } from './myfeed/genre/detail/hooks/useGenreFeeds';
 
 const ARCHIVE_TAB = {
   MYFEED: 'myfeed',
@@ -25,6 +28,7 @@ const ARCHIVE_TAB_LABELS = ARCHIVE_TABS.map(tab => tab.label);
 
 const ArchiveScreen = ({ navigation }) => {
   const { currentUser, userId } = useCurrentUser();
+  const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState(ARCHIVE_TAB.MYFEED);
   const activeTabIndex = ARCHIVE_TABS.findIndex(tab => tab.key === activeTab);
@@ -42,13 +46,19 @@ const ArchiveScreen = ({ navigation }) => {
   }, [navigation]);
 
   const handlePressGenre = useCallback(genre => {
+    prefetchGenreFeeds(queryClient, { userId, genre });
     navigation.navigate('MyFeedGenreDetail', { genre });
-  }, [navigation]);
+  }, [navigation, queryClient, userId]);
 
-  // month 없으면 전체
-  const handlePressAllFeed = useCallback(month => {
-    navigation.navigate('MyFeedAll', month ? { month } : undefined);
-  }, [navigation]);
+  // month 없으면 전체. anchorCursor: 그 달부터 시작할 커서 (가장 최근 달이면 null → 처음부터)
+  const handlePressAllFeed = useCallback((month, anchorCursor = null) => {
+    prefetchAllMyFeeds(queryClient, {
+      userId,
+      anchorMonth: Number.isInteger(anchorCursor) ? month : null,
+      anchorCursor,
+    });
+    navigation.navigate('MyFeedAll', month ? { month, anchorCursor } : undefined);
+  }, [navigation, queryClient, userId]);
 
   return (
     <View style={styles.screen}>
