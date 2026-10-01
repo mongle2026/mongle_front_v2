@@ -1,3 +1,5 @@
+import { Image } from 'react-native';
+
 import apiClient, { getApiErrorDetail } from '../../../../shared/api/client';
 import {
   useMutation,
@@ -9,7 +11,6 @@ import {
 } from '../../store/useRecordFormStore';
 
 import {
-  prepareRecordFiles,
   uploadRecordFiles,
 } from '../../utils/uploadRecordFiles';
 
@@ -19,6 +20,29 @@ import {
 import { archiveKeys } from '../../../archive/api/archiveKeys';
 import { useCreatedFeedStore } from '../../../feed/store/useCreatedFeedStore';
 import { normalizeFeedItem } from '../../../feed/home/hooks/useFeedHome';
+
+/*
+ * 방금 올린 사진은 R2에서 다시 받지 않고 기기에 있는 압축본으로 보여 줍니다.
+ * 서버 응답의 파일 순서는 업로드한 순서와 같습니다.
+ * 피드를 다시 불러오면 서버 주소로 바뀌므로, 그때 깜빡이지 않게 미리 받아 둡니다.
+ */
+const withLocalImageUris = (feed, localUris) => {
+  if (!feed || !localUris?.length) return feed;
+
+  return {
+    ...feed,
+    files: feed.files.map((file, index) => {
+      const localUri = localUris[index];
+      if (!localUri) return file;
+
+      if (file?.url) {
+        Image.prefetch(file.url).catch(() => {});
+      }
+
+      return { ...file, url: localUri };
+    }),
+  };
+};
 
 const useCreateFeed = ({
   userId,
@@ -48,16 +72,14 @@ const useCreateFeed = ({
         useRecordFormStore.getState();
 
       /*
-       * 압축과 업로드를 요청 전에 끝내 둡니다.
+       * 업로드를 요청 전에 끝내 둡니다.
+       * 사진을 고를 때 미리 시작한 업로드는 기다리기만 합니다.
        * 여기서 실패하면 서버에 아무것도 반영하지 않고 끝납니다.
        */
-      const uploadableFiles =
-        await prepareRecordFiles(recordForm.files);
-
-      const files =
+      const { files, localUris } =
         await uploadRecordFiles({
           userId,
-          files: uploadableFiles,
+          files: recordForm.files,
         });
 
       /*
@@ -80,14 +102,20 @@ const useCreateFeed = ({
           },
         );
 
-      return response.data;
+      return {
+        data: response.data,
+        localUris,
+      };
     },
 
-    onSuccess: data => {
+    onSuccess: ({ data, localUris }) => {
       const recommendedKey =
         feedHomeKeys.list(userId, 'recommended');
       const createdFeed =
-        normalizeFeedItem(data?.feed);
+        withLocalImageUris(
+          normalizeFeedItem(data?.feed),
+          localUris,
+        );
 
       /*
        * 비공개 글은 서버 피드에 나오지 않으므로

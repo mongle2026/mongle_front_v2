@@ -3,7 +3,8 @@ import {
   SaveFormat,
 } from 'expo-image-manipulator';
 
-const MAX_DIMENSION = 1920;
+// 피드에서 보이는 크기에는 1440px이면 충분하고, 업로드 용량이 1920px의 절반 남짓으로 줄어든다
+const MAX_DIMENSION = 1440;
 const COMPRESS_QUALITY = 0.7;
 
 const isImageFile = file =>

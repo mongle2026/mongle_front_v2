@@ -4,7 +4,9 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 import { useFloatingBottomOffset } from '../../../../shared/hooks/useFloatingBottomOffset';
+import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 import { useRecordFormStore } from '../../store/useRecordFormStore';
+import { startRecordFileUploads } from '../../utils/uploadRecordFiles';
 
 // 기록 / 편지 한 건에 첨부할 수 있는 최대 이미지 수
 export const MAX_IMAGES = 2;
@@ -62,6 +64,7 @@ export const useRecordImageManager = () => {
   );
   const isImageLimitReached = imageFiles.length >= MAX_IMAGES;
 
+  const { userId } = useCurrentUser();
   const bottomOffset = useFloatingBottomOffset();
   const { showToast } = useGlobalOverlay();
 
@@ -82,10 +85,13 @@ export const useRecordImageManager = () => {
       const otherFiles = files.filter(file => file.fileType !== 'IMAGE');
 
       setFiles([...otherFiles, ...imageFiles, ...selectedImages]);
+
+      // 글을 쓰는 동안 업로드를 끝내 두면 저장할 때 기다리지 않는다
+      startRecordFileUploads({ userId, files: selectedImages });
     } catch (error) {
       console.log('pickImages error:', error);
     }
-  }, [files, imageFiles, setFiles]);
+  }, [files, imageFiles, setFiles, userId]);
 
   const handleRemoveImage = useCallback(
     image => {

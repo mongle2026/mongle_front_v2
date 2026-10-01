@@ -2,6 +2,8 @@
 
 import { create } from 'zustand';
 
+import { clearRecordFileUploads } from '../utils/uploadRecordFiles';
+
 const initialState = {
   music: null,
   text: '',
@@ -92,8 +94,12 @@ export const useRecordFormStore = create((set) => ({
       isDirty: false,
     }),
 
-  resetRecordForm: () =>
+  resetRecordForm: () => {
+    // 미리 올려 둔 사진도 함께 비운다 (저장에 쓴 키는 다시 쓸 수 없다)
+    clearRecordFileUploads();
+
     set({
       ...initialState,
-    }),
+    });
+  },
 }));

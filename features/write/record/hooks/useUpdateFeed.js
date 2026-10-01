@@ -9,7 +9,6 @@ import {
 } from '../../store/useRecordFormStore';
 
 import {
-  prepareRecordFiles,
   uploadRecordFiles,
 } from '../../utils/uploadRecordFiles';
 
@@ -70,16 +69,14 @@ const useUpdateFeed = ({
         );
 
       /*
-       * 압축과 업로드를 요청 전에 끝내 둡니다.
+       * 업로드를 요청 전에 끝내 둡니다.
+       * 사진을 고를 때 미리 시작한 업로드는 기다리기만 합니다.
        * 여기서 실패하면 서버에 아무것도 반영하지 않고 끝납니다.
        */
-      const uploadableFiles =
-        await prepareRecordFiles(recordForm.files);
-
-      const files =
+      const { files } =
         await uploadRecordFiles({
           userId,
-          files: uploadableFiles,
+          files: recordForm.files,
         });
 
       /*
