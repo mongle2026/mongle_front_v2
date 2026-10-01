@@ -77,9 +77,13 @@ const CommentSection = ({
                 // 남의 댓글에도 케밥 버튼은 의도적으로 노출함
                 // TODO: 남의 댓글이면 신고하기 메뉴 열기
                 if (!comment.isMine) return;
+                // 아직 저장 중인 댓글은 id 가 없어 삭제할 수 없다
+                if (comment.isPending) return;
                 onPressMenu?.(comment, measureAnchor);
               }}
               onPressReply={commentRef => {
+                // 저장 중인 댓글은 답글을 묶을 원댓글 id 가 아직 없다
+                if (comment.isPending) return;
                 onPressReply?.(resolveReplyTarget(comment), commentRef);
               }}
             />

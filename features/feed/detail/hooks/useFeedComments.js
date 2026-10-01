@@ -50,7 +50,34 @@ const normalizeComment = ({
     isMine:
       Number(comment.userId) ===
       Number(currentUserId),
+
+    // 서버 응답 전에 먼저 그려 둔 댓글 (아직 id 가 없어 답글/삭제 불가)
+    isPending: Boolean(comment.isPending),
   };
+};
+
+// 서버에 저장되기 전 임시 댓글 id. 실제 id 와 겹치지 않게 음수를 쓴다
+let tempCommentSeq = 0;
+const createTempCommentId = () => {
+  tempCommentSeq += 1;
+  return -tempCommentSeq;
+};
+
+const appendTempComment = (groups, tempComment) => {
+  const list = Array.isArray(groups) ? groups : [];
+
+  if (!tempComment.rootCommentId) {
+    return [...list, { ...tempComment, replies: [] }];
+  }
+
+  return list.map(root =>
+    Number(root.commentId) === Number(tempComment.rootCommentId)
+      ? {
+          ...root,
+          replies: [...(root.replies ?? []), tempComment],
+        }
+      : root,
+  );
 };
 
 const normalizeCommentGroups = (
@@ -96,6 +123,7 @@ const normalizeCommentGroups = (
 export default function useFeedComments({
   feedId,
   userId,
+  currentUser = null,
   enabled = true,
 }) {
   const queryClient = useQueryClient();
@@ -201,16 +229,63 @@ export default function useFeedComments({
         return response.data;
       },
 
-      onSuccess: async () => {
-        await queryClient.invalidateQueries(
-          {
-            queryKey,
-            exact: true,
-          },
+      // 서버 응답을 기다리지 않고 내 댓글을 목록에 먼저 넣는다
+      onMutate: async ({
+        content,
+        rootCommentId = null,
+      }) => {
+        const normalizedContent =
+          String(content ?? '').trim();
+
+        if (!normalizedContent) {
+          return {};
+        }
+
+        // 진행 중인 목록 조회가 끝나며 임시 댓글을 덮어쓰지 않게 멈춘다
+        await queryClient.cancelQueries({
+          queryKey,
+          exact: true,
+        });
+
+        const previousComments =
+          queryClient.getQueryData(queryKey);
+
+        const now = new Date().toISOString();
+
+        queryClient.setQueryData(
+          queryKey,
+          groups =>
+            appendTempComment(groups, {
+              commentId: createTempCommentId(),
+              feedId: Number(feedId),
+              userId: Number(userId),
+              user: {
+                userId: Number(userId),
+                userCode: currentUser?.userCode,
+                profileImageUrl:
+                  currentUser?.profileImageUrl ?? null,
+              },
+              content: normalizedContent,
+              rootCommentId: rootCommentId
+                ? Number(rootCommentId)
+                : null,
+              createdAt: now,
+              updatedAt: now,
+              isPending: true,
+            }),
         );
+
+        return { previousComments };
       },
 
-      onError: error => {
+      onError: (error, _variables, context) => {
+        if (context && 'previousComments' in context) {
+          queryClient.setQueryData(
+            queryKey,
+            context.previousComments,
+          );
+        }
+
         console.warn(
           '댓글 작성에 실패했습니다.',
           getApiErrorDetail(error),
@@ -220,6 +295,15 @@ export default function useFeedComments({
           '댓글 작성 실패',
           getApiErrorMessage(error, '댓글을 작성하지 못했습니다.'),
         );
+      },
+
+      // 임시 댓글을 서버 목록으로 바꿔 끼운다.
+      // 기다리면 전송 완료가 그만큼 늦어지므로 await 하지 않는다
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey,
+          exact: true,
+        });
       },
     });
 

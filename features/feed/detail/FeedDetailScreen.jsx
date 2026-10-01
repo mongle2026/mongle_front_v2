@@ -142,7 +142,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
     isCreatingComment,
     deleteComment,
     isDeletingComment,
-  } = useFeedComments({ feedId, userId });
+  } = useFeedComments({ feedId, userId, currentUser });
 
   useDeletedCommentToast({
     commentId: notifiedCommentId,

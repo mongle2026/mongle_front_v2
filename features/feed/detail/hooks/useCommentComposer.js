@@ -5,18 +5,23 @@ const useCommentComposer=({createComment})=>{
   const[replyFocusRequestKey,setReplyFocusRequestKey]=useState(0);
 
   // 입력 중인 글자는 CommentComposer가 들고 있고,
-  // 여기서는 전송 성공 여부만 돌려준다 (성공하면 CommentComposer가 입력창을 비움)
+  // 여기서는 전송 성공 여부만 돌려준다 (실패하면 CommentComposer가 입력한 글을 되돌림)
   const handleSubmitComment=useCallback(async content=>{
+    const target=replyTarget;
+
+    // 입력창이 바로 비워지므로 답글 대상도 함께 해제하고, 실패하면 되돌린다
+    setReplyTarget(null);
+
     try{
       await createComment({
         content,
-        rootCommentId:replyTarget?.rootCommentId??null,
-        replyToUserId:replyTarget?.userId??null,
+        rootCommentId:target?.rootCommentId??null,
+        replyToUserId:target?.userId??null,
       });
 
-      setReplyTarget(null);
       return true;
     }catch{
+      setReplyTarget(previous=>previous??target);
       return false;
     }
   },[createComment,replyTarget]);
