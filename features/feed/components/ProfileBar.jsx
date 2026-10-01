@@ -13,6 +13,8 @@ const ProfileBar = ({
   imageSize = 'M',
   username,
   font = 'kyobo',
+  // username 버튼 variant. 팔로우한 사람이면 Solid
+  profileVariant,
 
   showFollowButton = true,
   followLabel = '팔로우',
@@ -32,6 +34,7 @@ const ProfileBar = ({
           imageSize={imageSize}
           username={username}
           font={font}
+          variant={profileVariant}
           onPress={onPressProfile}
         />
 

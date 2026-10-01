@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import { TEXT_BUTTON_VARIANT } from '../../../../shared/components/action/TextButton';
 import { getImageSources, resolveMediaUri } from '../../../../shared/utils/media';
 import useDoubleTapLike from '../../hooks/useDoubleTapLike';
 
@@ -81,6 +82,7 @@ const FeedPostItem = ({
       profileProps={{
         imageUri: profileImageUri,
         username: user?.userCode ?? '',
+        profileVariant: isFollowing ? TEXT_BUTTON_VARIANT.SOLID : TEXT_BUTTON_VARIANT.GHOST,
         showFollowButton: !isMine,
         followLabel: isFollowing ? '팔로잉' : '팔로우',
         followVariant: isFollowing ? 'Ghost' : 'Solid',

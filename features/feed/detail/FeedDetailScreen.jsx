@@ -438,6 +438,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
           imageUri={profileImageUri}
           username={user.userCode ?? ''}
           font={normalizedFont}
+          profileVariant={isFollowing ? TEXT_BUTTON_VARIANT.SOLID : TEXT_BUTTON_VARIANT.GHOST}
           showFollowButton={!isMine}
           followLabel={isFollowing ? '팔로잉' : '팔로우'}
           followVariant={isFollowing ? 'Ghost' : 'Solid'}
