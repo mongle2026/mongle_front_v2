@@ -27,7 +27,8 @@ export default function useFeedToggleMutation({
   countKey,
   errorMessage,
   onError,
-  invalidateQueryKey,
+  onOptimisticChange,
+  onSynced,
 }) {
   const queryClient = useQueryClient();
 
@@ -36,6 +37,14 @@ export default function useFeedToggleMutation({
 
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
+
+  // 피드 홈/상세 말고 다른 캐시(보관함 북마크 등)도 같이 맞출 때 쓴다
+  // onOptimisticChange(feedId, value): 탭하거나 실패로 되돌릴 때, onSynced(feedId, value): 서버 반영 후
+  const onOptimisticChangeRef = useRef(onOptimisticChange);
+  onOptimisticChangeRef.current = onOptimisticChange;
+
+  const onSyncedRef = useRef(onSynced);
+  onSyncedRef.current = onSynced;
 
   const userFeedQueryKey = useMemo(() => feedHomeKeys.user(userId), [userId]);
 
@@ -103,11 +112,7 @@ export default function useFeedToggleMutation({
       request
         .then(() => {
           state.confirmedValue = requestValue;
-
-          // 이 캐시에 없는 목록(보관함 북마크 등)은 서버 반영 후 다시 불러온다
-          if (invalidateQueryKey) {
-            queryClient.invalidateQueries({ queryKey: invalidateQueryKey });
-          }
+          onSyncedRef.current?.(feedId, requestValue);
         })
         .catch(requestError => {
           console.warn(errorMessage, getApiErrorDetail(requestError));
@@ -117,6 +122,7 @@ export default function useFeedToggleMutation({
 
           state.desiredValue = state.confirmedValue;
           writeCachedValue(feedId, state.confirmedValue);
+          onOptimisticChangeRef.current?.(feedId, state.confirmedValue);
           onErrorRef.current?.(requestError);
         })
         .finally(() => {
@@ -133,7 +139,7 @@ export default function useFeedToggleMutation({
           if (!state.timer) sync(feedId);
         });
     },
-    [endpoint, errorMessage, invalidateQueryKey, queryClient, userId, writeCachedValue],
+    [endpoint, errorMessage, queryClient, userId, writeCachedValue],
   );
 
   const applyToggle = useCallback(
@@ -157,6 +163,7 @@ export default function useFeedToggleMutation({
 
       state.desiredValue = nextValue;
       writeCachedValue(feedId, nextValue);
+      onOptimisticChangeRef.current?.(feedId, nextValue);
 
       if (state.timer) clearTimeout(state.timer);
       state.timer = setTimeout(() => sync(feedId), SYNC_DELAY);
@@ -192,19 +199,18 @@ export default function useFeedToggleMutation({
     [applyToggle, queryClient, readCachedValue, userFeedQueryKey, userId],
   );
 
-  // 화면을 떠날 때 대기 중인 탭은 기다리지 않고 바로 보낸다
-  useEffect(() => {
-    const syncStates = syncStatesRef.current;
+  // 대기 중인 탭을 기다리지 않고 바로 보낸다
+  const flush = useCallback(() => {
+    syncStatesRef.current.forEach((state, feedId) => {
+      if (!state.timer) return;
 
-    return () => {
-      syncStates.forEach((state, feedId) => {
-        if (!state.timer) return;
-
-        clearTimeout(state.timer);
-        sync(feedId);
-      });
-    };
+      clearTimeout(state.timer);
+      sync(feedId);
+    });
   }, [sync]);
 
-  return { toggle };
+  // 화면을 떠날 때도 바로 보낸다
+  useEffect(() => flush, [flush]);
+
+  return { toggle, flush };
 }

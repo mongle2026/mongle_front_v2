@@ -48,7 +48,7 @@ const FeedHomeScreen = ({ navigation }) => {
     fetchNextPage,
     refetchFeed,
     handlePressFollow,
-    pendingTargetUserId,
+    pendingTargetUserIds,
   } = useFeedHome({ userId, isFollowing });
 
   const {
@@ -105,8 +105,8 @@ const FeedHomeScreen = ({ navigation }) => {
   }, [activeTab, clearCreatedFeedId, createdFeedId, firstFeedId, resetPlayback, scrollToTop]);
 
   const feedExtraData = useMemo(
-    () => ({ playingFeedId, pendingTargetUserId }),
-    [pendingTargetUserId, playingFeedId]
+    () => ({ playingFeedId, pendingTargetUserIds }),
+    [pendingTargetUserIds, playingFeedId]
   );
 
   // 카드마다 새 객체를 넘기면 FeedPostItem memo가 깨져서
@@ -171,7 +171,7 @@ const FeedHomeScreen = ({ navigation }) => {
           item={item}
           userId={userId}
           cardStyle={cardStyle}
-          followDisabled={pendingTargetUserId === targetUserId}
+          followDisabled={pendingTargetUserIds.has(targetUserId)}
           isMusicPlaying={isMusicPlaying}
           onPressPost={handlePressPost}
           onPressComment={handlePressComment}
@@ -190,7 +190,7 @@ const FeedHomeScreen = ({ navigation }) => {
       handlePressLike,
       handlePressMusicPlayback,
       handlePressPost,
-      pendingTargetUserId,
+      pendingTargetUserIds,
       playingFeedId,
       userId,
     ]

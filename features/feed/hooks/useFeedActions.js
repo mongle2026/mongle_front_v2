@@ -1,12 +1,16 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { ARCHIVE_TAB } from '../../archive/ArchiveScreen';
 import { archiveKeys } from '../../archive/api/archiveKeys';
+import { addBookmarkFeed, removeBookmarkFeed } from '../../archive/api/bookmarkCache';
+import { prefetchBookmarkFeeds } from '../../archive/bookmark/hooks/useBookmarkFeeds';
 import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottomOffset';
 
+import { findFeedItemInCache } from '../api/feedCache';
 import useFeedToggleMutation from './useFeedToggleMutation';
 
 /*
@@ -20,6 +24,7 @@ const useFeedActions = ({
   floatingBarOffset = 0,
 }) => {
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const { showToast } = useGlobalOverlay();
 
   const floatingBottomOffset =
@@ -45,7 +50,25 @@ const useFeedActions = ({
     [showFailureToast],
   );
 
-  const bookmarkQueryKey = useMemo(() => archiveKeys.bookmark(userId), [userId]);
+  // 탭하는 즉시 보관함 북마크 목록에도 넣고 뺀다. 피드 홈/상세 캐시를 먼저 바꾼 뒤라 북마크 수도 맞춰져 있다
+  const handleBookmarkOptimisticChange = useCallback(
+    (feedId, isBookmarked) => {
+      if (isBookmarked) {
+        void addBookmarkFeed(queryClient, { userId, feed: findFeedItemInCache(queryClient, userId, feedId) });
+        return;
+      }
+
+      void removeBookmarkFeed(queryClient, { userId, feedId });
+    },
+    [queryClient, userId],
+  );
+
+  // 서버 반영 후 보관함 북마크를 서버 값(bookmarkId 등)으로 다시 받고,
+  // 북마크 탭에 처음 보이는 목록은 화면이 안 떠 있어도 미리 받아 둔다
+  const handleBookmarkSynced = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: archiveKeys.bookmark(userId) });
+    prefetchBookmarkFeeds(queryClient, { userId });
+  }, [queryClient, userId]);
 
   const handleBookmarkError = useCallback(
     () => showFailureToast('북마크 처리에 실패했습니다.'),
@@ -61,24 +84,27 @@ const useFeedActions = ({
     onError: handleLikeError,
   });
 
-  const { toggle: toggleBookmark } = useFeedToggleMutation({
+  const { toggle: toggleBookmark, flush: flushBookmark } = useFeedToggleMutation({
     userId,
     endpoint: 'bookmark',
     valueKey: 'isBookmarked',
     countKey: 'bookmarkCount',
     errorMessage: '북마크 처리에 실패했습니다.',
     onError: handleBookmarkError,
-    invalidateQueryKey: bookmarkQueryKey,
+    onOptimisticChange: handleBookmarkOptimisticChange,
+    onSynced: handleBookmarkSynced,
   });
 
   // 피드 홈(탭)·피드 상세(스택) 어디서든 MainTabs 로 돌아가 보관함의 북마크 탭을 연다
   const handlePressBookmarkToastButton =
     useCallback(() => {
+      // 400ms 를 기다리지 않고 바로 서버에 보내, 북마크 목록을 받아올 때 이 글이 포함되게 한다
+      flushBookmark();
       navigation.popTo('MainTabs', {
         screen: MAIN_TAB_ROUTES.ARCHIVE,
         params: { tab: ARCHIVE_TAB.BOOKMARK },
       });
-    }, [navigation]);
+    }, [flushBookmark, navigation]);
 
   const showBookmarkToast = useCallback(
     isAddingBookmark => {

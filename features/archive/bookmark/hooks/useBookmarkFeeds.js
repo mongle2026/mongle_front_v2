@@ -23,11 +23,27 @@ async function fetchBookmarkFeedPage({ userId, filter, sort, pageParam }) {
   };
 }
 
+const isBookmarkFeedsConfigured = ({ userId }) => Boolean(isApiConfigured && Number(userId) > 0);
+
+const getBookmarkFeedsQueryOptions = ({ userId, filter, sort }) => ({
+  queryKey: archiveKeys.bookmarkFeeds(userId, filter, sort),
+  initialPageParam: null,
+  queryFn: ({ pageParam }) => fetchBookmarkFeedPage({ userId, filter, sort, pageParam }),
+  getNextPageParam: lastPage => (lastPage?.hasNext ? lastPage.nextCursor ?? undefined : undefined),
+});
+
+// 북마크 탭을 열 때 처음 보이는 목록(전체 · 최신순)을 미리 받아 둔다
+export const prefetchBookmarkFeeds = (queryClient, { userId, filter = 'all', sort = 'latest' }) => {
+  if (!isBookmarkFeedsConfigured({ userId })) return;
+
+  void queryClient.prefetchInfiniteQuery(getBookmarkFeedsQueryOptions({ userId, filter, sort }));
+};
+
 // 내가 북마크한 글. GET /feed/bookmark/me?userId=&filter=&sort=&cursor=&limit=
 // filter: all(전체) / following(팔로우한 사람 글만)
 // sort: latest(최근에 북마크한 순) / oldest(오래전에 북마크한 순)
 const useBookmarkFeeds = ({ userId, filter = 'all', sort = 'latest' }) => {
-  const isConfigured = Boolean(isApiConfigured && Number(userId) > 0);
+  const isConfigured = isBookmarkFeedsConfigured({ userId });
 
   const {
     data,
@@ -37,11 +53,8 @@ const useBookmarkFeeds = ({ userId, filter = 'all', sort = 'latest' }) => {
     fetchNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: archiveKeys.bookmarkFeeds(userId, filter, sort),
-    initialPageParam: null,
+    ...getBookmarkFeedsQueryOptions({ userId, filter, sort }),
     enabled: isConfigured,
-    queryFn: ({ pageParam }) => fetchBookmarkFeedPage({ userId, filter, sort, pageParam }),
-    getNextPageParam: lastPage => (lastPage?.hasNext ? lastPage.nextCursor ?? undefined : undefined),
   });
 
   const feeds = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data?.pages]);

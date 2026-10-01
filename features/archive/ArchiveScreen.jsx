@@ -31,12 +31,16 @@ const ArchiveScreen = ({ navigation, route }) => {
   const { currentUser, userId } = useCurrentUser();
   const queryClient = useQueryClient();
 
-  const [activeTab, setActiveTab] = useState(ARCHIVE_TAB.MYFEED);
+  const routeTab = route?.params?.tab;
+
+  // 처음 열 때부터 param 의 탭으로 그려야 다른 탭의 조회가 먼저 나가지 않는다
+  const [activeTab, setActiveTab] = useState(
+    () => (ARCHIVE_TABS.some(tab => tab.key === routeTab) ? routeTab : ARCHIVE_TAB.MYFEED),
+  );
   const activeTabIndex = ARCHIVE_TABS.findIndex(tab => tab.key === activeTab);
 
   // 탭 화면은 이미 떠 있을 수 있어 param 이 바뀔 때마다 반영하고,
   // 같은 param 으로 다시 들어와도 반영되도록 적용 후 비운다
-  const routeTab = route?.params?.tab;
 
   useEffect(() => {
     if (!routeTab) return;

@@ -118,7 +118,7 @@ export default function useFeedHome({ userId, isFollowing = false }) {
     [followingQueryOptions, queryClient]
   );
 
-  const { toggleFollow, pendingTargetUserId } = useFeedFollow({
+  const { toggleFollow, pendingTargetUserIds } = useFeedFollow({
     userId,
     onFollowed: handleFollowed,
   });
@@ -144,6 +144,6 @@ export default function useFeedHome({ userId, isFollowing = false }) {
     fetchNextPage,
     refetchFeed,
     handlePressFollow,
-    pendingTargetUserId,
+    pendingTargetUserIds,
   };
 }

@@ -186,7 +186,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
     floatingBarOffset: commentBarBottom + commentBarHeight,
   });
 
-  const { toggleFollow, isFollowPending } = useFeedFollow({ userId });
+  const { toggleFollow, isTargetPending } = useFeedFollow({ userId });
 
   const normalizedFeedId = feed?.feedId != null ? String(feed.feedId) : null;
 
@@ -442,7 +442,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
           showFollowButton={!isMine}
           followLabel={isFollowing ? '팔로잉' : '팔로우'}
           followVariant={isFollowing ? 'Ghost' : 'Solid'}
-          followDisabled={isFollowPending}
+          followDisabled={isTargetPending(user.userId)}
           onPressFollow={handlePressFollow}
         />
 
