@@ -182,6 +182,7 @@ const RecordEditorBody = ({
           mode={bottomBarMode}
           selectedFont={normalizedFont}
           imageDisabled={isImageLimitReached}
+          keyboardVisible={bottomBarBottom > 0}
           onPressImage={handlePressImage}
           onPressFont={handleShowFontMode}
           onPressHideKeyboard={handlePressHideKeyboard}

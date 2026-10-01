@@ -18,6 +18,7 @@ const BottomBarActions = ({
   onPressFont,
   onPressHideKeyboard,
   imageDisabled = false,
+  keyboardVisible = false,
 }) => {
   return (
     <>
@@ -40,13 +41,15 @@ const BottomBarActions = ({
         />
       </View>
 
-      <IconButton
-        size="L"
-        icon={IcHideKeyboard}
-        color={colors.fgNeutralMuted}
-        onPress={onPressHideKeyboard}
-        accessibilityLabel="키보드 숨기기"
-      />
+      {keyboardVisible && (
+        <IconButton
+          size="L"
+          icon={IcHideKeyboard}
+          color={colors.fgNeutralMuted}
+          onPress={onPressHideKeyboard}
+          accessibilityLabel="키보드 숨기기"
+        />
+      )}
     </>
   );
 };
@@ -100,6 +103,7 @@ const BottomBar = ({
   selectedFont,
 
   imageDisabled = false,
+  keyboardVisible = false,
 
   onPressImage,
   onPressFont,
@@ -123,6 +127,7 @@ const BottomBar = ({
           onPressFont={onPressFont}
           onPressHideKeyboard={onPressHideKeyboard}
           imageDisabled={imageDisabled}
+          keyboardVisible={keyboardVisible}
         />
       ) : (
         <FontSelector
