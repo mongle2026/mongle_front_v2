@@ -119,6 +119,8 @@ export default function useFeedComments({
   const {
     data: comments = [],
     isLoading: isLoadingComments,
+    isSuccess: isCommentsSuccess,
+    isFetching: isFetchingComments,
   } = useQuery({
     queryKey,
 
@@ -263,6 +265,9 @@ export default function useFeedComments({
     comments,
 
     isLoadingComments,
+    // 목록을 받아 왔고 다시 받아오는 중도 아니면 지금 서버 상태로 믿을 수 있다
+    isCommentsSettled: isCommentsSuccess && !isFetchingComments,
+
     createComment:
       createCommentMutation.mutateAsync,
 

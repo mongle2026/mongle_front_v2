@@ -47,6 +47,7 @@ import useCommentMenu from './hooks/useCommentMenu';
 import useCommentComposer from './hooks/useCommentComposer';
 import useScrollToComment from './hooks/useScrollToComment';
 import useScrollToReplyTarget from './hooks/useScrollToReplyTarget';
+import useDeletedCommentToast from './hooks/useDeletedCommentToast';
 
 const FeedDetailScreen = ({ navigation, route }) => {
   const { openDialog } = useDialog();
@@ -57,6 +58,9 @@ const FeedDetailScreen = ({ navigation, route }) => {
 
   const feedId = route?.params?.feedId;
   const shouldScrollToComment = Boolean(route?.params?.scrollToComment);
+  // 댓글/답글 알림으로 들어왔을 때 그 댓글 id와 답글 여부
+  const notifiedCommentId = route?.params?.commentId ?? null;
+  const isNotifiedReply = Boolean(route?.params?.isReply);
 
   const {
     scrollViewRef,
@@ -133,11 +137,22 @@ const FeedDetailScreen = ({ navigation, route }) => {
   const {
     comments,
     isLoadingComments,
+    isCommentsSettled,
     createComment,
     isCreatingComment,
     deleteComment,
     isDeletingComment,
   } = useFeedComments({ feedId, userId });
+
+  useDeletedCommentToast({
+    commentId: notifiedCommentId,
+    isReply: isNotifiedReply,
+    comments,
+    isCommentsSettled,
+    isFeedVisible: Boolean(feed) && !isDeleted,
+    bottomOffset: commentBarBottom + commentBarHeight,
+    isCommentBarMeasured: commentBarHeight > 0,
+  });
 
   const {
     replyTarget,
