@@ -14,6 +14,9 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
+import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
+import IcArrowRight from '../../../../assets/icons/ic_arrow_right.svg';
+
 import { colors } from '../../../../shared/styles/color';
 import { padding } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
@@ -56,9 +59,6 @@ const Calendar = ({
    * (타인에게 보내는 편지일 때만 true)
    */
   allowToday = false,
-
-  leftIcon,
-  rightIcon,
 }) => {
   const flatListRef = useRef(null);
 
@@ -296,7 +296,8 @@ const Calendar = ({
       <View style={styles.month}>
         <IconButton
           size="M"
-          icon={leftIcon}
+          icon={IcArrowLeft}
+          color={colors.fgNeutralSubtle}
           onPress={handlePressPrevious}
           disabled={isFirstMonth}
           accessibilityLabel="이전 달"
@@ -309,7 +310,8 @@ const Calendar = ({
 
         <IconButton
           size="M"
-          icon={rightIcon}
+          icon={IcArrowRight}
+          color={colors.fgNeutralSubtle}
           onPress={handlePressNext}
           disabled={isLastMonth}
           accessibilityLabel="다음 달"

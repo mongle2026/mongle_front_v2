@@ -361,14 +361,9 @@ const CommentBar = ({
           <IconButton
             size="M"
             icon={IcArrowUp}
-            color={
-              isSubmitDisabled
-                ? colors.fgDisabled
-                : colors.fgNeutralSolid
-            }
+            color={colors.fgNeutralSolid}
             onPress={handleSubmit}
             disabled={isSubmitDisabled}
-            style={styles.submitButton}
             accessibilityLabel="댓글 등록"
           />
         </View>
@@ -537,10 +532,6 @@ const styles = StyleSheet.create({
 
     color: colors.fgNeutralWeak,
     textAlign: 'right',
-  },
-
-  submitButton: {
-    opacity: 1,
   },
 });
 

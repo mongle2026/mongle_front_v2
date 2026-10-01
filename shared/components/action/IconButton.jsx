@@ -2,6 +2,7 @@ import React, { memo, isValidElement } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
+import { colors } from '../../styles/color';
 import { padding, radius } from '../../styles/token';
 
 const IconButton = ({
@@ -15,8 +16,12 @@ const IconButton = ({
 }) => {
   const currentSize = SIZE_STYLES[size] ?? SIZE_STYLES.S;
 
+  // disabled면 전달된 color 대신 fgDisabled로 표시합니다.
+  const iconColor = disabled ? colors.fgDisabled : color;
+
   // Icon은 보통 SVG 컴포넌트 참조를 받아 size/color를 직접 주입합니다.
   // 이미 완성된 엘리먼트(예: 아이콘이 아닌 커스텀 콘텐츠)가 오면 그대로 렌더링합니다.
+  // (이 경우 disabled 색상도 적용되지 않습니다)
   const renderedIcon = isValidElement(Icon)
     ? Icon
     : Icon
@@ -24,8 +29,8 @@ const IconButton = ({
         <Icon
           width={currentSize.iconSize}
           height={currentSize.iconSize}
-          color={color}
-          fill={color}
+          color={iconColor}
+          fill={iconColor}
         />
       )
       : null;
@@ -42,7 +47,6 @@ const IconButton = ({
         styles.container,
         currentSize.container,
         pressed && !disabled && styles.pressed,
-        disabled && styles.disabled,
         style,
       ]}
     >
@@ -93,10 +97,6 @@ const styles = StyleSheet.create({
 
   pressed: {
     opacity: 0.6,
-  },
-
-  disabled: {
-    opacity: 0.4,
   },
 });
 

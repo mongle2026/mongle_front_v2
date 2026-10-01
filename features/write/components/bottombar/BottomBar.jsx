@@ -19,25 +19,16 @@ const BottomBarActions = ({
   onPressHideKeyboard,
   imageDisabled = false,
 }) => {
-  const imageColor = imageDisabled
-    ? colors.fgDisabled
-    : colors.fgNeutralMuted;
-
   return (
     <>
       <View style={styles.container}>
         <IconButton
           size="L"
           icon={IcImage}
-          color={imageColor}
+          color={colors.fgNeutralMuted}
           onPress={onPressImage}
           disabled={imageDisabled}
           accessibilityLabel="이미지 추가"
-          style={
-            imageDisabled
-              ? styles.imageButtonDisabled
-              : undefined
-          }
         />
 
         <IconButton
@@ -167,10 +158,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-
-  imageButtonDisabled: {
-    opacity: 1,
   },
 });
 

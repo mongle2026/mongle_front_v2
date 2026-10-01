@@ -4,7 +4,6 @@ import React, {
 } from 'react';
 import {
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 
@@ -19,13 +18,11 @@ import {
 
 import Calendar from '../../components/calendar/Calendar';
 
-import { colors } from '../../../../shared/styles/color';
 import { FONT } from '../../../../shared/styles/fontType';
 import {
   gap,
   padding,
 } from '../../../../shared/styles/token';
-import { typo } from '../../../../shared/styles/typo';
 
 import useDateSelect from '../hooks/useDateSelect';
 import {
@@ -128,16 +125,6 @@ const DateSelectBottomSheet = ({
         autoMoveRequestKey={
           calendarMoveRequestKey
         }
-        leftIcon={
-          <Text style={styles.arrow}>
-            ‹
-          </Text>
-        }
-        rightIcon={
-          <Text style={styles.arrow}>
-            ›
-          </Text>
-        }
       />
 
       {/* date button container */}
@@ -201,12 +188,6 @@ const styles = StyleSheet.create({
     paddingTop: padding.XL,
     flexDirection: 'column',
     alignItems: 'flex-start',
-  },
-
-  arrow: {
-    ...typo.suitLabelXLargeStrong,
-    color: colors.fgNeutralMuted,
-    textAlign: 'center',
   },
 
   dateButtonContainer: {
