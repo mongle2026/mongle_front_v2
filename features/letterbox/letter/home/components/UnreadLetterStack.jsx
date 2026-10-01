@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sticky: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   item: {
     position: 'absolute',

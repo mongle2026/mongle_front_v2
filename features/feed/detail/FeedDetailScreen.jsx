@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
   },
 
   imageViewerOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },

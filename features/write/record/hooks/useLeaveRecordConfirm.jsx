@@ -25,6 +25,8 @@ export function useLeaveRecordConfirm({
   description,
   cancelText,
   onDiscard,
+  // 저장 요청 중처럼 화면을 닫으면 안 될 때 X / 뒤로가기를 무시합니다.
+  isLeaveBlocked = false,
 }) {
   const { openDialog } = useDialog();
 
@@ -34,6 +36,10 @@ export function useLeaveRecordConfirm({
   }, [navigation, onDiscard]);
 
   const handleClose = useCallback(() => {
+    if (isLeaveBlocked) {
+      return;
+    }
+
     if (!hasChanges) {
       handleLeave();
       return;
@@ -57,7 +63,15 @@ export function useLeaveRecordConfirm({
         />
       ),
     });
-  }, [cancelText, description, handleLeave, hasChanges, openDialog, title]);
+  }, [cancelText, description, handleLeave, hasChanges, isLeaveBlocked, openDialog, title]);
+
+  /*
+   * iOS 스와이프 뒤로가기는 BackHandler로 막히지 않으므로
+   * 닫기를 막는 동안에는 제스처 자체를 끕니다.
+   */
+  useEffect(() => {
+    navigation?.setOptions({ gestureEnabled: !isLeaveBlocked });
+  }, [isLeaveBlocked, navigation]);
 
   /*
    * 스택 위에 다른 화면(EnvelopeScreen 등)이 올라가도 이 화면은 마운트된 상태이므로,

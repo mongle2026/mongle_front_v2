@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
 import IconButton from '../../action/IconButton';
@@ -32,6 +32,9 @@ const TopIconNavigation = ({
 
   // type = text. false면 오른쪽 버튼을 숨긴다
   showNext = true,
+
+  // type = text. true면 오른쪽 버튼 자리에 스피너를 보여주고 누를 수 없다
+  isNextLoading = false,
 
   // type = text. 제목 옆 chevron 아이콘 (기본 숨김)
   showChevron = false,
@@ -90,12 +93,26 @@ const TopIconNavigation = ({
           </Pressable>
 
           {showNext ? (
-            <ButtonText
-              text={nextText}
-              size="ButtonText"
-              onPress={onPressNext}
-              textStyle={nextTextStyle}
-            />
+            // 로딩 중에도 버튼 자리를 그대로 두어 제목 위치가 흔들리지 않게 한다
+            <View style={styles.nextContainer}>
+              <View
+                style={isNextLoading && styles.hidden}
+                pointerEvents={isNextLoading ? 'none' : 'auto'}
+              >
+                <ButtonText
+                  text={nextText}
+                  size="ButtonText"
+                  onPress={onPressNext}
+                  textStyle={nextTextStyle}
+                />
+              </View>
+
+              {isNextLoading && (
+                <View style={styles.nextLoading}>
+                  <ActivityIndicator color={colors.fgNeutralMuted} />
+                </View>
+              )}
+            </View>
           ) : (
             // 제목이 가운데에 오도록 왼쪽 아이콘과 같은 크기의 빈 자리를 둔다
             <View
@@ -187,6 +204,18 @@ const styles = StyleSheet.create({
 
   hidden: {
     opacity: 0,
+  },
+
+  // ButtonText(alignSelf: flex-start)와 같은 위치에 오도록 맞춘다
+  nextContainer: {
+    alignSelf: 'flex-start',
+  },
+
+  nextLoading: {
+    ...StyleSheet.absoluteFill,
+
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   headerTextContainer: {

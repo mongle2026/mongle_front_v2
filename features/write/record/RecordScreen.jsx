@@ -119,20 +119,6 @@ const RecordScreen = ({ navigation, route }) => {
     hasContent ||
     (isLetter && (Boolean(receiver) || Boolean(deliveryAt)));
 
-  const handlePressClose = useLeaveRecordConfirm({
-    navigation,
-    hasChanges: hasWrittenAnything,
-    title: '작성을 그만둘까요?',
-    description: '작성한 글은 다시 되돌릴 수 없습니다.',
-    cancelText: '계속 작성하기',
-    onDiscard: useCallback(() => {
-      resetRecordForm();
-      if (isLetter) {
-        resetLetterForm();
-      }
-    }, [isLetter, resetLetterForm, resetRecordForm]),
-  });
-
   const { openOverlay, showToast } = useGlobalOverlay();
 
   /* Feed 저장 */
@@ -152,6 +138,25 @@ const RecordScreen = ({ navigation, route }) => {
         bottomOffset,
       });
     },
+  });
+
+  const handlePressClose = useLeaveRecordConfirm({
+    navigation,
+    hasChanges: hasWrittenAnything,
+    title: '작성을 그만둘까요?',
+    description: '작성한 글은 다시 되돌릴 수 없습니다.',
+    cancelText: '계속 작성하기',
+    onDiscard: useCallback(() => {
+      resetRecordForm();
+      if (isLetter) {
+        resetLetterForm();
+      }
+    }, [isLetter, resetLetterForm, resetRecordForm]),
+    /*
+     * 저장 요청 중에 닫으면 화면이 먼저 사라진 뒤
+     * 성공 시 goBack()이 한 번 더 호출되므로 닫기를 막습니다.
+     */
+    isLeaveBlocked: isCreatingFeed,
   });
 
   const handlePressNext =
@@ -324,6 +329,7 @@ const RecordScreen = ({ navigation, route }) => {
         nextText={isLetter ? '다음' : '게시'}
         onPressClose={handlePressClose}
         onPressNext={handlePressNext}
+        isNextLoading={isCreatingFeed}
         nextTextStyle={{ color: nextTextColor }}
       />
 

@@ -53,17 +53,6 @@ const RecordEditScreen = ({ navigation, route }) => {
   const isDirty = useRecordFormStore(state => state.isDirty);
   const resetRecordForm = useRecordFormStore(state => state.resetRecordForm);
 
-  const handlePressClose = useLeaveRecordConfirm({
-    navigation,
-    hasChanges: isDirty,
-    title: '수정을 그만둘까요?',
-    description: '수정된 내용은 저장되지 않습니다.',
-    cancelText: '계속 수정하기',
-    onDiscard: useCallback(() => {
-      resetRecordForm();
-    }, [resetRecordForm]),
-  });
-
   /* 다음 버튼 활성 색상 조건 (수정 사항이 없으면 비활성) */
   const isNextReady = hasMusic && hasContent;
   const canSubmit = isNextReady && isDirty;
@@ -90,6 +79,22 @@ const RecordEditScreen = ({ navigation, route }) => {
         bottomOffset,
       });
     },
+  });
+
+  const handlePressClose = useLeaveRecordConfirm({
+    navigation,
+    hasChanges: isDirty,
+    title: '수정을 그만둘까요?',
+    description: '수정된 내용은 저장되지 않습니다.',
+    cancelText: '계속 수정하기',
+    onDiscard: useCallback(() => {
+      resetRecordForm();
+    }, [resetRecordForm]),
+    /*
+     * 저장 요청 중에 닫으면 화면이 먼저 사라진 뒤
+     * 성공 시 goBack()이 한 번 더 호출되므로 닫기를 막습니다.
+     */
+    isLeaveBlocked: isUpdatingFeed,
   });
 
   const handlePressNext =
@@ -174,6 +179,7 @@ const RecordEditScreen = ({ navigation, route }) => {
         nextText="완료"
         onPressClose={handlePressClose}
         onPressNext={handlePressNext}
+        isNextLoading={isUpdatingFeed}
         nextTextStyle={{ color: nextTextColor }}
       />
 
