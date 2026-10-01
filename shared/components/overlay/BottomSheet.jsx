@@ -37,9 +37,13 @@ import {
 
 const DEFAULT_HEIGHT = 720;
 
-// DragHandle 영역 높이. snapPoints는 이 영역까지 포함한 시트 높이라,
-// 콘텐츠 높이에 맞춰 snapPoint를 계산할 때 더해줍니다.
-export const DRAG_HANDLE_HEIGHT = 28;
+// 회색 핸들 막대 높이
+const DRAG_HANDLE_SHAPE_HEIGHT = 4;
+
+// DragHandle 영역 높이 (시트 상단 패딩 + 핸들 막대). snapPoints는 이 영역까지
+// 포함한 시트 높이라, 콘텐츠 높이에 맞춰 snapPoint를 계산할 때 더해줍니다.
+export const DRAG_HANDLE_HEIGHT =
+  padding.XS + DRAG_HANDLE_SHAPE_HEIGHT;
 
 // gorhom의 스크롤 가능 컴포넌트(BottomSheetFlatList 등)는 Android에서
 // flex만으로 높이를 잡으면 제스처/스크롤 연동이 제대로 안 잡히는
@@ -365,8 +369,9 @@ const styles = StyleSheet.create({
 
   dragHandleTouchArea: {
     width: '100%',
-    minHeight: DRAG_HANDLE_HEIGHT,
+    height: DRAG_HANDLE_HEIGHT,
 
+    // 시트 상단 패딩
     paddingTop: padding.XS,
 
     justifyContent: 'center',
@@ -385,7 +390,7 @@ const styles = StyleSheet.create({
 
   dragHandleShape: {
     width: 80,
-    height: 4,
+    height: DRAG_HANDLE_SHAPE_HEIGHT,
 
     borderRadius: radius.M,
 
