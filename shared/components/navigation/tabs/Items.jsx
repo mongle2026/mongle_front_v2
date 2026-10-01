@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     paddingVertical: padding.XS,
     paddingHorizontal: padding.M,
     textAlign: 'center',
-    borderRadius: radius.S,
+    borderRadius: radius.XS,
     overflow: 'hidden',
     ...typo.suitLabelLarge,
   },
