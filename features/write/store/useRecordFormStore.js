@@ -50,12 +50,6 @@ export const useRecordFormStore = create((set) => ({
       isDirty: true,
     }),
 
-  addFile: (file) =>
-    set((state) => ({
-      files: [...state.files, file],
-      isDirty: true,
-    })),
-
   removeFile: (uri) =>
     set((state) => ({
       files: state.files.filter(

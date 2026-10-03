@@ -210,10 +210,11 @@ const FeedDetailScreen = ({ navigation, route }) => {
     feed != null && isSameId(feed.user?.userId, userId);
 
   const handlePressFollow = useCallback(() => {
-    if (!feed || isMine) return;
+    if (!feed) return;
 
+    // 내 글·요청 중 확인은 useFollow 가 한다
     toggleFollow(feed.user?.userId, Boolean(feed.user?.isFollowing));
-  }, [feed, isMine, toggleFollow]);
+  }, [feed, toggleFollow]);
 
   const handlePressLike = useCallback(() => {
     if (!feed) return;

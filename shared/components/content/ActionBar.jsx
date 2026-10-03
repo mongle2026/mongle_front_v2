@@ -47,7 +47,6 @@ const ActionBar = ({
   bookmarkCount,
 
   likeDisabled = false,
-  bookmarkDisabled = false,
 
   showCommentButton = true,
   showLikeButton = true,
@@ -124,7 +123,6 @@ const ActionBar = ({
             activeColor={colors.fgBookmark}
             inactiveColor={colors.fgNeutralWeak}
             animationType={ANIMATION_TYPE.BOOKMARK}
-            disabled={bookmarkDisabled}
             onPress={onBookmarkPress}
             accessibilityLabel={
               isBookmarked

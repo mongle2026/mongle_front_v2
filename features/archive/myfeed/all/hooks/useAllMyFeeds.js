@@ -94,7 +94,6 @@ const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, keyword = '', enable
 
   const {
     data,
-    isPending,
     isFetchingNextPage,
     isFetchingPreviousPage,
     hasNextPage,
@@ -110,7 +109,6 @@ const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, keyword = '', enable
 
   return {
     feeds,
-    isAllFeedsLoading: isConfigured && isPending,
     isFetchingNextPage,
     isFetchingPreviousPage,
     hasNextPage,

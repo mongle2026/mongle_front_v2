@@ -151,11 +151,6 @@ const useDateSelect = ({
     ],
   );
 
-  const resetDate =
-    useCallback(() => {
-      setSelectedDate(null);
-    }, []);
-
   return {
     selectedDate,
     presetDates,
@@ -165,8 +160,6 @@ const useDateSelect = ({
     handleSelectDate,
     handlePressPreset,
     isPresetSelected,
-
-    resetDate,
   };
 };
 

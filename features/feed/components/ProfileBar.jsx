@@ -10,7 +10,6 @@ import { gap, padding } from '../../../shared/styles/token';
 
 const ProfileBar = ({
   imageUri,
-  imageSize = 'M',
   username,
   font = 'kyobo',
   // 팔로우한 사람이면 username 버튼은 Solid, 팔로우 버튼은 '팔로잉'(Ghost)
@@ -21,19 +20,17 @@ const ProfileBar = ({
 
   onPressProfile,
   onPressFollow,
-
-  style,
 }) => {
   const profileVariant = isFollowing ? TEXT_BUTTON_VARIANT.SOLID : TEXT_BUTTON_VARIANT.GHOST;
   const followVariant = isFollowing ? TEXT_BUTTON_VARIANT.GHOST : TEXT_BUTTON_VARIANT.SOLID;
   const followLabel = isFollowing ? '팔로잉' : '팔로우';
 
   return (
-    <View style={[styles.profileBar, style]}>
+    <View style={styles.profileBar}>
       <View style={styles.container}>
         <Profile
           imageUri={imageUri}
-          imageSize={imageSize}
+          imageSize="M"
           username={username}
           font={font}
           variant={profileVariant}

@@ -6,7 +6,7 @@ import { flattenPages, getNextCursor, withCursor } from '../../../../shared/api/
 import useFeedFollow from '../../hooks/useFeedFollow';
 import { feedHomeKeys } from '../../api/feedCache';
 import { normalizeFeedItem } from '../../api/normalizeFeed';
-import { hasId, isSameId } from '../../../../shared/utils/id';
+import { hasId } from '../../../../shared/utils/id';
 
 const FEED_LIMIT = 20;
 const FEED_STALE_TIME = 2 * 60 * 1000;
@@ -104,13 +104,10 @@ export default function useFeedHome({ userId, isFollowing = false }) {
 
   const handlePressFollow = useCallback(
     feed => {
-      const targetUserId = feed?.user?.userId;
-      if (!targetUserId) return;
-      if (isSameId(targetUserId, userId)) return;
-
-      toggleFollow(targetUserId, Boolean(feed?.user?.isFollowing));
+      // 사용자 없음·내 글·요청 중 확인은 useFollow 가 한다
+      toggleFollow(feed?.user?.userId, Boolean(feed?.user?.isFollowing));
     },
-    [toggleFollow, userId]
+    [toggleFollow]
   );
 
   return {

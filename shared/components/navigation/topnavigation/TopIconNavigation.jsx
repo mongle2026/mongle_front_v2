@@ -101,7 +101,6 @@ const TopIconNavigation = ({
               >
                 <ButtonText
                   text={nextText}
-                  size="ButtonText"
                   onPress={onPressNext}
                   textStyle={nextTextStyle}
                 />

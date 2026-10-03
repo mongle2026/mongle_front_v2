@@ -28,7 +28,6 @@ export const useRecordTypography = () => {
 
   return {
     normalizedFont,
-    isSuitFont,
     dateTypography,
     bodyTypography,
     handleSelectFont,

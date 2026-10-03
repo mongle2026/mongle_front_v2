@@ -39,7 +39,6 @@ const useGenreFeeds = ({ userId, genre, sort = DEFAULT_SORT }) => {
 
   const {
     data,
-    isPending,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
@@ -52,7 +51,6 @@ const useGenreFeeds = ({ userId, genre, sort = DEFAULT_SORT }) => {
 
   return {
     feeds,
-    isGenreFeedsLoading: isConfigured && isPending,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,

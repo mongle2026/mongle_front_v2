@@ -9,29 +9,23 @@ import { typo } from '../../styles/typo';
 const ButtonText = ({
   text,
   onPress,
-  size = 'ButtonText',
   disabled = false,
   style,
   textStyle,
 }) => {
-  const isSmall = size === 'S';
-
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       style={[
         styles.container,
-        isSmall ? styles.containerS : styles.containerButtonText,
         style,
       ]}
     >
       <Text
         style={[
           styles.text,
-          isSmall
-            ? typo.suitLabelXXLargeStrong
-            : typo.suitLabelXLargeStrong,
+          typo.suitLabelXLargeStrong,
           textStyle,
         ]}
       >
@@ -50,14 +44,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: gap.M,
-  },
-
-  containerS: {
-    paddingVertical: padding.XS,
-    paddingHorizontal: padding.S,
-  },
-
-  containerButtonText: {
     paddingVertical: padding.L,
     paddingHorizontal: padding.S,
   },

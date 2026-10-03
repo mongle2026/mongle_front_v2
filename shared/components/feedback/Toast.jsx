@@ -105,7 +105,6 @@ const Toast = ({
               {buttonText && onPressButton && (
                 <ButtonText
                   text={buttonText}
-                  size="ButtonText"
                   onPress={onPressButton}
                 />
               )}

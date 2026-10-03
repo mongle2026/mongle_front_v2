@@ -24,7 +24,6 @@ const useNotifications = ({ userId, type = null } = {}) => {
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-    refetch,
   } = useInfiniteQuery({
     queryKey: notificationKeys.list(userId, type),
     initialPageParam: null,
@@ -41,7 +40,6 @@ const useNotifications = ({ userId, type = null } = {}) => {
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-    refetchNotifications: refetch,
   };
 };
 

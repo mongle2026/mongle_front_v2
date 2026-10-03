@@ -12,7 +12,7 @@ import { hasId } from '../../../../../shared/utils/id';
 const useMyFeedGenres = ({ userId, limit }) => {
   const isConfigured = Boolean(isApiConfigured && hasId(userId));
 
-  const { data, isPending } = useQuery({
+  const { data } = useQuery({
     queryKey: archiveKeys.myFeedGenres(userId, limit),
     enabled: isConfigured,
     queryFn: async () => {
@@ -38,7 +38,6 @@ const useMyFeedGenres = ({ userId, limit }) => {
 
   return {
     genres,
-    isGenresLoading: isConfigured && isPending,
   };
 };
 

@@ -26,7 +26,6 @@ function normalizeStampDetail(data) {
         isMe: Boolean(sender.isMe),
       })),
     // 이 우표가 붙은 수집한 편지 (최근 도착 순). 날짜는 도착 시각으로 보여준다.
-    // 편지 뒷면(Letter type="back")에 받는 사람/보낸 사람 이름을 함께 쓴다.
     letters: rawLetters
       .map(item => {
         const letter = normalizeLetterboxItem(item);
@@ -34,8 +33,6 @@ function normalizeStampDetail(data) {
           letter && {
             ...letter,
             receivedAt: item.arrivedAt ?? letter.receivedAt,
-            recipientName: item.receiver?.nickname ?? '',
-            senderName: item.sender?.nickname ?? '',
           }
         );
       })

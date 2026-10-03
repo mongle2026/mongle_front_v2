@@ -30,9 +30,6 @@ export const isImageFile = file => {
   return mimeType?.startsWith('image/') || fileType === 'image';
 };
 
-export const hasImageFiles = files =>
-  Array.isArray(files) && files.some(isImageFile);
-
 export const getImageSources = (files, limit = 2) =>
   (Array.isArray(files) ? files : [])
     .filter(isImageFile)
