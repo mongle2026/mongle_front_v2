@@ -5,6 +5,7 @@ import { getImageSources, resolveMediaUri } from '../../../../shared/utils/media
 import useDoubleTapLike from '../../hooks/useDoubleTapLike';
 
 import PostCard from './PostCard';
+import { isSameId } from '../../../../shared/utils/id';
 
 const FeedPostItem = ({
   item,
@@ -34,7 +35,7 @@ const FeedPostItem = ({
     [musicArtworkUri],
   );
 
-  const isMine = Number(user?.userId) === Number(userId);
+  const isMine = isSameId(user?.userId, userId);
   const isFollowing = Boolean(user?.isFollowing);
   const isLiked = Boolean(item?.isLiked);
   const isBookmarked = Boolean(item?.isBookmarked);

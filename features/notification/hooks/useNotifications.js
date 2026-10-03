@@ -3,6 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../shared/api/client';
 
 import { notificationKeys } from '../api/notificationKeys';
+import { hasId } from '../../../shared/utils/id';
 
 const NOTIFICATION_LIMIT = 20;
 
@@ -33,7 +34,7 @@ async function fetchNotificationPage({ userId, type, pageParam }) {
 
 // 알림 목록 조회. 최근 30일 알림만 온다. type이 null이면 전체.
 const useNotifications = ({ userId, type = null } = {}) => {
-  const isConfigured = Boolean(isApiConfigured && Number(userId) > 0);
+  const isConfigured = Boolean(isApiConfigured && hasId(userId));
 
   const {
     data,

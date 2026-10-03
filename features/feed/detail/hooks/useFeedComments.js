@@ -10,6 +10,7 @@ import {
 import { resolveMediaUri } from '../../../../shared/utils/media';
 import { formatDateDetail } from '../../../../shared/utils/dateUtils';
 import { feedCommentKeys } from '../../api/feedCache';
+import { hasId, isSameId } from '../../../../shared/utils/id';
 
 const normalizeComment = ({
   comment,
@@ -22,9 +23,9 @@ const normalizeComment = ({
   }
 
   return {
-    commentId: Number(comment.commentId),
-    feedId: Number(comment.feedId),
-    userId: Number(comment.userId),
+    commentId: comment.commentId,
+    feedId: comment.feedId,
+    userId: comment.userId,
 
     userCode:
       comment.user?.userCode ??
@@ -43,13 +44,9 @@ const normalizeComment = ({
     depth,
 
     rootCommentId:
-      rootCommentId != null
-        ? Number(rootCommentId)
-        : null,
+      rootCommentId ?? null,
 
-    isMine:
-      Number(comment.userId) ===
-      Number(currentUserId),
+    isMine: isSameId(comment.userId, currentUserId),
 
     // 서버 응답 전에 먼저 그려 둔 댓글 (아직 id 가 없어 답글/삭제 불가)
     isPending: Boolean(comment.isPending),
@@ -60,7 +57,7 @@ const normalizeComment = ({
 let tempCommentSeq = 0;
 const createTempCommentId = () => {
   tempCommentSeq += 1;
-  return -tempCommentSeq;
+  return `temp-${tempCommentSeq}`;
 };
 
 const appendTempComment = (groups, tempComment) => {
@@ -71,7 +68,7 @@ const appendTempComment = (groups, tempComment) => {
   }
 
   return list.map(root =>
-    Number(root.commentId) === Number(tempComment.rootCommentId)
+    isSameId(root.commentId, tempComment.rootCommentId)
       ? {
           ...root,
           replies: [...(root.replies ?? []), tempComment],
@@ -89,7 +86,7 @@ const normalizeCommentGroups = (
   }
 
   return groups.flatMap(root => {
-    const rootId = Number(root.commentId);
+    const rootId = root.commentId;
 
     const normalizedRoot =
       normalizeComment({
@@ -170,8 +167,8 @@ export default function useFeedComments({
     enabled:
       enabled &&
       isConfigured &&
-      Number(feedId) > 0 &&
-      Number(userId) > 0,
+      hasId(feedId) &&
+      hasId(userId),
 
     staleTime: 10_000,
   });
@@ -201,10 +198,7 @@ export default function useFeedComments({
 
               ...(rootCommentId
                 ? {
-                    rootCommentId:
-                      Number(
-                        rootCommentId,
-                      ),
+                    rootCommentId,
                   }
                 : {}),
 
@@ -212,10 +206,7 @@ export default function useFeedComments({
               ...(rootCommentId &&
               replyToUserId
                 ? {
-                    replyToUserId:
-                      Number(
-                        replyToUserId,
-                      ),
+                    replyToUserId,
                   }
                 : {}),
             },
@@ -257,18 +248,16 @@ export default function useFeedComments({
           groups =>
             appendTempComment(groups, {
               commentId: createTempCommentId(),
-              feedId: Number(feedId),
-              userId: Number(userId),
+              feedId,
+              userId,
               user: {
-                userId: Number(userId),
+                userId,
                 userCode: currentUser?.userCode,
                 profileImageUrl:
                   currentUser?.profileImageUrl ?? null,
               },
               content: normalizedContent,
-              rootCommentId: rootCommentId
-                ? Number(rootCommentId)
-                : null,
+              rootCommentId: rootCommentId ?? null,
               createdAt: now,
               updatedAt: now,
               isPending: true,

@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import apiClient, { isApiConfigured } from '../../../shared/api/client';
 
 import { setupNotificationChannels } from './notificationChannels';
+import { hasId } from '../../../shared/utils/id';
 
 // eas init 을 하면 app.json 의 extra.eas.projectId 에 들어간다
 const getProjectId = () =>
@@ -25,7 +26,7 @@ const requestPermission = async () => {
  * 권한 거절 · 시뮬레이터 · projectId 없음은 알림만 못 받을 뿐 앱 사용에는 문제가 없어서 조용히 넘긴다.
  */
 export const registerPushToken = async userId => {
-  if (!isApiConfigured || !(Number(userId) > 0)) return null;
+  if (!isApiConfigured || !hasId(userId)) return null;
 
   // 안드로이드 13 이상은 채널이 있어야 권한 요청 창이 뜬다
   await setupNotificationChannels();
@@ -46,7 +47,7 @@ export const registerPushToken = async userId => {
   const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
 
   await apiClient.post('/notification/push-token', {
-    userId: Number(userId),
+    userId,
     token,
     platform: Platform.OS,
   });

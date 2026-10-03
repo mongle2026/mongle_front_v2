@@ -48,6 +48,7 @@ import useCommentComposer from './hooks/useCommentComposer';
 import useScrollToComment from './hooks/useScrollToComment';
 import useScrollToReplyTarget from './hooks/useScrollToReplyTarget';
 import useDeletedCommentToast from './hooks/useDeletedCommentToast';
+import { isSameId } from '../../../shared/utils/id';
 
 const FeedDetailScreen = ({ navigation, route }) => {
   const { openDialog } = useDialog();
@@ -206,7 +207,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
   const normalizedFeedId = feed?.feedId != null ? String(feed.feedId) : null;
 
   const isMine =
-    feed != null && Number(feed.user?.userId) === Number(userId);
+    feed != null && isSameId(feed.user?.userId, userId);
 
   const handlePressFollow = useCallback(() => {
     if (!feed || isMine) return;

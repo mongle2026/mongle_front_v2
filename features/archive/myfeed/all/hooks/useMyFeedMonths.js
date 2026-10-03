@@ -5,6 +5,7 @@ import { resolveMediaUri } from '../../../../../shared/utils/media';
 
 import { archiveKeys } from '../../../api/archiveKeys';
 import { SESSION_COVER_SEED } from '../../utils/sessionCover';
+import { hasId } from '../../../../../shared/utils/id';
 
 // 모든 기록의 월 목록. GET /feed/me/months?userId=&limit=&coverSeed=&keyword=
 // keyword 가 있으면 노래 제목 또는 아티스트에 검색어가 포함된 글이 있는 달만 온다.
@@ -12,7 +13,7 @@ import { SESSION_COVER_SEED } from '../../utils/sessionCover';
 // 커버는 서버가 그 달 글들의 앨범 커버 중 하나를 골라 준다(앱 실행 동안 고정).
 // latestFeedId: 그 달의 가장 최신 글. 모든 기록에서 그 달부터 목록을 시작할 때 커서로 쓴다.
 const useMyFeedMonths = ({ userId, limit, keyword = '' }) => {
-  const isConfigured = Boolean(isApiConfigured && Number(userId) > 0);
+  const isConfigured = Boolean(isApiConfigured && hasId(userId));
 
   const { data, isPending } = useQuery({
     queryKey: archiveKeys.myFeedMonths(userId, limit, keyword),

@@ -19,7 +19,7 @@ import {
 } from '../../../feed/api/feedCache';
 import { archiveKeys } from '../../../archive/api/archiveKeys';
 import { useCreatedFeedStore } from '../../../feed/store/useCreatedFeedStore';
-import { normalizeFeedItem } from '../../../feed/home/hooks/useFeedHome';
+import { normalizeFeedItem } from '../../../feed/api/normalizeFeed';
 
 /*
  * 방금 올린 사진은 R2에서 다시 받지 않고 기기에 있는 압축본으로 보여 줍니다.

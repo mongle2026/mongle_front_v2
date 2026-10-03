@@ -3,6 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
 
 import { archiveKeys } from '../../../api/archiveKeys';
+import { hasId } from '../../../../../shared/utils/id';
 
 const ALL_FEED_LIMIT = 20;
 
@@ -42,7 +43,7 @@ async function fetchAllFeedPage({ userId, keyword, pageParam }) {
   };
 }
 
-const isAllMyFeedsConfigured = ({ userId }) => Boolean(isApiConfigured && Number(userId) > 0);
+const isAllMyFeedsConfigured = ({ userId }) => Boolean(isApiConfigured && hasId(userId));
 
 const getAllMyFeedsQueryOptions = ({ userId, anchorMonth, anchorCursor, keyword }) => {
   const isAnchored = Boolean(anchorMonth);

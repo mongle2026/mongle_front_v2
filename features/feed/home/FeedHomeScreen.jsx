@@ -16,6 +16,7 @@ import useFeedActions from '../hooks/useFeedActions';
 import useFeedHome from './hooks/useFeedHome';
 import useFeedHomeListController from './hooks/useFeedHomeListController';
 import { useCreatedFeedStore } from '../store/useCreatedFeedStore';
+import { hasId } from '../../../shared/utils/id';
 
 const VIEWABILITY_CONFIG = {
   viewAreaCoveragePercentThreshold: 50,
@@ -142,8 +143,8 @@ const FeedHomeScreen = ({ navigation }) => {
 
   const handlePressPost = useCallback(
     item => {
-      const feedId = Number(item?.feedId);
-      if (!Number.isInteger(feedId) || feedId < 1) return;
+      const feedId = item?.feedId;
+      if (!hasId(feedId)) return;
 
       navigation.navigate('FeedDetail', { feedId });
     },
@@ -152,8 +153,8 @@ const FeedHomeScreen = ({ navigation }) => {
 
   const handlePressComment = useCallback(
     item => {
-      const feedId = Number(item?.feedId);
-      if (!Number.isInteger(feedId) || feedId < 1) return;
+      const feedId = item?.feedId;
+      if (!hasId(feedId)) return;
 
       navigation.navigate('FeedDetail', { feedId, scrollToComment: true });
     },

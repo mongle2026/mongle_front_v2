@@ -5,6 +5,7 @@ import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
 import { STAMPS } from '../../../../../shared/data/envelopeData';
 
 import { letterboxKeys } from '../../../api/letterboxKeys';
+import { hasId } from '../../../../../shared/utils/id';
 
 // 백엔드 응답 → { [stampCode]: 받은 횟수 }
 function normalizeStampCounts(data) {
@@ -20,7 +21,7 @@ function normalizeStampCounts(data) {
 // 우표 목록은 프론트(envelopeData STAMPS)가 기준이고, 서버에서는 받은 횟수만 받아 합친다.
 // 서버에 없는(또는 아직 못 불러온) 우표는 받은 적 없는 우표(count 0)로 둔다.
 const useStampBox = ({ userId } = {}) => {
-  const isConfigured = Boolean(isApiConfigured && Number(userId) > 0);
+  const isConfigured = Boolean(isApiConfigured && hasId(userId));
 
   const { data: counts, refetch } = useQuery({
     queryKey: letterboxKeys.stamps(userId),

@@ -14,7 +14,7 @@ export function normalizeLetterboxItem(item) {
   const counterpart = isSent ? item.receiver : item.sender;
 
   return {
-    letterId: Number(item.letterId),
+    letterId: item.letterId,
     profileImageUri: resolveMediaUri(counterpart?.profileImageUrl),
     nickname: counterpart?.nickname ?? '',
     // 편지 뒷면(Letter type="back")에 쓰는 받는 사람/보낸 사람 이름

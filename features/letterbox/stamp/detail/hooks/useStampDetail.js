@@ -7,6 +7,7 @@ import { resolveMediaUri } from '../../../../../shared/utils/media';
 
 import { normalizeLetterboxItem } from '../../../utils/normalizeLetter';
 import { letterboxKeys } from '../../../api/letterboxKeys';
+import { hasId } from '../../../../../shared/utils/id';
 
 function normalizeStampDetail(data) {
   const rawSenders = Array.isArray(data?.senders) ? data.senders : [];
@@ -19,7 +20,7 @@ function normalizeStampDetail(data) {
     senders: rawSenders
       .filter(sender => sender?.userId)
       .map(sender => ({
-        userId: Number(sender.userId),
+        userId: sender.userId,
         nickname: sender.nickname ?? '',
         imageUri: resolveMediaUri(sender.profileImageUrl),
         isMe: Boolean(sender.isMe),
@@ -43,7 +44,7 @@ function normalizeStampDetail(data) {
 }
 
 const isStampDetailConfigured = ({ stampCode, userId }) =>
-  Boolean(isApiConfigured && Number(userId) > 0 && findStamp(stampCode));
+  Boolean(isApiConfigured && hasId(userId) && findStamp(stampCode));
 
 const getStampDetailQueryOptions = ({ stampCode, userId }) => ({
   queryKey: letterboxKeys.stampDetail(userId, stampCode),

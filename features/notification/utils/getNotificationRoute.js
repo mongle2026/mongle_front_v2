@@ -16,7 +16,7 @@ export const getNotificationRoute = notification => {
   if (type === NOTIFICATION_TYPE.LETTER && notification.letterId) {
     return {
       name: 'LetterDetail',
-      params: { letterId: Number(notification.letterId) },
+      params: { letterId: notification.letterId },
     };
   }
 
@@ -26,7 +26,7 @@ export const getNotificationRoute = notification => {
       params: {
         feedId: String(notification.feedId),
         scrollToComment: true,
-        commentId: notification.commentId ? Number(notification.commentId) : null,
+        commentId: notification.commentId ?? null,
         isReply: notification.status === NOTIFICATION_STATUS.REPLY,
       },
     };

@@ -3,6 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../../shared/api/client';
 
 import { archiveKeys } from '../../api/archiveKeys';
+import { hasId } from '../../../../shared/utils/id';
 
 const BOOKMARK_FEED_LIMIT = 20;
 
@@ -23,7 +24,7 @@ async function fetchBookmarkFeedPage({ userId, filter, sort, pageParam }) {
   };
 }
 
-const isBookmarkFeedsConfigured = ({ userId }) => Boolean(isApiConfigured && Number(userId) > 0);
+const isBookmarkFeedsConfigured = ({ userId }) => Boolean(isApiConfigured && hasId(userId));
 
 const getBookmarkFeedsQueryOptions = ({ userId, filter, sort }) => ({
   queryKey: archiveKeys.bookmarkFeeds(userId, filter, sort),

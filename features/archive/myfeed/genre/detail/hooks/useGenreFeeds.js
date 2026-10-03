@@ -3,6 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../../../../shared/api/client';
 
 import { archiveKeys } from '../../../../api/archiveKeys';
+import { hasId } from '../../../../../../shared/utils/id';
 
 const GENRE_FEED_LIMIT = 20;
 const DEFAULT_SORT = 'latest';
@@ -25,7 +26,7 @@ async function fetchGenreFeedPage({ userId, genre, sort, pageParam }) {
 }
 
 const isGenreFeedsConfigured = ({ userId, genre }) =>
-  Boolean(isApiConfigured && Number(userId) > 0 && genre);
+  Boolean(isApiConfigured && hasId(userId) && genre);
 
 const getGenreFeedsQueryOptions = ({ userId, genre, sort }) => ({
   queryKey: archiveKeys.genreFeeds(userId, genre, sort),

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { mockAuth } from '../auth/mockAuth';
 import { resolveMediaUri } from '../utils/media';
+import { hasId, toIdKey } from '../utils/id';
 
 export default function useCurrentUser() {
   const isConfigured =
@@ -12,14 +13,14 @@ export default function useCurrentUser() {
     mockAuth.isAuthenticated;
 
   const mockUserId =
-    Number(mockAuth.userId);
+    mockAuth.userId;
 
   const {
     data: currentUser,
   } = useQuery({
     queryKey: [
       'current-user',
-      String(mockUserId),
+      toIdKey(mockUserId),
     ],
 
     queryFn: async () => {
@@ -31,7 +32,7 @@ export default function useCurrentUser() {
 
       return {
         userId:
-          Number(user.userId),
+          user.userId,
 
         userCode:
           user.userCode ?? '',
@@ -58,7 +59,7 @@ export default function useCurrentUser() {
     enabled:
       isConfigured &&
       isAuthenticated &&
-      mockUserId > 0,
+      hasId(mockUserId),
 
     staleTime: 5 * 60 * 1000,
   });

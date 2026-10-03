@@ -5,6 +5,7 @@ import apiClient from '../../../shared/api/client';
 import {
   compressImageFile,
 } from './compressImageFile';
+import { isSameId } from '../../../shared/utils/id';
 
 /*
  * 서버의 업로드 대기표(pending)는 발급 후 24시간이 지나면 정리됩니다.
@@ -87,7 +88,7 @@ const getOrStartUpload = ({ userId, file, index }) => {
 
   if (
     task &&
-    task.userId === userId &&
+    isSameId(task.userId, userId) &&
     Date.now() - task.startedAt < UPLOAD_REUSE_LIMIT_MS
   ) {
     return task.promise;

@@ -4,6 +4,7 @@ import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
 
 import { normalizeLetterboxItem } from '../../../utils/normalizeLetter';
 import { letterboxKeys } from '../../../api/letterboxKeys';
+import { hasId } from '../../../../../shared/utils/id';
 
 const LETTERBOX_LIMIT = 20;
 
@@ -40,7 +41,7 @@ async function fetchLetterboxPage({ userId, tab, pageParam }) {
 // 편지함 편지 목록 조회.
 const useLetterBox = ({ userId, filter } = {}) => {
   const tab = LETTERBOX_TAB[filter];
-  const isConfigured = Boolean(isApiConfigured && Number(userId) > 0 && tab);
+  const isConfigured = Boolean(isApiConfigured && hasId(userId) && tab);
 
   const {
     data,

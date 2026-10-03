@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import apiClient, { getApiErrorDetail } from '../api/client';
+import { isSameId } from '../utils/id';
 
 const normalizeId = value => String(value);
 
@@ -72,7 +73,7 @@ export default function useFollow({
   const toggleFollow = useCallback((targetUserId, isFollowing) => {
     if (
       !targetUserId ||
-      Number(currentUserId) === Number(targetUserId) ||
+      isSameId(currentUserId, targetUserId) ||
       pendingIdsRef.current.has(normalizeId(targetUserId))
     ) {
       return;

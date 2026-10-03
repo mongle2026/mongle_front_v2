@@ -4,29 +4,12 @@ import apiClient, { isApiConfigured } from '../../../../shared/api/client';
 
 import useFeedFollow from '../../hooks/useFeedFollow';
 import { feedHomeKeys } from '../../api/feedCache';
+import { normalizeFeedItem } from '../../api/normalizeFeed';
+import { hasId, isSameId } from '../../../../shared/utils/id';
 
 const FEED_LIMIT = 20;
 const FEED_STALE_TIME = 2 * 60 * 1000;
 const FEED_GC_TIME = 30 * 60 * 1000;
-
-export function normalizeFeedItem(item) {
-  if (!item?.feedId) return null;
-
-  return {
-    ...item,
-    user: {
-      ...(item.user ?? {}),
-      isFollowing: Boolean(item?.user?.isFollowing),
-    },
-    record: item.record ?? {},
-    music: item.music ?? null,
-    files: Array.isArray(item.files) ? item.files : [],
-    isLiked: Boolean(item.isLiked),
-    isBookmarked: Boolean(item.isBookmarked),
-    likeCount: Number(item.likeCount ?? 0),
-    bookmarkCount: Number(item.bookmarkCount ?? 0),
-  };
-}
 
 function normalizeFeedPage(data) {
   const rawItems = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
@@ -71,7 +54,7 @@ function createFeedQueryOptions({ userId, feedType, isConfigured }) {
 export default function useFeedHome({ userId, isFollowing = false }) {
   const queryClient = useQueryClient();
 
-  const hasUserId = userId !== null && userId !== undefined;
+  const hasUserId = hasId(userId);
   const isConfigured = Boolean(isApiConfigured && hasUserId);
 
   const recommendedQueryOptions = useMemo(
@@ -127,7 +110,7 @@ export default function useFeedHome({ userId, isFollowing = false }) {
     feed => {
       const targetUserId = feed?.user?.userId;
       if (!targetUserId) return;
-      if (String(targetUserId) === String(userId)) return;
+      if (isSameId(targetUserId, userId)) return;
 
       toggleFollow(targetUserId, Boolean(feed?.user?.isFollowing));
     },

@@ -7,7 +7,9 @@ import {
   findFeedItemInHomeCache,
   removeFeedItem,
 } from '../../api/feedCache';
+import { normalizeFeedItem } from '../../api/normalizeFeed';
 import { archiveKeys } from '../../../archive/api/archiveKeys';
+import { hasId } from '../../../../shared/utils/id';
 
 const DETAIL_STALE_TIME = 2 * 60 * 1000;
 const DETAIL_GC_TIME = 30 * 60 * 1000;
@@ -29,10 +31,11 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess, onDelet
         params: { userId },
       });
 
-      return response.data;
+      // 홈 캐시(placeholder)와 같은 형태로 맞춘다
+      return normalizeFeedItem(response.data);
     },
 
-    enabled: isConfigured && Number(feedId) > 0 && Number(userId) > 0,
+    enabled: isConfigured && hasId(feedId) && hasId(userId),
 
     placeholderData: () => findFeedItemInHomeCache(
       queryClient,

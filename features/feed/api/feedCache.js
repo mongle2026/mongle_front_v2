@@ -4,6 +4,7 @@ import {
   refreshBookmarkFollowingFeeds,
   revertBookmarkFollowState,
 } from '../../archive/api/bookmarkCache';
+import { toIdKey } from '../../../shared/utils/id';
 
 const normalizeId = value => String(value);
 
@@ -27,7 +28,7 @@ const FEED_COMMENTS_QUERY_ROOT = ['feed-comments'];
 
 export const feedCommentKeys = {
   all: FEED_COMMENTS_QUERY_ROOT,
-  list: (feedId, userId) => [...FEED_COMMENTS_QUERY_ROOT, feedId != null ? normalizeId(feedId) : '', Number(userId)],
+  list: (feedId, userId) => [...FEED_COMMENTS_QUERY_ROOT, feedId != null ? normalizeId(feedId) : '', toIdKey(userId)],
 };
 
 export function updateFeedItem(queryData, feedId, updater) {

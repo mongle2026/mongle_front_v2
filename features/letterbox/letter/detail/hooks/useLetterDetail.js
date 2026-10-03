@@ -5,6 +5,7 @@ import { normalizeFont } from '../../../../../shared/styles/fontType';
 import { getImageSources, resolveMediaUri } from '../../../../../shared/utils/media';
 
 import { letterboxKeys, letterDetailKeys } from '../../../api/letterboxKeys';
+import { hasId, isSameId } from '../../../../../shared/utils/id';
 
 const DETAIL_STALE_TIME = 2 * 60 * 1000;
 
@@ -14,13 +15,10 @@ function normalizeLetterDetail(data, userId) {
   const record = data?.record;
   if (!letter?.id) return null;
 
-  const senderId = Number(record?.userId);
-  const receiverId = Number(letter.receiverId);
-
   return {
-    letterId: Number(letter.id),
-    isSender: senderId === Number(userId),
-    isReceiver: receiverId === Number(userId),
+    letterId: letter.id,
+    isSender: isSameId(record?.userId, userId),
+    isReceiver: isSameId(letter.receiverId, userId),
     isRead: Boolean(letter.isRead),
     deliveryAt: letter.deliveryAt,
     createdAt: record?.createdAt,
@@ -61,7 +59,7 @@ function markLetterAsReadInLetterbox(queryClient, userId, letterId) {
       ...currentData,
       pages: currentData.pages.map(page => ({
         ...page,
-        items: page.items.map(item => (item.letterId === letterId ? { ...item, isRead: true } : item)),
+        items: page.items.map(item => (isSameId(item.letterId, letterId) ? { ...item, isRead: true } : item)),
       })),
     };
   });
@@ -78,7 +76,7 @@ function markLetterAsReadInLetterbox(queryClient, userId, letterId) {
 
     return {
       ...currentData,
-      letters: currentData.letters.map(item => (item.letterId === letterId ? { ...item, isRead: true } : item)),
+      letters: currentData.letters.map(item => (isSameId(item.letterId, letterId) ? { ...item, isRead: true } : item)),
     };
   });
 }
@@ -92,7 +90,7 @@ function removeLetterFromLetterbox(queryClient, userId, letterId) {
       ...currentData,
       pages: currentData.pages.map(page => ({
         ...page,
-        items: page.items.filter(item => item.letterId !== letterId),
+        items: page.items.filter(item => !isSameId(item.letterId, letterId)),
       })),
     };
   });
@@ -110,7 +108,7 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
 
   const { data: letter, error, isLoading, refetch } = useQuery({
     queryKey: detailQueryKey,
-    enabled: isConfigured && Number(letterId) > 0 && Number(userId) > 0,
+    enabled: isConfigured && hasId(letterId) && hasId(userId),
     staleTime: DETAIL_STALE_TIME,
     queryFn: async () => {
       const response = await apiClient.get(`/letter/${letterId}`, {
@@ -137,7 +135,7 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
     },
 
     onSuccess: () => {
-      removeLetterFromLetterbox(queryClient, userId, Number(letterId));
+      removeLetterFromLetterbox(queryClient, userId, letterId);
 
       // 화면이 닫히는 동안 다시 불러오면 404가 나므로 stale 처리만 해둔다
       void queryClient.invalidateQueries({ queryKey: detailQueryKey, refetchType: 'none' });

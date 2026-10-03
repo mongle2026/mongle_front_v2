@@ -5,11 +5,12 @@ import { resolveMediaUri } from '../../../../../shared/utils/media';
 
 import { archiveKeys } from '../../../api/archiveKeys';
 import { SESSION_COVER_SEED } from '../../utils/sessionCover';
+import { hasId } from '../../../../../shared/utils/id';
 
 // 장르별 기록. GET /feed/me/genres?userId=&limit=&coverSeed=
 // 한 곡이 가진 모든 장르에 글이 들어간다. 커버는 서버가 그 장르 곡들 커버 중 하나를 골라 준다(앱 실행 동안 고정).
 const useMyFeedGenres = ({ userId, limit }) => {
-  const isConfigured = Boolean(isApiConfigured && Number(userId) > 0);
+  const isConfigured = Boolean(isApiConfigured && hasId(userId));
 
   const { data, isPending } = useQuery({
     queryKey: archiveKeys.myFeedGenres(userId, limit),

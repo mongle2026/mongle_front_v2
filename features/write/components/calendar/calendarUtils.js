@@ -1,4 +1,5 @@
 import { padding } from '../../../../shared/styles/token';
+import { addYearsClamped } from '../../date/utils/dateSelect';
 
 export const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -26,13 +27,9 @@ export const getMinDate = (today, allowToday) => {
 /**
  * 선택 가능 최대 날짜
  * = 오늘로부터 정확히 1년 뒤
+ * (2월 29일이면 다음 해 2월 28일 — '일 년 뒤' 프리셋과 같은 계산)
  */
-export const getMaxDate = today => {
-  const date = new Date(today);
-  date.setFullYear(date.getFullYear() + 1);
-
-  return date;
-};
+export const getMaxDate = today => addYearsClamped(today, 1);
 
 /**
  * 표시 가능한 월 목록 (각 달의 1일)

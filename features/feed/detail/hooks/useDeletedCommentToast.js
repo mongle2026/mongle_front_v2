@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 import { colors } from '../../../../shared/styles/color';
+import { isSameId } from '../../../../shared/utils/id';
 
 /**
  * 댓글/답글 알림으로 들어왔는데 피드는 남아 있고 그 댓글만 지워졌으면 Toast로 알린다.
@@ -30,7 +31,7 @@ const useDeletedCommentToast = ({
     hasCheckedRef.current = true;
 
     const isCommentAlive = comments.some(
-      comment => Number(comment.commentId) === Number(commentId),
+      comment => isSameId(comment.commentId, commentId),
     );
     if (isCommentAlive) return;
 
