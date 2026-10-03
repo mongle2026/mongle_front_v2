@@ -2,10 +2,10 @@ import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { ARCHIVE_TAB } from '../../archive/ArchiveScreen';
+import { ARCHIVE_TAB } from '../../archive/constants';
 import { archiveKeys } from '../../archive/api/archiveKeys';
 import { addBookmarkFeed, removeBookmarkFeed } from '../../archive/api/bookmarkCache';
-import { prefetchBookmarkFeeds } from '../../archive/bookmark/hooks/useBookmarkFeeds';
+import { prefetchBookmarkFeeds } from '../../archive/api/bookmarkFeedsQuery';
 import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottomOffset';

@@ -15,9 +15,8 @@ import { colors } from '../../shared/styles/color';
 import { gap, padding } from '../../shared/styles/token';
 
 import InfoBanner from './components/InfoBanner';
-import NotificationListItem, {
-  NOTIFICATION_TYPE,
-} from './components/NotificationListItem';
+import NotificationListItem from './components/NotificationListItem';
+import { NOTIFICATION_TYPE } from './constants';
 import useNotifications from './hooks/useNotifications';
 import { getNotificationRoute } from './utils/getNotificationRoute';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';

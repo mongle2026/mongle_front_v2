@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import apiClient, { getApiErrorDetail } from '../api/client';
-import { isSameId, toIdKey } from '../utils/id';
+import apiClient, { getApiErrorDetail } from '../../../shared/api/client';
+import { isSameId, toIdKey } from '../../../shared/utils/id';
 
 /*
  * 팔로우/언팔로우.

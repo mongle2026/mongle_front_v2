@@ -3,7 +3,8 @@ import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-n
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/action/WriteFab';
-import TopNavigation, { TOP_NAVIGATION_TAB } from '../../../shared/components/navigation/topnavigation/TopNavigation';
+import TopNavigation from '../../../shared/components/navigation/topnavigation/TopNavigation';
+import { FEED_TAB, FEED_TOP_NAVIGATION_TABS } from '../constants';
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import usePullRefresh from '../../../shared/hooks/usePullRefresh';
@@ -26,9 +27,9 @@ const VIEWABILITY_CONFIG = {
 const keyExtractor = item => String(item.feedId);
 
 const FeedHomeScreen = ({ navigation }) => {
-  const [activeTab, setActiveTab] = useState(TOP_NAVIGATION_TAB.RECOMMENDED);
+  const [activeTab, setActiveTab] = useState(FEED_TAB.RECOMMENDED);
   const { userId } = useCurrentUser();
-  const isFollowing = activeTab === TOP_NAVIGATION_TAB.FOLLOWING;
+  const isFollowing = activeTab === FEED_TAB.FOLLOWING;
 
   const [fabHeight, setFabHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
 
@@ -93,9 +94,9 @@ const FeedHomeScreen = ({ navigation }) => {
   useEffect(() => {
     if (createdFeedId == null) return;
 
-    if (activeTab !== TOP_NAVIGATION_TAB.RECOMMENDED) {
+    if (activeTab !== FEED_TAB.RECOMMENDED) {
       resetPlayback();
-      setActiveTab(TOP_NAVIGATION_TAB.RECOMMENDED);
+      setActiveTab(FEED_TAB.RECOMMENDED);
       return;
     }
 
@@ -225,6 +226,7 @@ const FeedHomeScreen = ({ navigation }) => {
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
         <TopNavigation
+          tabs={FEED_TOP_NAVIGATION_TABS}
           activeTab={activeTab}
           onChangeTab={handleChangeTab}
           onPressBell={handlePressBell}

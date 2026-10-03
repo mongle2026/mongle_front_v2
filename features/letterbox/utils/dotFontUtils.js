@@ -1,4 +1,4 @@
-import { HANGUL_SYLLABLE_END, HANGUL_SYLLABLE_START, JONGSEONG_COUNT } from './koreanUtils';
+import { HANGUL_SYLLABLE_END, HANGUL_SYLLABLE_START, JONGSEONG_COUNT } from '../../../shared/utils/koreanUtils';
 
 // 3줄 도트 폰트.
 // 읽지 않은 편지 카드에서 제목/가수를 dot 격자로 가려 보여줄 때 사용한다.

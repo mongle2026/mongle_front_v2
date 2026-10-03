@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import useFollow from '../../../shared/hooks/useFollow';
+import useFollow from './useFollow';
 import { applyFollowState, refreshFollowingFeeds, revertFollowState } from '../api/feedCache';
 
 /**

@@ -10,31 +10,11 @@ import IconButton from '../../action/IconButton';
 import ProfileImg from '../../atomic/ProfileImg';
 import Item from './Item';
 
-export const TOP_NAVIGATION_TAB = {
-  RECOMMENDED: 'recommended',
-  FOLLOWING: 'following',
-  LETTER_BOX: 'letterBox',
-  ARCHIVE: 'archive',
-};
+const EMPTY_TABS = [];
 
-// 피드: 추천 / 팔로잉 탭 전환
-export const FEED_TOP_NAVIGATION_TABS = [
-  { key: TOP_NAVIGATION_TAB.RECOMMENDED, label: '추천', accessibilityLabel: '추천 피드 보기' },
-  { key: TOP_NAVIGATION_TAB.FOLLOWING, label: '팔로잉', accessibilityLabel: '팔로잉 피드 보기' },
-];
-
-// 편지함: 화면 탭 구분은 TabBar에서 하므로 편지함 탭 하나만 노출
-export const LETTER_TOP_NAVIGATION_TABS = [
-  { key: TOP_NAVIGATION_TAB.LETTER_BOX, label: '편지함' },
-];
-
-// 보관함: 화면 탭 구분은 TabBar에서 하므로 보관함 탭 하나만 노출
-export const ARCHIVE_TOP_NAVIGATION_TABS = [
-  { key: TOP_NAVIGATION_TAB.ARCHIVE, label: '보관함' },
-];
-
+// tabs: [{ key, label, accessibilityLabel? }] — 탭 목록은 각 화면(feature)에서 넘긴다
 const TopNavigation = ({
-  tabs = FEED_TOP_NAVIGATION_TABS,
+  tabs = EMPTY_TABS,
   activeTab = tabs[0]?.key,
   onChangeTab,
   onPressBell,

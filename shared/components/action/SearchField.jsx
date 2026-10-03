@@ -18,8 +18,6 @@ import { typo } from '../../styles/typo';
 
 import IcSearch from '../../../assets/icons/ic_search.svg';
 
-const DEFAULT_PLACEHOLDER = '편지를 받을 사람을 검색해 주세요.';
-
 const COLLAPSE_DURATION = 200;
 
 // 하단 그라데이션 높이. 아래 목록이 이 높이만큼 SearchField 밑으로 들어와야 그라데이션이 보인다
@@ -36,7 +34,8 @@ export const SEARCH_FIELD_BOTTOM_FADE_HEIGHT = padding.XL;
 const SearchField = ({
   value,
   onChangeText,
-  placeholder = DEFAULT_PLACEHOLDER,
+  // 검색 대상마다 다르므로 쓰는 화면에서 넘긴다
+  placeholder,
   collapsed,
   backgroundColor = colors.bgLayerDefault,
   fieldBackgroundColor = colors.bgLayerBasement,

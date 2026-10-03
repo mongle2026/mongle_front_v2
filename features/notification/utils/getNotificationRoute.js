@@ -1,7 +1,7 @@
 import {
   NOTIFICATION_STATUS,
   NOTIFICATION_TYPE,
-} from '../components/NotificationListItem';
+} from '../constants';
 
 /**
  * 알림을 눌렀을 때 이동할 화면.

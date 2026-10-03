@@ -9,21 +9,8 @@ import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 import { formatDate, formatRelativeDate } from '../../../shared/utils/dateUtils';
 import { getFromSuffix } from '../../../shared/utils/koreanUtils';
+import { NOTIFICATION_STATUS, NOTIFICATION_TYPE } from '../constants';
 
-export const NOTIFICATION_TYPE = {
-  LETTER: 'letter',
-  FEED: 'feed',
-  NEWS: 'news',
-};
-
-export const NOTIFICATION_STATUS = {
-  SEND: 'send',
-  RECEIVE: 'receive',
-  COMMENT: 'comment',
-  REPLY: 'reply',
-  SYSTEM: 'system',
-  EVENT: 'event',
-};
 
 // 댓글/답글 내용은 최대 20자까지만 보여준다
 const MAX_FEED_CONTENT_LENGTH = 20;

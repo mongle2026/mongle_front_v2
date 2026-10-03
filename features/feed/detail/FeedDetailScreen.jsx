@@ -25,7 +25,7 @@ import { normalizeFont } from '../../../shared/styles/fontType';
 
 import { getImageSources, resolveMediaUri, toImageSource } from '../../../shared/utils/media';
 import { isEdited } from '../../../shared/utils/dateUtils';
-import { shareFeed } from '../../../shared/utils/shareFeed';
+import { shareFeed } from '../utils/shareFeed';
 
 import ActionBar, { DATE_FORMAT } from '../../../shared/components/content/ActionBar';
 import ProfileBar from '../components/ProfileBar';

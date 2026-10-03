@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../shared/components/action/WriteFab';
-import TopNavigation, { LETTER_TOP_NAVIGATION_TABS } from '../../shared/components/navigation/topnavigation/TopNavigation';
+import TopNavigation from '../../shared/components/navigation/topnavigation/TopNavigation';
+import { LETTER_TOP_NAVIGATION_TABS } from './constants';
 import TabBar from '../../shared/components/navigation/tabbar/TabBar';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';
 import { colors } from '../../shared/styles/color';

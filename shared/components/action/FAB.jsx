@@ -24,7 +24,6 @@ export const FAB_EXPAND_DURATION = 200;
 const EXPANDED_ROW_FALLBACK_OFFSET = 48;
 
 const DEFAULT_LABEL = '새로운 기록 남기기';
-const EXPANDED_LABEL = '피드 더 둘러보기';
 
 const ExpandedActionButton = memo(
   ({ icon: Icon, label, onPress, accessibilityLabel }) => {
@@ -63,7 +62,8 @@ const FAB = ({
   onLetterPress,
 
   label = DEFAULT_LABEL,
-  expandedLabel = EXPANDED_LABEL,
+  // 열렸을 때 문구는 화면마다 다르다 (WriteFab 을 쓰는 화면에서 넘긴다)
+  expandedLabel = label,
 
   // 외부에서 열림 상태를 제어할 때 사용
   open,

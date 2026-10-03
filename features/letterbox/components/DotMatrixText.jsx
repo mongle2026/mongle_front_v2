@@ -2,7 +2,7 @@ import { memo, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { DOT_ROWS, buildDotColumns } from '../../../shared/utils/dotFontUtils';
+import { DOT_ROWS, buildDotColumns } from '../utils/dotFontUtils';
 
 // dot 하나를 원으로 그리는 path 조각
 function circlePath(cx, cy, radius) {

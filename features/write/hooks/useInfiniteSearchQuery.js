@@ -8,7 +8,7 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query';
 
-import useDebouncedValue from './useDebouncedValue';
+import useDebouncedValue from '../../../shared/hooks/useDebouncedValue';
 
 function defaultGetNextPageParam(lastPage) {
   if (!lastPage?.hasNextPage) {

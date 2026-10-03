@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
-import { dismissKeyboardThen } from '../../../../shared/utils/keyboardUtils';
+import { dismissKeyboardThen } from '../../utils/keyboardUtils';
 
 // 화면 전체를 덮는 BottomSheet 의 Overlay contentContainerStyle
 const FULL_SCREEN_CONTAINER_STYLE = Object.freeze({

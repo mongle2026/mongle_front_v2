@@ -10,7 +10,7 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 
-import useInfiniteSearchQuery from '../../../../shared/hooks/useInfiniteSearchQuery';
+import useInfiniteSearchQuery from '../../hooks/useInfiniteSearchQuery';
 
 import {
   useRecordFormStore,

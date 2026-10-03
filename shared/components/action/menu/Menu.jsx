@@ -17,7 +17,7 @@ const Menu = ({
   // 삭제만 필요한 화면(편지 상세 등)은 showEdit={false}
   showEdit = true,
   deleteLabel = '삭제',
-  deleteAccessibilityLabel = '게시물 삭제',
+  deleteAccessibilityLabel = deleteLabel,
   // [{ key, label, onPress }] 를 넘기면 수정/삭제 대신 이 항목들을 보여준다 (정렬 선택 등)
   items,
   style,

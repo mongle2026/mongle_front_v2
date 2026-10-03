@@ -42,6 +42,7 @@ const FeedDetailHeader = ({
           onPressEdit={onPressEdit}
           onPressDelete={onPressDelete}
           deleteDisabled={deleteDisabled}
+          deleteAccessibilityLabel="게시물 삭제"
         />
       )}
     </View>

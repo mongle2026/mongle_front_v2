@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 
-import TopNavigation, { ARCHIVE_TOP_NAVIGATION_TABS } from '../../shared/components/navigation/topnavigation/TopNavigation';
+import TopNavigation from '../../shared/components/navigation/topnavigation/TopNavigation';
 import TabBar from '../../shared/components/navigation/tabbar/TabBar';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';
 import { colors } from '../../shared/styles/color';
@@ -12,11 +12,7 @@ import BookmarkSection from './bookmark/BookmarkSection';
 import MyFeedSection from './myfeed/home/MyFeedSection';
 import { prefetchAllMyFeeds } from './myfeed/all/hooks/useAllMyFeeds';
 import { prefetchGenreFeeds } from './myfeed/genre/detail/hooks/useGenreFeeds';
-
-export const ARCHIVE_TAB = {
-  MYFEED: 'myfeed',
-  BOOKMARK: 'bookmark',
-};
+import { ARCHIVE_TAB, ARCHIVE_TOP_NAVIGATION_TABS } from './constants';
 
 const ARCHIVE_TABS = [
   { key: ARCHIVE_TAB.MYFEED, label: '내 기록' },

@@ -5,7 +5,7 @@ import {
 
 import apiClient from '../../../../shared/api/client';
 
-import useInfiniteSearchQuery from '../../../../shared/hooks/useInfiniteSearchQuery';
+import useInfiniteSearchQuery from '../../hooks/useInfiniteSearchQuery';
 
 import {
   useLetterFormStore,
