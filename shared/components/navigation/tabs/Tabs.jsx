@@ -2,7 +2,7 @@ import { memo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors } from '../../../styles/color';
+import { colors, toTransparent } from '../../../styles/color';
 import { padding } from '../../../styles/token';
 
 import Items from './Items';
@@ -19,7 +19,7 @@ const Tabs = ({
   backgroundColor = colors.bgLayerBasement,
   style,
 }) => {
-  const fadeColors = [`${backgroundColor}00`, backgroundColor];
+  const fadeColors = [toTransparent(backgroundColor), backgroundColor];
 
   const [showRightFade, setShowRightFade] = useState(false);
   const scrollRef = useRef({ layoutWidth: 0, contentWidth: 0, x: 0 });

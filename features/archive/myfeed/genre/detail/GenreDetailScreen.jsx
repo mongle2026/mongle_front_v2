@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,7 +13,8 @@ import { colors } from '../../../../../shared/styles/color';
 import { gap, padding } from '../../../../../shared/styles/token';
 
 import ShortPostCard from '../../../components/ShortPostCard';
-import { toShortPost } from '../../utils/toShortPost';
+import { toShortPost } from '../../../utils/postCardProps';
+import useSortMenu from '../../../hooks/useSortMenu';
 import useGenreFeeds from './hooks/useGenreFeeds';
 
 const SORT_OPTIONS = [
@@ -30,7 +31,15 @@ const GenreDetailScreen = ({ navigation, route }) => {
   const { userId } = useCurrentUser();
   const insets = useSafeAreaInsets();
 
-  const [sortKey, setSortKey] = useState(SORT_OPTIONS[0].key);
+  const {
+    sortKey,
+    sortLabel,
+    isSortMenuOpen,
+    sortMenuTop,
+    openSortMenu: openSortMenuAt,
+    closeSortMenu,
+    sortMenuItems,
+  } = useSortMenu(SORT_OPTIONS);
   const { feeds, isFetchingNextPage, hasNextPage, fetchNextPage } = useGenreFeeds({ userId, genre, sort: sortKey });
 
   const posts = useMemo(() => feeds.map(toShortPost), [feeds]);
@@ -71,22 +80,15 @@ const GenreDetailScreen = ({ navigation, route }) => {
     [insets.bottom],
   );
 
-  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
-  // 메뉴를 ListControlBar 바로 밑에 두기 위한 ListControlBar 아래쪽 y
-  const [sortMenuTop, setSortMenuTop] = useState(0);
-
   // ListControlBar가 리스트 헤더로 같이 스크롤되므로, 메뉴를 열 때 리스트 위치·헤더 높이·스크롤 오프셋으로 위치를 계산한다
   const listTopRef = useRef(0);
   const controlBarHeightRef = useRef(0);
   const scrollOffsetRef = useRef(0);
 
-  const sortLabel = SORT_OPTIONS.find(option => option.key === sortKey)?.label ?? '';
-
+  // 메뉴를 ListControlBar 바로 밑에 둔다
   const openSortMenu = useCallback(() => {
-    setSortMenuTop(listTopRef.current + controlBarHeightRef.current - scrollOffsetRef.current);
-    setIsSortMenuOpen(true);
-  }, []);
-  const closeSortMenu = useCallback(() => setIsSortMenuOpen(false), []);
+    openSortMenuAt(listTopRef.current + controlBarHeightRef.current - scrollOffsetRef.current);
+  }, [openSortMenuAt]);
 
   const handleListLayout = useCallback(e => {
     listTopRef.current = e.nativeEvent.layout.y;
@@ -105,18 +107,6 @@ const GenreDetailScreen = ({ navigation, route }) => {
       <ListControlBar text={sortLabel} onPress={openSortMenu} />
     </View>
   ), [handleControlBarLayout, sortLabel, openSortMenu]);
-
-  const sortMenuItems = useMemo(
-    () => SORT_OPTIONS.map(option => ({
-      key: option.key,
-      label: option.label,
-      onPress: () => {
-        setSortKey(option.key);
-        setIsSortMenuOpen(false);
-      },
-    })),
-    [],
-  );
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>

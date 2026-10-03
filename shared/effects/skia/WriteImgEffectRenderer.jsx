@@ -2,6 +2,7 @@ import React, { memo, useCallback, useMemo, useState, } from 'react';
 import { StyleSheet, View, } from 'react-native';
 import { Canvas, Fill, Group, ImageShader, Shader, rect, rrect, useImage, vec, } from '@shopify/react-native-skia';
 import { WRITE_IMG_PRINT_EFFECT, } from './writeImgPrintEffect';
+import { toSkiaImageSource } from '../../utils/media';
 
 const DEFAULT_HALFTONE_OPTIONS =
   Object.freeze({
@@ -16,25 +17,6 @@ const DEFAULT_TEXTURE_OPTIONS =
     size: 19.2,
     radius: 4,
   });
-
-const normalizeImageSource = imageSource => {
-  if (
-    typeof imageSource === 'string' ||
-    typeof imageSource === 'number'
-  ) {
-    return imageSource;
-  }
-
-  if (
-    imageSource &&
-    typeof imageSource === 'object' &&
-    imageSource.uri
-  ) {
-    return imageSource.uri;
-  }
-
-  return imageSource;
-};
 
 export const WriteImgEffectRenderer = memo(
   ({
@@ -51,7 +33,7 @@ export const WriteImgEffectRenderer = memo(
     });
 
     const currentImageSource = useMemo(
-      () => normalizeImageSource(imageSource),
+      () => toSkiaImageSource(imageSource),
       [imageSource]
     );
 

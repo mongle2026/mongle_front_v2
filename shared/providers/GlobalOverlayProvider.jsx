@@ -9,7 +9,6 @@ import React, {
   useState,
 } from 'react';
 import {
-  BackHandler,
   StyleSheet,
   View,
 } from 'react-native';
@@ -27,6 +26,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import Toast from '../components/feedback/Toast';
 import Dim from '../components/layout/Dim';
 import WindowOverlay from '../components/layout/WindowOverlay';
+import { useHardwareBackClose, useOverlaySlot } from './useOverlaySlot';
 
 const DEFAULT_TOAST_DURATION = 3000;
 const DIM_FADE_DURATION = 200;
@@ -317,8 +317,13 @@ export const OverlayCloseRequestContext =
 const GlobalOverlayProvider = ({
   children,
 }) => {
-  const [overlay, setOverlay] =
-    useState(null);
+  const {
+    slot: overlay,
+    slotRef: overlayRef,
+    openSlot,
+    closeSlot,
+    isSlotOpen: isOverlayOpen,
+  } = useOverlaySlot('GlobalOverlay');
 
   const [toast, setToast] =
     useState({
@@ -343,7 +348,6 @@ const GlobalOverlayProvider = ({
   const [isOverlayClosing, setIsOverlayClosing] =
     useState(false);
 
-  const overlayRef = useRef(null);
   const toastTimerRef = useRef(null);
   // 토스트를 잡고 있는 동안 타이머를 멈췄다가 남은 시간만큼 다시 돌리기 위한 값
   const toastTimerStartRef = useRef(0);
@@ -364,24 +368,7 @@ const GlobalOverlayProvider = ({
     accessibilityLabel = '배경 닫기',
     onClose,
   }) => {
-    if (!id) {
-      console.warn(
-        'GlobalOverlay의 id가 필요합니다.',
-      );
-      return;
-    }
-
-    if (
-      typeof renderContent !==
-      'function'
-    ) {
-      console.warn(
-        'GlobalOverlay의 renderContent가 필요합니다.',
-      );
-      return;
-    }
-
-    const nextOverlay = {
+    const isOpened = openSlot({
       id,
       renderContent,
       contentContainerStyle,
@@ -391,19 +378,10 @@ const GlobalOverlayProvider = ({
       closeOnBackPress,
       accessibilityLabel,
       onClose,
-    };
+    });
 
-    // 기존 오버레이를 덮어쓰기 전에 닫힘을 알려서
-    // 여는 쪽 상태(예: WriteFab isOpen)가 남지 않게 함
-    const previousOverlay =
-      overlayRef.current;
+    if (!isOpened) return;
 
-    overlayRef.current =
-      nextOverlay;
-
-    previousOverlay?.onClose?.();
-
-    setOverlay(nextOverlay);
     setIsDimHidden(false);
     setIsOverlayClosing(false);
 
@@ -411,28 +389,14 @@ const GlobalOverlayProvider = ({
       setDimStyle(dimStyle);
       setIsDimMounted(true);
     }
-  }, []);
+  }, [openSlot]);
 
   const closeOverlay =
     useCallback(id => {
-      const currentOverlay =
-        overlayRef.current;
-
-      if (!currentOverlay) return;
-
-      if (
-        id &&
-        currentOverlay.id !== id
-      ) {
-        return;
+      if (closeSlot(id)) {
+        setIsOverlayClosing(false);
       }
-
-      overlayRef.current = null;
-      setOverlay(null);
-      setIsOverlayClosing(false);
-
-      currentOverlay.onClose?.();
-    }, []);
+    }, [closeSlot]);
 
   // 콘텐츠가 자체 닫힘 애니메이션을 하는 동안 Dim을 먼저 페이드 아웃할 때 사용
   // (예: FAB의 expandedRow가 내려가는 동안 Dim도 같이 사라지게)
@@ -611,33 +575,7 @@ const GlobalOverlayProvider = ({
       toast.onPressButton,
     ]);
 
-  useEffect(() => {
-    if (
-      !overlay ||
-      !overlay.closeOnBackPress
-    ) {
-      return undefined;
-    }
-
-    const subscription =
-      BackHandler.addEventListener(
-        'hardwareBackPress',
-        () => {
-          requestCloseOverlay(
-            overlay.id,
-          );
-
-          return true;
-        },
-      );
-
-    return () => {
-      subscription.remove();
-    };
-  }, [
-    requestCloseOverlay,
-    overlay,
-  ]);
+  useHardwareBackClose(overlay, requestCloseOverlay);
 
   useEffect(() => {
     return () => {
@@ -671,13 +609,6 @@ const GlobalOverlayProvider = ({
       if (isDimShownRef.current) return;
 
       setIsDimMounted(false);
-    }, []);
-
-  const isOverlayOpen =
-    useCallback(id => {
-      return (
-        overlayRef.current?.id === id
-      );
     }, []);
 
   // 오버레이 열림 상태(overlay)는 value에 넣지 않습니다.

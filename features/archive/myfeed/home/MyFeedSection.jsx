@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import Empty from '../../../../shared/components/content/Empty';
 import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
 import { padding } from '../../../../shared/styles/token';
-import { resolveMediaUri } from '../../../../shared/utils/media';
+import { resolveMediaUri, toImageSource } from '../../../../shared/utils/media';
 
 import useMyFeedGenres from '../genre/hooks/useMyFeedGenres';
 import useMyFeedMonths from '../all/hooks/useMyFeedMonths';
@@ -48,7 +48,7 @@ const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore,
   // 전체 카드 커버 = 가장 최신 글의 앨범 커버
   const latestArtworkUri = resolveMediaUri(recentFeeds[0]?.music?.musicArtwork);
   const allImageSource = useMemo(
-    () => (latestArtworkUri ? { uri: latestArtworkUri } : undefined),
+    () => toImageSource(latestArtworkUri),
     [latestArtworkUri],
   );
 

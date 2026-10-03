@@ -9,13 +9,13 @@ import { typo } from '../../../shared/styles/typo';
 import { formatDate } from '../../../shared/utils/dateUtils';
 import CdCover from '../../../shared/components/atomic/CdCover';
 import DotMatrixText from './DotMatrixText';
-import Letter from '../../../shared/components/content/Letter';
+import Letter, { LETTER_ASPECT_RATIO } from '../../../shared/components/content/Letter';
 import { StampImage } from '../../../shared/components/content/Stamp';
 import useResolvedEnvelope from '../hooks/useResolvedEnvelope';
 
-// 두 번째 컨테이너의 편지 봉투. 공유 Letter(320x232)를 카드 폭에 맞춰 축소해서 사용.
-const LETTER_WIDTH = 120;
-const LETTER_HEIGHT = Math.round((LETTER_WIDTH * 232) / 320); // 원본 비율 유지
+// 두 번째 컨테이너의 편지 봉투. 공유 Letter를 카드 폭에 맞춰 축소해서 사용.
+const CARD_LETTER_WIDTH = 120;
+const CARD_LETTER_HEIGHT = Math.round(CARD_LETTER_WIDTH / LETTER_ASPECT_RATIO); // 원본 비율 유지
 
 // 카드 높이: 디자인 기준 padding 포함 143px. read/unread 모두 동일하게 고정.
 const CARD_HEIGHT = 143;
@@ -252,8 +252,8 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   letter: {
-    width: LETTER_WIDTH,
-    height: LETTER_HEIGHT,
+    width: CARD_LETTER_WIDTH,
+    height: CARD_LETTER_HEIGHT,
   },
   // gap: -48px → RN은 음수 gap 미지원. 우표를 위로 끌어올려 봉투와 겹침. 4도 기울임.
   stamp: {

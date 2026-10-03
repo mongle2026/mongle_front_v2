@@ -129,3 +129,7 @@ export const colors = {
   fgLike: palette.pink[400],
   fgBookmark: palette.blue[300],
 };
+
+// '#rrggbb' 또는 '#rrggbbaa' 색을 같은 색의 완전 투명(알파 00)으로 바꾼다.
+// 그라데이션이 투명에서 이 색으로 자연스럽게 이어지게 할 때 쓴다 ('transparent' 는 검정 투명이라 중간이 탁해진다)
+export const toTransparent = color => `${color.slice(0, 7)}00`;

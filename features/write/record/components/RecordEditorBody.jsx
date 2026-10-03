@@ -13,6 +13,7 @@ import LabeledButton from '../../components/LabeledButton';
 import BottomBar from '../../components/bottombar/BottomBar';
 import SelectedImageList from './SelectedImageList';
 import { useRecordFormStore } from '../../store/useRecordFormStore';
+import { toImageSource } from '../../../../shared/utils/media';
 
 /*
  * 본문 입력창. 글자가 바뀔 때 이 컴포넌트만 다시 그려지도록
@@ -116,7 +117,7 @@ const RecordEditorBody = ({
         {music ? (
           <View style={styles.musicCardButton}>
             <MusicCard
-              imageSource={musicArtworkUri ? { uri: musicArtworkUri } : undefined}
+              imageSource={toImageSource(musicArtworkUri)}
               title={music.musicTitle}
               artist={music.musicArtist}
               font={normalizedFont}

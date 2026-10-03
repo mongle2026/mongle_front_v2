@@ -23,7 +23,7 @@ import useDeletedContentDialog, { isDeletedContentError } from '../../../shared/
 import { colors } from '../../../shared/styles/color';
 import { normalizeFont } from '../../../shared/styles/fontType';
 
-import { getImageSources, resolveMediaUri } from '../../../shared/utils/media';
+import { getImageSources, resolveMediaUri, toImageSource } from '../../../shared/utils/media';
 import { isEdited } from '../../../shared/utils/dateUtils';
 import { shareFeed } from '../../../shared/utils/shareFeed';
 
@@ -38,7 +38,7 @@ import FeedDetailContent from './components/FeedDetailContent';
 import CommentSection from './components/CommentSection';
 import CommentComposer from './components/CommentComposer';
 import FeedDetailHeader from './components/FeedDetailHeader';
-import FeedDetailStateView from './components/FeedDetailStateView';
+import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import CommentMenuOverlay from './components/CommentMenuOverlay';
 
 import useFeedDetail from './hooks/useFeedDetail';
@@ -389,10 +389,10 @@ const FeedDetailScreen = ({ navigation, route }) => {
           onPressMore={handlePressMore}
         />
 
-        <FeedDetailStateView
+        <LoadStateView
           isLoading={isLoading}
           isConfigured={isConfigured}
-          error={isDeleted ? null : error}
+          errorMessage={error && !isDeleted ? '기록을 불러오지 못했습니다.' : null}
         />
       </View>
     );
@@ -454,16 +454,14 @@ const FeedDetailScreen = ({ navigation, route }) => {
           imageUri={profileImageUri}
           username={user.userCode ?? ''}
           font={normalizedFont}
-          profileVariant={isFollowing ? TEXT_BUTTON_VARIANT.SOLID : TEXT_BUTTON_VARIANT.GHOST}
+          isFollowing={isFollowing}
           showFollowButton={!isMine}
-          followLabel={isFollowing ? '팔로잉' : '팔로우'}
-          followVariant={isFollowing ? 'Ghost' : 'Solid'}
           followDisabled={isTargetPending(user.userId)}
           onPressFollow={handlePressFollow}
         />
 
         <MusicCard
-          imageSource={musicArtworkUri ? { uri: musicArtworkUri } : undefined}
+          imageSource={toImageSource(musicArtworkUri)}
           title={music.musicTitle ?? ''}
           artist={music.musicArtist ?? ''}
           font={normalizedFont}

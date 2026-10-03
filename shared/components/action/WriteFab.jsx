@@ -9,7 +9,7 @@ import {
   useBottomNavigationWindowTop,
 } from '../navigation/bottomnavigation/BottomNavigation';
 import { useGlobalOverlay } from '../../providers/GlobalOverlayProvider';
-import { colors } from '../../styles/color';
+import { colors, toTransparent } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
 
 // 레이아웃 측정 전 사용할 예상 높이
@@ -17,7 +17,7 @@ import { gap, padding } from '../../styles/token';
 export const DEFAULT_WRITE_FAB_HEIGHT = padding.L * 2 + 17 + gap.M * 2 + padding.M * 2;
 
 // 회색 배경의 아래쪽 절반은 solid, 위쪽 절반은 투명 → solid 그라데이션 (locations로 한 레이어에서 처리)
-const BACKGROUND_GRADIENT_COLORS = ['rgba(241, 242, 244, 0)', colors.bgLayerBasement, colors.bgLayerBasement];
+const BACKGROUND_GRADIENT_COLORS = [toTransparent(colors.bgLayerBasement), colors.bgLayerBasement, colors.bgLayerBasement];
 const BACKGROUND_GRADIENT_LOCATIONS = [0, 0.5, 1];
 
 // 전역 오버레이 안에 렌더링되는 열린 상태의 FAB.

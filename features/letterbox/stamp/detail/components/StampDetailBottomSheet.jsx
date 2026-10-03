@@ -15,7 +15,7 @@ import BottomSheet, {
   BottomSheetFlatList,
   DRAG_HANDLE_HEIGHT,
 } from '../../../../../shared/components/overlay/BottomSheet';
-import { colors } from '../../../../../shared/styles/color';
+import { colors, toTransparent } from '../../../../../shared/styles/color';
 import { gap, padding } from '../../../../../shared/styles/token';
 
 import SenderProfileList from './SenderProfileList';
@@ -38,7 +38,7 @@ const LETTER_WINDOW_SIZE = 5;
 
 // 시트 하단 그라데이션 (이 시트 전용)
 const BOTTOM_FADE_HEIGHT = 40;
-const BOTTOM_FADE_COLORS = ['rgba(255, 255, 255, 0)', colors.bgLayerDefault];
+const BOTTOM_FADE_COLORS = [toTransparent(colors.bgLayerDefault), colors.bgLayerDefault];
 
 // 시트의 보이는 하단(처음 높이든 펼친 높이든)에 붙어 다니도록 footer 로 그린다.
 // 아래 편지를 누를 수 있게 터치는 통과시킨다.

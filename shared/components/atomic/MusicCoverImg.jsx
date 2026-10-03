@@ -5,6 +5,7 @@ import { Canvas, Fill, Group, ImageShader, Shader, rect, rrect, useImage, vec, }
 import { MUSIC_COVER_HALFTONE_EFFECT, } from '../../effects/skia/musicCoverHalftoneEffect';
 
 import { radius, } from '../../styles/token';
+import { toSkiaImageSource } from '../../utils/media';
 
 export const MUSIC_COVER_SIZES =
   Object.freeze({
@@ -35,21 +36,6 @@ const resolveMusicCoverSize = size => {
     MUSIC_COVER_SIZES[size] ??
     MUSIC_COVER_SIZES.M
   );
-};
-
-const resolveImageSource = imageSource => {
-  if (!imageSource) {
-    return null;
-  }
-
-  if (
-    typeof imageSource === 'object' &&
-    typeof imageSource.uri === 'string'
-  ) {
-    return imageSource.uri;
-  }
-
-  return imageSource;
 };
 
 const resolvePositiveNumber = (
@@ -86,7 +72,7 @@ const MusicCoverImg = ({
     resolveMusicCoverSize(size);
 
   const currentImageSource = useMemo(
-    () => resolveImageSource(
+    () => toSkiaImageSource(
       imageSource
     ),
     [imageSource]

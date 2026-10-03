@@ -11,10 +11,12 @@ import { typo } from '../../styles/typo';
 import { padding } from '../../styles/token';
 import { StampImage } from './Stamp';
 
-const CARD_ASPECT_RATIO = 320 / 232;
+// 편지 원본 크기(320x232). 편지를 쓰는 다른 화면도 이 값으로 크기·비율을 맞춘다
+export const LETTER_SIZE = Object.freeze({ width: 320, height: 232 });
+export const LETTER_ASPECT_RATIO = LETTER_SIZE.width / LETTER_SIZE.height;
 const FLAP_ASPECT_RATIO = 318 / 164;
 
-const FLAP_INSET_RATIO = (320 - 318) / 320 / 2;
+const FLAP_INSET_RATIO = (LETTER_SIZE.width - 318) / LETTER_SIZE.width / 2;
 
 // 배경이 살짝 기울어 보여 flap 오른쪽이 튀어나와 보이는 것을 보정하기 위해
 // flap 전체를 왼쪽으로 살짝 이동시킨다 (wrapper 너비 기준 비율).
@@ -30,7 +32,7 @@ const FRONT_BLEED = { x: 0.0508, y: 0.0617 }; // front: 여백 4.61%/5.49%, 도�
 const FLAP_BLEED = { x: 0.0262, y: 0.0492 }; // flap : 여백 2.49%/4.48%, 도형 95.02%/91.04%
 
 // 우표 원본 비율(59 : 88) — 너비만 72px 로 고정하고 높이는 비율로
-const STAMP_ASPECT_RATIO = 59 / 88;
+export const STAMP_ASPECT_RATIO = 59 / 88;
 
 const FLAP_SHADOW_PAD = { left: 0.15, right: 0.15, top: 0.22, bottom: 0.28 };
 const LETTER_SHADOW_PAD = { left: 0.12, right: 0.12, top: 0.12, bottom: 0.16 };
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
   // width: 320px / height: 232px 대신 비율(40:29)로. 부모가 width 를 정한다.
   wrapper: {
     width: '100%',
-    aspectRatio: CARD_ASPECT_RATIO,
+    aspectRatio: LETTER_ASPECT_RATIO,
   },
   card: {
     flex: 1,

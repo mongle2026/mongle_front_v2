@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
-import { resolveMediaUri } from '../../../../../shared/utils/media';
+import { resolveMediaUri, toImageSource } from '../../../../../shared/utils/media';
 
 import { archiveKeys } from '../../../api/archiveKeys';
 import { SESSION_COVER_SEED } from '../../utils/sessionCover';
@@ -34,7 +34,7 @@ const useMyFeedMonths = ({ userId, limit, keyword = '' }) => {
         month: item.month,
         feedCount: item.feedCount,
         latestFeedId: item.latestFeedId,
-        imageSource: coverUri ? { uri: coverUri } : undefined,
+        imageSource: toImageSource(coverUri),
       };
     }),
     [data],

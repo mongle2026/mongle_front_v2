@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
-import { resolveMediaUri } from '../../../../../shared/utils/media';
+import { resolveMediaUri, toImageSource } from '../../../../../shared/utils/media';
 
 import { archiveKeys } from '../../../api/archiveKeys';
 import { SESSION_COVER_SEED } from '../../utils/sessionCover';
@@ -30,7 +30,7 @@ const useMyFeedGenres = ({ userId, limit }) => {
       return {
         genre: item.genre,
         feedCount: item.feedCount,
-        imageSource: coverUri ? { uri: coverUri } : undefined,
+        imageSource: toImageSource(coverUri),
       };
     }),
     [data],

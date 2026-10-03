@@ -8,9 +8,10 @@ import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnav
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../shared/components/navigation/tabs/Tabs';
 import usePullRefresh from '../../../shared/hooks/usePullRefresh';
 import { gap, padding } from '../../../shared/styles/token';
-import { getImageSources, resolveMediaUri } from '../../../shared/utils/media';
 
 import OthersPostCard from '../components/OthersPostCard';
+import { toOthersPost } from '../utils/postCardProps';
+import useSortMenu from '../hooks/useSortMenu';
 import useBookmarkFeeds from './hooks/useBookmarkFeeds';
 
 const BOOKMARK_FILTER = {
@@ -33,28 +34,6 @@ const SORT_OPTIONS = [
 
 const END_REACHED_THRESHOLD = 0.5;
 
-// 피드 응답 → OthersPostCard props
-const toOthersPost = feed => {
-  const artworkUri = resolveMediaUri(feed?.music?.musicArtwork);
-
-  return {
-    feedId: feed.feedId,
-    profile: {
-      imageUri: resolveMediaUri(feed?.user?.profileImageUrl),
-      username: feed?.user?.userCode ?? '',
-      isFollowing: Boolean(feed?.user?.isFollowing),
-    },
-    music: {
-      imageSource: artworkUri ? { uri: artworkUri } : undefined,
-      title: feed?.music?.musicTitle ?? '',
-    },
-    font: feed?.font,
-    content: feed?.record?.text ?? '',
-    imageSources: getImageSources(feed?.files),
-    date: feed?.createdAt,
-  };
-};
-
 const postKeyExtractor = post => String(post.feedId);
 
 // 보관함 - 북마크. 전체 / 팔로잉 필터와 정렬만 있고 따로 들어가는 화면은 없다.
@@ -62,8 +41,15 @@ const BookmarkSection = ({ navigation, userId }) => {
   const [activeFilter, setActiveFilter] = useState(BOOKMARK_FILTER.ALL);
   const activeFilterIndex = BOOKMARK_FILTERS.findIndex(filter => filter.key === activeFilter);
 
-  const [sortKey, setSortKey] = useState(SORT_OPTIONS[0].key);
-  const sortLabel = SORT_OPTIONS.find(option => option.key === sortKey)?.label ?? '';
+  const {
+    sortKey,
+    sortLabel,
+    isSortMenuOpen,
+    sortMenuTop,
+    openSortMenu: openSortMenuAt,
+    closeSortMenu,
+    sortMenuItems,
+  } = useSortMenu(SORT_OPTIONS);
 
   const {
     feeds,
@@ -125,11 +111,9 @@ const BookmarkSection = ({ navigation, userId }) => {
     />
   ), [handlePressPost]);
 
-  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
   // 메뉴를 ListControlBar 바로 밑에 둔다. ListControlBar 는 controlBar 안에 겹쳐 있어서 두 위치를 더한다
   const controlBarTopRef = useRef(0);
   const listControlBarBottomRef = useRef(0);
-  const [sortMenuTop, setSortMenuTop] = useState(0);
 
   const handleControlBarLayout = useCallback(e => {
     controlBarTopRef.current = e.nativeEvent.layout.y;
@@ -141,22 +125,8 @@ const BookmarkSection = ({ navigation, userId }) => {
   }, []);
 
   const openSortMenu = useCallback(() => {
-    setSortMenuTop(controlBarTopRef.current + listControlBarBottomRef.current);
-    setIsSortMenuOpen(true);
-  }, []);
-  const closeSortMenu = useCallback(() => setIsSortMenuOpen(false), []);
-
-  const sortMenuItems = useMemo(
-    () => SORT_OPTIONS.map(option => ({
-      key: option.key,
-      label: option.label,
-      onPress: () => {
-        setSortKey(option.key);
-        setIsSortMenuOpen(false);
-      },
-    })),
-    [],
-  );
+    openSortMenuAt(controlBarTopRef.current + listControlBarBottomRef.current);
+  }, [openSortMenuAt]);
 
   return (
     <View style={styles.screen}>

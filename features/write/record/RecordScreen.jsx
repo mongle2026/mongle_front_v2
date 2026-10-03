@@ -15,7 +15,6 @@ import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvide
 // Shared Hooks & Utils
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { resolveMediaUri } from '../../../shared/utils/media';
-import { dismissKeyboardThen } from '../../../shared/utils/keyboardUtils';
 import { getApiErrorMessage } from '../../../shared/api/client';
 
 // Shared Styles
@@ -31,11 +30,11 @@ import DateSelectBottomSheet from '../date/components/DateSelectBottomSheet';
 import { useRecordFormStore } from '../store/useRecordFormStore';
 import { useLetterFormStore } from '../store/useLetterFormStore';
 import { deliveryAtToDate, formatDeliveryDateLabel, toDeliveryAt } from '../date/utils/deliveryDate';
-import { fullScreenOverlayContainerStyle } from '../utils/overlayContainerStyle';
 
 // Hooks
 import useRecordEditor from './hooks/useRecordEditor';
 import useCreateFeed from './hooks/useCreateFeed';
+import { useFullScreenSheet } from './hooks/useFullScreenSheet';
 import { useLeaveRecordConfirm } from './hooks/useLeaveRecordConfirm';
 
 const RECORD_TYPE = {
@@ -119,7 +118,8 @@ const RecordScreen = ({ navigation, route }) => {
     hasContent ||
     (isLetter && (Boolean(receiver) || Boolean(deliveryAt)));
 
-  const { openOverlay, showToast } = useGlobalOverlay();
+  const { showToast } = useGlobalOverlay();
+  const openFullScreenSheet = useFullScreenSheet();
 
   /* Feed 저장 */
   const {
@@ -216,17 +216,14 @@ const RecordScreen = ({ navigation, route }) => {
 
   /* 수신인 선택 BottomSheet 열기 */
   const handleOpenRecipientSelect = useCallback(() => {
-    dismissKeyboardThen(() => {
-      openOverlay({
-        id: RECIPIENT_SELECT_OVERLAY_ID,
-        accessibilityLabel: '수신인 선택 닫기',
-        contentContainerStyle: fullScreenOverlayContainerStyle,
-        renderContent: ({ close }) => (
-          <RecipientSelectBottomSheet currentUserId={userId} onClose={close} />
-        ),
-      });
+    openFullScreenSheet({
+      id: RECIPIENT_SELECT_OVERLAY_ID,
+      accessibilityLabel: '수신인 선택 닫기',
+      renderContent: ({ close }) => (
+        <RecipientSelectBottomSheet currentUserId={userId} onClose={close} />
+      ),
     });
-  }, [openOverlay, userId]);
+  }, [openFullScreenSheet, userId]);
 
   /* 날짜 선택 완료 및 BottomSheet 열기 */
   const handleConfirmDate = useCallback(
@@ -239,22 +236,19 @@ const RecordScreen = ({ navigation, route }) => {
   );
 
   const handleOpenDateSelect = useCallback(() => {
-    dismissKeyboardThen(() => {
-      openOverlay({
-        id: DATE_SELECT_OVERLAY_ID,
-        accessibilityLabel: '날짜 선택 닫기',
-        contentContainerStyle: fullScreenOverlayContainerStyle,
-        renderContent: ({ close }) => (
-          <DateSelectBottomSheet
-            initialDate={deliveryAtToDate(deliveryAt)}
-            allowToday={canSelectToday}
-            onConfirm={handleConfirmDate}
-            onClose={close}
-          />
-        ),
-      });
+    openFullScreenSheet({
+      id: DATE_SELECT_OVERLAY_ID,
+      accessibilityLabel: '날짜 선택 닫기',
+      renderContent: ({ close }) => (
+        <DateSelectBottomSheet
+          initialDate={deliveryAtToDate(deliveryAt)}
+          allowToday={canSelectToday}
+          onConfirm={handleConfirmDate}
+          onClose={close}
+        />
+      ),
     });
-  }, [openOverlay, deliveryAt, handleConfirmDate, canSelectToday]);
+  }, [openFullScreenSheet, deliveryAt, handleConfirmDate, canSelectToday]);
 
   const letterHeader = isLetter && (
     <>

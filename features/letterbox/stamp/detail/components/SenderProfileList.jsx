@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors } from '../../../../../shared/styles/color';
+import { colors, toTransparent } from '../../../../../shared/styles/color';
 import { padding } from '../../../../../shared/styles/token';
 
 import Profile from '../../../components/Profile';
@@ -13,7 +13,7 @@ import CenterToStartRow from './CenterToStartRow';
 // 오른쪽 끝 그라데이션. Figma 는 100x40 을 -90도 돌린 값이라 실제로는 폭 40 에
 // 높이는 프로필 줄 전체(약 100)다. 폭만 고정하고 높이는 줄 높이를 따라가게 한다.
 const FADE_WIDTH = 40;
-const FADE_COLORS = ['rgba(255, 255, 255, 0)', colors.bgLayerDefault];
+const FADE_COLORS = [toTransparent(colors.bgLayerDefault), colors.bgLayerDefault];
 
 /**
  * 이 우표를 보내준 사람들. 왼쪽이 오래된 순이고, 항상 가로로 스크롤된다.

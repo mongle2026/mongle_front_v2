@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import Profile from '../../../shared/components/content/profile/Profile';
-import { TextButton } from '../../../shared/components/action/TextButton';
+import { TEXT_BUTTON_VARIANT, TextButton } from '../../../shared/components/action/TextButton';
 import { DividerLine } from '../../../shared/components/atomic/DividerLine';
 
 import { colors } from '../../../shared/styles/color';
@@ -13,12 +13,10 @@ const ProfileBar = ({
   imageSize = 'M',
   username,
   font = 'kyobo',
-  // username 버튼 variant. 팔로우한 사람이면 Solid
-  profileVariant,
+  // 팔로우한 사람이면 username 버튼은 Solid, 팔로우 버튼은 '팔로잉'(Ghost)
+  isFollowing = false,
 
   showFollowButton = true,
-  followLabel = '팔로우',
-  followVariant = 'Solid',
   followDisabled = false,
 
   onPressProfile,
@@ -26,6 +24,10 @@ const ProfileBar = ({
 
   style,
 }) => {
+  const profileVariant = isFollowing ? TEXT_BUTTON_VARIANT.SOLID : TEXT_BUTTON_VARIANT.GHOST;
+  const followVariant = isFollowing ? TEXT_BUTTON_VARIANT.GHOST : TEXT_BUTTON_VARIANT.SOLID;
+  const followLabel = isFollowing ? '팔로잉' : '팔로우';
+
   return (
     <View style={[styles.profileBar, style]}>
       <View style={styles.container}>

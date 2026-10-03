@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { padding } from '../../styles/token';
+import { toImageSource } from '../../utils/media';
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
@@ -26,20 +27,12 @@ const getTouchDistance = touches => {
   return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 };
 
-const normalizeImageSource = imageSource => {
-  if (typeof imageSource === 'string') {
-    return { uri: imageSource };
-  }
-
-  return imageSource;
-};
-
 const ImageViewer = ({ imageSource }) => {
   const { width: screenWidth, height: screenHeight } =
     useWindowDimensions();
 
   const source = useMemo(
-    () => normalizeImageSource(imageSource),
+    () => toImageSource(imageSource),
     [imageSource],
   );
 

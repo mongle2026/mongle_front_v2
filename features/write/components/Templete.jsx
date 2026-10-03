@@ -3,10 +3,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
+import { STAMP_ASPECT_RATIO } from '../../../shared/components/content/Letter';
 
 // 미리보기 슬롯 높이(고정). 너비는 aspect-ratio 로 결정된다.
 const PREVIEW_HEIGHT = 88;
-const STAMP_ASPECT_RATIO = 59 / 88;
 
 // PatternSvg / StampSvg: react-native-svg-transformer 로 변환된 SVG 컴포넌트
 //  - PatternSvg: envelopeData.PATTERNS[].thumbnail

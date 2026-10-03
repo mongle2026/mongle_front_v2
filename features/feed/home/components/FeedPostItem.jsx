@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { TEXT_BUTTON_VARIANT } from '../../../../shared/components/action/TextButton';
-import { getImageSources, resolveMediaUri } from '../../../../shared/utils/media';
+import { getImageSources, resolveMediaUri, toImageSource } from '../../../../shared/utils/media';
 import useDoubleTapLike from '../../hooks/useDoubleTapLike';
 
 import PostCard from './PostCard';
@@ -31,7 +30,7 @@ const FeedPostItem = ({
   const musicArtworkUri = resolveMediaUri(music?.musicArtwork);
   const musicPreviewUri = resolveMediaUri(music?.previewUrl);
   const musicImageSource = useMemo(
-    () => (musicArtworkUri ? { uri: musicArtworkUri } : undefined),
+    () => toImageSource(musicArtworkUri),
     [musicArtworkUri],
   );
 
@@ -83,10 +82,8 @@ const FeedPostItem = ({
       profileProps={{
         imageUri: profileImageUri,
         username: user?.userCode ?? '',
-        profileVariant: isFollowing ? TEXT_BUTTON_VARIANT.SOLID : TEXT_BUTTON_VARIANT.GHOST,
+        isFollowing,
         showFollowButton: !isMine,
-        followLabel: isFollowing ? '팔로잉' : '팔로우',
-        followVariant: isFollowing ? 'Ghost' : 'Solid',
         followDisabled,
         onPressFollow: handleFollow,
       }}

@@ -1,3 +1,5 @@
+import { HANGUL_SYLLABLE_END, HANGUL_SYLLABLE_START, JONGSEONG_COUNT } from './koreanUtils';
+
 // 3줄 도트 폰트.
 // 읽지 않은 편지 카드에서 제목/가수를 dot 격자로 가려 보여줄 때 사용한다.
 // 정확히 읽히는 것이 목적이 아니라 "글자가 있다"는 느낌만 주는 용도라, 글자 모양은 근사치다.
@@ -126,10 +128,7 @@ const LATIN_GLYPHS = {
 // ── 한글 ────────────────────────────────────────────────────────
 // 완성형 음절은 초성/중성/종성으로 분해해 3x3 격자에 조합한다.
 // 자모 규칙 60여 개만으로 11,172자를 모두 그릴 수 있다.
-const HANGUL_FIRST = 0xac00;
-const HANGUL_LAST = 0xd7a3;
 const JUNG_COUNT = 21;
-const JONG_COUNT = 28;
 
 // 초성 19개. 왼쪽 2x2 칸에 들어간다.
 // 4칸을 다 채우면 음절이 덩어리로 뭉개져서, 쌍자음과 획이 많은 자음만 꽉 채운다.
@@ -218,10 +217,10 @@ const VOWEL_WITH_STROKE = new Set([0, 2, 4, 6]);
 
 /** 한글 음절 하나 → 3x4 격자의 열 비트마스크 배열 */
 function composeHangul(code) {
-  const index = code - HANGUL_FIRST;
-  const cho = Math.floor(index / (JUNG_COUNT * JONG_COUNT));
-  const jung = Math.floor(index / JONG_COUNT) % JUNG_COUNT;
-  const jong = index % JONG_COUNT;
+  const index = code - HANGUL_SYLLABLE_START;
+  const cho = Math.floor(index / (JUNG_COUNT * JONGSEONG_COUNT));
+  const jung = Math.floor(index / JONGSEONG_COUNT) % JUNG_COUNT;
+  const jong = index % JONGSEONG_COUNT;
 
   const grid = Array.from({ length: DOT_ROWS }, () =>
     new Array(HANGUL_WIDTH).fill('.'),
@@ -341,7 +340,7 @@ function getGlyphColumns(char) {
   if (code >= 0xff01 && code <= 0xff5e) code -= 0xfee0;
 
   let columns;
-  if (code >= HANGUL_FIRST && code <= HANGUL_LAST) {
+  if (code >= HANGUL_SYLLABLE_START && code <= HANGUL_SYLLABLE_END) {
     columns = composeHangul(code);
   } else if (inRanges(code, KANA_RANGES)) {
     columns = rowsToColumns(pickPattern(KANA_PATTERNS, code));

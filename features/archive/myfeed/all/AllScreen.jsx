@@ -20,7 +20,7 @@ import { archiveKeys } from '../../api/archiveKeys';
 import ShortPostCard from '../../components/ShortPostCard';
 import { formatMonthLabel } from '../utils/formatMonthLabel';
 import { toKstMonth } from '../utils/toKstMonth';
-import { toShortPost } from '../utils/toShortPost';
+import { toShortPost } from '../../utils/postCardProps';
 import MonthSelectBottomSheet from './components/MonthSelectBottomSheet';
 import useAllMyFeeds, { removeAllMyFeedsWithNewerPages } from './hooks/useAllMyFeeds';
 import useMyFeedMonths from './hooks/useMyFeedMonths';

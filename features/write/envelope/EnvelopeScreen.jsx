@@ -23,7 +23,7 @@ import { chunk } from '../../../shared/utils/arrayUtils';
 
 import { useLetterFormStore } from '../store/useLetterFormStore';
 
-import Letter from '../../../shared/components/content/Letter';
+import Letter, { LETTER_ASPECT_RATIO } from '../../../shared/components/content/Letter';
 import Templete from '../components/Templete';
 import PatternItem from '../components/PatternItem';
 import ColorItem from '../components/ColorItem';
@@ -39,8 +39,6 @@ import { getApiErrorMessage } from '../../../shared/api/client';
 /* TabBar 는 인덱스 기반이라 훅의 tab key 와 매핑한다 */
 const TAB_LABELS = TABS.map((tab) => tab.label);
 
-/* Letter 원본 비율(320:232, Letter.jsx의 CARD_ASPECT_RATIO와 동일) */
-const LETTER_ASPECT_RATIO = 320 / 232;
 
 const EnvelopeScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();

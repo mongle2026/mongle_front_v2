@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import IlDialogCancelletter from '../../../../assets/illustrations/il_dialog_cancelletter.svg';
@@ -10,6 +10,7 @@ import { Dialog } from '../../../../shared/components/action/Dialog';
 import Menu from '../../../../shared/components/action/menu/Menu';
 import { TextButton } from '../../../../shared/components/action/TextButton';
 import MusicCard from '../../../../shared/components/content/MusicCard';
+import LoadStateView from '../../../../shared/components/feedback/LoadStateView';
 import Profile from '../../../../shared/components/content/profile/Profile';
 import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
@@ -29,6 +30,7 @@ import { useLetterFormStore } from '../../../write/store/useLetterFormStore';
 
 import LetterDetailContent from './components/LetterDetailContent';
 import useLetterDetail from './hooks/useLetterDetail';
+import { toImageSource } from '../../../../shared/utils/media';
 
 // route.params: { letterId }
 const LetterDetailScreen = ({ navigation, route }) => {
@@ -245,11 +247,11 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
       {/* 삭제됐으면 캐시에 예전 편지가 남아 있어도 내용을 보여주지 않는다 */}
       {!letter || isDeleted ? (
-        <View style={styles.state}>
-          {isLoading && <ActivityIndicator />}
-          {!isConfigured && <Text style={styles.stateText}>EXPO_PUBLIC_API_BASE_URL을 확인해 주세요.</Text>}
-          {error && !isDeleted && <Text style={styles.stateText}>편지를 불러오지 못했습니다.</Text>}
-        </View>
+        <LoadStateView
+          isLoading={isLoading}
+          isConfigured={isConfigured}
+          errorMessage={error && !isDeleted ? '편지를 불러오지 못했습니다.' : null}
+        />
       ) : (
         <View style={styles.container}>
           <ScrollView
@@ -273,7 +275,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
             </View>
 
             <MusicCard
-              imageSource={letter.music.artworkUri ? { uri: letter.music.artworkUri } : undefined}
+              imageSource={toImageSource(letter.music.artworkUri)}
               title={letter.music.title}
               artist={letter.music.singer}
               font={letter.font}
@@ -397,14 +399,6 @@ const styles = StyleSheet.create({
   },
   bottomButton: {
     alignSelf: 'stretch',
-  },
-  state: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stateText: {
-    color: colors.fgNeutralMuted,
   },
 });
 

@@ -6,7 +6,7 @@ import { colors } from '../../../../../shared/styles/color';
 import { gap, padding } from '../../../../../shared/styles/token';
 
 import ShortPostCard from '../../../components/ShortPostCard';
-import { toShortPost } from '../../utils/toShortPost';
+import { toShortPost } from '../../../utils/postCardProps';
 
 const RecentFeedList = ({ feeds, playingFeedId, onPressPlayback, onPressFeed }) => {
   return (

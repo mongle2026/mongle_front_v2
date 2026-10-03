@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors } from '../../styles/color';
+import { colors, toTransparent } from '../../styles/color';
 import { padding, gap, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
@@ -106,7 +106,7 @@ const SearchField = ({
 
         <LinearGradient
           pointerEvents="none"
-          colors={[backgroundColor, `${backgroundColor}00`]}
+          colors={[backgroundColor, toTransparent(backgroundColor)]}
           style={styles.bottomFade}
         />
 

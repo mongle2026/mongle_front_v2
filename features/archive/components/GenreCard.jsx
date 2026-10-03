@@ -4,12 +4,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import MusicCoverImg from '../../../shared/components/atomic/MusicCoverImg';
 
-import { colors, palette } from '../../../shared/styles/color';
+import { colors, palette, toTransparent } from '../../../shared/styles/color';
 import { padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 
 // linear-gradient(0deg, neutral/950 @ 50% → neutral/950 @ 0%)
-const GRADIENT_COLORS = [palette.overlay.default, '#1e212500'];
+const GRADIENT_COLORS = [palette.overlay.default, toTransparent(palette.overlay.default)];
 
 // 크기는 부모(style.width 등)가 정하고 카드는 1:1 비율만 유지한다.
 // MusicCoverImg(Skia)는 숫자 size가 필요해서 레이아웃 후 측정한 폭을 넘긴다.

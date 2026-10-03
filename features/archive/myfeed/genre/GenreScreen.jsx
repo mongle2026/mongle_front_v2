@@ -9,6 +9,7 @@ import TopIconNavigation from '../../../../shared/components/navigation/topnavig
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 import { colors } from '../../../../shared/styles/color';
 import { gap, padding } from '../../../../shared/styles/token';
+import { chunk } from '../../../../shared/utils/arrayUtils';
 
 import GenreCard from '../../components/GenreCard';
 import { prefetchGenreFeeds } from './detail/hooks/useGenreFeeds';
@@ -29,13 +30,7 @@ const GenreScreen = ({ navigation }) => {
     navigation.navigate('MyFeedGenreDetail', { genre });
   }, [navigation, queryClient, userId]);
 
-  const genreRows = useMemo(() => {
-    const rows = [];
-    for (let i = 0; i < genres.length; i += COLUMN_COUNT) {
-      rows.push(genres.slice(i, i + COLUMN_COUNT));
-    }
-    return rows;
-  }, [genres]);
+  const genreRows = useMemo(() => chunk(genres, COLUMN_COUNT), [genres]);
 
   const handlePressBack = useCallback(() => navigation?.goBack(), [navigation]);
 

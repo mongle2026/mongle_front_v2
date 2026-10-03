@@ -1,9 +1,10 @@
 import React, { useCallback } from 'react';
-import { ActivityIndicator, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Shared Components & Providers
 import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 // Shared Hooks & Utils
@@ -158,15 +159,10 @@ const RecordEditScreen = ({ navigation, route }) => {
           nextTextStyle={{ color: colors.fgDisabled }}
         />
 
-        <View style={styles.stateContainer}>
-          {isLoadingFeed && <ActivityIndicator />}
-
-          {!isLoadingFeed && loadFeedError && (
-            <Text style={styles.stateText}>
-              기록을 불러오지 못했습니다.
-            </Text>
-          )}
-        </View>
+        <LoadStateView
+          isLoading={isLoadingFeed}
+          errorMessage={!isLoadingFeed && loadFeedError ? '기록을 불러오지 못했습니다.' : null}
+        />
       </SafeAreaView>
     );
   }
@@ -197,13 +193,5 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bgLayerDefault,
-  },
-  stateContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stateText: {
-    color: colors.fgNeutralMuted,
   },
 });

@@ -4,13 +4,13 @@ import { Pressable } from 'react-native-gesture-handler';
 import { useIsFocused } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
-import Letter from '../../../shared/components/content/Letter';
+import Letter, { LETTER_SIZE } from '../../../shared/components/content/Letter';
 import useLetterFlip from '../../../shared/hooks/useLetterFlip';
 import useResolvedEnvelope from '../hooks/useResolvedEnvelope';
 
-// Letter 원본 크기(320x232)
-export const LETTER_WIDTH = 320;
-export const LETTER_HEIGHT = 232;
+// Letter 원본 크기
+export const LETTER_WIDTH = LETTER_SIZE.width;
+export const LETTER_HEIGHT = LETTER_SIZE.height;
 
 // 편지 기울기 (-4, 0, 4, 0 반복). 안 읽음 편지 더미와 우표 상세 목록이 같은 순서로 기울인다
 const LETTER_ROTATIONS = [-4, 0, 4, 0];
