@@ -1,9 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import apiClient, { getApiErrorDetail } from '../api/client';
-import { isSameId } from '../utils/id';
-
-const normalizeId = value => String(value);
+import { isSameId, toIdKey } from '../utils/id';
 
 /*
  * 팔로우/언팔로우.
@@ -24,9 +22,9 @@ export default function useFollow({
     const nextIds = new Set(pendingIdsRef.current);
 
     if (isPending) {
-      nextIds.add(normalizeId(targetUserId));
+      nextIds.add(toIdKey(targetUserId));
     } else {
-      nextIds.delete(normalizeId(targetUserId));
+      nextIds.delete(toIdKey(targetUserId));
     }
 
     pendingIdsRef.current = nextIds;
@@ -74,7 +72,7 @@ export default function useFollow({
     if (
       !targetUserId ||
       isSameId(currentUserId, targetUserId) ||
-      pendingIdsRef.current.has(normalizeId(targetUserId))
+      pendingIdsRef.current.has(toIdKey(targetUserId))
     ) {
       return;
     }
@@ -88,7 +86,7 @@ export default function useFollow({
   }, [currentUserId, mutate, setPending]);
 
   const isTargetPending = useCallback(
-    targetUserId => targetUserId != null && pendingTargetUserIds.has(normalizeId(targetUserId)),
+    targetUserId => targetUserId != null && pendingTargetUserIds.has(toIdKey(targetUserId)),
     [pendingTargetUserIds],
   );
 

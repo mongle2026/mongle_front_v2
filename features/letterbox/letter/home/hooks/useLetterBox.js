@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
+import { isApiConfigured } from '../../../../../shared/api/client';
+import { fetchCursorPage, flattenPages, getNextCursor } from '../../../../../shared/api/cursorPage';
 
 import { normalizeLetterboxItem } from '../../../utils/normalizeLetter';
 import { letterboxKeys } from '../../../api/letterboxKeys';
@@ -17,26 +18,12 @@ const LETTERBOX_TAB = {
   self: 'SELF',
 };
 
-function normalizeLetterboxPage(data) {
-  const rawItems = Array.isArray(data?.items) ? data.items : [];
-
-  return {
-    items: rawItems.map(normalizeLetterboxItem).filter(Boolean),
-    nextCursor: data?.nextCursor ?? null,
-    hasNext: Boolean(data?.hasNext),
-  };
-}
-
-async function fetchLetterboxPage({ userId, tab, pageParam }) {
-  const params = { userId, tab, limit: LETTERBOX_LIMIT };
-
-  if (pageParam !== null && pageParam !== undefined) {
-    params.cursor = pageParam;
-  }
-
-  const response = await apiClient.get('/letter', { params });
-  return normalizeLetterboxPage(response.data);
-}
+const fetchLetterboxPage = ({ userId, tab, pageParam }) =>
+  fetchCursorPage('/letter', {
+    params: { userId, tab, limit: LETTERBOX_LIMIT },
+    cursor: pageParam,
+    mapItem: normalizeLetterboxItem,
+  });
 
 // 편지함 편지 목록 조회.
 const useLetterBox = ({ userId, filter } = {}) => {
@@ -55,10 +42,10 @@ const useLetterBox = ({ userId, filter } = {}) => {
     initialPageParam: null,
     enabled: isConfigured,
     queryFn: ({ pageParam }) => fetchLetterboxPage({ userId, tab, pageParam }),
-    getNextPageParam: lastPage => (lastPage?.hasNext ? lastPage.nextCursor ?? undefined : undefined),
+    getNextPageParam: getNextCursor,
   });
 
-  const letters = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data?.pages]);
+  const letters = useMemo(() => flattenPages(data?.pages), [data?.pages]);
 
   return {
     letters,

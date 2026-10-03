@@ -1,4 +1,12 @@
 import { archiveKeys } from './archiveKeys';
+import {
+  findInfiniteItem,
+  isLoadedQuery,
+  mapInfiniteItems,
+  removeInfiniteItems,
+  withAuthorFollowing,
+} from '../../../shared/api/infiniteCache';
+import { isSameId } from '../../../shared/utils/id';
 
 // 보관함 북마크 목록 캐시를 서버 응답 전에 맞춰 두는 함수들.
 // 목록 키: archiveKeys.bookmarkFeeds(userId, filter, sort) = ['archive', 'bookmark', userId, filter, sort]
@@ -8,31 +16,10 @@ const SORT_KEY_INDEX = 4;
 
 const FOLLOWER_VISIBILITY = 'FOLLOWER';
 
-const normalizeId = value => String(value);
-
-const hasFeed = (queryData, feedId) =>
-  queryData.pages.some(page => page?.items?.some(item => normalizeId(item?.feedId) === normalizeId(feedId)));
-
-function removeItems(queryData, shouldRemove) {
-  if (!queryData?.pages) return queryData;
-
-  let hasChanged = false;
-
-  const nextPages = queryData.pages.map(page => {
-    if (!Array.isArray(page?.items)) return page;
-
-    const nextItems = page.items.filter(item => !shouldRemove(item));
-    if (nextItems.length === page.items.length) return page;
-
-    hasChanged = true;
-    return { ...page, items: nextItems };
-  });
-
-  return hasChanged ? { ...queryData, pages: nextPages } : queryData;
-}
+const isFeed = feedId => item => isSameId(item?.feedId, feedId);
 
 function insertItem(queryData, item, sort) {
-  if (!queryData?.pages?.length || hasFeed(queryData, item.feedId)) return queryData;
+  if (!queryData?.pages?.length || findInfiniteItem(queryData, isFeed(item.feedId))) return queryData;
 
   // 최신순: 방금 북마크한 글이 맨 앞
   if (sort === 'latest') {
@@ -54,7 +41,7 @@ function insertItem(queryData, item, sort) {
 export const cancelLoadedBookmarkQueries = (queryClient, userId) =>
   queryClient.cancelQueries({
     queryKey: archiveKeys.bookmark(userId),
-    predicate: query => query.state.data !== undefined,
+    predicate: isLoadedQuery,
   });
 
 // 북마크를 켜면 목록에 넣는다. feed 는 피드 홈/상세 캐시에 있는 글(GET /feed 응답 형태)
@@ -83,7 +70,7 @@ export async function removeBookmarkFeed(queryClient, { userId, feedId }) {
 
   queryClient.setQueriesData(
     { queryKey: archiveKeys.bookmark(userId) },
-    queryData => removeItems(queryData, item => normalizeId(item?.feedId) === normalizeId(feedId)),
+    queryData => removeInfiniteItems(queryData, isFeed(feedId)),
   );
 }
 
@@ -91,38 +78,16 @@ export async function removeBookmarkFeed(queryClient, { userId, feedId }) {
 // 전체: 프로필 팔로우 상태를 바꾸고, 언팔로우면 더 볼 수 없는 팔로워 공개 글을 뺀다
 // 팔로잉: 언팔로우면 그 사람 글을 뺀다. 팔로우면 넣을 글 데이터가 없으니 서버 반영 후 다시 받는다(refreshBookmarkFollowingFeeds)
 export function applyBookmarkFollowState(queryClient, { userId, targetUserId, nextFollowing }) {
-  const targetId = normalizeId(targetUserId);
-  const isTargetItem = item => normalizeId(item?.user?.userId) === targetId;
+  const isTargetItem = item => isSameId(item?.user?.userId, targetUserId);
 
   queryClient.setQueriesData(
     { queryKey: [...archiveKeys.bookmark(userId), 'all'] },
     queryData => {
       const nextData = nextFollowing
         ? queryData
-        : removeItems(queryData, item => isTargetItem(item) && item?.visibility === FOLLOWER_VISIBILITY);
+        : removeInfiniteItems(queryData, item => isTargetItem(item) && item?.visibility === FOLLOWER_VISIBILITY);
 
-      if (!nextData?.pages) return nextData;
-
-      let hasChanged = false;
-
-      const nextPages = nextData.pages.map(page => {
-        if (!Array.isArray(page?.items)) return page;
-
-        let pageChanged = false;
-        const nextItems = page.items.map(item => {
-          if (!isTargetItem(item) || Boolean(item?.user?.isFollowing) === nextFollowing) return item;
-
-          pageChanged = true;
-          return { ...item, user: { ...item.user, isFollowing: nextFollowing } };
-        });
-
-        if (!pageChanged) return page;
-
-        hasChanged = true;
-        return { ...page, items: nextItems };
-      });
-
-      return hasChanged ? { ...nextData, pages: nextPages } : nextData;
+      return mapInfiniteItems(nextData, item => withAuthorFollowing(item, targetUserId, nextFollowing));
     },
   );
 
@@ -130,7 +95,7 @@ export function applyBookmarkFollowState(queryClient, { userId, targetUserId, ne
 
   queryClient.setQueriesData(
     { queryKey: [...archiveKeys.bookmark(userId), 'following'] },
-    queryData => removeItems(queryData, isTargetItem),
+    queryData => removeInfiniteItems(queryData, isTargetItem),
   );
 }
 

@@ -1,28 +1,18 @@
 import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import apiClient, { isApiConfigured } from '../../../../shared/api/client';
+import { isApiConfigured } from '../../../../shared/api/client';
+import { fetchCursorPage, flattenPages, getNextCursor } from '../../../../shared/api/cursorPage';
 
 import { archiveKeys } from '../../api/archiveKeys';
 import { hasId } from '../../../../shared/utils/id';
 
 const BOOKMARK_FEED_LIMIT = 20;
 
-async function fetchBookmarkFeedPage({ userId, filter, sort, pageParam }) {
-  const params = { userId, filter, sort, limit: BOOKMARK_FEED_LIMIT };
-
-  if (pageParam !== null && pageParam !== undefined) {
-    params.cursor = pageParam;
-  }
-
-  const response = await apiClient.get('/feed/bookmark/me', { params });
-  const data = response.data;
-
-  return {
-    items: Array.isArray(data?.items) ? data.items : [],
-    nextCursor: data?.nextCursor ?? null,
-    hasNext: Boolean(data?.hasNext),
-  };
-}
+const fetchBookmarkFeedPage = ({ userId, filter, sort, pageParam }) =>
+  fetchCursorPage('/feed/bookmark/me', {
+    params: { userId, filter, sort, limit: BOOKMARK_FEED_LIMIT },
+    cursor: pageParam,
+  });
 
 const isBookmarkFeedsConfigured = ({ userId }) => Boolean(isApiConfigured && hasId(userId));
 
@@ -30,7 +20,7 @@ const getBookmarkFeedsQueryOptions = ({ userId, filter, sort }) => ({
   queryKey: archiveKeys.bookmarkFeeds(userId, filter, sort),
   initialPageParam: null,
   queryFn: ({ pageParam }) => fetchBookmarkFeedPage({ userId, filter, sort, pageParam }),
-  getNextPageParam: lastPage => (lastPage?.hasNext ? lastPage.nextCursor ?? undefined : undefined),
+  getNextPageParam: getNextCursor,
 });
 
 // 북마크 탭을 열 때 처음 보이는 목록(전체 · 최신순)을 미리 받아 둔다
@@ -58,7 +48,7 @@ const useBookmarkFeeds = ({ userId, filter = 'all', sort = 'latest' }) => {
     enabled: isConfigured,
   });
 
-  const feeds = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data?.pages]);
+  const feeds = useMemo(() => flattenPages(data?.pages), [data?.pages]);
 
   return {
     feeds,

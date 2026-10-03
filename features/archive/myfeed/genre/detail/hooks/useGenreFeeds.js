@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import apiClient, { isApiConfigured } from '../../../../../../shared/api/client';
+import { isApiConfigured } from '../../../../../../shared/api/client';
+import { fetchCursorPage, flattenPages, getNextCursor } from '../../../../../../shared/api/cursorPage';
 
 import { archiveKeys } from '../../../../api/archiveKeys';
 import { hasId } from '../../../../../../shared/utils/id';
@@ -8,22 +9,11 @@ import { hasId } from '../../../../../../shared/utils/id';
 const GENRE_FEED_LIMIT = 20;
 const DEFAULT_SORT = 'latest';
 
-async function fetchGenreFeedPage({ userId, genre, sort, pageParam }) {
-  const params = { userId, genre, sort, limit: GENRE_FEED_LIMIT };
-
-  if (pageParam !== null && pageParam !== undefined) {
-    params.cursor = pageParam;
-  }
-
-  const response = await apiClient.get('/feed/me', { params });
-  const data = response.data;
-
-  return {
-    items: Array.isArray(data?.items) ? data.items : [],
-    nextCursor: data?.nextCursor ?? null,
-    hasNext: Boolean(data?.hasNext),
-  };
-}
+const fetchGenreFeedPage = ({ userId, genre, sort, pageParam }) =>
+  fetchCursorPage('/feed/me', {
+    params: { userId, genre, sort, limit: GENRE_FEED_LIMIT },
+    cursor: pageParam,
+  });
 
 const isGenreFeedsConfigured = ({ userId, genre }) =>
   Boolean(isApiConfigured && hasId(userId) && genre);
@@ -32,7 +22,7 @@ const getGenreFeedsQueryOptions = ({ userId, genre, sort }) => ({
   queryKey: archiveKeys.genreFeeds(userId, genre, sort),
   initialPageParam: null,
   queryFn: ({ pageParam }) => fetchGenreFeedPage({ userId, genre, sort, pageParam }),
-  getNextPageParam: lastPage => (lastPage?.hasNext ? lastPage.nextCursor ?? undefined : undefined),
+  getNextPageParam: getNextCursor,
 });
 
 // 장르를 누르는 순간 첫 페이지를 불러오기 시작해서, 화면이 넘어오는 동안 받아 둔다
@@ -58,7 +48,7 @@ const useGenreFeeds = ({ userId, genre, sort = DEFAULT_SORT }) => {
     enabled: isConfigured,
   });
 
-  const feeds = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data?.pages]);
+  const feeds = useMemo(() => flattenPages(data?.pages), [data?.pages]);
 
   return {
     feeds,

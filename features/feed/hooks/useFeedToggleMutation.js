@@ -5,14 +5,13 @@ import apiClient, { getApiErrorDetail } from '../../../shared/api/client';
 import {
   feedDetailKeys,
   feedHomeKeys,
-  findFeedItemInHomeCache,
-  updateFeedItem,
+  findFeedItemInCache,
+  updateFeedInAllCaches,
 } from '../api/feedCache';
+import { toIdKey } from '../../../shared/utils/id';
 
 // 마지막 탭 이후 이 시간 동안 입력이 없으면 최종 상태만 서버에 보낸다
 const SYNC_DELAY = 400;
-
-const normalizeFeedId = feedId => String(feedId);
 
 /*
  * 좋아요/북마크 토글.
@@ -50,13 +49,8 @@ export default function useFeedToggleMutation({
 
   const readCachedValue = useCallback(
     feedId => {
-      const detail = queryClient.getQueryData(feedDetailKeys.detail(userId, feedId));
-      if (detail) return Boolean(detail[valueKey]);
-
-      const homeItem = findFeedItemInHomeCache(queryClient, userId, feedId);
-      if (homeItem) return Boolean(homeItem[valueKey]);
-
-      return null;
+      const feed = findFeedItemInCache(queryClient, userId, feedId);
+      return feed ? Boolean(feed[valueKey]) : null;
     },
     [queryClient, userId, valueKey],
   );
@@ -73,17 +67,9 @@ export default function useFeedToggleMutation({
         };
       };
 
-      queryClient.setQueriesData(
-        { queryKey: userFeedQueryKey },
-        previousData => updateFeedItem(previousData, feedId, updateFeed),
-      );
-
-      queryClient.setQueryData(feedDetailKeys.detail(userId, feedId), previousData => {
-        if (!previousData) return previousData;
-        return updateFeed(previousData);
-      });
+      updateFeedInAllCaches(queryClient, userId, feedId, updateFeed);
     },
-    [countKey, queryClient, userFeedQueryKey, userId, valueKey],
+    [countKey, queryClient, userId, valueKey],
   );
 
   const sync = useCallback(
@@ -174,7 +160,7 @@ export default function useFeedToggleMutation({
   // 다음 값을 바로 돌려준다(토스트 문구 등). 서버 반영은 나중에 된다.
   const toggle = useCallback(
     ({ feedId, currentValue }) => {
-      const normalizedId = normalizeFeedId(feedId);
+      const normalizedId = toIdKey(feedId);
       const fallbackValue = Boolean(currentValue);
       const nextValue = !(readCachedValue(normalizedId) ?? fallbackValue);
 

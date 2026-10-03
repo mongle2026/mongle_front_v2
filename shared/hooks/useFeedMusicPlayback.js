@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from 'expo-audio';
 
-const PLAYBACK_END_TOLERANCE = 0.1;
+import { toIdKey } from '../utils/id';
 
-const normalizeFeedId = feedId => (feedId === null || feedId === undefined ? null : String(feedId));
+const PLAYBACK_END_TOLERANCE = 0.1;
 
 const normalizePreviewUrl = previewUrl => {
   if (typeof previewUrl !== 'string') return null;
@@ -87,7 +87,7 @@ const useFeedMusicPlayback = ({ navigation }) => {
 
   const handleVisibleFeedChange = useCallback(
     feedId => {
-      const nextFeedId = normalizeFeedId(feedId);
+      const nextFeedId = toIdKey(feedId);
       const loadedFeedId = loadedFeedIdRef.current;
 
       if (nextFeedId && loadedFeedId && loadedFeedId !== nextFeedId) {
@@ -99,7 +99,7 @@ const useFeedMusicPlayback = ({ navigation }) => {
 
   const handlePressPlayback = useCallback(
     async ({ feedId, previewUrl }) => {
-      const nextFeedId = normalizeFeedId(feedId);
+      const nextFeedId = toIdKey(feedId);
       const nextPreviewUrl = normalizePreviewUrl(previewUrl);
 
       if (!nextFeedId || !nextPreviewUrl) return;

@@ -11,8 +11,8 @@ import {
 } from '../../store/useRecordFormStore';
 
 import {
-  uploadRecordFiles,
-} from '../../utils/uploadRecordFiles';
+  prepareRecordSubmission,
+} from '../../utils/recordSubmission';
 
 import {
   feedHomeKeys,
@@ -58,47 +58,18 @@ const useCreateFeed = ({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!userId) {
-        throw new Error(
-          '사용자 정보가 없습니다.',
-        );
-      }
+      const { recordForm, recordBody, localUris } =
+        await prepareRecordSubmission({ userId });
 
-      /*
-       * 저장 버튼을 누른 순간의
-       * 최신 form 값을 가져옵니다.
-       */
-      const recordForm =
-        useRecordFormStore.getState();
-
-      /*
-       * 업로드를 요청 전에 끝내 둡니다.
-       * 사진을 고를 때 미리 시작한 업로드는 기다리기만 합니다.
-       * 여기서 실패하면 서버에 아무것도 반영하지 않고 끝납니다.
-       */
-      const { files, localUris } =
-        await uploadRecordFiles({
-          userId,
-          files: recordForm.files,
-        });
-
-      /*
-       * 업로드가 끝난 파일 정보를 같이 보내면
-       * 서버가 피드와 파일을 한 트랜잭션에서 저장합니다.
-       */
       const response =
         await apiClient.post(
           '/feed',
           {
             userId: String(userId),
-            music: JSON.stringify(recordForm.music),
-            text: recordForm.text ?? '',
-            font: recordForm.font ?? 'KYOBO',
+            ...recordBody,
 
             visibility:
               recordForm.visibility ?? 'PUBLIC',
-
-            files,
           },
         );
 

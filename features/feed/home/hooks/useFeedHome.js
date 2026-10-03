@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../../shared/api/client';
+import { flattenPages, getNextCursor, withCursor } from '../../../../shared/api/cursorPage';
 
 import useFeedFollow from '../../hooks/useFeedFollow';
 import { feedHomeKeys } from '../../api/feedCache';
@@ -29,12 +30,7 @@ function normalizeFeedPage(data) {
 
 async function fetchFeedPage({ userId, feedType, pageParam }) {
   const feedPath = feedType === 'following' ? '/feed/following' : '/feed';
-  const params = { userId, limit: FEED_LIMIT };
-
-  if (pageParam !== null && pageParam !== undefined) {
-    params.cursor = pageParam;
-  }
-
+  const params = withCursor({ userId, limit: FEED_LIMIT }, pageParam);
   const response = await apiClient.get(feedPath, { params });
   return normalizeFeedPage(response.data);
 }
@@ -45,7 +41,7 @@ function createFeedQueryOptions({ userId, feedType, isConfigured }) {
     initialPageParam: null,
     enabled: isConfigured,
     queryFn: ({ pageParam }) => fetchFeedPage({ userId, feedType, pageParam }),
-    getNextPageParam: lastPage => (lastPage?.hasNext ? lastPage.nextCursor ?? undefined : undefined),
+    getNextPageParam: getNextCursor,
     staleTime: FEED_STALE_TIME,
     gcTime: FEED_GC_TIME,
   };
@@ -79,7 +75,7 @@ export default function useFeedHome({ userId, isFollowing = false }) {
     refetch: refetchFeed,
   } = useInfiniteQuery(activeQueryOptions);
 
-  const posts = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data?.pages]);
+  const posts = useMemo(() => flattenPages(data?.pages), [data?.pages]);
 
   useEffect(() => {
     if (!isConfigured || isFollowing || !data?.pages?.length) return;

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import apiClient, { isApiConfigured } from '../../../../../shared/api/client';
+import { flattenPages, toCursorPage, withCursor } from '../../../../../shared/api/cursorPage';
 
 import { archiveKeys } from '../../../api/archiveKeys';
 import { hasId } from '../../../../../shared/utils/id';
@@ -26,20 +27,14 @@ async function fetchAllFeedPage({ userId, keyword, pageParam }) {
     params.sort = 'oldest';
   }
 
-  if (cursor !== null && cursor !== undefined) {
-    params.cursor = cursor;
-  }
-
-  const response = await apiClient.get('/feed/me', { params });
-  const data = response.data;
-  const items = Array.isArray(data?.items) ? data.items : [];
+  const response = await apiClient.get('/feed/me', { params: withCursor(params, cursor) });
+  const page = toCursorPage(response.data);
 
   return {
+    ...page,
     direction,
     // 페이지 안에서도 항상 최신순
-    items: isNewer ? [...items].reverse() : items,
-    nextCursor: data?.nextCursor ?? null,
-    hasNext: Boolean(data?.hasNext),
+    items: isNewer ? [...page.items].reverse() : page.items,
   };
 }
 
@@ -111,7 +106,7 @@ const useAllMyFeeds = ({ userId, anchorMonth, anchorCursor, keyword = '', enable
     enabled: isConfigured,
   });
 
-  const feeds = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data?.pages]);
+  const feeds = useMemo(() => flattenPages(data?.pages), [data?.pages]);
 
   return {
     feeds,

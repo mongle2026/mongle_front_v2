@@ -6,6 +6,7 @@ import { getImageSources, resolveMediaUri } from '../../../../../shared/utils/me
 
 import { letterboxKeys, letterDetailKeys } from '../../../api/letterboxKeys';
 import { hasId, isSameId } from '../../../../../shared/utils/id';
+import { mapInfiniteItems, removeInfiniteItems } from '../../../../../shared/api/infiniteCache';
 
 const DETAIL_STALE_TIME = 2 * 60 * 1000;
 
@@ -28,12 +29,12 @@ function normalizeLetterDetail(data, userId) {
       stamp: letter.stamp,
     },
     sender: {
-      userId: senderId,
+      userId: record?.userId,
       nickname: record?.user?.nickname ?? '',
       profileImageUri: resolveMediaUri(record?.user?.profileImageUrl),
     },
     receiver: {
-      userId: receiverId,
+      userId: letter.receiverId,
       nickname: letter.receiver?.nickname ?? '',
       profileImageUri: resolveMediaUri(letter.receiver?.profileImageUrl),
     },
@@ -52,17 +53,11 @@ function normalizeLetterDetail(data, userId) {
 
 // 편지함 목록 캐시에서 해당 편지를 읽음 처리한다 (백엔드는 상세 조회 시 읽음 처리한다)
 function markLetterAsReadInLetterbox(queryClient, userId, letterId) {
-  queryClient.setQueriesData({ queryKey: letterboxKeys.letters(userId) }, currentData => {
-    if (!currentData?.pages) return currentData;
-
-    return {
-      ...currentData,
-      pages: currentData.pages.map(page => ({
-        ...page,
-        items: page.items.map(item => (isSameId(item.letterId, letterId) ? { ...item, isRead: true } : item)),
-      })),
-    };
-  });
+  queryClient.setQueriesData({ queryKey: letterboxKeys.letters(userId) }, currentData =>
+    mapInfiniteItems(currentData, item =>
+      isSameId(item.letterId, letterId) && !item.isRead ? { ...item, isRead: true } : item,
+    ),
+  );
 
   // 안 읽음 탭은 목록에서 빠져야 하므로 다음에 보일 때 다시 불러온다
   void queryClient.invalidateQueries({
@@ -83,17 +78,9 @@ function markLetterAsReadInLetterbox(queryClient, userId, letterId) {
 
 // 편지함 목록 캐시(모든 탭)에서 삭제한 편지를 뺀다
 function removeLetterFromLetterbox(queryClient, userId, letterId) {
-  queryClient.setQueriesData({ queryKey: letterboxKeys.letters(userId) }, currentData => {
-    if (!currentData?.pages) return currentData;
-
-    return {
-      ...currentData,
-      pages: currentData.pages.map(page => ({
-        ...page,
-        items: page.items.filter(item => !isSameId(item.letterId, letterId)),
-      })),
-    };
-  });
+  queryClient.setQueriesData({ queryKey: letterboxKeys.letters(userId) }, currentData =>
+    removeInfiniteItems(currentData, item => isSameId(item.letterId, letterId)),
+  );
 
   // 우표 수집 횟수/우표 상세도 바뀌므로 다시 불러온다 (useStampBox, useStampDetail)
   void queryClient.invalidateQueries({ queryKey: letterboxKeys.stamps(userId) });
