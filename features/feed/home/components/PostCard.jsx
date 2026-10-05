@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import ProfileBar from '../../components/ProfileBar';
@@ -63,6 +63,35 @@ const PostCard = ({
 
   const textNumberOfLines = Math.max(fallbackNumberOfLines, measuredNumberOfLines);
 
+  // iOS는 numberOfLines의 마지막 줄이 빈 줄이거나 문단 끝에서 끝나면 말줄임표 대신
+  // 아래 문단을 끌어오거나 '…' 없이 잘라버린다. 숨긴 Text로 전체 줄을 측정해서,
+  // 뒤에 글이 더 남아 있으면 마지막 보이는 줄 끝에 항상 '…'을 붙이도록 직접 자른다.
+  const [contentLines, setContentLines] = useState(null);
+
+  const handleMeasureTextLayout = useCallback(event => {
+    const nextLines = event.nativeEvent.lines.map(line => line.text);
+    setContentLines(currentLines =>
+      currentLines &&
+      currentLines.length === nextLines.length &&
+      currentLines.every((line, index) => line === nextLines[index])
+        ? currentLines
+        : nextLines,
+    );
+  }, []);
+
+  const shouldMeasureContent = Platform.OS === 'ios' && hasContent;
+
+  const hasHiddenLines =
+    shouldMeasureContent &&
+    contentLines !== null &&
+    contentLines.length > textNumberOfLines;
+
+  // 마지막 보이는 줄의 끝 공백/줄바꿈을 지우고 '…'을 붙인다. 빈 줄이면 그 자리에 '…'만 남는다.
+  // '…'을 붙여 줄이 넘치면 numberOfLines + ellipsizeMode가 iOS 기본 말줄임으로 처리한다.
+  const displayContent = hasHiddenLines
+    ? `${contentLines.slice(0, textNumberOfLines - 1).join('')}${contentLines[textNumberOfLines - 1].trimEnd()}…`
+    : content;
+
   return (
     <Animated.View
       style={[
@@ -94,6 +123,20 @@ const PostCard = ({
         <View style={styles.contentArea}>
           <View style={styles.textContainer}>
             <View style={styles.textViewport} onLayout={handleTextViewportLayout}>
+              {shouldMeasureContent && (
+                <SuitSafeText
+                  aria-hidden
+                  pointerEvents="none"
+                  onTextLayout={handleMeasureTextLayout}
+                  style={[
+                    styles.contentText,
+                    contentFontStyle,
+                    styles.measureText,
+                  ]}
+                >
+                  {content}
+                </SuitSafeText>
+              )}
               {hasContent && (
                 <SuitSafeText
                   numberOfLines={textNumberOfLines}
@@ -103,7 +146,7 @@ const PostCard = ({
                     contentFontStyle,
                   ]}
                 >
-                  {content}
+                  {displayContent}
                 </SuitSafeText>
               )}
             </View>
@@ -202,6 +245,14 @@ const styles = StyleSheet.create({
 
     color: colors.fgNeutralMuted,
     textAlign: 'left',
+  },
+
+  measureText: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    opacity: 0,
   },
 
   imageContainer: {
