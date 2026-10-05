@@ -7,6 +7,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 
+import PullToRefresh from '../../../../../shared/components/layout/PullToRefresh';
 import { gap, padding } from '../../../../../shared/styles/token';
 
 import FlippableLetter, { LETTER_HEIGHT, getLetterRotation } from '../../../components/FlippableLetter';
@@ -66,7 +67,8 @@ const UnreadLetterItem = memo(({ letter, index, progress, isFlipping, onFlipEnd 
  * @param {(letter: object) => void} [onPressLetter] 편지를 눌러 앞면으로 뒤집힌 뒤 호출
  * @param {() => void} [onEndReached] 목록 끝 가까이 오면 호출 (페이지네이션)
  * @param {number} [endReachedThreshold]
- * @param {React.ReactElement} [refreshControl] 당겨서 새로고침 RefreshControl
+ * @param {boolean} [refreshing] 당겨서 새로고침 중인지
+ * @param {() => void | Promise<void>} [onRefresh] 당겨서 새로고침
  */
 const UnreadLetterStack = ({
   letters,
@@ -75,7 +77,8 @@ const UnreadLetterStack = ({
   onPressLetter,
   onEndReached,
   endReachedThreshold,
-  refreshControl,
+  refreshing = false,
+  onRefresh,
 }) => {
   const { progress, stickyOffset, scrollHandler } = useUnreadLetterStack({ onEndReached, endReachedThreshold });
   const [viewportHeight, setViewportHeight] = useState(0);
@@ -114,29 +117,31 @@ const UnreadLetterStack = ({
   const handleFlipEnd = useCallback(letter => onPressLetter?.(letter), [onPressLetter]);
 
   return (
-    <Animated.ScrollView
-      onLayout={handleLayout}
-      contentContainerStyle={{ paddingTop: topInset }}
-      onScroll={scrollHandler}
-      scrollEventThrottle={16}
-      showsVerticalScrollIndicator={false}
-      refreshControl={refreshControl}
-    >
-      <Animated.View style={[styles.stage, { height: contentHeight }]}>
-        <Animated.View style={[styles.sticky, stickyStyle]}>
-          {letterEntries.map(({ letter, index }) => (
-            <UnreadLetterItem
-              key={letter.letterId}
-              letter={letter}
-              index={index}
-              progress={progress}
-              isFlipping={isFlipping}
-              onFlipEnd={handleFlipEnd}
-            />
-          ))}
+    // 새로고침 스피너는 목록 상단 여백(Tabs 하단 그라데이션) 밑에 둔다
+    <PullToRefresh refreshing={refreshing} onRefresh={onRefresh} indicatorOffset={topInset}>
+      <Animated.ScrollView
+        onLayout={handleLayout}
+        contentContainerStyle={{ paddingTop: topInset }}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View style={[styles.stage, { height: contentHeight }]}>
+          <Animated.View style={[styles.sticky, stickyStyle]}>
+            {letterEntries.map(({ letter, index }) => (
+              <UnreadLetterItem
+                key={letter.letterId}
+                letter={letter}
+                index={index}
+                progress={progress}
+                isFlipping={isFlipping}
+                onFlipEnd={handleFlipEnd}
+              />
+            ))}
+          </Animated.View>
         </Animated.View>
-      </Animated.View>
-    </Animated.ScrollView>
+      </Animated.ScrollView>
+    </PullToRefresh>
   );
 };
 

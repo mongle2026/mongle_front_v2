@@ -1,7 +1,9 @@
 import { memo, useCallback, useMemo, useState } from 'react';
-import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import Empty from '../../../../shared/components/content/Empty';
+import PullToRefresh from '../../../../shared/components/layout/PullToRefresh';
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../../shared/components/navigation/tabs/Tabs';
 import usePullRefresh from '../../../../shared/hooks/usePullRefresh';
 import { gap, padding } from '../../../../shared/styles/token';
@@ -97,18 +99,6 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
     errorMessage: '편지함 새로고침에 실패했습니다.',
   });
 
-  // Android 로딩 원은 Tabs 하단 그라데이션에 가리지 않게 그만큼 내린다
-  const refreshControl = useMemo(
-    () => (
-      <RefreshControl
-        refreshing={isPullRefreshing}
-        onRefresh={handleRefresh}
-        progressViewOffset={TABS_BOTTOM_FADE_HEIGHT}
-      />
-    ),
-    [handleRefresh, isPullRefreshing]
-  );
-
   const handleChangeFilter = useCallback(index => {
     setActiveFilter(filters[index].key);
   }, [filters]);
@@ -144,18 +134,18 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
 
       {/* 엠티뷰에서도 당겨서 새로고침할 수 있게 ScrollView 로 감싼다 */}
       {isEmpty && (
-        <ScrollView
-          style={styles.emptyScroll}
-          contentContainerStyle={emptyContentStyle}
-          refreshControl={refreshControl}
-          showsVerticalScrollIndicator={false}
-        >
-          <Empty
-            type="letter"
-            title={isUnread ? EMPTY_UNREAD_TITLE : EMPTY_LETTER_TITLE}
-            body={isUnread ? EMPTY_UNREAD_BODY : EMPTY_LETTER_BODY}
-          />
-        </ScrollView>
+        <PullToRefresh refreshing={isPullRefreshing} onRefresh={handleRefresh}>
+          <Animated.ScrollView
+            contentContainerStyle={emptyContentStyle}
+            showsVerticalScrollIndicator={false}
+          >
+            <Empty
+              type="letter"
+              title={isUnread ? EMPTY_UNREAD_TITLE : EMPTY_LETTER_TITLE}
+              body={isUnread ? EMPTY_UNREAD_BODY : EMPTY_LETTER_BODY}
+            />
+          </Animated.ScrollView>
+        </PullToRefresh>
       )}
 
       {/* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */}
@@ -169,23 +159,30 @@ const LetterSection = ({ userId, bottomInset = 0, onPressLetter }) => {
               onPressLetter={onPressLetter}
               onEndReached={handleEndReached}
               endReachedThreshold={END_REACHED_THRESHOLD}
-              refreshControl={refreshControl}
+              refreshing={isPullRefreshing}
+              onRefresh={handleRefresh}
             />
           )}
 
           {/* 화면에 보이는 근처 카드만 그리고(가상화), 끝 도달은 네이티브에서 계산한다 */}
+          {/* 새로고침 스피너는 Tabs 하단 그라데이션에 가리지 않게 그만큼 내린다 */}
           {!isUnread && (
-            <FlatList
-              data={letters}
-              keyExtractor={letterKeyExtractor}
-              renderItem={renderLetter}
-              ItemSeparatorComponent={renderLetterSeparator}
-              contentContainerStyle={listContentStyle}
-              onEndReached={handleEndReached}
-              onEndReachedThreshold={END_REACHED_THRESHOLD}
-              refreshControl={refreshControl}
-              showsVerticalScrollIndicator={false}
-            />
+            <PullToRefresh
+              refreshing={isPullRefreshing}
+              onRefresh={handleRefresh}
+              indicatorOffset={TABS_BOTTOM_FADE_HEIGHT}
+            >
+              <Animated.FlatList
+                data={letters}
+                keyExtractor={letterKeyExtractor}
+                renderItem={renderLetter}
+                ItemSeparatorComponent={renderLetterSeparator}
+                contentContainerStyle={listContentStyle}
+                onEndReached={handleEndReached}
+                onEndReachedThreshold={END_REACHED_THRESHOLD}
+                showsVerticalScrollIndicator={false}
+              />
+            </PullToRefresh>
           )}
         </View>
       )}
@@ -197,9 +194,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-  },
-  emptyScroll: {
-    flex: 1,
   },
   emptyContainer: {
     flexGrow: 1,

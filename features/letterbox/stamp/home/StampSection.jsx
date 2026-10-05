@@ -1,6 +1,8 @@
 import { memo } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import PullToRefresh from '../../../../shared/components/layout/PullToRefresh';
 import usePullRefresh from '../../../../shared/hooks/usePullRefresh';
 import { gap, padding } from '../../../../shared/styles/token';
 import { chunk } from '../../../../shared/utils/arrayUtils';
@@ -28,25 +30,26 @@ const StampSection = ({ userId, bottomInset = 0, onPressStamp }) => {
   const stampWidth = (windowWidth - padding.L * 2 - gap.M * (STAMP_COLUMNS - 1)) / STAMP_COLUMNS;
 
   return (
-    <ScrollView
-      contentContainerStyle={[styles.stampContainer, { paddingBottom: padding.L + bottomInset }]}
-      showsVerticalScrollIndicator={false}
-      refreshControl={<RefreshControl refreshing={isPullRefreshing} onRefresh={handleRefresh} />}
-    >
-      {chunk(stamps, STAMP_COLUMNS).map((row, rowIndex) => (
-        <View key={`stamp-row-${rowIndex}`} style={styles.stampRow}>
-          {row.map(stamp => (
-            <StampBoxItem
-              key={stamp.stampCode}
-              stampCode={stamp.stampCode}
-              count={stamp.count}
-              width={stampWidth}
-              onPress={onPressStamp}
-            />
-          ))}
-        </View>
-      ))}
-    </ScrollView>
+    <PullToRefresh refreshing={isPullRefreshing} onRefresh={handleRefresh}>
+      <Animated.ScrollView
+        contentContainerStyle={[styles.stampContainer, { paddingBottom: padding.L + bottomInset }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {chunk(stamps, STAMP_COLUMNS).map((row, rowIndex) => (
+          <View key={`stamp-row-${rowIndex}`} style={styles.stampRow}>
+            {row.map(stamp => (
+              <StampBoxItem
+                key={stamp.stampCode}
+                stampCode={stamp.stampCode}
+                count={stamp.count}
+                width={stampWidth}
+                onPress={onPressStamp}
+              />
+            ))}
+          </View>
+        ))}
+      </Animated.ScrollView>
+    </PullToRefresh>
   );
 };
 

@@ -1,9 +1,11 @@
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import ListControlBar from '../../../shared/components/action/ListControlBar';
 import Menu from '../../../shared/components/action/menu/Menu';
 import Empty from '../../../shared/components/content/Empty';
+import PullToRefresh from '../../../shared/components/layout/PullToRefresh';
 import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../shared/components/navigation/tabs/Tabs';
 import usePullRefresh from '../../../shared/hooks/usePullRefresh';
@@ -67,17 +69,6 @@ const BookmarkSection = ({ navigation, userId }) => {
     refetch: refetchBookmarkFeeds,
     errorMessage: '북마크 새로고침에 실패했습니다.',
   });
-
-  const refreshControl = useMemo(
-    () => (
-      <RefreshControl
-        refreshing={isPullRefreshing}
-        onRefresh={handleRefresh}
-        progressViewOffset={TABS_BOTTOM_FADE_HEIGHT}
-      />
-    ),
-    [handleRefresh, isPullRefreshing],
-  );
 
   const handleChangeFilter = useCallback(index => {
     setActiveFilter(BOOKMARK_FILTERS[index].key);
@@ -144,33 +135,39 @@ const BookmarkSection = ({ navigation, userId }) => {
 
       {/* 엠티뷰에서도 당겨서 새로고침할 수 있게 ScrollView 로 감싼다 */}
       {isEmpty && (
-        <ScrollView
-          style={styles.emptyScroll}
-          contentContainerStyle={styles.emptyContainer}
-          refreshControl={refreshControl}
-          showsVerticalScrollIndicator={false}
-        >
-          <Empty
-            type="bookmark"
-            title="아직 북마크한 피드가 없어요."
-            body="마음에 드는 피드를 북마크해 보세요."
-            buttonLabel="피드 둘러보기"
-            onButtonPress={handlePressBrowseFeed}
-          />
-        </ScrollView>
+        <PullToRefresh refreshing={isPullRefreshing} onRefresh={handleRefresh}>
+          <Animated.ScrollView
+            contentContainerStyle={styles.emptyContainer}
+            showsVerticalScrollIndicator={false}
+          >
+            <Empty
+              type="bookmark"
+              title="아직 북마크한 피드가 없어요."
+              body="마음에 드는 피드를 북마크해 보세요."
+              buttonLabel="피드 둘러보기"
+              onButtonPress={handlePressBrowseFeed}
+            />
+          </Animated.ScrollView>
+        </PullToRefresh>
       )}
 
+      {/* 새로고침 스피너는 Tabs 하단 그라데이션에 가리지 않게 그만큼 내린다 */}
       {!isEmpty && (
-        <FlatList
-          data={posts}
-          keyExtractor={postKeyExtractor}
-          renderItem={renderPost}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={END_REACHED_THRESHOLD}
-          refreshControl={refreshControl}
+        <PullToRefresh
+          refreshing={isPullRefreshing}
+          onRefresh={handleRefresh}
+          indicatorOffset={TABS_BOTTOM_FADE_HEIGHT}
           style={styles.list}
-          contentContainerStyle={styles.postContainer}
-        />
+        >
+          <Animated.FlatList
+            data={posts}
+            keyExtractor={postKeyExtractor}
+            renderItem={renderPost}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={END_REACHED_THRESHOLD}
+            contentContainerStyle={styles.postContainer}
+          />
+        </PullToRefresh>
       )}
 
       {/* 메뉴가 열리면 섹션 전체를 덮는 레이어를 깔아 바깥 어디를 눌러도 닫는다 */}
@@ -219,9 +216,6 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     gap: gap.M,
     alignSelf: 'stretch',
-  },
-  emptyScroll: {
-    flex: 1,
   },
   emptyContainer: {
     flexGrow: 1,

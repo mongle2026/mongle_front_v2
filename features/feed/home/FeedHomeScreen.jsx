@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/action/WriteFab';
+import PullToRefresh from '../../../shared/components/layout/PullToRefresh';
 import TopNavigation from '../../../shared/components/navigation/topnavigation/TopNavigation';
 import { FEED_TAB, FEED_TOP_NAVIGATION_TABS } from '../constants';
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
@@ -233,35 +235,35 @@ const FeedHomeScreen = ({ navigation }) => {
         />
       </SafeAreaView>
 
-      <FlatList
-        ref={listRef}
-        data={posts}
-        extraData={feedExtraData}
-        keyExtractor={keyExtractor}
-        renderItem={renderPost}
-        ItemSeparatorComponent={renderPostSeparator}
-        contentContainerStyle={contentContainerStyle}
-        onLayout={handleListLayout}
-        onViewableItemsChanged={handleViewableItemsChanged}
-        viewabilityConfig={VIEWABILITY_CONFIG}
-        snapToInterval={snapToInterval}
-        decelerationRate="fast"
-        disableIntervalMomentum
-        showsVerticalScrollIndicator={false}
-        removeClippedSubviews={Platform.OS === 'android'}
-        initialNumToRender={3}
-        maxToRenderPerBatch={3}
-        windowSize={5}
-        updateCellsBatchingPeriod={50}
-        refreshing={isPullRefreshing}
-        onRefresh={handleRefresh}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.4}
-        onScrollEndDrag={handleListScrollEnd}
-        onMomentumScrollEnd={handleListScrollEnd}
-        ListEmptyComponent={renderListEmpty}
-        ListFooterComponent={renderListFooter}
-      />
+      <PullToRefresh refreshing={isPullRefreshing} onRefresh={handleRefresh}>
+        <Animated.FlatList
+          ref={listRef}
+          data={posts}
+          extraData={feedExtraData}
+          keyExtractor={keyExtractor}
+          renderItem={renderPost}
+          ItemSeparatorComponent={renderPostSeparator}
+          contentContainerStyle={contentContainerStyle}
+          onLayout={handleListLayout}
+          onViewableItemsChanged={handleViewableItemsChanged}
+          viewabilityConfig={VIEWABILITY_CONFIG}
+          snapToInterval={snapToInterval}
+          decelerationRate="fast"
+          disableIntervalMomentum
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={Platform.OS === 'android'}
+          initialNumToRender={3}
+          maxToRenderPerBatch={3}
+          windowSize={5}
+          updateCellsBatchingPeriod={50}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.4}
+          onScrollEndDrag={handleListScrollEnd}
+          onMomentumScrollEnd={handleListScrollEnd}
+          ListEmptyComponent={renderListEmpty}
+          ListFooterComponent={renderListFooter}
+        />
+      </PullToRefresh>
 
       <WriteFab navigation={navigation} expandedLabel="피드 더 둘러보기" onHeightChange={setFabHeight} />
     </View>
