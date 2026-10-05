@@ -24,6 +24,7 @@ import RecordEditScreen from './features/write/record/RecordEditScreen';
 import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
 import LetterBoxScreen from './features/letterbox/LetterBoxScreen';
 import ArchiveScreen from './features/archive/ArchiveScreen';
+import ProfileScreen from './features/profile/ProfileScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
@@ -105,6 +106,10 @@ const MainTabNavigator = () => (
     <Tab.Screen
       name={MAIN_TAB_ROUTES.ARCHIVE}
       component={ArchiveScreen}
+    />
+    <Tab.Screen
+      name={MAIN_TAB_ROUTES.PROFILE}
+      component={ProfileScreen}
     />
   </Tab.Navigator>
 );

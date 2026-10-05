@@ -11,7 +11,7 @@ import { colors } from '../../../styles/color';
 import { gap, padding } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
 
-const ICON_SIZE = 24;
+const ICON_SIZE = 22;
 
 const Item = ({
   label,

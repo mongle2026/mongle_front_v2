@@ -7,6 +7,7 @@ import Item from './Item';
 import IcFeed from '../../../../assets/icons/ic_feed.svg';
 import IcLetter from '../../../../assets/icons/ic_letter.svg';
 import IcArchive from '../../../../assets/icons/ic_archive.svg';
+import IcProfile from '../../../../assets/icons/ic_profile.svg';
 
 import { colors } from '../../../styles/color';
 import { padding } from '../../../styles/token';
@@ -82,6 +83,10 @@ const TAB_CONFIG = {
   [MAIN_TAB_ROUTES.ARCHIVE]: {
     label: '보관함',
     Icon: IcArchive,
+  },
+  [MAIN_TAB_ROUTES.PROFILE]: {
+    label: '프로필',
+    Icon: IcProfile,
   },
 };
 
