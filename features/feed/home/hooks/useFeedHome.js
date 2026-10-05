@@ -4,7 +4,7 @@ import apiClient, { isApiConfigured } from '../../../../shared/api/client';
 import { flattenPages, getNextCursor, withCursor } from '../../../../shared/api/cursorPage';
 
 import useFeedFollow from '../../hooks/useFeedFollow';
-import { feedHomeKeys } from '../../api/feedCache';
+import { feedDetailKeys, feedHomeKeys } from '../../api/feedCache';
 import { normalizeFeedItem } from '../../api/normalizeFeed';
 import { hasId } from '../../../../shared/utils/id';
 
@@ -72,8 +72,24 @@ export default function useFeedHome({ userId, isFollowing = false }) {
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-    refetch: refetchFeed,
+    refetch,
   } = useInfiniteQuery(activeQueryOptions);
+
+  // 상세 캐시는 홈 새로고침으로 바뀌지 않아서, 다른 기기에서 고친 글이 상세에서는 예전 내용으로 보인다.
+  // 새로고침이 끝나면 상세 캐시를 지워, 상세를 열 때 방금 받은 홈 데이터를 먼저 보여주고 서버에서 다시 받게 한다
+  const refetchFeed = useCallback(
+    async options => {
+      const result = await refetch(options);
+
+      queryClient.removeQueries({
+        queryKey: feedDetailKeys.user(userId),
+        predicate: query => query.getObserversCount() === 0,
+      });
+
+      return result;
+    },
+    [queryClient, refetch, userId]
+  );
 
   const posts = useMemo(() => flattenPages(data?.pages), [data?.pages]);
 
