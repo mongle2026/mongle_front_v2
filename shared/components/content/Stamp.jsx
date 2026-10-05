@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Defs, FeColorMatrix, Filter, G } from 'react-native-svg';
 
 import { findStamp } from '../../data/envelopeData';
-import { colors } from '../../styles/color';
 
 // 우표 원본 비율 (편지함 Card 의 44x64 기준)
 const STAMP_RATIO = 64 / 44;
@@ -14,7 +13,7 @@ export const getStampHeight = width => Math.round(width * STAMP_RATIO);
 const GRAYSCALE_FILTER_ID = 'stampGrayscale';
 
 /**
- * 이미 찾은 우표 SVG 를 그린다. SVG 가 없으면 빈 자리(배경색)만 그린다.
+ * 이미 찾은 우표 SVG 를 그린다. SVG 가 없으면 빈(투명) 자리만 그린다.
  * 크기 / 위치는 style 로 받는다.
  *
  * @param {React.ComponentType} [StampSvg] envelopeData STAMPS[].SvgComponent
@@ -70,7 +69,7 @@ const Stamp = ({ stampCode, width = 44, grayscale = false, style }) => {
 
 const styles = StyleSheet.create({
   stamp: {
-    backgroundColor: colors.bgDisabled,
+    backgroundColor: 'transparent',
   },
 });
 
