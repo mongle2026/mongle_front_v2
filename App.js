@@ -31,6 +31,7 @@ import NotificationScreen from './features/notification/NotificationScreen';
 import GenreScreen from './features/archive/myfeed/genre/GenreScreen';
 import GenreDetailScreen from './features/archive/myfeed/genre/detail/GenreDetailScreen';
 import AllScreen from './features/archive/myfeed/all/AllScreen';
+import CatalogScreen from './features/catalog/CatalogScreen';
 import PushNotificationHandler from './features/notification/push/PushNotificationHandler';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
@@ -204,6 +205,16 @@ const RootNavigator = () => (
         animation: 'ios_from_right',
       }}
     />
+    {/* 개발 빌드에서만 등록하는 컴포넌트 카탈로그 (프로필 탭에서 진입) */}
+    {__DEV__ && (
+      <Stack.Screen
+        name="Catalog"
+        component={CatalogScreen}
+        options={{
+          animation: 'ios_from_right',
+        }}
+      />
+    )}
   </Stack.Navigator>
 );
 
