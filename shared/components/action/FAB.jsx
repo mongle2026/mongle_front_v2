@@ -201,7 +201,7 @@ const FAB = ({
             <XIcon
               width={TOGGLE_ICON_SIZE}
               height={TOGGLE_ICON_SIZE}
-              color={colors.fgNeutralSecondary}
+              color={colors.fgNeutralTertiary}
             />
           ) : (
             <PlusIcon
