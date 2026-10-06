@@ -43,9 +43,9 @@ const AnimatedLabeledButton = forwardRef(
       activeIcon: ActiveIcon,
       inactiveIcon: InactiveIcon,
 
-      activeColor = colors.fgNeutralSolid,
-      inactiveColor = colors.fgNeutralWeak,
-      labelColor = colors.fgNeutralWeak,
+      activeColor = colors.fgNeutralPrimary,
+      inactiveColor = colors.fgNeutralQuaternary,
+      labelColor = colors.fgNeutralQuaternary,
 
       animationType = ANIMATION_TYPE.LIKE,
 

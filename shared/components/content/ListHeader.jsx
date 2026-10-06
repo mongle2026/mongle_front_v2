@@ -73,7 +73,7 @@ const ListHeader = ({
             <IconButton
               icon={IcArrowRight}
               size="S"
-              color={colors.fgNeutralWeak}
+              color={colors.fgNeutralQuaternary}
               onPress={onIconButtonPress}
               accessibilityLabel={
                 iconButtonAccessibilityLabel
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor:
-      colors.bgLayerDefault,
+      colors.bgSurface,
   },
 
   // size = S
@@ -135,11 +135,11 @@ const styles = StyleSheet.create({
   },
 
   informativeText: {
-    color: colors.fgInformative,
+    color: colors.fgInfo,
   },
 
   neutralText: {
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
 });
 

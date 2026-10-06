@@ -118,8 +118,8 @@ const MusicCard = ({
             <PlaybackIcon
               width={PLAY_ICON_SIZE}
               height={PLAY_ICON_SIZE}
-              color={colors.fgNeutralSolid}
-              fill={colors.fgNeutralSolid}
+              color={colors.fgNeutralPrimary}
+              fill={colors.fgNeutralPrimary}
             />
           </View>
         </GesturePressable>
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: padding.L,
     gap: gap.M,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   pressArea: {
@@ -172,12 +172,12 @@ const styles = StyleSheet.create({
 
   title: {
     width: '100%',
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
 
   artist: {
     width: '100%',
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
   },
 
   playButton: {
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: padding.L,
     borderRadius: 999,
-    backgroundColor: colors.bgNeutralFaint,
+    backgroundColor: colors.fillNeutralWeak,
   },
 
   playButtonDisabled: {

@@ -48,11 +48,11 @@ const styles = StyleSheet.create({
   },
 
   itemInactive: {
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
   },
 
   itemActive: {
-    backgroundColor: colors.bgNeutralSolid,
+    backgroundColor: colors.fillNeutral,
     color: colors.fgNeutralInverted,
   },
 });

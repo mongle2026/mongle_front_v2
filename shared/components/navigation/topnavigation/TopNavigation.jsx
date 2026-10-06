@@ -50,7 +50,7 @@ const TopNavigation = ({
         <IconButton
           size="XL"
           icon={IcBell}
-          color={colors.fgNeutralSolid}
+          color={colors.fgNeutralPrimary}
           onPress={onPressBell}
           accessibilityLabel="알림 보기"
         />
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     paddingLeft: padding.L,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
 
   itemContainer: {

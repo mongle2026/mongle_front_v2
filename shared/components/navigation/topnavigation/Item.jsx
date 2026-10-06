@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: radius.XS,
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
 
   label: {
@@ -50,11 +50,11 @@ const styles = StyleSheet.create({
   },
 
   activeLabel: {
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
   },
 
   inactiveLabel: {
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
   },
 });
 

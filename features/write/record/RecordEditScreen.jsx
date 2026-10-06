@@ -57,7 +57,7 @@ const RecordEditScreen = ({ navigation, route }) => {
   /* 다음 버튼 활성 색상 조건 (수정 사항이 없으면 비활성) */
   const isNextReady = hasMusic && hasContent;
   const canSubmit = isNextReady && isDirty;
-  const nextTextColor = canSubmit ? colors.fgNeutralMuted : colors.fgDisabled;
+  const nextTextColor = canSubmit ? colors.fgNeutralSecondary : colors.fgDisabled;
 
   const { showToast } = useGlobalOverlay();
 
@@ -192,6 +192,6 @@ export default RecordEditScreen;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 });

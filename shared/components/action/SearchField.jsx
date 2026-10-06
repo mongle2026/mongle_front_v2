@@ -37,8 +37,8 @@ const SearchField = ({
   // 검색 대상마다 다르므로 쓰는 화면에서 넘긴다
   placeholder,
   collapsed,
-  backgroundColor = colors.bgLayerDefault,
-  fieldBackgroundColor = colors.bgLayerBasement,
+  backgroundColor = colors.bgSurface,
+  fieldBackgroundColor = colors.bgLayerBase,
   ...textInputProps
 }) => {
   const hasValue = value?.length > 0;
@@ -86,8 +86,8 @@ const SearchField = ({
   }));
 
   const foregroundColor = hasValue
-    ? colors.fgNeutralSolid
-    : colors.fgPlaceholder;
+    ? colors.fgNeutralPrimary
+    : colors.fgNeutralTertiary;
 
   return (
     <Animated.View style={[styles.collapse, collapseStyle]}>
@@ -126,7 +126,7 @@ const SearchField = ({
             value={value}
             onChangeText={onChangeText}
             placeholder={placeholder}
-            placeholderTextColor={colors.fgPlaceholder}
+            placeholderTextColor={colors.fgNeutralTertiary}
             style={styles.input}
             {...textInputProps}
           />
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     padding: 0,
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     ...typo.suitLabelXLarge,
   },
 });

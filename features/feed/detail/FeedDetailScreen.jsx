@@ -543,7 +543,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   scroll: {
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     width: '100%',
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
     zIndex: 10,
     elevation: 10,
   },

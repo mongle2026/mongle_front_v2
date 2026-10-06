@@ -135,14 +135,14 @@ const styles = StyleSheet.create({
   title: {
     ...typo.suitTitleMediumStrong,
 
-    color: colors.fgPlaceholder,
+    color: colors.fgNeutralTertiary,
     textAlign: 'center',
   },
 
   body: {
     ...typo.suitBodyXLarge,
 
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
     textAlign: 'center',
   },
 

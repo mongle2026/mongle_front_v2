@@ -91,8 +91,8 @@ function Card({ letter = {}, type, onPress, style }) {
               <DotMatrixText
                 text={title}
                 {...TITLE_DOT}
-                baseColor={colors.fgNeutralFaint}
-                fillColor={colors.fgNeutralWeak}
+                baseColor={colors.fgDisabled}
+                fillColor={colors.fgNeutralQuaternary}
               />
             )}
           </View>
@@ -107,8 +107,8 @@ function Card({ letter = {}, type, onPress, style }) {
               <DotMatrixText
                 text={singer}
                 {...SINGER_DOT}
-                baseColor={colors.fgNeutralFaint}
-                fillColor={colors.fgNeutralWeak}
+                baseColor={colors.fgDisabled}
+                fillColor={colors.fgNeutralQuaternary}
               />
             )}
           </View>
@@ -116,7 +116,7 @@ function Card({ letter = {}, type, onPress, style }) {
 
         {/* caption container */}
         <View style={styles.captionContainer}>
-          <CaptionIcon width={14} height={14} color={colors.fgNeutralWeak} />
+          <CaptionIcon width={14} height={14} color={colors.fgNeutralQuaternary} />
           <Text style={styles.caption}>{isSent ? '보낸 편지' : '받은 편지'}</Text>
           <View style={styles.captionDot} />
           {isSent ? (
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: padding.XS,
     borderRadius: radius.M,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   // 첫 번째 container: column, align flex-start, gap XL, flex 1
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   nickname: {
     flex: 1,
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     ...typo.suitLabelXLargeStrong,
   },
 
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   caption: {
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
     ...typo.suitLabelMedium,
   },
   // caption 사이 구분 점: 2x2 원
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     width: 2,
     height: 2,
     borderRadius: 1,
-    backgroundColor: colors.fgNeutralSubtle,
+    backgroundColor: colors.fgNeutralTertiary,
   },
 
   // title: height 19, 세로 padding XXS, column, justify center, align flex-start, gap XXS, stretch
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   titleText: {
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
     ...typo.suitLabelLarge,
   },
 
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   singerText: {
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
     ...typo.suitLabelMedium,
   },
   // read 카드: 텍스트 줄높이가 dot 2행보다 커서, 카드 높이 143을 맞추기 위해 상하 padding 제거

@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
 
   message: {
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
     textAlign: 'center',
   },
 });

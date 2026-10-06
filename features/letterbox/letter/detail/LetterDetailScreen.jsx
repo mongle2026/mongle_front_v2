@@ -346,11 +346,11 @@ const LetterDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
   topSafeArea: {
     width: '100%',
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
     // 메뉴가 네비게이션 아래 콘텐츠 위로 겹쳐 보이게 한다
     zIndex: 20,
   },

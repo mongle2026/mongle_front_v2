@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.M,
 
     backgroundColor:
-      colors.bgLayerDefault,
+      colors.bgSurface,
   },
 
   dragHandleTouchArea: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.M,
 
     backgroundColor:
-      colors.fgNeutralFaint,
+      colors.strokeNeutralTertiary,
   },
 
   content: {

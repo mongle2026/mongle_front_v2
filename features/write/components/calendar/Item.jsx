@@ -81,12 +81,12 @@ const styles = StyleSheet.create({
     flex: 0,
     alignSelf: 'center',
     borderRadius: radius.M,
-    backgroundColor: colors.bgInfoWeak,
+    backgroundColor: colors.fillInfoWeak,
   },
 
   label: {
     ...typo.suitLabelLargeStrong,
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
     textAlign: 'center',
   },
 
@@ -95,6 +95,6 @@ const styles = StyleSheet.create({
   },
 
   currentLabel: {
-    color: colors.fgInformativeContrast,
+    color: colors.fgInfo,
   },
 });

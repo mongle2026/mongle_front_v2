@@ -15,9 +15,9 @@ const ICON_SIZE = 14;
 const LabeledButton = ({
   icon,
   label,
-  color = colors.fgNeutralMuted,
-  iconColor = colors.fgNeutralMuted,
-  backgroundColor = colors.bgNeutralFaint,
+  color = colors.fgNeutralSecondary,
+  iconColor = colors.fgNeutralSecondary,
+  backgroundColor = colors.fillNeutralWeak,
   typography = typo.suitLabelLargeStrong,
   onPress,
   disabled = false,

@@ -51,12 +51,12 @@ const styles = StyleSheet.create({
 
   containerInactive: {
     borderBottomWidth: 1,
-    borderBottomColor: colors.strokeNeutralWeak,
+    borderBottomColor: colors.strokeNeutralTertiary,
   },
 
   containerActive: {
     borderBottomWidth: 1.5,
-    borderBottomColor: colors.strokeNeutralSolid,
+    borderBottomColor: colors.strokeNeutralPrimary,
   },
 
   inner: {
@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
 
   labelInactive: {
     ...typo.suitLabelLarge,
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
   },
 
   labelActive: {
     ...typo.suitLabelLargeStrong,
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
   },
 });
 

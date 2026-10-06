@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   topSafeArea: {
     width: '100%',
     position: 'relative',
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
     zIndex: 20,
   },
 

@@ -49,6 +49,6 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
   },
 });

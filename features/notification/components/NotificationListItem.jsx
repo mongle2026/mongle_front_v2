@@ -121,14 +121,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: padding.M,
     gap: gap.M,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
   logo: {
     width: 24,
     height: 24,
     flexShrink: 0,
     borderRadius: radius.XS,
-    backgroundColor: colors.fgNeutralWeak,
+    backgroundColor: colors.fgNeutralQuaternary,
   },
   textContainer: {
     flex: 1,
@@ -140,12 +140,12 @@ const styles = StyleSheet.create({
   title: {
     ...typo.suitTitleSmallStrong,
     alignSelf: 'stretch',
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
   body: {
     ...typo.suitBodyMedium,
     alignSelf: 'stretch',
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
   },
   date: {
     ...typo.suitLabelMedium,

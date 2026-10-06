@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     borderRadius: radius.XS,
-    backgroundColor: colors.bgOverlayMuted,
+    backgroundColor: colors.bgDimmed,
     zIndex: 1,
   },
 });

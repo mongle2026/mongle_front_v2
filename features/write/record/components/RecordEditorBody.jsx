@@ -37,7 +37,7 @@ const RecordTextInput = memo(({
       value={text}
       onChangeText={onChangeText}
       placeholder={placeholder}
-      placeholderTextColor={colors.fgPlaceholder}
+      placeholderTextColor={colors.fgNeutralTertiary}
       multiline
       scrollEnabled={false}
       textAlignVertical="top"
@@ -134,9 +134,9 @@ const RecordEditorBody = ({
               icon={<IcMusic />}
               label="음악 선택"
               typography={typo.suitLabelLargeStrong}
-              color={colors.fgNeutralMuted}
-              iconColor={colors.fgNeutralMuted}
-              backgroundColor={colors.bgNeutralFaint}
+              color={colors.fgNeutralSecondary}
+              iconColor={colors.fgNeutralSecondary}
+              backgroundColor={colors.fillNeutralWeak}
               onPress={handleOpenMusicSelect}
             />
           </View>
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     padding: 0,
     margin: 0,
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     textAlign: 'left',
     includeFontPadding: false,
   },
@@ -249,6 +249,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 });

@@ -22,7 +22,7 @@ const Item = ({
   style,
 }) => {
   const contentColor = isActive
-    ? colors.fgNeutralMuted
+    ? colors.fgNeutralSecondary
     : colors.fgDisabled;
 
   const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     gap: gap.S,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   label: {

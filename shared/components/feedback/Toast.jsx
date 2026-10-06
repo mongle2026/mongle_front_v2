@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     paddingLeft: padding.XL,
     gap: gap.M,
     borderRadius: radius.M,
-    backgroundColor: colors.bgNeutralInvertedPressed,
+    backgroundColor: colors.bgNeutralInverted,
     ...shadow.middleDown,
   },
   // 전환 중 이전/새 내용이 같은 자리에 겹치도록 유지되는 영역

@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   // recipient / sender 동일 스타일 (Kyobo2025/title/titleSmall)
   name: {
     alignSelf: 'stretch',
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     ...typo.kyoboTitleSmall,
   },
   // width 72px 고정, 높이는 원본 비율.

@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: gap.XS,
     borderRadius: radius.S,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   profileMusicContainer: {
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
 
   musicTitle: {
     flexShrink: 1,
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
   },
 
   pressArea: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   contentText: {
     flex: 1,
     height: CONTENT_HEIGHT,
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
 
   image: {
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   date: {
     flex: 1,
     ...typo.suitLabelMedium,
-    color: colors.fgPlaceholder,
+    color: colors.fgNeutralTertiary,
     textAlign: 'justify',
   },
 });

@@ -13,7 +13,7 @@ const InfoBanner = () => {
       <IcFilledAlert
         width={16}
         height={16}
-        color={colors.fgNeutralSubtle}
+        color={colors.fgNeutralTertiary}
         style={styles.icon}
       />
 
@@ -31,13 +31,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: padding.L,
     gap: gap.S,
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
   icon: {
     flexShrink: 0,
   },
   text: {
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
     textAlign: 'center',
     ...typo.suitLabelMedium,
   },

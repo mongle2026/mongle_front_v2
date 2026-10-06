@@ -122,7 +122,7 @@ const EnvelopeScreen = ({ navigation }) => {
         onPressClose={handlePressBack}
         onPressNext={handlePressSend}
         nextTextStyle={{
-          color: isNextEnabled ? colors.fgNeutralMuted : colors.fgDisabled,
+          color: isNextEnabled ? colors.fgNeutralSecondary : colors.fgDisabled,
         }}
       />
 
@@ -263,7 +263,7 @@ export default EnvelopeScreen;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   /* 편지 봉투 미리보기 영역: 탭하면 앞면 <-> 뒷면 전환 */

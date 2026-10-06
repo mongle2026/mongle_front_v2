@@ -115,8 +115,8 @@ const Comment = ({
                 label="답글 달기"
                 icon={IcComment}
                 size="S"
-                color={colors.fgNeutralWeak}
-                iconColor={colors.fgNeutralWeak}
+                color={colors.fgNeutralQuaternary}
+                iconColor={colors.fgNeutralQuaternary}
                 onPress={handlePressReply}
                 accessibilityLabel="답글 달기"
               />
@@ -135,7 +135,7 @@ const Comment = ({
             <IconButton
               size="S"
               icon={IcKebab}
-              color={colors.fgNeutralWeak}
+              color={colors.fgNeutralQuaternary}
               onPress={handlePressMenu}
               accessibilityLabel="댓글 메뉴"
             />
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: padding.M,
     flexDirection: 'column',
     alignItems: 'flex-start',
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   replyContainer: {
@@ -170,12 +170,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: gap.M,
     borderRadius: radius.M,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   // 케밥 메뉴가 열렸을 때와 손가락이 닿아 있을 때 같은 색으로 강조한다
   activeContent: {
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
 
   body: {
@@ -196,14 +196,14 @@ const styles = StyleSheet.create({
   userId: {
     ...typo.suitTitleSmall,
     flexShrink: 1,
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
   },
 
   date: {
     ...typo.suitLabelMedium,
     flex: 1,
     minWidth: 0,
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
   },
 
   contentWrapper: {
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     ...typo.suitBodyXLarge,
     width: '100%',
     alignSelf: 'stretch',
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
 });
 

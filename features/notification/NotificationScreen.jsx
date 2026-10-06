@@ -117,7 +117,7 @@ const NotificationScreen = ({ navigation }) => {
         tabs={NOTIFICATION_FILTER_LABELS}
         activeIndex={activeFilterIndex}
         onChange={setActiveFilterIndex}
-        backgroundColor={colors.bgLayerDefault}
+        backgroundColor={colors.bgSurface}
       />
 
       {/* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */}
@@ -141,7 +141,7 @@ const NotificationScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
   listContainer: {
     flex: 1,

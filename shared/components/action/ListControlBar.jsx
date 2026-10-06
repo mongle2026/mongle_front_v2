@@ -29,7 +29,7 @@ const ListControlBar = ({
         <IcChevron
           width={14}
           height={14}
-          color={colors.fgNeutralSubtle}
+          color={colors.fgNeutralTertiary}
         />
       </Pressable>
     </View>
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
 
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
 
   button: {
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   text: {
     ...typo.suitLabelLargeStrong,
 
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
   },
 });
 

@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.S,
     overflow: 'hidden',
 
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   pressArea: {
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     flexWrap: 'wrap',
 
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
     textAlign: 'left',
   },
 

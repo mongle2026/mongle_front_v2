@@ -201,13 +201,13 @@ const FAB = ({
             <XIcon
               width={TOGGLE_ICON_SIZE}
               height={TOGGLE_ICON_SIZE}
-              color={colors.fgNeutralMuted}
+              color={colors.fgNeutralSecondary}
             />
           ) : (
             <PlusIcon
               width={TOGGLE_ICON_SIZE}
               height={TOGGLE_ICON_SIZE}
-              color={colors.fgNeutralMuted}
+              color={colors.fgNeutralSecondary}
             />
           )}
         </Pressable>
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     gap: gap.M,
     padding: padding.L,
     borderRadius: radius.S,
-    backgroundColor: colors.bgNeutralSolid,
+    backgroundColor: colors.fillNeutral,
     ...shadow.weakDown,
   },
 
@@ -263,18 +263,18 @@ const styles = StyleSheet.create({
     gap: gap.M,
     padding: padding.L,
     borderRadius: radius.S,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
     ...shadow.weakDown,
   },
 
   defaultLabel: {
     flex: 1,
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
     ...typo.suitLabelMediumStrong,
   },
 
   defaultLabelExpanded: {
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
   },
 });
 

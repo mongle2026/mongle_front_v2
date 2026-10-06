@@ -10,7 +10,7 @@ const ICON_SIZE = 16;
 const Item = ({
   icon: Icon,
   label,
-  color = colors.fgNeutralMuted,
+  color = colors.fgNeutralSecondary,
   onPress,
   disabled = false,
   iconProps,
@@ -67,13 +67,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: gap.M,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
   pressed: {
-    backgroundColor: colors.bgLayerDefaultPressed,
+    backgroundColor: colors.fillSurfacePress,
   },
   disabled: {
-    backgroundColor: colors.bgDisabled,
+    backgroundColor: colors.fillNeutralWeak,
   },
   iconContainer: {
     width: ICON_SIZE,

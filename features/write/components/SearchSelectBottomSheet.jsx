@@ -59,7 +59,7 @@ const SearchSelectBottomSheet = ({
 
     return (
       <View style={styles.loadingMore}>
-        <ActivityIndicator color={colors.fgNeutralMuted} />
+        <ActivityIndicator color={colors.fgNeutralSecondary} />
       </View>
     );
   };
@@ -93,7 +93,7 @@ const SearchSelectBottomSheet = ({
         ListEmptyComponent={
           loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator color={colors.fgNeutralMuted} />
+              <ActivityIndicator color={colors.fgNeutralSecondary} />
             </View>
           ) : isSearching ? (
             <Empty

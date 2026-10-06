@@ -45,7 +45,7 @@ const Menu = ({
           <Item
             icon={IcPencil}
             label="수정"
-            color={colors.fgNeutralMuted}
+            color={colors.fgNeutralSecondary}
             onPress={onPressEdit}
             disabled={editDisabled}
             accessibilityLabel="게시물 수정"
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: gap.XS,
     borderRadius: radius.M,
-    backgroundColor: colors.bgNeutralFaint,
+    backgroundColor: colors.fillNeutralWeak,
     overflow: 'hidden',
   },
 });

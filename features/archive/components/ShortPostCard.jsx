@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: gap.XS,
     borderRadius: radius.M,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   pressArea: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   contentText: {
     flex: 1,
     height: CONTENT_HEIGHT,
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
 
   image: {
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   date: {
     flex: 1,
     ...typo.suitLabelMedium,
-    color: colors.fgPlaceholder,
+    color: colors.fgNeutralTertiary,
     textAlign: 'justify',
   },
 });

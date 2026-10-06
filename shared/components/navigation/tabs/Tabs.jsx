@@ -16,7 +16,7 @@ const Tabs = ({
   activeIndex = 0,
   onChange,
   // 탭 영역과 그라데이션 색. #rrggbb 형식이어야 한다 (뒤에 00을 붙여 투명색을 만든다)
-  backgroundColor = colors.bgLayerBasement,
+  backgroundColor = colors.bgLayerBase,
   style,
 }) => {
   const fadeColors = [toTransparent(backgroundColor), backgroundColor];

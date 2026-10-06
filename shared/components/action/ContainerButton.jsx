@@ -37,11 +37,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: padding.XL,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   label: {
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
   },
 });
 

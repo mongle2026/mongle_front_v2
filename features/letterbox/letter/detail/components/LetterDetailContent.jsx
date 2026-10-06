@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   text: {
     width: '100%',
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
   image: {
     width: '100%',

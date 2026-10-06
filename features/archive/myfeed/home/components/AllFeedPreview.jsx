@@ -63,7 +63,7 @@ const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
 
 const styles = StyleSheet.create({
   listHeader: {
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
   grid: {
     alignSelf: 'stretch',

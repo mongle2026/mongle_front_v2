@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: gap.S,
 
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   feedImageArea: {
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
 
     gap: gap.S,
 
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   letterImageArea: {
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
 
   letterText: {
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
   },
 });
 

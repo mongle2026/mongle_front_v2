@@ -122,11 +122,11 @@ const styles = StyleSheet.create({
     gap: gap.M,
 
     borderRadius: radius.M,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   sectionButtonPressed: {
-    backgroundColor: colors.bgLayerDefaultPressed,
+    backgroundColor: colors.fillSurfacePress,
   },
 
   textContainer: {
@@ -138,13 +138,13 @@ const styles = StyleSheet.create({
 
   primaryText: {
     ...typo.suitLabelLargeStrong,
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
   },
 
   secondaryText: {
     ...typo.suitLabelMedium,
     alignSelf: 'stretch',
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
   },
 
   meButton: {

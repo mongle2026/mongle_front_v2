@@ -1,49 +1,45 @@
 // ── palette: Color Palette의 원시 색상값 (캡스톤 디자인 v2.0) ─────────
 export const palette = {
   neutral: {
-    0: '#ffffff', 50: '#f6f6f7', 100: '#f1f2f4', 200: '#e5e6e8',
-    300: '#d7d9dc', 400: '#c4c6ca', 500: '#a9acb0', 600: '#888c91',
-    700: '#72757b', 800: '#3a3d42', 900: '#24272b', 950: '#1e2125',
+    0: '#ffffff', 50: '#f5f7f9', 100: '#f1f2f4', 200: '#dddfe3',
+    300: '#cbced2', 400: '#b4b8bc', 500: '#a0a3a7', 600: '#888b8f',
+    700: '#6c6f73', 800: '#505357', 900: '#33373b', 1000: '#17191c',
+    alpha: '#22314a',
   },
   blue: {
-    50: '#e2e9fe', 100: '#c5d3fd', 200: '#a5bbfe', 300: '#85a4fe',
-    400: '#658cfe', 500: '#4574ff', 600: '#2257f4', 700: '#003ae9',
-    800: '#002db1', 900: '#002078', 1000: '#001340',
-  },
-  pink: {
-    50: '#fff1f6', 100: '#ffe3eb', 200: '#fec9d8', 300: '#feaec4',
-    400: '#fd94b1', 500: '#e47e9b', 600: '#cb6885', 700: '#b25270',
-    800: '#983c5a', 900: '#7f2644', 1000: '#66102e',
+    100: '#e7efff', 200: '#ccdeff', 300: '#adc9ff', 400: '#91b6ff',
+    500: '#70a0ff', 600: '#508afd', 700: '#2b6dfd', 800: '#1d52d7',
+    900: '#143894', 1000: '#0a1a47',
   },
   red: {
-    50: '#fff1f1', 100: '#ffe1e1', 200: '#ffc7c7', 300: '#ffa3a3',
-    400: '#ff6b6b', 500: '#ff3636', 600: '#f51f1f', 700: '#d40d0d',
-    800: '#ac0f0f', 900: '#8a1212', 1000: '#4a0707',
+    100: '#ffe7e7', 200: '#fed1d1', 300: '#fdb5b5', 400: '#ff9494',
+    500: '#ff6b6b', 600: '#f84444', 700: '#e70d0d', 800: '#ba0808',
+    900: '#860303', 1000: '#460101',
+  },
+  pink: {
+    100: '#ffe8ef', 200: '#fdd0dd', 300: '#fcb1c6', 400: '#f994b1',
+    500: '#fb6f97', 600: '#f8497b', 700: '#df2056', 800: '#b80a3b',
+    900: '#810427', 1000: '#450215',
   },
   green: {
-    50: '#f0fffa', 100: '#dffff5', 200: '#c0ffec', 300: '#a8ffe3',
-    400: '#9dffdd', 500: '#89ffdb', 600: '#4dffc9', 700: '#14f5ae',
-    800: '#0fcb93', 900: '#0f9270', 1000: '#0a4c3a',
+    100: '#e3f7eb', 200: '#b6f1cd', 300: '#8ce3b2', 400: '#60d299',
+    500: '#36bf81', 600: '#10ad6e', 700: '#009459', 800: '#027446',
+    900: '#094e31', 1000: '#062315',
   },
   yellow: {
-    50: '#fffbeb', 100: '#fff1c2', 200: '#ffdd7e', 300: '#ffc939',
-    400: '#fab81c', 500: '#f5a800', 600: '#c08600', 700: '#8a6300',
-    800: '#6a4c00', 900: '#4a3400', 1000: '#2e2000',
-  },
-  overlay: {
-    weak: '#1e212533', // neutral/950 @ 20%
-    default: '#1e212580', // neutral/950 @ 50%
-    strong: '#1e2125bf', // neutral/950 @ 75%
+    100: '#fcf0ce', 200: '#f6dc95', 300: '#fbc532', 400: '#f0ab0a',
+    500: '#e09600', 600: '#cf8002', 700: '#b16706', 800: '#934f06',
+    900: '#6b3606', 1000: '#331702',
   },
 };
 
 // ── shadow: elevation effect style → RN 호환 props로 변환 ─────────
 // elevation/middleDown: Drop shadow, X0 Y4, Blur 15, Spread 0,
-// color=overlay/weak (neutral/950 #1e2125 @ 20% → shadowColor + shadowOpacity로 분리)
+// color=overlay/weak (neutral/1000 #17191c @ 20% → shadowColor + shadowOpacity로 분리)
 export const shadow = {
   // elevation/weakDown: Drop shadow, X0 Y4, Blur 15, Spread 0, color=overlay @ 10%
   weakDown: {
-    shadowColor: '#1e2125',
+    shadowColor: '#17191c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 15,
@@ -51,7 +47,7 @@ export const shadow = {
   },
 
   middleDown: {
-    shadowColor: '#1e2125',
+    shadowColor: '#17191c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 15,
@@ -59,7 +55,7 @@ export const shadow = {
   },
 
   middleUp: {
-    shadowColor: palette.neutral[950],
+    shadowColor: palette.neutral[1000],
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.2,
     shadowRadius: 15,
@@ -68,66 +64,70 @@ export const shadow = {
 };
 
 // ── colors: Color System의 시맨틱 토큰, palette 참조를 실제 값으로 resolve ──
+// 투명도가 있는 토큰은 '#rrggbb' + 알파 hex로 표현 (8% → 14, 13% → 21, 25% → 40, 50% → 80, 75% → bf)
 export const colors = {
-  // ── background ──
-  bgLayerBasement: palette.neutral[100],
-  bgLayerCanvas: palette.neutral[50],
-  bgLayerDefault: palette.neutral[0],
-  bgLayerDefaultPressed: palette.neutral[100],
-  bgNeutralSolid: palette.neutral[950],
-  bgNeutralFaint: palette.neutral[100],
-  bgNeutralFaintPressed: palette.neutral[200],
+  // ── bg ──
+  bgLayerBase: palette.neutral[100],
+  bgLayerBase0: `${palette.neutral[100]}00`,
+  bgSurface: palette.neutral[0],
+  bgSurface0: `${palette.neutral[0]}00`,
   bgNeutralInverted: palette.neutral[900],
-  bgNeutralInvertedPressed: palette.neutral[800],
-  bgDisabled: palette.neutral[200],
-  bgCriticalSolid: palette.red[400],
-  bgCriticalSolidPressed: palette.red[500],
-  bgPositiveSolid: palette.green[400],
-  bgPositiveSolidPressed: palette.green[500],
-  bgWarningSolid: palette.yellow[300],
-  bgWarningSolidPressed: palette.yellow[400],
-  bgInfoSolid: palette.blue[500],
-  bgInfoSolidPressed: palette.blue[600],
-  bgInfoWeak: palette.blue[50],
-  bgInfoWeakPressed: palette.blue[100],
-  bgOverlay: palette.overlay.strong,
-  bgOverlayMuted: palette.overlay.default,
+  bgDimmedStrong: '#000000bf',
+  bgDimmed: '#00000080',
+  bgDimmedWeak: '#00000040',
+
+  // ── fill ──
+  fillNeutral: palette.neutral[1000],
+  fillNeutralPress: palette.neutral[900],
+  fillNeutralWeak: `${palette.neutral.alpha}14`,
+  fillNeutralWeakPress: `${palette.neutral.alpha}21`,
+  fillSurface: palette.neutral[0],
+  fillSurfacePress: palette.neutral[100],
+  fillInfo: palette.blue[700],
+  fillInfoPress: palette.blue[800],
+  fillInfoWeak: palette.blue[100],
+  fillInfoWeakPress: palette.blue[200],
+  fillPositive: palette.green[600],
+  fillPositivePress: palette.green[700],
+  fillPositiveWeak: palette.green[100],
+  fillPositiveWeakPress: palette.green[200],
+  fillCritical: palette.red[600],
+  fillCriticalPress: palette.red[700],
+  fillCriticalWeak: palette.red[100],
+  fillCriticalWeakPress: palette.red[200],
+  fillWarning: palette.yellow[700],
+  fillWarningPress: palette.yellow[800],
+  fillWarningWeak: palette.yellow[100],
+  fillWarningWeakPress: palette.yellow[200],
 
   // ── stroke ──
-  strokeNeutralMuted: palette.neutral[800],
-  strokeNeutralSolid: palette.neutral[950],
-  strokeNeutralWeak: palette.neutral[300],
-  strokeNeutralFaint: palette.neutral[200],
-  strokeNeutralSubtle: palette.neutral[400],
-  strokeCriticalSolid: palette.red[700],
-  strokeCriticalWeak: palette.red[300],
-  strokePositiveSolid: palette.green[700],
-  strokePositiveWeak: palette.green[300],
-  strokeWarningSolid: palette.yellow[700],
-  strokeWarningWeak: palette.yellow[300],
-  strokeInformativeSolid: palette.blue[700],
-  strokeInformativeWeak: palette.blue[200],
+  strokeNeutralPrimary: palette.neutral[1000],
+  strokeNeutralSecondary: palette.neutral[600],
+  strokeNeutralTertiary: palette.neutral[300],
+  strokeNeutralQuaternary: palette.neutral[200],
+  strokeInfo: palette.blue[700],
+  strokePositive: palette.green[800],
+  strokeCritical: palette.red[700],
+  strokeWarning: palette.yellow[700],
   strokeFocusRing: palette.blue[500],
 
-  // ── foreground ──
-  fgNeutralSolid: palette.neutral[950],
-  fgNeutralMuted: palette.neutral[800],
-  fgNeutralSubtle: palette.neutral[700],
-  fgNeutralWeak: palette.neutral[500],
-  fgNeutralFaint: palette.neutral[300],
+  // ── fg ──
+  fgNeutralPrimary: palette.neutral[1000],
+  fgNeutralSecondary: palette.neutral[800],
+  fgNeutralTertiary: palette.neutral[600],
+  fgNeutralQuaternary: palette.neutral[500],
+  fgDisabled: palette.neutral[400],
   fgNeutralInverted: palette.neutral[0],
-  fgDisabled: palette.neutral[500],
-  fgPlaceholder: palette.neutral[600],
-  fgCritical: palette.red[500],
-  fgCriticalContrast: palette.red[700],
-  fgPositive: palette.green[500],
-  fgPositiveContrast: palette.green[700],
+  fgInfo: palette.blue[700],
+  fgInfoInverted: palette.blue[400],
+  fgPositive: palette.green[700],
+  fgPositiveInverted: palette.green[300],
+  fgCritical: palette.red[700],
+  fgCriticalInverted: palette.red[500],
   fgWarning: palette.yellow[700],
-  fgWarningContrast: palette.yellow[900],
-  fgInformative: palette.blue[500],
-  fgInformativeContrast: palette.blue[700],
-  fgLike: palette.pink[400],
-  fgBookmark: palette.blue[300],
+  fgWarningInverted: palette.yellow[300],
+  fgLikeActive: palette.pink[500],
+  fgBookmarkActive: palette.blue[500],
 };
 
 // '#rrggbb' 또는 '#rrggbbaa' 색을 같은 색의 완전 투명(알파 00)으로 바꾼다.

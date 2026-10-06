@@ -76,7 +76,7 @@ const GenreScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
   container: {
     paddingTop: padding.L,

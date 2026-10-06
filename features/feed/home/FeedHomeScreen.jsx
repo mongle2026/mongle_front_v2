@@ -274,12 +274,12 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     position: 'relative',
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
   topSafeArea: {
     width: '100%',
     zIndex: 10,
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
   postList: {
     flexGrow: 1,

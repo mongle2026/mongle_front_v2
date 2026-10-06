@@ -142,7 +142,7 @@ const TYPOGRAPHY_STYLES = {
 const VARIANT_STYLES = {
   [SOLID]: {
     container: {
-      backgroundColor: colors.bgNeutralSolid,
+      backgroundColor: colors.fillNeutral,
       borderWidth: 0,
     },
 
@@ -155,17 +155,17 @@ const VARIANT_STYLES = {
     container: {
       backgroundColor: 'transparent',
       borderWidth: 1,
-      borderColor: colors.strokeNeutralSolid,
+      borderColor: colors.strokeNeutralPrimary,
     },
 
     text: {
-      color: colors.fgNeutralSolid,
+      color: colors.fgNeutralPrimary,
     },
   },
 
   [NEUTRAL_WEAK]: {
     container: {
-      backgroundColor: colors.bgNeutralFaint,
+      backgroundColor: colors.fillNeutralWeak,
       borderWidth: 0,
     },
 
@@ -173,22 +173,22 @@ const VARIANT_STYLES = {
 
     textBySize: {
       [M]: {
-        color: colors.fgNeutralSubtle,
+        color: colors.fgNeutralTertiary,
       },
 
       [L]: {
-        color: colors.fgNeutralSubtle,
+        color: colors.fgNeutralTertiary,
       },
 
       [XL]: {
-        color: colors.fgNeutralSubtle,
+        color: colors.fgNeutralTertiary,
       },
     },
   },
 
   [CRITICAL]: {
     container: {
-      backgroundColor: colors.bgCriticalSolid,
+      backgroundColor: colors.fillCritical,
       borderWidth: 0,
     },
 
@@ -199,18 +199,18 @@ const VARIANT_STYLES = {
 
   [BG_INFO_WEAK]: {
     container: {
-      backgroundColor: colors.bgInfoWeak,
+      backgroundColor: colors.fillInfoWeak,
       borderWidth: 0,
     },
 
     text: {
-      color: colors.fgInformativeContrast,
+      color: colors.fgInfo,
     },
   },
 
   [DISABLED]: {
     container: {
-      backgroundColor: colors.bgNeutralFaint,
+      backgroundColor: colors.fillNeutralWeak,
       borderWidth: 0,
     },
 

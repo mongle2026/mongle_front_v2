@@ -87,7 +87,7 @@ const ActionBar = ({
           <LabeledButton
             size="M"
             icon={IcComment}
-            iconColor={colors.fgNeutralWeak}
+            iconColor={colors.fgNeutralQuaternary}
             onPress={onCommentPress}
             accessibilityLabel="댓글"
             style={styles.actionButton}
@@ -101,8 +101,8 @@ const ActionBar = ({
             isActive={isLiked}
             activeIcon={IcHeartFill}
             inactiveIcon={IcHeartStroke}
-            activeColor={colors.fgLike}
-            inactiveColor={colors.fgNeutralWeak}
+            activeColor={colors.fgLikeActive}
+            inactiveColor={colors.fgNeutralQuaternary}
             animationType={ANIMATION_TYPE.LIKE}
             disabled={likeDisabled}
             onPress={onLikePress}
@@ -120,8 +120,8 @@ const ActionBar = ({
             isActive={isBookmarked}
             activeIcon={IcBookmarkFill}
             inactiveIcon={IcBookmarkStroke}
-            activeColor={colors.fgBookmark}
-            inactiveColor={colors.fgNeutralWeak}
+            activeColor={colors.fgBookmarkActive}
+            inactiveColor={colors.fgNeutralQuaternary}
             animationType={ANIMATION_TYPE.BOOKMARK}
             onPress={onBookmarkPress}
             accessibilityLabel={
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     paddingVertical: padding.XS,
     paddingHorizontal: padding.L,
 
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   date: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
 
-    color: colors.fgPlaceholder,
+    color: colors.fgNeutralTertiary,
     textAlign: 'justify',
   },
 

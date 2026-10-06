@@ -110,7 +110,7 @@ const RecordScreen = ({ navigation, route }) => {
   const hasRecipient = !isLetter || Boolean(receiver);
   const hasDeliveryDate = !isLetter || Boolean(deliveryAt);
   const isNextReady = hasMusic && hasContent && hasRecipient && hasDeliveryDate;
-  const nextTextColor = isNextReady ? colors.fgNeutralMuted : colors.fgDisabled;
+  const nextTextColor = isNextReady ? colors.fgNeutralSecondary : colors.fgDisabled;
 
   /* 작성 중인 값이 하나라도 있는지 (뒤로가기 시 확인 Dialog 노출 여부) */
   const hasWrittenAnything =
@@ -278,9 +278,9 @@ const RecordScreen = ({ navigation, route }) => {
             icon={<IcProfile />}
             label="수신인 선택"
             typography={typo.suitLabelLargeStrong}
-            color={colors.fgNeutralMuted}
-            iconColor={colors.fgNeutralMuted}
-            backgroundColor={colors.bgNeutralFaint}
+            color={colors.fgNeutralSecondary}
+            iconColor={colors.fgNeutralSecondary}
+            backgroundColor={colors.fillNeutralWeak}
             onPress={handleOpenRecipientSelect}
           />
         )}
@@ -301,8 +301,8 @@ const RecordScreen = ({ navigation, route }) => {
             icon={<IcCalendar />}
             label="도착일 선택"
             typography={typo.suitLabelLargeStrong}
-            color={colors.fgNeutralMuted}
-            backgroundColor={colors.bgNeutralFaint}
+            color={colors.fgNeutralSecondary}
+            backgroundColor={colors.fillNeutralWeak}
             onPress={handleOpenDateSelect}
             style={styles.dateSelectButton}
           />
@@ -345,7 +345,7 @@ export default RecordScreen;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
   recipientAndDateContainer: {
     width: '100%',
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     gap: gap.S,
   },
   dateText: {
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     includeFontPadding: false,
   },
   dividerContainer: {

@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: padding.L,
     flexDirection: 'column',
     alignItems: 'stretch',
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   container: {

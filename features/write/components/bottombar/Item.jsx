@@ -58,6 +58,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.M,
   },
   text: {
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
 });

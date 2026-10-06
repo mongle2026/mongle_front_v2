@@ -294,14 +294,14 @@ const CommentBar = ({
               : '댓글을 남겨보세요.'
           }
           placeholderTextColor={
-            colors.fgPlaceholder
+            colors.fgNeutralTertiary
           }
           multiline
           scrollEnabled={
             inputHeight >= INPUT_MAX_HEIGHT
           }
           textAlignVertical="top"
-          selectionColor={colors.fgNeutralSolid}
+          selectionColor={colors.fgNeutralPrimary}
           style={[
             styles.input,
             {
@@ -361,7 +361,7 @@ const CommentBar = ({
           <IconButton
             size="M"
             icon={IcArrowUp}
-            color={colors.fgNeutralSolid}
+            color={colors.fgNeutralPrimary}
             onPress={handleSubmit}
             disabled={isSubmitDisabled}
             accessibilityLabel="댓글 등록"
@@ -384,9 +384,9 @@ const styles = StyleSheet.create({
     gap: gap.M,
 
     borderTopWidth: 0.5,
-    borderTopColor: colors.strokeNeutralSubtle,
+    borderTopColor: colors.strokeNeutralTertiary,
 
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   // 기본 상태
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
 
     overflow: 'hidden',
 
-    color: colors.fgPlaceholder,
+    color: colors.fgNeutralTertiary,
     textAlign: 'justify',
   },
 
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     margin: 0,
 
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     textAlign: 'justify',
   },
 
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
 
     flexShrink: 1,
 
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
     textAlign: 'justify',
   },
 
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
 
     flexShrink: 0,
 
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
     textAlign: 'justify',
   },
 
@@ -515,12 +515,12 @@ const styles = StyleSheet.create({
   currentCount: {
     ...typo.suitLabelMediumStrong,
 
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
     textAlign: 'right',
   },
 
   currentCountEmpty: {
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
   },
 
   currentCountCritical: {
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   maxCount: {
     ...typo.suitLabelMediumStrong,
 
-    color: colors.fgNeutralWeak,
+    color: colors.fgNeutralQuaternary,
     textAlign: 'right',
   },
 });

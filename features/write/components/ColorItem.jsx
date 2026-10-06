@@ -25,13 +25,13 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     borderRadius: 109,
     borderWidth: 1,
-    borderColor: colors.strokeNeutralWeak, // 밝은 컬러도 경계가 보이도록
-    backgroundColor: colors.strokeNeutralWeak, 
+    borderColor: colors.strokeNeutralTertiary, // 밝은 컬러도 경계가 보이도록
+    backgroundColor: colors.strokeNeutralTertiary, 
     overflow: 'hidden',
   },
   itemActive: {
     borderWidth: 1.6,
-    borderColor: colors.strokeNeutralSubtle, 
+    borderColor: colors.strokeNeutralTertiary, 
     opacity: 0.7,
   },
 });

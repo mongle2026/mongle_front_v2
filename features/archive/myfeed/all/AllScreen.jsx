@@ -268,8 +268,8 @@ const AllScreen = ({ navigation, route }) => {
         value={keyword}
         onChangeText={setKeyword}
         placeholder={SEARCH_PLACEHOLDER}
-        backgroundColor={colors.bgLayerBasement}
-        fieldBackgroundColor={colors.bgNeutralFaintPressed}
+        backgroundColor={colors.bgLayerBase}
+        fieldBackgroundColor={colors.fillNeutralWeakPress}
         collapsed={isSearchFieldCollapsed}
         returnKeyType="search"
         autoCorrect={false}
@@ -303,7 +303,7 @@ const AllScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
   // BottomSheet를 화면 전체 위에 띄운다
   monthSelectOverlay: {
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   topNavigation: {
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
   // 목록이 검색창 하단 그라데이션 밑으로 들어가도록 그 높이만큼 끌어올린다 (패딩으로 처음 위치는 되돌림)
   list: {

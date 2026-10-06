@@ -297,7 +297,7 @@ const Calendar = ({
         <IconButton
           size="M"
           icon={IcArrowLeft}
-          color={colors.fgNeutralSubtle}
+          color={colors.fgNeutralTertiary}
           onPress={handlePressPrevious}
           disabled={isFirstMonth}
           accessibilityLabel="이전 달"
@@ -311,7 +311,7 @@ const Calendar = ({
         <IconButton
           size="M"
           icon={IcArrowRight}
-          color={colors.fgNeutralSubtle}
+          color={colors.fgNeutralTertiary}
           onPress={handlePressNext}
           disabled={isLastMonth}
           accessibilityLabel="다음 달"
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
 
   monthLabel: {
     ...typo.suitLabelXLargeStrong,
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },
 

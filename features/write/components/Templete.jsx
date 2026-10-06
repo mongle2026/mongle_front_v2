@@ -67,15 +67,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.XS, 
     borderWidth: 1.6,
     borderColor: 'transparent', 
-    backgroundColor: colors.bgLayerDefault, 
+    backgroundColor: colors.bgSurface, 
   },
   containerActive: {
-    borderColor: colors.strokeNeutralSubtle, 
-    backgroundColor: colors.bgLayerDefaultPressed, 
+    borderColor: colors.strokeNeutralTertiary, 
+    backgroundColor: colors.fillSurfacePress, 
   },
   label: {
     alignSelf: 'stretch',
-    color: colors.fgNeutralSolid, 
+    color: colors.fgNeutralPrimary, 
     ...typo.suitLabelLarge, 
   },
   previewRow: {
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   slot: {
     height: PREVIEW_HEIGHT,
     borderRadius: radius.XS, 
-    backgroundColor: colors.strokeNeutralWeak, // 이미지 로딩 전 lightgray 대체
+    backgroundColor: colors.strokeNeutralTertiary, // 이미지 로딩 전 lightgray 대체
     overflow: 'hidden',
   },
   patternSlot: {

@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     height: '100%',
 
     backgroundColor:
-      colors.bgOverlayMuted,
+      colors.bgDimmed,
   },
 });
 

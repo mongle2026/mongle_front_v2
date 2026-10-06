@@ -33,8 +33,8 @@ const GridCard = ({ title, imageSource, onPress, style }) => {
       <IcArrowRight
         width={ICON_SIZE}
         height={ICON_SIZE}
-        color={colors.fgNeutralFaint}
-        fill={colors.fgNeutralFaint}
+        color={colors.fgDisabled}
+        fill={colors.fgDisabled}
       />
     </Pressable>
   );
@@ -47,12 +47,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: gap.M,
     borderRadius: radius.S,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
   label: {
     flex: 1,
     ...typo.suitLabelMediumStrong,
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
   },
 });
 

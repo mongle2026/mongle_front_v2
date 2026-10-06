@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stateText: {
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
   },
 });
 

@@ -26,7 +26,7 @@ const BottomBarActions = ({
         <IconButton
           size="L"
           icon={IcImage}
-          color={colors.fgNeutralMuted}
+          color={colors.fgNeutralSecondary}
           onPress={onPressImage}
           disabled={imageDisabled}
           accessibilityLabel="이미지 추가"
@@ -35,7 +35,7 @@ const BottomBarActions = ({
         <IconButton
           size="L"
           icon={IcFont}
-          color={colors.fgNeutralMuted}
+          color={colors.fgNeutralSecondary}
           onPress={onPressFont}
           accessibilityLabel="폰트 선택"
         />
@@ -45,7 +45,7 @@ const BottomBarActions = ({
         <IconButton
           size="L"
           icon={IcHideKeyboard}
-          color={colors.fgNeutralMuted}
+          color={colors.fgNeutralSecondary}
           onPress={onPressHideKeyboard}
           accessibilityLabel="키보드 숨기기"
         />
@@ -67,7 +67,7 @@ const FontSelector = ({
       <IconButton
         size="L"
         icon={IcArrowLeft}
-        color={colors.fgNeutralWeak}
+        color={colors.fgNeutralQuaternary}
         onPress={onPressBack}
         accessibilityLabel="폰트 선택 닫기"
       />
@@ -150,10 +150,10 @@ const styles = StyleSheet.create({
 
     borderTopWidth: 0.5,
     borderTopColor:
-      colors.strokeNeutralSubtle,
+      colors.strokeNeutralTertiary,
 
     backgroundColor:
-      colors.bgLayerDefault,
+      colors.bgSurface,
   },
 
   barActions: {

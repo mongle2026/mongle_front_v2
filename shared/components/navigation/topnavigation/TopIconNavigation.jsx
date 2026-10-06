@@ -61,7 +61,7 @@ const TopIconNavigation = ({
         <View style={styles.textContent}>
           <IconButton
             icon={leftIcon}
-            color={colors.fgNeutralMuted}
+            color={colors.fgNeutralSecondary}
             size="M"
             onPress={onPressClose}
             accessibilityLabel={leftAccessibilityLabel}
@@ -87,7 +87,7 @@ const TopIconNavigation = ({
               <IcChevron
                 width={16}
                 height={16}
-                color={colors.fgNeutralSolid}
+                color={colors.fgNeutralPrimary}
               />
             )}
           </Pressable>
@@ -108,7 +108,7 @@ const TopIconNavigation = ({
 
               {isNextLoading && (
                 <View style={styles.nextLoading}>
-                  <ActivityIndicator color={colors.fgNeutralMuted} />
+                  <ActivityIndicator color={colors.fgNeutralSecondary} />
                 </View>
               )}
             </View>
@@ -128,7 +128,7 @@ const TopIconNavigation = ({
         <>
           <IconButton
             icon={leftIcon}
-            color={colors.fgNeutralMuted}
+            color={colors.fgNeutralSecondary}
             size="M"
             onPress={onPressClose}
             accessibilityLabel={leftAccessibilityLabel}
@@ -138,7 +138,7 @@ const TopIconNavigation = ({
             {showShare && (
               <IconButton
                 icon={IcShare}
-                color={colors.fgNeutralSolid}
+                color={colors.fgNeutralPrimary}
                 size="XL"
                 onPress={onPressShare}
                 accessibilityLabel="공유하기"
@@ -148,7 +148,7 @@ const TopIconNavigation = ({
             {showMore && (
               <IconButton
                 icon={IcKebab}
-                color={colors.fgNeutralSolid}
+                color={colors.fgNeutralPrimary}
                 size="XL"
                 onPress={onPressMore}
                 accessibilityLabel="더보기"
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
 
     flexDirection: 'row',
 
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
 
   // type = icon
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   headerText: {
     ...typo.suitLabelXLargeStrong,
 
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },
 });

@@ -150,10 +150,10 @@ const GenreDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
   topNavigation: {
-    backgroundColor: colors.bgLayerBasement,
+    backgroundColor: colors.bgLayerBase,
   },
   // SafeAreaView의 paddingTop 영향 없이 onLayout y를 그대로 메뉴 top으로 쓰기 위한 래퍼
   content: {

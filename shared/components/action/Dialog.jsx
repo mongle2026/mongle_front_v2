@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: gap.L,
     borderRadius: radius.XL,
-    backgroundColor: colors.bgLayerDefault,
+    backgroundColor: colors.bgSurface,
   },
   illustrationContainer: {
     width: 200,
@@ -94,13 +94,13 @@ const styles = StyleSheet.create({
     ...typo.suitTitleXLargeStrong,
     fontSize: 20,
     lineHeight: 30,
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
     textAlign: 'center',
   },
   description: {
     alignSelf: 'stretch',
     ...typo.suitBodyLarge,
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
     textAlign: 'center',
   },
   buttonContainer: {

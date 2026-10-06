@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     width: PETAL_WIDTH,
     height: PETAL_LENGTH,
     borderRadius: PETAL_WIDTH / 2,
-    backgroundColor: colors.fgNeutralSubtle,
+    backgroundColor: colors.fgNeutralTertiary,
   },
 });
 

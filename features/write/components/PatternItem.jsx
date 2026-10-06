@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   item: {
     aspectRatio: 1,
     borderRadius: radius.XS,
-    backgroundColor: colors.strokeNeutralWeak, // 이미지 로딩 전 lightgray 대체
+    backgroundColor: colors.strokeNeutralTertiary, // 이미지 로딩 전 lightgray 대체
     overflow: 'hidden',
   },
   itemActive: {
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: radius.XS,
     borderWidth: 1.6,
-    borderColor: colors.strokeNeutralSubtle,
+    borderColor: colors.strokeNeutralTertiary,
   },
   placeholder: {
     width: '100%',

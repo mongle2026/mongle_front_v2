@@ -31,7 +31,7 @@ const COLLAPSED_TEXT_TOP = COLLAPSED_STAMP_HEIGHT + gap.L;
 const ESTIMATED_TEXT_HEIGHT = typo.suitTitleMedium.lineHeight + typo.suitBodyMedium.lineHeight;
 
 // Figma 지정값 (대응하는 색 토큰이 없음)
-const TITLE_COLOR = '#000000';
+const TITLE_COLOR = colors.fgNeutralPrimary;
 
 // 불러오기 전에도 줄 높이를 유지해 레이아웃이 튀지 않게 한다
 const EMPTY_TEXT = ' ';
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   },
   caption: {
     ...typo.suitBodyMedium,
-    color: colors.fgNeutralSubtle,
+    color: colors.fgNeutralTertiary,
   },
 });
 

@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     borderRadius: radius.XL,
-    backgroundColor: colors.bgOverlay,
+    backgroundColor: colors.bgDimmedStrong,
   },
 
   countText: {

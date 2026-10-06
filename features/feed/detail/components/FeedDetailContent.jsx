@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   contentText: {
     width: '100%',
     flexWrap: 'wrap',
-    color: colors.fgNeutralMuted,
+    color: colors.fgNeutralSecondary,
     textAlign: 'justify',
   },
 

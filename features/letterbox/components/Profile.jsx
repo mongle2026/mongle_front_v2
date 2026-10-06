@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
     borderRadius: radius.S,
-    backgroundColor: colors.fgNeutralFaint,
+    backgroundColor: colors.fillNeutralWeak,
   },
 
   badge: {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     borderRadius: radius.XL,
-    backgroundColor: colors.bgOverlay,
+    backgroundColor: colors.bgDimmedStrong,
   },
 
   badgeText: {
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   name: {
     ...typo.suitLabelMedium,
     alignSelf: 'stretch',
-    color: colors.fgNeutralSolid,
+    color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },
 });
