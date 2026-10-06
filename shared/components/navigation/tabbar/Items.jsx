@@ -20,7 +20,6 @@ const Items = ({
       accessibilityState={{ selected: isActive }}
       style={[
         styles.container,
-        isActive ? styles.containerActive : styles.containerInactive,
         style,
       ]}
     >
@@ -47,16 +46,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: padding.M,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  containerInactive: {
+    // 활성 탭의 검은 밑줄은 TabBar 가 이 줄 위에 겹쳐 그리고, 탭을 바꿀 때 옆으로 움직인다
     borderBottomWidth: 1,
     borderBottomColor: colors.strokeNeutralTertiary,
-  },
-
-  containerActive: {
-    borderBottomWidth: 1.5,
-    borderBottomColor: colors.strokeNeutralPrimary,
   },
 
   inner: {

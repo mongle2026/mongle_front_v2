@@ -9,7 +9,7 @@ import IcCalendar from '../../../assets/icons/ic_calendar.svg';
 // Shared Components & Providers
 import { DividerLine } from '../../../shared/components/atomic/DividerLine';
 import Profile from '../../../shared/components/content/profile/Profile';
-import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 // Shared Hooks & Utils
@@ -317,7 +317,7 @@ const RecordScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <TopIconNavigation
+      <TopSubNavigation
         type="text"
         headerText={isLetter ? '편지 작성하기' : '피드 작성하기'}
         nextText={isLetter ? '다음' : '게시'}

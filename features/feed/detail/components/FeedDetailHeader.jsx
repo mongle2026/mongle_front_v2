@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import Menu from '../../../../shared/components/action/menu/Menu';
 
 import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
@@ -28,7 +28,7 @@ const FeedDetailHeader = ({
     style={styles.topSafeArea}
   >
     <View style={styles.topNavigationContainer}>
-      <TopIconNavigation
+      <TopSubNavigation
         leftIcon={IcArrowLeft}
         leftAccessibilityLabel="뒤로가기"
         onPressClose={onPressClose}

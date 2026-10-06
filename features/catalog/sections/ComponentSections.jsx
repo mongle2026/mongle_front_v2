@@ -48,7 +48,7 @@ import Toast from '../../../shared/components/feedback/Toast';
 
 import TabBar from '../../../shared/components/navigation/tabbar/TabBar';
 import Tabs from '../../../shared/components/navigation/tabs/Tabs';
-import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import TopNavigation from '../../../shared/components/navigation/topnavigation/TopNavigation';
 
 import { CatalogSection, Specimen } from '../components/Specimen';
@@ -409,13 +409,12 @@ const NavigationSection = () => {
     <CatalogSection title="Navigation">
       <Specimen name="TopNavigation" contentStyle={stretch}>
         <TopNavigation tabs={SAMPLE_TOP_TABS} activeTab={topTab} onChangeTab={setTopTab} onPressBell={noop} />
-        <TopNavigation tabs={SAMPLE_TOP_TABS} activeTab={topTab} onChangeTab={setTopTab} showProfile onPressProfile={noop} />
       </Specimen>
 
-      <Specimen name="TopIconNavigation" note="type: icon / text" contentStyle={stretch}>
-        <TopIconNavigation onPressClose={noop} onPressShare={noop} onPressMore={noop} />
-        <TopIconNavigation type="text" headerText="기록하기" onPressClose={noop} onPressNext={noop} />
-        <TopIconNavigation type="text" headerText="장르 선택" showChevron onPressHeader={noop} isNextLoading />
+      <Specimen name="TopSubNavigation" note="type: icon / text" contentStyle={stretch}>
+        <TopSubNavigation onPressClose={noop} onPressShare={noop} onPressMore={noop} />
+        <TopSubNavigation type="text" headerText="기록하기" onPressClose={noop} onPressNext={noop} />
+        <TopSubNavigation type="text" headerText="장르 선택" showChevron onPressHeader={noop} isNextLoading />
       </Specimen>
 
       <Specimen name="TabBar" contentStyle={stretch}>

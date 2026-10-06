@@ -8,7 +8,7 @@ import {
 import IcArrowLeft from '../../assets/icons/ic_arrow_left.svg';
 
 import Empty from '../../shared/components/content/Empty';
-import TopIconNavigation from '../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../shared/components/navigation/topnavigation/TopSubNavigation';
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../shared/components/navigation/tabs/Tabs';
 
 import { colors } from '../../shared/styles/color';
@@ -102,7 +102,7 @@ const NotificationScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <TopIconNavigation
+      <TopSubNavigation
         type="text"
         leftIcon={IcArrowLeft}
         leftAccessibilityLabel="뒤로가기"

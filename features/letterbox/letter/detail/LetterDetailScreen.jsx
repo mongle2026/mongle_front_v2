@@ -12,7 +12,7 @@ import { Button } from '../../../../shared/components/action/Button';
 import MusicCard from '../../../../shared/components/content/MusicCard';
 import LoadStateView from '../../../../shared/components/feedback/LoadStateView';
 import Profile from '../../../../shared/components/content/profile/Profile';
-import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 import useDeletedContentDialog, { isDeletedContentError } from '../../../../shared/hooks/useDeletedContentDialog';
 import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
@@ -225,7 +225,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
         <View style={styles.topNavigationContainer}>
-          <TopIconNavigation
+          <TopSubNavigation
             showShare={false}
             showMore={!canCancelSend}
             onPressClose={handlePressClose}

@@ -3,7 +3,7 @@ import { Keyboard, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Shared Components & Providers
-import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
@@ -151,7 +151,7 @@ const RecordEditScreen = ({ navigation, route }) => {
   if (isLoadingFeed || loadFeedError) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <TopIconNavigation
+        <TopSubNavigation
           type="text"
           headerText="피드 수정하기"
           nextText="완료"
@@ -169,7 +169,7 @@ const RecordEditScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <TopIconNavigation
+      <TopSubNavigation
         type="text"
         headerText="피드 수정하기"
         nextText="완료"

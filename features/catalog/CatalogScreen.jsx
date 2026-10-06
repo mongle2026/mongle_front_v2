@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '../../shared/styles/color';
-import TopIconNavigation from '../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../shared/components/navigation/topnavigation/TopSubNavigation';
 import TabBar from '../../shared/components/navigation/tabbar/TabBar';
 import Tabs from '../../shared/components/navigation/tabs/Tabs';
 import { FOUNDATION_SECTIONS } from './sections/FoundationSections';
@@ -39,7 +39,7 @@ const CatalogScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
-      <TopIconNavigation
+      <TopSubNavigation
         type="text"
         headerText="컴포넌트 카탈로그"
         showNext={false}

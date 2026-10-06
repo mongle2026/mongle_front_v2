@@ -14,7 +14,9 @@ import { colors } from '../../../styles/color';
 import { gap, padding } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
 
-const TopIconNavigation = ({
+// Figma 컴포넌트: navigation/TopSubNavigation (type icon / text)
+// 아이콘 버튼은 모두 IconButton L, 아이콘 색 fgNeutralPrimary
+const TopSubNavigation = ({
   type = 'icon',
 
   headerText = '',
@@ -61,8 +63,8 @@ const TopIconNavigation = ({
         <View style={styles.textContent}>
           <IconButton
             icon={leftIcon}
-            color={colors.fgNeutralSecondary}
-            size="M"
+            color={colors.fgNeutralPrimary}
+            size="L"
             onPress={onPressClose}
             accessibilityLabel={leftAccessibilityLabel}
           />
@@ -120,7 +122,7 @@ const TopIconNavigation = ({
               accessibilityElementsHidden
               importantForAccessibility="no-hide-descendants"
             >
-              <IconButton icon={leftIcon} size="M" />
+              <IconButton icon={leftIcon} size="L" />
             </View>
           )}
         </View>
@@ -128,8 +130,8 @@ const TopIconNavigation = ({
         <>
           <IconButton
             icon={leftIcon}
-            color={colors.fgNeutralSecondary}
-            size="M"
+            color={colors.fgNeutralPrimary}
+            size="L"
             onPress={onPressClose}
             accessibilityLabel={leftAccessibilityLabel}
           />
@@ -139,7 +141,7 @@ const TopIconNavigation = ({
               <IconButton
                 icon={IcShare}
                 color={colors.fgNeutralPrimary}
-                size="XL"
+                size="L"
                 onPress={onPressShare}
                 accessibilityLabel="공유하기"
               />
@@ -149,7 +151,7 @@ const TopIconNavigation = ({
               <IconButton
                 icon={IcKebab}
                 color={colors.fgNeutralPrimary}
-                size="XL"
+                size="L"
                 onPress={onPressMore}
                 accessibilityLabel="더보기"
               />
@@ -166,7 +168,7 @@ const styles = StyleSheet.create({
     width: '100%',
 
     paddingHorizontal: padding.L,
-    paddingBottom: padding.XS,
+    paddingVertical: padding.XS,
 
     flexDirection: 'row',
 
@@ -205,9 +207,9 @@ const styles = StyleSheet.create({
     opacity: 0,
   },
 
-  // ButtonText(alignSelf: flex-start)와 같은 위치에 오도록 맞춘다
+  // Figma: tail 안에서 세로 가운데 정렬
   nextContainer: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
   },
 
   nextLoading: {
@@ -218,7 +220,7 @@ const styles = StyleSheet.create({
   },
 
   headerTextContainer: {
-    paddingVertical: padding.L,
+    paddingVertical: padding.S,
 
     flexDirection: 'row',
     alignItems: 'center',
@@ -237,4 +239,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(TopIconNavigation);
+export default memo(TopSubNavigation);

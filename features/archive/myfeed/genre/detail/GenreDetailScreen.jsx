@@ -6,7 +6,7 @@ import IcArrowLeft from '../../../../../assets/icons/ic_arrow_left.svg';
 
 import ListControlBar from '../../../../../shared/components/action/ListControlBar';
 import Menu from '../../../../../shared/components/action/menu/Menu';
-import TopIconNavigation from '../../../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import useCurrentUser from '../../../../../shared/hooks/useCurrentUser';
 import useFeedMusicPlayback from '../../../../../shared/hooks/useFeedMusicPlayback';
 import { colors } from '../../../../../shared/styles/color';
@@ -111,7 +111,7 @@ const GenreDetailScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.content}>
-        <TopIconNavigation
+        <TopSubNavigation
           type="text"
           leftIcon={IcArrowLeft}
           leftAccessibilityLabel="뒤로가기"

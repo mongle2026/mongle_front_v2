@@ -7,7 +7,7 @@ import {
 
 import IcArrowLeft from '../../../assets/icons/ic_arrow_left.svg';
 
-import TopIconNavigation from '../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import TabBar from '../../../shared/components/navigation/tabbar/TabBar';
 import GridSpacers from '../../../shared/components/layout/GridSpacers';
 
@@ -113,7 +113,7 @@ const EnvelopeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <TopIconNavigation
+      <TopSubNavigation
         type="text"
         leftIcon={IcArrowLeft}
         leftAccessibilityLabel="뒤로가기"

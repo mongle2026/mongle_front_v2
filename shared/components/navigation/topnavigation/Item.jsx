@@ -5,6 +5,7 @@ import { colors } from '../../../styles/color';
 import { padding, radius } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
 
+// Figma 컴포넌트: navigation/TopNavigationItem (isActive)
 const Item = ({
   label,
   isActive = false,
@@ -35,13 +36,9 @@ const Item = ({
 
 const styles = StyleSheet.create({
   container: {
-    minWidth: 42,
-    height: 36,
-    alignSelf: 'flex-start',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: radius.XS,
-    backgroundColor: colors.bgBase,
   },
 
   label: {

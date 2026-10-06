@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
 
-import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 import { colors } from '../../../../shared/styles/color';
 import { gap, padding } from '../../../../shared/styles/token';
@@ -42,7 +42,7 @@ const GenreScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <TopIconNavigation
+      <TopSubNavigation
         type="text"
         leftIcon={IcArrowLeft}
         leftAccessibilityLabel="뒤로가기"

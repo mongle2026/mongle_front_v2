@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
 
 import SearchField, { SEARCH_FIELD_BOTTOM_FADE_HEIGHT } from '../../../../shared/components/action/SearchField';
-import TopIconNavigation from '../../../../shared/components/navigation/topnavigation/TopIconNavigation';
+import TopSubNavigation from '../../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import useCollapseOnScroll from '../../../../shared/hooks/useCollapseOnScroll';
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 import useDebouncedValue from '../../../../shared/hooks/useDebouncedValue';
@@ -252,7 +252,7 @@ const AllScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <TopIconNavigation
+      <TopSubNavigation
         type="text"
         leftIcon={IcArrowLeft}
         leftAccessibilityLabel="뒤로가기"

@@ -24,7 +24,7 @@ const ARCHIVE_TAB_LABELS = ARCHIVE_TABS.map(tab => tab.label);
 
 // route.params.tab 으로 열 탭을 지정할 수 있다 (예: 북마크 토스트의 '이동' → ARCHIVE_TAB.BOOKMARK)
 const ArchiveScreen = ({ navigation, route }) => {
-  const { currentUser, userId } = useCurrentUser();
+  const { userId } = useCurrentUser();
   const queryClient = useQueryClient();
 
   const routeTab = route?.params?.tab;
@@ -79,8 +79,7 @@ const ArchiveScreen = ({ navigation, route }) => {
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
         <TopNavigation
           tabs={ARCHIVE_TOP_NAVIGATION_TABS}
-          showProfile
-          profileImageUri={currentUser?.profileImageUri}
+          showButton={false}
         />
       </SafeAreaView>
 
