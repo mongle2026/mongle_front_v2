@@ -161,17 +161,17 @@ const FAB = ({
           style={[styles.expandedRow, expandedRowAnimatedStyle]}
         >
           <ExpandedActionButton
-            icon={LetterIcon}
-            label="편지 작성"
-            accessibilityLabel="편지 작성"
-            onPress={handleLetterPress}
-          />
-
-          <ExpandedActionButton
             icon={FeedIcon}
             label="피드 작성"
             accessibilityLabel="피드 작성"
             onPress={handleFeedPress}
+          />
+
+          <ExpandedActionButton
+            icon={LetterIcon}
+            label="편지 작성"
+            accessibilityLabel="편지 작성"
+            onPress={handleLetterPress}
           />
         </Animated.View>
       )}
