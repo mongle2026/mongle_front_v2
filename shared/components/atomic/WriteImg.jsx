@@ -52,7 +52,7 @@ export const WriteImg = memo(
           { aspectRatio },
           style,
         ]}
-        borderRadius={2}
+        borderRadius={radius.M}
         halftoneOptions={WRITE_IMG_HALFTONE_OPTIONS}
         textureOptions={WRITE_IMG_TEXTURE_OPTIONS}
       />
@@ -67,6 +67,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-    borderRadius: radius.XS,
+    borderRadius: radius.M,
   },
 });

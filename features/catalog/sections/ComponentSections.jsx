@@ -207,8 +207,11 @@ const ActionSection = () => {
         </View>
       </Specimen>
 
-      <Specimen name="ButtonText / ContainerButton" contentStyle={stretch}>
+      <Specimen name="ButtonText">
         <ButtonText text="ButtonText" onPress={noop} />
+      </Specimen>
+
+      <Specimen name="ContainerButton" contentStyle={stretch} dark>
         <ContainerButton label="ContainerButton" onPress={noop} />
       </Specimen>
 
@@ -231,7 +234,13 @@ const ActionSection = () => {
           />
           <Menu showEdit={false} deleteDisabled />
         </View>
-        <MenuItem icon={IcPencil} label="Menu Item 단독" onPress={noop} />
+      </Specimen>
+
+      <Specimen name="Menu Item" note="아이콘 있음 / 없음 · color · disabled" contentStyle={stretch} dark>
+        <MenuItem icon={IcPencil} label="수정" onPress={noop} />
+        <MenuItem label="최신순" onPress={noop} />
+        <MenuItem icon={IcTrash} label="삭제" color={colors.fgCritical} onPress={noop} />
+        <MenuItem icon={IcTrash} label="삭제" color={colors.fgCritical} disabled />
       </Specimen>
 
       <Specimen name="FAB" note="닫힘 / 열림 (open 고정)" contentStyle={stretch} dark>
@@ -267,10 +276,14 @@ const AtomicSection = () => (
       </View>
     </Specimen>
 
-    <Specimen name="MusicCoverImg / CdCover" note="Skia 하프톤 효과">
+    <Specimen name="MusicCoverImg" note="size M (72) · Skia 하프톤 효과">
+      <MusicCoverImg imageSource={SampleCover} />
+    </Specimen>
+
+    <Specimen name="CdCover" note="size 자유 · 이미지 없으면 neutral/300 · 효과 없음">
       <View style={styles.row}>
-        <MusicCoverImg imageSource={SampleCover} />
         <CdCover size={72} imageUri={SAMPLE_IMAGE_URI} />
+        <CdCover size={72} />
       </View>
     </Specimen>
 
