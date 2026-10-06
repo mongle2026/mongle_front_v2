@@ -9,20 +9,20 @@ import IcMusicStop from '../../../assets/icons/ic_musicstop.svg';
 import { colors } from '../../styles/color';
 import { FONT } from '../../styles/fontType';
 import usePressAnimation from '../../hooks/usePressAnimation';
-import { gap, padding } from '../../styles/token';
+import { gap, padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
 import MusicCoverImg from '../atomic/MusicCoverImg';
 import FontFallbackText from '../atomic/FontFallbackText';
 
 const TITLE_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboLabelLarge,
-  [FONT.SUIT]: typo.suitLabelLarge,
+  [FONT.KYOBO]: typo.kyoboLabelXLarge,
+  [FONT.SUIT]: typo.suitLabelXLarge,
 });
 
 const ARTIST_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboLabelMedium,
-  [FONT.SUIT]: typo.suitLabelMedium,
+  [FONT.KYOBO]: typo.kyoboLabelLarge,
+  [FONT.SUIT]: typo.suitLabelLarge,
 });
 
 const PLAY_ICON_SIZE = 20;
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     alignItems: 'flex-start',
-    gap: padding.XS,
+    gap: gap.S,
   },
 
   title: {
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: padding.L,
-    borderRadius: 999,
+    borderRadius: radius[999],
     backgroundColor: colors.fillNeutralWeak,
   },
 
