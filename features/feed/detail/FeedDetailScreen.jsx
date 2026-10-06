@@ -240,6 +240,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
         closeOnDimPress: true,
         closeOnBackPress: true,
         accessibilityLabel: '사진 크게 보기 닫기',
+        dimStyle: styles.imageViewerDim,
         contentContainerStyle: styles.imageViewerOverlay,
         renderContent: () => <ImageViewer imageSource={imageSource} />,
       });
@@ -552,6 +553,10 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     width: '100%',
+  },
+
+  imageViewerDim: {
+    backgroundColor: colors.bgDimmedStrong,
   },
 
   imageViewerOverlay: {
