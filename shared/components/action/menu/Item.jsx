@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     // 메뉴 폭만큼 채워서 항목마다 배경이 끝까지 칠해지고, 내용은 가운데에 온다
     alignSelf: 'stretch',
     paddingVertical: padding.XL,
-    paddingHorizontal: padding.XXXL,
+    paddingHorizontal: padding.XXL,
     justifyContent: 'center',
     alignItems: 'center',
     gap: gap.M,

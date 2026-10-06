@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { StyleSheet, Text, View, } from 'react-native';
 
 import ProfileImg from '../../atomic/ProfileImg';
-import { TextButton, TEXT_BUTTON_VARIANT } from '../../action/TextButton';
+import { Button, BUTTON_VARIANT } from '../../action/Button';
 import FontFallbackText from '../../atomic/FontFallbackText';
 
 import { colors } from '../../../styles/color';
@@ -46,8 +46,8 @@ const Profile = ({
   imageSize = 'M',
   username,
   onPress,
-  // username 버튼 TextButton variant. 보관함 북마크에서 팔로우한 사람은 Solid
-  variant = TEXT_BUTTON_VARIANT.GHOST,
+  // username 버튼 Button variant. 보관함 북마크에서 팔로우한 사람은 Solid
+  variant = BUTTON_VARIANT.GHOST,
 
   // Letter
   recipientName,
@@ -173,7 +173,7 @@ const Profile = ({
         onLayout={handleUsernameLayout}
         style={styles.usernameButtonArea}
       >
-        <TextButton
+        <Button
           variant={variant}
           font={font}
           onPress={onPress}
@@ -185,7 +185,7 @@ const Profile = ({
           textStyle={textStyle}
         >
           {profileId}
-        </TextButton>
+        </Button>
       </View>
     </View>
   );
@@ -211,9 +211,9 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
 
-  // 회전은 border를 가진 TextButton 자신에게 걸어야 합니다.
+  // 회전은 border를 가진 Button 자신에게 걸어야 합니다.
   usernameButton: {
-    // TextButton의 기본 width: '100%'를 덮어씁니다.
+    // Button의 기본 width: '100%'를 덮어씁니다.
     width: 'auto',
 
     overflow: 'hidden',

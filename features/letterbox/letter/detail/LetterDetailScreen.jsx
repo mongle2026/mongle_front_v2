@@ -8,7 +8,7 @@ import IlDialogDeletedletter from '../../../../assets/illustrations/il_dialog_de
 
 import { Dialog } from '../../../../shared/components/action/Dialog';
 import Menu from '../../../../shared/components/action/menu/Menu';
-import { TextButton } from '../../../../shared/components/action/TextButton';
+import { Button } from '../../../../shared/components/action/Button';
 import MusicCard from '../../../../shared/components/content/MusicCard';
 import LoadStateView from '../../../../shared/components/feedback/LoadStateView';
 import Profile from '../../../../shared/components/content/profile/Profile';
@@ -310,7 +310,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
           {/* 답장은 받은 편지에서만 */}
           {letter.isReceiver && (
             <View style={[styles.buttonContainer, { paddingBottom: padding.XXL + insets.bottom }]}>
-              <TextButton
+              <Button
                 variant="Solid"
                 size="XL"
                 font={FONT.SUIT}
@@ -318,15 +318,15 @@ const LetterDetailScreen = ({ navigation, route }) => {
                 style={styles.bottomButton}
               >
                 {`${letter.sender.nickname}에게 답장하기`}
-              </TextButton>
+              </Button>
             </View>
           )}
 
           {/* 전송 취소는 아직 도착하지 않은 보낸 편지에서만 */}
           {canCancelSend && (
             <View style={[styles.buttonContainer, { paddingBottom: padding.XXL + insets.bottom }]}>
-              <TextButton
-                variant="NeutralWeak"
+              <Button
+                variant="Weak"
                 size="XL"
                 font={FONT.SUIT}
                 disabled={isDeletingLetter}
@@ -334,7 +334,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
                 style={styles.bottomButton}
               >
                 전송 취소
-              </TextButton>
+              </Button>
             </View>
           )}
         </View>

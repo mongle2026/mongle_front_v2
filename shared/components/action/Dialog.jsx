@@ -5,7 +5,7 @@ import { gap, padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 import { FONT } from '../../styles/fontType';
 
-import { TextButton, TEXT_BUTTON_SIZE, TEXT_BUTTON_VARIANT } from './TextButton';
+import { Button, BUTTON_SIZE, BUTTON_VARIANT } from './Button';
 import IlDialogDelete from '../../../assets/illustrations/il_dialog_delete.svg';
 
 /*
@@ -17,7 +17,7 @@ export const Dialog = ({
   description,
   cancelText = '닫기',
   confirmText = '삭제',
-  confirmVariant = TEXT_BUTTON_VARIANT.CRITICAL,
+  confirmVariant = BUTTON_VARIANT.CRITICAL,
   onCancel,
   onConfirm,
   style,
@@ -38,26 +38,26 @@ export const Dialog = ({
       </View>
 
       <View style={styles.buttonContainer}>
-        <TextButton
-          variant={TEXT_BUTTON_VARIANT.NEUTRAL_WEAK}
-          size={TEXT_BUTTON_SIZE.L}
+        <Button
+          variant={BUTTON_VARIANT.WEAK}
+          size={BUTTON_SIZE.L}
           font={FONT.SUIT}
           onPress={onCancel}
           style={styles.button}
         >
           {cancelText}
-        </TextButton>
+        </Button>
 
         {confirmText != null && (
-          <TextButton
+          <Button
             variant={confirmVariant}
-            size={TEXT_BUTTON_SIZE.L}
+            size={BUTTON_SIZE.L}
             font={FONT.SUIT}
             onPress={onConfirm}
             style={styles.button}
           >
             {confirmText}
-          </TextButton>
+          </Button>
         )}
       </View>
     </View>

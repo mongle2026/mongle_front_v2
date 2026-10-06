@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 
-import IcBell from '../../../assets/icons/ic_bell.svg';
 import IcHeartFill from '../../../assets/icons/ic_heart_fill.svg';
 import IcHeartStroke from '../../../assets/icons/ic_heart_stroke.svg';
-import IcKebab from '../../../assets/icons/ic_kebab.svg';
 import IcPencil from '../../../assets/icons/ic_pencil.svg';
 import IcShare from '../../../assets/icons/ic_share.svg';
 import IcTrash from '../../../assets/icons/ic_trash.svg';
@@ -25,7 +23,7 @@ import IconButton from '../../../shared/components/action/IconButton';
 import LabeledButton from '../../../shared/components/action/LabeledButton';
 import ListControlBar from '../../../shared/components/action/ListControlBar';
 import SearchField from '../../../shared/components/action/SearchField';
-import { TextButton, TEXT_BUTTON_SIZE, TEXT_BUTTON_VARIANT } from '../../../shared/components/action/TextButton';
+import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import Menu from '../../../shared/components/action/menu/Menu';
 import MenuItem from '../../../shared/components/action/menu/Item';
 
@@ -71,15 +69,45 @@ const SAMPLE_TOP_TABS = [
 
 const EMPTY_TYPES = ['comment', 'recipient', 'music', 'letter', 'archive', 'notification', 'bookmark'];
 
-// variant 마다 허용 사이즈가 다르다 (TextButton.jsx ALLOWED_SIZES)
-const TEXT_BUTTON_MATRIX = [
-  [TEXT_BUTTON_VARIANT.SOLID, ['S', 'M', 'L', 'XL']],
-  [TEXT_BUTTON_VARIANT.GHOST, ['S']],
-  [TEXT_BUTTON_VARIANT.NEUTRAL_WEAK, ['M', 'L', 'XL']],
-  [TEXT_BUTTON_VARIANT.CRITICAL, ['L', 'XL']],
-  [TEXT_BUTTON_VARIANT.BG_INFO_WEAK, ['M']],
-  [TEXT_BUTTON_VARIANT.DISABLED, ['L', 'XL']],
+// Figma action/Button: 모든 type 이 S / M / L / XL 을 가진다
+const BUTTON_SIZES = ['S', 'M', 'L', 'XL'];
+
+// 교보는 S 사이즈의 Solid / Ghost 에만 있다 (Button.jsx KYOBO_VARIANTS_BY_SIZE)
+const hasKyobo = (variant, size) =>
+  size === 'S' && [BUTTON_VARIANT.SOLID, BUTTON_VARIANT.GHOST].includes(variant);
+
+// 카드 설명용 type 별 색 토큰 (Button.jsx VARIANT_STYLES)
+const BUTTON_COLOR_NOTES = {
+  [BUTTON_VARIANT.SOLID]: 'fillNeutral · fgNeutralInverted',
+  [BUTTON_VARIANT.GHOST]: 'stroke strokeNeutralPrimary · fgNeutralPrimary',
+  [BUTTON_VARIANT.WEAK]: 'fillNeutralWeak · fgNeutralSecondary',
+  [BUTTON_VARIANT.CRITICAL]: 'fillCritical · fgNeutralInverted',
+  [BUTTON_VARIANT.INFO_WEAK]: 'fillInfoWeak · fgInfo',
+  [BUTTON_VARIANT.DISABLED]: 'fillNeutralWeak · fgDisabled',
+};
+
+// 사이즈 스펙 표 (Button.jsx SIZE_STYLES / TYPOGRAPHY_STYLES 와 같은 값)
+const BUTTON_SIZE_SPECS = [
+  { size: 'S', padding: 'XXS / S', radius: 'XS', typo: 'labelLarge', kyobo: 'kyoboLabelLarge' },
+  { size: 'M', padding: 'M / L', radius: 'S', typo: 'labelLargeStrong' },
+  { size: 'L', padding: 'L / XL', radius: 'M', typo: 'labelXLargeStrong' },
+  { size: 'XL', padding: 'XL / XXL', radius: 'M', typo: 'labelXLargeStrong' },
 ];
+
+// IconButton 사이즈 스펙 (IconButton.jsx SIZE_STYLES 와 같은 값). button = icon + padding × 2
+const ICON_BUTTON_SIZE_SPECS = [
+  { size: 'S', icon: 14, padding: 'XS (4)', button: 22, hitSlop: 11 },
+  { size: 'M', icon: 18, padding: 'M (8)', button: 34, hitSlop: 5 },
+  { size: 'L', icon: 20, padding: 'L (12)', button: 44, hitSlop: 0 },
+  { size: 'XL', icon: 22, padding: 'M (8)', button: 38, hitSlop: 3 },
+];
+
+const SpecLine = ({ label, value }) => (
+  <Text style={styles.sizeSpecLine}>
+    <Text style={styles.sizeSpecLabel}>{`${label}  `}</Text>
+    {value}
+  </Text>
+);
 
 const stretch = { alignItems: 'stretch' };
 
@@ -91,28 +119,69 @@ const ActionSection = () => {
 
   return (
     <CatalogSection title="Action">
-      {TEXT_BUTTON_MATRIX.map(([variant, sizes]) => (
-        <Specimen key={variant} name={`TextButton · ${variant}`} note={`size: ${sizes.join(' / ')}`}>
-          {sizes.map(size => (
+      <Specimen name="Button · Size" note="padding 은 세로 / 가로" contentStyle={stretch} showSpec={false}>
+        {BUTTON_SIZE_SPECS.map((spec, index) => (
+          <View key={spec.size} style={[styles.sizeRow, index > 0 && styles.sizeRowDivider]}>
+            <Text style={styles.sizeName}>{spec.size}</Text>
+            <View style={styles.sizeButtonCell}>
+              <Button size={BUTTON_SIZE[spec.size]} font={FONT.SUIT} onPress={noop}>
+                버튼
+              </Button>
+            </View>
+            <View style={styles.sizeSpecCell}>
+              <SpecLine label="padding" value={spec.padding} />
+              <SpecLine label="radius" value={spec.radius} />
+              <SpecLine label="font" value={spec.kyobo ? `${spec.typo} · 교보 ${spec.kyobo}` : spec.typo} />
+            </View>
+          </View>
+        ))}
+      </Specimen>
+
+      {Object.values(BUTTON_VARIANT).map(variant => (
+        <Specimen
+          key={variant}
+          name={`Button · ${variant}`}
+          note={`${BUTTON_COLOR_NOTES[variant]}${hasKyobo(variant, 'S') ? ' · 교보는 S만' : ''}`}
+        >
+          {BUTTON_SIZES.map(size => (
             <View key={size} style={styles.row}>
-              <TextButton variant={variant} size={TEXT_BUTTON_SIZE[size]} font={FONT.SUIT} onPress={noop}>
+              <Button variant={variant} size={BUTTON_SIZE[size]} font={FONT.SUIT} onPress={noop}>
                 {`SUIT ${size}`}
-              </TextButton>
-              <TextButton variant={variant} size={TEXT_BUTTON_SIZE[size]} font={FONT.KYOBO} onPress={noop}>
-                {`교보 ${size}`}
-              </TextButton>
+              </Button>
+              {hasKyobo(variant, size) ? (
+                <Button variant={variant} size={BUTTON_SIZE[size]} font={FONT.KYOBO} onPress={noop}>
+                  {`교보 ${size}`}
+                </Button>
+              ) : null}
             </View>
           ))}
         </Specimen>
       ))}
 
-      <Specimen name="IconButton" note="size: S / M · disabled">
-        <View style={styles.row}>
-          <IconButton icon={IcShare} color={colors.fgNeutralPrimary} size="S" onPress={noop} />
-          <IconButton icon={IcShare} color={colors.fgNeutralPrimary} size="M" onPress={noop} />
-          <IconButton icon={IcKebab} color={colors.fgNeutralPrimary} size="M" onPress={noop} />
-          <IconButton icon={IcBell} color={colors.fgNeutralPrimary} size="M" disabled />
-        </View>
+      <Specimen name="IconButton · Size" note="배경 없음 · radius XS · 누르면 투명도 0.6" contentStyle={stretch} showSpec={false}>
+        {ICON_BUTTON_SIZE_SPECS.map((spec, index) => (
+          <View key={spec.size} style={[styles.sizeRow, index > 0 && styles.sizeRowDivider]}>
+            <Text style={styles.sizeName}>{spec.size}</Text>
+            <View style={styles.sizeButtonCell}>
+              <IconButton icon={IcShare} color={colors.fgNeutralPrimary} size={spec.size} onPress={noop} />
+            </View>
+            <View style={styles.sizeSpecCell}>
+              <SpecLine label="icon" value={spec.icon} />
+              <SpecLine label="padding" value={spec.padding} />
+              <SpecLine label="button" value={`${spec.button} · hitSlop ${spec.hitSlop} (터치 44)`} />
+            </View>
+          </View>
+        ))}
+      </Specimen>
+
+      <Specimen name="IconButton · State" note="기본 / disabled (fgDisabled)">
+        {ICON_BUTTON_SIZE_SPECS.map(spec => (
+          <View key={spec.size} style={styles.row}>
+            <Text style={styles.sizeName}>{spec.size}</Text>
+            <IconButton icon={IcShare} color={colors.fgNeutralPrimary} size={spec.size} onPress={noop} />
+            <IconButton icon={IcShare} color={colors.fgNeutralPrimary} size={spec.size} disabled />
+          </View>
+        ))}
       </Specimen>
 
       <Specimen name="LabeledButton" note="size: S / M · disabled">
@@ -243,7 +312,7 @@ const ContentSection = () => {
 
       <Specimen name="Profile · Feed" note="variant: Ghost / Solid">
         <Profile username="mongle" onPress={noop} />
-        <Profile username="mongle" variant={TEXT_BUTTON_VARIANT.SOLID} onPress={noop} />
+        <Profile username="mongle" variant={BUTTON_VARIANT.SOLID} onPress={noop} />
       </Specimen>
 
       <Specimen name="Profile · Letter" note="nameSuffix: 에게 / 이가">
@@ -376,6 +445,43 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: gap.M,
+  },
+
+  sizeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: gap.L,
+    paddingVertical: gap.M,
+  },
+
+  sizeRowDivider: {
+    borderTopWidth: 1,
+    borderTopColor: colors.strokeNeutralQuaternary,
+  },
+
+  sizeName: {
+    ...typo.suitLabelLargeStrong,
+    width: 24,
+    color: colors.fgNeutralPrimary,
+  },
+
+  sizeButtonCell: {
+    width: 96,
+    alignItems: 'flex-start',
+  },
+
+  sizeSpecCell: {
+    flex: 1,
+    gap: gap.XS,
+  },
+
+  sizeSpecLine: {
+    ...typo.suitLabelMedium,
+    color: colors.fgNeutralPrimary,
+  },
+
+  sizeSpecLabel: {
+    color: colors.fgNeutralQuaternary,
   },
 
   writeImg: {

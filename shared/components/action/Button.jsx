@@ -7,16 +7,17 @@ import { typo } from '../../styles/typo';
 import { FONT, normalizeFont } from '../../styles/fontType';
 import FontFallbackText from '../atomic/FontFallbackText';
 
-export const TEXT_BUTTON_VARIANT = Object.freeze({
+// Figma 컴포넌트: action/TextButton (type × size × font)
+export const BUTTON_VARIANT = Object.freeze({
   SOLID: 'Solid',
   GHOST: 'Ghost',
-  NEUTRAL_WEAK: 'NeutralWeak',
+  WEAK: 'Weak',
   CRITICAL: 'Critical',
-  BG_INFO_WEAK: 'BgInfoWeak',
+  INFO_WEAK: 'InfoWeak',
   DISABLED: 'Disabled',
 });
 
-export const TEXT_BUTTON_SIZE = Object.freeze({
+export const BUTTON_SIZE = Object.freeze({
   S: 'S',
   M: 'M',
   L: 'L',
@@ -26,48 +27,16 @@ export const TEXT_BUTTON_SIZE = Object.freeze({
 const {
   SOLID,
   GHOST,
-  NEUTRAL_WEAK,
+  WEAK,
   CRITICAL,
-  BG_INFO_WEAK,
+  INFO_WEAK,
   DISABLED,
-} = TEXT_BUTTON_VARIANT;
+} = BUTTON_VARIANT;
 
-const { S, M, L, XL } = TEXT_BUTTON_SIZE;
-
-/**
- * Variant별 허용 사이즈
- *
- * Solid       S / M / L / XL
- * Ghost       S
- * NeutralWeak M / L / XL
- * Critical    L / XL
- * BgInfoWeak  M
- * Disabled    L / XL
- */
-const ALLOWED_SIZES = {
-  [SOLID]: [S, M, L, XL],
-  [GHOST]: [S],
-  [NEUTRAL_WEAK]: [M, L, XL],
-  [CRITICAL]: [L, XL],
-  [BG_INFO_WEAK]: [M],
-  [DISABLED]: [L, XL],
-};
+const { S, M, L, XL } = BUTTON_SIZE;
 
 /**
- * size를 지정하지 않았거나
- * 허용되지 않는 사이즈를 넣었을 때 사용할 기본값
- */
-const DEFAULT_SIZE = {
-  [SOLID]: S,
-  [GHOST]: S,
-  [NEUTRAL_WEAK]: M,
-  [CRITICAL]: L,
-  [BG_INFO_WEAK]: M,
-  [DISABLED]: L,
-};
-
-/**
- * 버튼 크기
+ * 버튼 크기. 모든 variant가 S / M / L / XL 을 가진다.
  *
  * inline-flex는 React Native에 없으므로
  * alignSelf: 'flex-start'로 content width를 사용합니다.
@@ -75,14 +44,14 @@ const DEFAULT_SIZE = {
 const SIZE_STYLES = {
   [S]: {
     paddingVertical: padding.XXS,
-    paddingHorizontal: padding.XS,
+    paddingHorizontal: padding.S,
     borderRadius: radius.XS,
   },
 
   [M]: {
     paddingVertical: padding.M,
     paddingHorizontal: padding.L,
-    borderRadius: radius.M,
+    borderRadius: radius.S,
   },
 
   [L]: {
@@ -98,21 +67,26 @@ const SIZE_STYLES = {
   },
 };
 
+const resolveSize = size => (SIZE_STYLES[size] ? size : S);
+
 /**
  * Font + Size typography
  *
- * 모든 버튼의 기본 font는 Kyobo.
+ * 교보는 S 사이즈의 Solid / Ghost 에만 있다. 나머지 조합은 font 와 상관없이 SUIT.
  *
- * S
- * Kyobo = kyoboLabelLarge
- * SUIT  = suitLabelLarge
- *
- * M / L / XL
- * Kyobo = kyoboLabelXLarge
- * SUIT  = suitLabelXLargeStrong
- *
- * Kyobo는 단일 weight 폰트라 Strong을 별도로 두지 않습니다.
+ * S       Kyobo = kyoboLabelLarge / SUIT = suitLabelLarge
+ * M       SUIT  = suitLabelLargeStrong
+ * L/XL    SUIT  = suitLabelXLargeStrong
  */
+const KYOBO_VARIANTS_BY_SIZE = {
+  [S]: [SOLID, GHOST],
+};
+
+const resolveFont = (variant, size, font) =>
+  KYOBO_VARIANTS_BY_SIZE[size]?.includes(variant)
+    ? normalizeFont(font)
+    : FONT.SUIT;
+
 const TYPOGRAPHY_STYLES = {
   [S]: {
     [FONT.KYOBO]: typo.kyoboLabelLarge,
@@ -120,17 +94,14 @@ const TYPOGRAPHY_STYLES = {
   },
 
   [M]: {
-    [FONT.KYOBO]: typo.kyoboLabelXLarge,
-    [FONT.SUIT]: typo.suitLabelXLargeStrong,
+    [FONT.SUIT]: typo.suitLabelLargeStrong,
   },
 
   [L]: {
-    [FONT.KYOBO]: typo.kyoboLabelXLarge,
     [FONT.SUIT]: typo.suitLabelXLargeStrong,
   },
 
   [XL]: {
-    [FONT.KYOBO]: typo.kyoboLabelXLarge,
     [FONT.SUIT]: typo.suitLabelXLargeStrong,
   },
 };
@@ -163,26 +134,14 @@ const VARIANT_STYLES = {
     },
   },
 
-  [NEUTRAL_WEAK]: {
+  [WEAK]: {
     container: {
       backgroundColor: colors.fillNeutralWeak,
       borderWidth: 0,
     },
 
-    text: {},
-
-    textBySize: {
-      [M]: {
-        color: colors.fgNeutralTertiary,
-      },
-
-      [L]: {
-        color: colors.fgNeutralTertiary,
-      },
-
-      [XL]: {
-        color: colors.fgNeutralTertiary,
-      },
+    text: {
+      color: colors.fgNeutralSecondary,
     },
   },
 
@@ -197,7 +156,7 @@ const VARIANT_STYLES = {
     },
   },
 
-  [BG_INFO_WEAK]: {
+  [INFO_WEAK]: {
     container: {
       backgroundColor: colors.fillInfoWeak,
       borderWidth: 0,
@@ -220,6 +179,17 @@ const VARIANT_STYLES = {
   },
 };
 
+/**
+ * 눌렀을 때 배경. 시스템 컬러의 *Press 토큰을 쓴다.
+ * Ghost 는 press 배경이 없고, Disabled 는 눌리지 않는다.
+ */
+const PRESSED_CONTAINER_STYLES = {
+  [SOLID]: { backgroundColor: colors.fillNeutralPress },
+  [WEAK]: { backgroundColor: colors.fillNeutralWeakPress },
+  [CRITICAL]: { backgroundColor: colors.fillCriticalPress },
+  [INFO_WEAK]: { backgroundColor: colors.fillInfoWeakPress },
+};
+
 const resolveVariant = variant => {
   if (VARIANT_STYLES[variant]) {
     return variant;
@@ -228,17 +198,7 @@ const resolveVariant = variant => {
   return SOLID;
 };
 
-const resolveSize = (variant, size) => {
-  const allowedSizes = ALLOWED_SIZES[variant];
-
-  if (size && allowedSizes?.includes(size)) {
-    return size;
-  }
-
-  return DEFAULT_SIZE[variant];
-};
-
-export const TextButton = ({
+export const Button = ({
   children,
 
   variant = SOLID,
@@ -255,15 +215,15 @@ export const TextButton = ({
   ...props
 }) => {
   const currentVariant = resolveVariant(variant);
-  const currentSize = resolveSize(currentVariant, size);
-  const currentFont = normalizeFont(font);
+  const currentSize = resolveSize(size);
+  const currentFont = resolveFont(currentVariant, currentSize, font);
 
   const variantStyle = VARIANT_STYLES[currentVariant];
   const sizeStyle = SIZE_STYLES[currentSize];
 
   const typographyStyle =
-    TYPOGRAPHY_STYLES[currentSize]?.[currentFont] ??
-    TYPOGRAPHY_STYLES[currentSize]?.[FONT.KYOBO];
+    TYPOGRAPHY_STYLES[currentSize][currentFont] ??
+    TYPOGRAPHY_STYLES[currentSize][FONT.SUIT];
 
   /**
    * Disabled variant 자체가 터치 불가능해야 하고,
@@ -287,6 +247,7 @@ export const TextButton = ({
         styles.container,
         sizeStyle,
         variantStyle.container,
+        state.pressed && !isDisabled && PRESSED_CONTAINER_STYLES[currentVariant],
         typeof style === 'function'
           ? style(state)
           : style,
@@ -297,7 +258,6 @@ export const TextButton = ({
         style={[
           typographyStyle,
           variantStyle.text,
-          variantStyle.textBySize?.[currentSize],
           textStyle,
         ]}
       >

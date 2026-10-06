@@ -4,6 +4,7 @@ export const palette = {
     0: '#ffffff', 50: '#f5f7f9', 100: '#f1f2f4', 200: '#dddfe3',
     300: '#cbced2', 400: '#b4b8bc', 500: '#a0a3a7', 600: '#888b8f',
     700: '#6c6f73', 800: '#505357', 900: '#33373b', 1000: '#17191c',
+    black: '#050506',
     alpha: '#22314a',
   },
   blue: {
@@ -78,7 +79,7 @@ export const colors = {
 
   // ── fill ──
   fillNeutral: palette.neutral[1000],
-  fillNeutralPress: palette.neutral[900],
+  fillNeutralPress: palette.neutral.black,
   fillNeutralWeak: `${palette.neutral.alpha}14`,
   fillNeutralWeakPress: `${palette.neutral.alpha}21`,
   fillSurface: palette.neutral[0],

@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import Profile from '../../../shared/components/content/profile/Profile';
-import { TEXT_BUTTON_VARIANT, TextButton } from '../../../shared/components/action/TextButton';
+import { BUTTON_VARIANT, Button } from '../../../shared/components/action/Button';
 import { DividerLine } from '../../../shared/components/atomic/DividerLine';
 
 import { colors } from '../../../shared/styles/color';
@@ -21,8 +21,8 @@ const ProfileBar = ({
   onPressProfile,
   onPressFollow,
 }) => {
-  const profileVariant = isFollowing ? TEXT_BUTTON_VARIANT.SOLID : TEXT_BUTTON_VARIANT.GHOST;
-  const followVariant = isFollowing ? TEXT_BUTTON_VARIANT.GHOST : TEXT_BUTTON_VARIANT.SOLID;
+  const profileVariant = isFollowing ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.GHOST;
+  const followVariant = isFollowing ? BUTTON_VARIANT.GHOST : BUTTON_VARIANT.SOLID;
   const followLabel = isFollowing ? '팔로잉' : '팔로우';
 
   return (
@@ -38,7 +38,7 @@ const ProfileBar = ({
         />
 
         {showFollowButton && (
-          <TextButton
+          <Button
             variant={followVariant}
             font={font}
             disabled={followDisabled}
@@ -48,7 +48,7 @@ const ProfileBar = ({
             style={styles.followButton}
           >
             {followLabel}
-          </TextButton>
+          </Button>
         )}
       </View>
 

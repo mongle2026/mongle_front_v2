@@ -36,7 +36,7 @@ const Swatch = ({ color, size = 28 }) => (
 const PaletteSection = () => (
   <CatalogSection title="Palette">
     {Object.entries(palette).map(([family, steps]) => (
-      <Specimen key={family} name={`color / ${family}`}>
+      <Specimen key={family} name={`color / ${family}`} showSpec={false}>
         <View style={styles.paletteRow}>
           {Object.entries(steps).map(([step, hex]) => (
             <View key={step} style={styles.paletteCell}>
@@ -54,7 +54,7 @@ const PaletteSection = () => (
 const SemanticColorSection = () => (
   <CatalogSection title="Semantic Colors">
     {TOKEN_GROUPS.map(({ prefix, entries }) => (
-      <Specimen key={prefix} name={prefix} contentStyle={styles.tokenList}>
+      <Specimen key={prefix} name={prefix} contentStyle={styles.tokenList} showSpec={false}>
         {entries.map(([name, value]) => (
           <View key={name} style={styles.tokenRow}>
             <Swatch color={value} />
@@ -70,7 +70,7 @@ const SemanticColorSection = () => (
 const TypographySection = () => (
   <CatalogSection title="Typography">
     {['suit', 'kyobo'].map(prefix => (
-      <Specimen key={prefix} name={prefix === 'suit' ? 'SUITX' : 'Kyobo Handwriting 2025'}>
+      <Specimen key={prefix} name={prefix === 'suit' ? 'SUITX' : 'Kyobo Handwriting 2025'} showSpec={false}>
         {Object.entries(typo)
           .filter(([name]) => name.startsWith(prefix))
           .map(([name, style]) => (
@@ -87,7 +87,7 @@ const TypographySection = () => (
 );
 
 const ScaleRow = ({ title, scale, render }) => (
-  <Specimen name={title}>
+  <Specimen name={title} showSpec={false}>
     {Object.entries(scale).map(([key, value]) => (
       <View key={key} style={styles.scaleRow}>
         <Text style={styles.scaleLabel}>{key} · {value}</Text>

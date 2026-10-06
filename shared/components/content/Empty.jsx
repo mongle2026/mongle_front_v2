@@ -10,10 +10,10 @@ import IlEmptyNotification from '../../../assets/illustrations/il_empty_notifica
 import IlEmptyBookmark from '../../../assets/illustrations/il_empty_bookmark.svg';
 
 import {
-  TextButton,
-  TEXT_BUTTON_SIZE,
-  TEXT_BUTTON_VARIANT,
-} from '../action/TextButton';
+  Button,
+  BUTTON_SIZE,
+  BUTTON_VARIANT,
+} from '../action/Button';
 
 import { colors } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
@@ -92,15 +92,15 @@ const Empty = ({
       </View>
 
       {buttonLabel ? (
-        <TextButton
-          variant={TEXT_BUTTON_VARIANT.SOLID}
-          size={TEXT_BUTTON_SIZE.M}
+        <Button
+          variant={BUTTON_VARIANT.SOLID}
+          size={BUTTON_SIZE.M}
           font={FONT.SUIT}
           onPress={onButtonPress}
           style={styles.button}
         >
           {buttonLabel}
-        </TextButton>
+        </Button>
       ) : null}
     </View>
   );
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // TextButton 기본 alignSelf(flex-start)를 덮어써 가운데 정렬
+  // Button 기본 alignSelf(flex-start)를 덮어써 가운데 정렬
   button: {
     alignSelf: 'center',
   },

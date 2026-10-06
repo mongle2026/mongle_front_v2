@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { TEXT_BUTTON_VARIANT } from '../../../shared/components/action/TextButton';
+import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import CdCover from '../../../shared/components/atomic/CdCover';
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
 import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
@@ -60,7 +60,7 @@ const OthersPostCard = ({
         <Profile
           imageUri={profile.imageUri}
           username={profile.username}
-          variant={profile.isFollowing ? TEXT_BUTTON_VARIANT.SOLID : TEXT_BUTTON_VARIANT.GHOST}
+          variant={profile.isFollowing ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.GHOST}
           onPress={onPressProfile}
           font={normalizedFont}
         />

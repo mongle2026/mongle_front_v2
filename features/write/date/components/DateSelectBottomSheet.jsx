@@ -11,10 +11,10 @@ import BottomSheet from '../../../../shared/components/overlay/BottomSheet';
 import ListHeader from '../../../../shared/components/content/ListHeader';
 
 import {
-  TextButton,
-  TEXT_BUTTON_SIZE,
-  TEXT_BUTTON_VARIANT,
-} from '../../../../shared/components/action/TextButton';
+  Button,
+  BUTTON_SIZE,
+  BUTTON_VARIANT,
+} from '../../../../shared/components/action/Button';
 
 import Calendar from '../../components/calendar/Calendar';
 
@@ -138,21 +138,21 @@ const DateSelectBottomSheet = ({
             allowToday || preset !== DATE_PRESET.NOW,
           )
           .map(preset => (
-            <TextButton
+            <Button
               key={preset}
               variant={
                 isPresetSelected(preset)
-                  ? TEXT_BUTTON_VARIANT.BG_INFO_WEAK
-                  : TEXT_BUTTON_VARIANT.NEUTRAL_WEAK
+                  ? BUTTON_VARIANT.INFO_WEAK
+                  : BUTTON_VARIANT.WEAK
               }
-              size={TEXT_BUTTON_SIZE.M}
+              size={BUTTON_SIZE.M}
               font={FONT.SUIT}
               onPress={() =>
                 handlePresetPress(preset)
               }
             >
               {DATE_PRESET_LABEL[preset]}
-            </TextButton>
+            </Button>
           ))}
       </View>
 
@@ -162,19 +162,19 @@ const DateSelectBottomSheet = ({
           styles.buttonContainer
         }
       >
-        <TextButton
+        <Button
           variant={
             selectedDate
-              ? TEXT_BUTTON_VARIANT.SOLID
-              : TEXT_BUTTON_VARIANT.DISABLED
+              ? BUTTON_VARIANT.SOLID
+              : BUTTON_VARIANT.DISABLED
           }
-          size={TEXT_BUTTON_SIZE.XL}
+          size={BUTTON_SIZE.XL}
           font={FONT.SUIT}
           onPress={handleConfirm}
           style={styles.confirmButton}
         >
           {copy.confirmLabel}
-        </TextButton>
+        </Button>
       </View>
     </BottomSheet>
   );

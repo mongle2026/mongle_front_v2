@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '../../shared/styles/color';
 import { padding } from '../../shared/styles/token';
-import { TextButton, TEXT_BUTTON_SIZE, TEXT_BUTTON_VARIANT } from '../../shared/components/action/TextButton';
+import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../../shared/components/action/Button';
 import { FONT } from '../../shared/styles/fontType';
 
 // 프로필 탭. 화면 내용은 아직 없다
@@ -11,15 +11,15 @@ import { FONT } from '../../shared/styles/fontType';
 const ProfileScreen = ({ navigation }) => (
   <SafeAreaView edges={['top']} style={styles.container}>
     {__DEV__ && (
-      <TextButton
-        variant={TEXT_BUTTON_VARIANT.NEUTRAL_WEAK}
-        size={TEXT_BUTTON_SIZE.M}
+      <Button
+        variant={BUTTON_VARIANT.WEAK}
+        size={BUTTON_SIZE.M}
         font={FONT.SUIT}
         onPress={() => navigation.navigate('Catalog')}
         style={styles.catalogButton}
       >
         컴포넌트 카탈로그
-      </TextButton>
+      </Button>
     )}
   </SafeAreaView>
 );

@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import MusicCard from '../../../shared/components/content/MusicCard';
 import ImageViewer from '../../../shared/components/content/ImageViewer';
 import { Dialog } from '../../../shared/components/action/Dialog';
-import { TEXT_BUTTON_VARIANT } from '../../../shared/components/action/TextButton';
+import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 
 import IlDialogDeletedfeed from '../../../assets/illustrations/il_dialog_deletedfeed.svg';
@@ -122,7 +122,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
         description="해당 피드는 이미 삭제되었어요."
         cancelText="돌아가기"
         confirmText="피드 둘러보기"
-        confirmVariant={TEXT_BUTTON_VARIANT.SOLID}
+        confirmVariant={BUTTON_VARIANT.SOLID}
         onCancel={() => {
           close();
           navigation.goBack();

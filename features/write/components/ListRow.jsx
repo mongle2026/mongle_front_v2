@@ -8,10 +8,10 @@ import { Pressable } from 'react-native-gesture-handler';
 
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 import {
-  TextButton,
-  TEXT_BUTTON_SIZE,
-  TEXT_BUTTON_VARIANT,
-} from '../../../shared/components/action/TextButton';
+  Button,
+  BUTTON_SIZE,
+  BUTTON_VARIANT,
+} from '../../../shared/components/action/Button';
 
 import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
@@ -93,12 +93,12 @@ const ListRow = ({
             pointerEvents="none"
             style={styles.meButton}
           >
-            <TextButton
-              variant={TEXT_BUTTON_VARIANT.SOLID}
-              size={TEXT_BUTTON_SIZE.S}
+            <Button
+              variant={BUTTON_VARIANT.SOLID}
+              size={BUTTON_SIZE.S}
             >
               나에게
-            </TextButton>
+            </Button>
           </View>
         )}
       </Pressable>
