@@ -18,17 +18,21 @@ const LabeledButton = ({
   color = colors.fgNeutralSecondary,
   iconColor = colors.fgNeutralSecondary,
   backgroundColor = colors.fillNeutralWeak,
+  pressedBackgroundColor = colors.fillNeutralWeakPress,
   typography = typo.suitLabelLargeStrong,
   onPress,
   disabled = false,
   style,
 }) => {
+  const resolvedColor = disabled ? colors.fgDisabled : color;
+  const resolvedIconColor = disabled ? colors.fgDisabled : iconColor;
+
   const renderedIcon = React.isValidElement(icon)
     ? React.cloneElement(icon, {
       width: ICON_SIZE,
       height: ICON_SIZE,
-      color: iconColor,
-      fill: iconColor,
+      color: resolvedIconColor,
+      fill: resolvedIconColor,
     })
     : null;
 
@@ -38,7 +42,11 @@ const LabeledButton = ({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={[styles.container, { backgroundColor }, style]}
+      style={({ pressed }) => [
+        styles.container,
+        { backgroundColor: pressed ? pressedBackgroundColor : backgroundColor },
+        style,
+      ]}
     >
       {renderedIcon && (
         <View style={styles.icon}>
@@ -47,7 +55,7 @@ const LabeledButton = ({
       )}
 
       <Text
-        style={[typography, { color }]}
+        style={[typography, { color: resolvedColor }]}
       >
         {label}
       </Text>

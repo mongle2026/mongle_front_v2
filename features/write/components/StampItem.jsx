@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: radius.XS, // 2
+    borderRadius: radius.S,
     backgroundColor: colors.strokeNeutralTertiary, // 이미지 로딩 전 lightgray 대체
     overflow: 'hidden',
   },
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: radius.XS, // 2
+    borderRadius: radius.S,
     borderWidth: 1.6,
     borderColor: colors.strokeNeutralTertiary,
   },

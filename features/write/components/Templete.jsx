@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     gap: padding.S,
     paddingVertical: padding.M, 
     paddingHorizontal: padding.L, 
-    borderRadius: radius.XS, 
+    borderRadius: radius.S,
     borderWidth: 1.6,
     borderColor: 'transparent', 
     backgroundColor: colors.bgSurface, 

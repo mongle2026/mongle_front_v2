@@ -38,6 +38,7 @@ export const WriteImg = memo(
     style,
     pointerEvents,
     ratio = WRITE_IMG_RATIO.FOUR_THREE,
+    borderRadius = radius.M,
   }) => {
     const aspectRatio =
       WRITE_IMG_ASPECT_RATIO[ratio] ??
@@ -49,10 +50,10 @@ export const WriteImg = memo(
         pointerEvents={pointerEvents}
         style={[
           styles.container,
-          { aspectRatio },
+          { aspectRatio, borderRadius },
           style,
         ]}
-        borderRadius={radius.M}
+        borderRadius={borderRadius}
         halftoneOptions={WRITE_IMG_HALFTONE_OPTIONS}
         textureOptions={WRITE_IMG_TEXTURE_OPTIONS}
       />
@@ -66,7 +67,5 @@ const styles = StyleSheet.create({
 
     justifyContent: 'center',
     alignItems: 'center',
-
-    borderRadius: radius.M,
   },
 });

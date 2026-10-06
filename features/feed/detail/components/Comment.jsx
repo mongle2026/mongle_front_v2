@@ -85,7 +85,7 @@ const Comment = ({
         >
           <ProfileImg
             imageUri={profileImageUrl}
-            size={isReply ? 'M' : 'L'}
+            size="M"
           />
 
           <View style={styles.body}>
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     paddingTop: padding.S,
     paddingRight: padding.M,
     paddingBottom: padding.S,
-    paddingLeft: 56,
+    paddingLeft: 48,
   },
 
   content: {
@@ -170,12 +170,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: gap.M,
     borderRadius: radius.M,
-    backgroundColor: colors.bgSurface,
+    backgroundColor: colors.fillSurface,
   },
 
   // 케밥 메뉴가 열렸을 때와 손가락이 닿아 있을 때 같은 색으로 강조한다
   activeContent: {
-    backgroundColor: colors.bgBase,
+    backgroundColor: colors.fillSurfacePress,
   },
 
   body: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   },
 
   userId: {
-    ...typo.suitTitleSmall,
+    ...typo.suitLabelMediumStrong,
     flexShrink: 1,
     color: colors.fgNeutralTertiary,
   },
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
 
   comment: {
-    ...typo.suitBodyXLarge,
+    ...typo.suitBodyLarge,
     width: '100%',
     alignSelf: 'stretch',
     color: colors.fgNeutralSecondary,

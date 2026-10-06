@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     gap: gap.M,
 
     borderRadius: radius.M,
-    backgroundColor: colors.bgSurface,
+    backgroundColor: colors.fillSurface,
   },
 
   sectionButtonPressed: {

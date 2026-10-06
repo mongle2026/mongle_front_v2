@@ -41,6 +41,7 @@ const MusicCard = ({
   pressAccessibilityLabel,
   disabled = false,
   inset = true,
+  coverSize,
   style,
 }) => {
   const PlaybackIcon = isPlaying ? IcMusicStop : IcMusicPlay;
@@ -83,6 +84,7 @@ const MusicCard = ({
       >
         <MusicCoverImg
           imageSource={imageSource}
+          size={coverSize}
           accessibilityLabel={`${accessibilityTitle} 앨범 커버`}
         />
 

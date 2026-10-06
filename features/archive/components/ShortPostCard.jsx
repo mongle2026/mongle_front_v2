@@ -63,6 +63,7 @@ const ShortPostCard = ({
         font={normalizedFont}
         onPress={onPress}
         inset={false}
+        coverSize={56}
       />
 
       <PressArea style={styles.pressArea} {...pressAreaProps}>
@@ -83,6 +84,7 @@ const ShortPostCard = ({
                   key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
                   ratio={WRITE_IMG_RATIO.FOUR_THREE}
+                  borderRadius={radius.XS}
                   pointerEvents="none"
                   style={styles.image}
                 />
@@ -118,7 +120,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: gap.M,
+    gap: gap.S,
     paddingTop: padding.S,
   },
 
