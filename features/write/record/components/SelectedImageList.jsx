@@ -10,7 +10,7 @@ import { WriteImg, getWriteImgRatio } from '../../../../shared/components/atomic
 
 // Shared Styles
 import { colors } from '../../../../shared/styles/color';
-import { gap, radius } from '../../../../shared/styles/token';
+import { gap } from '../../../../shared/styles/token';
 
 const SelectedImageList = ({ images = [], onRemove }) => {
   if (images.length === 0) return null;
@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    borderRadius: radius.XS,
     backgroundColor: colors.bgDimmed,
     zIndex: 1,
   },
