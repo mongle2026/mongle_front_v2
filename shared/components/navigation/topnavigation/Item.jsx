@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: radius.XS,
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
 
   label: {

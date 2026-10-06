@@ -3,7 +3,7 @@ import { BackHandler } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 
 import { useDialog } from '../../../../shared/providers/DialogProvider';
-import { Dialog } from '../../../../shared/components/action/Dialog';
+import { Dialog } from '../../../../shared/components/feedback/Dialog';
 import IlDialogStopwrite from '../../../../assets/illustrations/il_dialog_stopwrite.svg';
 
 const LEAVE_RECORD_DIALOG_ID = 'record-leave-confirm';

@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
 
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
 
   button: {

@@ -9,16 +9,28 @@ import {
   useBottomNavigationWindowTop,
 } from '../navigation/bottomnavigation/BottomNavigation';
 import { useGlobalOverlay } from '../../providers/GlobalOverlayProvider';
-import { colors, toTransparent } from '../../styles/color';
+import { colors } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
 
 // 레이아웃 측정 전 사용할 예상 높이
 // (padding.L * 2 + 텍스트 lineHeight + FAB 자체 배경의 상하 padding + 회색 배경 박스의 상하 padding.M)
 export const DEFAULT_WRITE_FAB_HEIGHT = padding.L * 2 + 17 + gap.M * 2 + padding.M * 2;
 
-// 회색 배경의 아래쪽 절반은 solid, 위쪽 절반은 투명 → solid 그라데이션 (locations로 한 레이어에서 처리)
-const BACKGROUND_GRADIENT_COLORS = [colors.bgLayerBase0, colors.bgLayerBase, colors.bgLayerBase];
-const BACKGROUND_GRADIENT_LOCATIONS = [0, 0.5, 1];
+// FAB 영역(위아래 padding.M 포함) 맨 위에서 FAB 의 세로 중앙까지 투명 → bgBase 로 페이드하고,
+// FAB 중앙 아래는 bgBase 단색. 영역이 FAB 기준 위아래 대칭이라 영역의 절반 = FAB 중앙이다
+const FADE_COLORS = [colors.bgBase0, colors.bgBase];
+
+// FAB 영역 배경: 위 절반은 그라데이션, 아래 절반은 단색
+const FabBackground = () => (
+  <>
+    <LinearGradient
+      pointerEvents="none"
+      colors={FADE_COLORS}
+      style={styles.fade}
+    />
+    <View pointerEvents="none" style={styles.solid} />
+  </>
+);
 
 // 전역 오버레이 안에 렌더링되는 열린 상태의 FAB.
 // 닫기 요청이 오면 먼저 FAB를 닫아 expandedRow가 기본 버튼 뒤로 내려가는 애니메이션을 보여주고,
@@ -174,23 +186,20 @@ const WriteFab = ({ navigation, expandedLabel, onHeightChange }) => {
   if (isOpen) {
     // 오버레이로 옮겨간 동안 화면 쪽에는 배경만 남겨 목록이 비치지 않게 한다
     return (
-      <LinearGradient
-        colors={BACKGROUND_GRADIENT_COLORS}
-        locations={BACKGROUND_GRADIENT_LOCATIONS}
-        style={[styles.fabBackground, { height }]}
-      />
+      <View pointerEvents="none" style={[styles.fabBackground, { height }]}>
+        <FabBackground />
+      </View>
     );
   }
 
   return (
-    <LinearGradient
-      colors={BACKGROUND_GRADIENT_COLORS}
-      locations={BACKGROUND_GRADIENT_LOCATIONS}
+    <View
       style={styles.fabBackground}
       onLayout={handleLayout}
     >
+      <FabBackground />
       <FAB open={false} onOpenChange={handleOpen} />
-    </LinearGradient>
+    </View>
   );
 };
 
@@ -203,6 +212,21 @@ const styles = StyleSheet.create({
     padding: padding.M,
     zIndex: 20,
     elevation: 20,
+  },
+  fade: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+  },
+  solid: {
+    position: 'absolute',
+    top: '50%',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.bgBase,
   },
   overlayContent: {
     top: 0,

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, useWindowDimensions } from 'react-native';
-import { Dialog } from '../../../../shared/components/action/Dialog';
+import { Dialog } from '../../../../shared/components/feedback/Dialog';
 import { useDialog } from '../../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 

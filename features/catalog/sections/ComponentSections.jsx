@@ -17,7 +17,7 @@ import { STAMPS } from '../../../shared/data/envelopeData';
 import AnimatedLabeledButton, { ANIMATION_TYPE } from '../../../shared/components/action/AnimatedLabeledButton';
 import ButtonText from '../../../shared/components/action/ButtonText';
 import ContainerButton from '../../../shared/components/action/ContainerButton';
-import { Dialog } from '../../../shared/components/action/Dialog';
+import { Dialog } from '../../../shared/components/feedback/Dialog';
 import FAB from '../../../shared/components/action/FAB';
 import IconButton from '../../../shared/components/action/IconButton';
 import LabeledButton from '../../../shared/components/action/LabeledButton';
@@ -96,10 +96,10 @@ const BUTTON_SIZE_SPECS = [
 
 // IconButton 사이즈 스펙 (IconButton.jsx SIZE_STYLES 와 같은 값). button = icon + padding × 2
 const ICON_BUTTON_SIZE_SPECS = [
-  { size: 'S', icon: 14, padding: 'XS (4)', button: 22, hitSlop: 11 },
-  { size: 'M', icon: 18, padding: 'M (8)', button: 34, hitSlop: 5 },
-  { size: 'L', icon: 20, padding: 'L (12)', button: 44, hitSlop: 0 },
-  { size: 'XL', icon: 22, padding: 'M (8)', button: 38, hitSlop: 3 },
+  { size: 'S', icon: 14, padding: 'XS (4)', radius: 'XS (4)', button: 22, hitSlop: 11 },
+  { size: 'M', icon: 18, padding: 'S (6)', radius: 'S (8)', button: 30, hitSlop: 7 },
+  { size: 'L', icon: 20, padding: 'M (8)', radius: 'M (10)', button: 36, hitSlop: 4 },
+  { size: 'XL', icon: 22, padding: 'M (8)', radius: 'M (10)', button: 38, hitSlop: 3 },
 ];
 
 const SpecLine = ({ label, value }) => (
@@ -158,7 +158,7 @@ const ActionSection = () => {
         </Specimen>
       ))}
 
-      <Specimen name="IconButton · Size" note="배경 없음 · radius XS · 누르면 투명도 0.6" contentStyle={stretch} showSpec={false}>
+      <Specimen name="IconButton · Size" note="배경 없음 · 아이콘 기본색 fgNeutralPrimary · 누르면 투명도 0.6" contentStyle={stretch} showSpec={false}>
         {ICON_BUTTON_SIZE_SPECS.map((spec, index) => (
           <View key={spec.size} style={[styles.sizeRow, index > 0 && styles.sizeRowDivider]}>
             <Text style={styles.sizeName}>{spec.size}</Text>
@@ -168,6 +168,7 @@ const ActionSection = () => {
             <View style={styles.sizeSpecCell}>
               <SpecLine label="icon" value={spec.icon} />
               <SpecLine label="padding" value={spec.padding} />
+              <SpecLine label="radius" value={spec.radius} />
               <SpecLine label="button" value={`${spec.button} · hitSlop ${spec.hitSlop} (터치 44)`} />
             </View>
           </View>
@@ -236,15 +237,6 @@ const ActionSection = () => {
       <Specimen name="FAB" note="닫힘 / 열림 (open 고정)" contentStyle={stretch} dark>
         <FAB onFeedPress={noop} onLetterPress={noop} />
         <FAB open onFeedPress={noop} onLetterPress={noop} />
-      </Specimen>
-
-      <Specimen name="Dialog" dark>
-        <Dialog
-          title="게시물을 삭제할까요?"
-          description="삭제한 게시물은 되돌릴 수 없어요."
-          onCancel={noop}
-          onConfirm={noop}
-        />
       </Specimen>
 
       <Specimen name="ActionBar (북마크 토글)" contentStyle={stretch}>
@@ -371,6 +363,15 @@ const FeedbackSection = () => {
         <Toast contentKey="a" text="저장했어요" />
         <Toast contentKey="b" text="삭제했어요" buttonText="실행 취소" onPressButton={noop} />
         <Toast contentKey="c" text="문제가 생겼어요" icon="alert" iconColor={colors.fgCritical} />
+      </Specimen>
+
+      <Specimen name="Dialog" dark>
+        <Dialog
+          title="게시물을 삭제할까요?"
+          description="삭제한 게시물은 되돌릴 수 없어요."
+          onCancel={noop}
+          onConfirm={noop}
+        />
       </Specimen>
 
       <Specimen name="RefreshSpinner" note="spinning">

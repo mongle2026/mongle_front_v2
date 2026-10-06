@@ -140,6 +140,6 @@ const styles = StyleSheet.create({
   },
 
   contentDark: {
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
 });

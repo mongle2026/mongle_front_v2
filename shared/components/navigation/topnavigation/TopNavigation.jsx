@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     paddingLeft: padding.L,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
 
   itemContainer: {

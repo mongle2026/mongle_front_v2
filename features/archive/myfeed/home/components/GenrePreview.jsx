@@ -41,7 +41,7 @@ const GenrePreview = ({ genres, onPressMore, onPressGenre }) => {
 
 const styles = StyleSheet.create({
   listHeader: {
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
   horizontalScroll: {
     alignSelf: 'stretch',

@@ -112,12 +112,12 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     position: 'relative',
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
   topSafeArea: {
     width: '100%',
     zIndex: 10,
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
 });
 

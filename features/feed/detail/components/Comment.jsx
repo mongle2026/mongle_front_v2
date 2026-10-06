@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
 
   // 케밥 메뉴가 열렸을 때와 손가락이 닿아 있을 때 같은 색으로 강조한다
   activeContent: {
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
 
   body: {

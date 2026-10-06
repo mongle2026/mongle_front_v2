@@ -35,8 +35,8 @@ const LabeledButton = ({
   renderIcon,
   size = 'M',
 
-  color = colors.fgNeutralQuaternary,
-  iconColor = colors.fgNeutralQuaternary,
+  color = colors.fgNeutralTertiary,
+  iconColor = colors.fgNeutralTertiary,
 
   disabled = false,
   onPress,

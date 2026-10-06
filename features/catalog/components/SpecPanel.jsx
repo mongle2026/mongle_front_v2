@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     padding: padding.L,
     borderTopWidth: 1,
     borderTopColor: colors.strokeNeutralQuaternary,
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
 
   panelHeader: {

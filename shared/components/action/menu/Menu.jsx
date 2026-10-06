@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: gap.XS,
     borderRadius: radius.M,
-    backgroundColor: colors.fillNeutralWeak,
+    backgroundColor: colors.bgBase,
     overflow: 'hidden',
   },
 });

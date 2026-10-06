@@ -18,6 +18,9 @@ const Item = ({
   textStyle,
   accessibilityLabel = label,
 }) => {
+  // disabled 면 넘겨받은 color 대신 아이콘·글자 모두 fgDisabled
+  const contentColor = disabled ? colors.fgDisabled : color;
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -37,8 +40,8 @@ const Item = ({
           <Icon
             width={ICON_SIZE}
             height={ICON_SIZE}
-            color={color}
-            fill={color}
+            color={contentColor}
+            fill={contentColor}
             {...iconProps}
           />
         </View>
@@ -47,7 +50,7 @@ const Item = ({
         numberOfLines={1}
         style={[
           styles.label,
-          { color },
+          { color: contentColor },
           textStyle,
         ]}
       >
@@ -67,13 +70,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: gap.M,
-    backgroundColor: colors.bgSurface,
+    backgroundColor: colors.fillSurface,
   },
   pressed: {
     backgroundColor: colors.fillSurfacePress,
   },
   disabled: {
-    backgroundColor: colors.fillNeutralWeak,
+    backgroundColor: colors.fillSurface,
   },
   iconContainer: {
     width: ICON_SIZE,

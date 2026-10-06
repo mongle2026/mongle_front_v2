@@ -91,7 +91,7 @@ const MainTabNavigator = () => (
     screenOptions={{
       headerShown: false,
       sceneStyle: {
-        backgroundColor: colors.bgLayerBase,
+        backgroundColor: colors.bgBase,
       },
     }}
     tabBar={props => <BottomNavigation {...props} />}

@@ -5,9 +5,10 @@ import { Pressable } from 'react-native-gesture-handler';
 import { colors } from '../../styles/color';
 import { padding, radius } from '../../styles/token';
 
+// Figma 컴포넌트: action/IconButton (size S / M / L / XL)
 const IconButton = ({
   icon: Icon,
-  color,
+  color = colors.fgNeutralPrimary,
   size = 'S',
   onPress,
   disabled = false,
@@ -70,24 +71,27 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: radius.XS,
     flexShrink: 0,
   },
 
   sizeS: {
     padding: padding.XS,
+    borderRadius: radius.XS,
   },
 
   sizeM: {
-    padding: padding.M,
+    padding: padding.S,
+    borderRadius: radius.S,
   },
 
   sizeL: {
-    padding: padding.L,
+    padding: padding.M,
+    borderRadius: radius.M,
   },
 
   sizeXL: {
     padding: padding.M,
+    borderRadius: radius.M,
   },
 
   icon: {
@@ -100,6 +104,8 @@ const styles = StyleSheet.create({
   },
 });
 
+// 버튼 크기 = iconSize + padding × 2. hitSlop 으로 터치 영역을 44 에 맞춘다
+// S 22 / M 30 / L 36 / XL 38
 const SIZE_STYLES = {
   S: {
     container: styles.sizeS,
@@ -110,13 +116,13 @@ const SIZE_STYLES = {
   M: {
     container: styles.sizeM,
     iconSize: 18,
-    hitSlop: 5,
+    hitSlop: 7,
   },
 
   L: {
     container: styles.sizeL,
     iconSize: 20,
-    hitSlop: 0,
+    hitSlop: 4,
   },
 
   XL: {

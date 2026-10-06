@@ -20,6 +20,16 @@ import IcSearch from '../../../assets/icons/ic_search.svg';
 
 const COLLAPSE_DURATION = 200;
 
+// 하단 그라데이션 끝 색 (Figma: bgSurface → bgSurface0). 배경 토큰마다 짝이 되는 투명 토큰을 쓴다
+const TRANSPARENT_BACKGROUNDS = {
+  [colors.bgSurface]: colors.bgSurface0,
+  [colors.bgBase]: colors.bgBase0,
+};
+
+// 짝 토큰이 없는 배경색은 같은 색의 완전 투명으로 만든다
+const getTransparentBackground = color =>
+  TRANSPARENT_BACKGROUNDS[color] ?? toTransparent(color);
+
 // 하단 그라데이션 높이. 아래 목록이 이 높이만큼 SearchField 밑으로 들어와야 그라데이션이 보인다
 export const SEARCH_FIELD_BOTTOM_FADE_HEIGHT = padding.XL;
 
@@ -38,7 +48,7 @@ const SearchField = ({
   placeholder,
   collapsed,
   backgroundColor = colors.bgSurface,
-  fieldBackgroundColor = colors.bgLayerBase,
+  fieldBackgroundColor = colors.bgBase,
   ...textInputProps
 }) => {
   const hasValue = value?.length > 0;
@@ -105,7 +115,7 @@ const SearchField = ({
 
         <LinearGradient
           pointerEvents="none"
-          colors={[backgroundColor, toTransparent(backgroundColor)]}
+          colors={[backgroundColor, getTransparentBackground(backgroundColor)]}
           style={styles.bottomFade}
         />
 

@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import MusicCard from '../../../shared/components/content/MusicCard';
 import ImageViewer from '../../../shared/components/content/ImageViewer';
-import { Dialog } from '../../../shared/components/action/Dialog';
+import { Dialog } from '../../../shared/components/feedback/Dialog';
 import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 

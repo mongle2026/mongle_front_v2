@@ -6,7 +6,7 @@ import IlDialogCancelletter from '../../../../assets/illustrations/il_dialog_can
 import IlDialogDeleteletter from '../../../../assets/illustrations/il_dialog_deleteletter.svg';
 import IlDialogDeletedletter from '../../../../assets/illustrations/il_dialog_deletedletter.svg';
 
-import { Dialog } from '../../../../shared/components/action/Dialog';
+import { Dialog } from '../../../../shared/components/feedback/Dialog';
 import Menu from '../../../../shared/components/action/menu/Menu';
 import { Button } from '../../../../shared/components/action/Button';
 import MusicCard from '../../../../shared/components/content/MusicCard';

@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: padding.L,
     gap: gap.S,
-    backgroundColor: colors.bgLayerBase,
+    backgroundColor: colors.bgBase,
   },
   icon: {
     flexShrink: 0,

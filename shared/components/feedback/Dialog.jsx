@@ -5,7 +5,7 @@ import { gap, padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 import { FONT } from '../../styles/fontType';
 
-import { Button, BUTTON_SIZE, BUTTON_VARIANT } from './Button';
+import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../action/Button';
 import IlDialogDelete from '../../../assets/illustrations/il_dialog_delete.svg';
 
 /*
