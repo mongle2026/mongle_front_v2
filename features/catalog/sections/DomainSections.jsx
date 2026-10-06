@@ -330,10 +330,10 @@ const WriteSection = () => {
 
   return (
     <CatalogSection title="Write">
-      <Specimen name="LabeledButton (write)" note="기본 / disabled">
+      <Specimen name="LabeledButton (write)" note="icon 은 엘리먼트로 넘긴다 · 기본 / disabled">
         <View style={styles.row}>
-          <WriteLabeledButton icon={IcPencil} label="수정" onPress={noop} />
-          <WriteLabeledButton icon={IcPencil} label="수정" disabled />
+          <WriteLabeledButton icon={<IcPencil />} label="수정" onPress={noop} />
+          <WriteLabeledButton icon={<IcPencil />} label="수정" disabled />
         </View>
       </Specimen>
 

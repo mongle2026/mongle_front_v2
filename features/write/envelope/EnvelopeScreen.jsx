@@ -81,7 +81,7 @@ const EnvelopeScreen = ({ navigation }) => {
       showToast({
         message: getApiErrorMessage(error, '편지를 보내지 못했습니다.'),
         icon: 'alert',
-        iconColor: colors.fgCritical,
+        iconColor: colors.fgCriticalInverted,
         bottomOffset: insets.bottom,
       });
     },
@@ -93,7 +93,7 @@ const EnvelopeScreen = ({ navigation }) => {
       showToast({
         message: '봉투를 선택해 주세요.',
         icon: 'alert',
-        iconColor: colors.fgCritical,
+        iconColor: colors.fgCriticalInverted,
         bottomOffset: insets.bottom,
       });
 

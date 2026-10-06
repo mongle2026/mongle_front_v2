@@ -146,7 +146,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
     showToast({
       message: '도착 시간이 지나 전송을 취소할 수 없습니다.',
       icon: 'alert',
-      iconColor: colors.fgCritical,
+      iconColor: colors.fgCriticalInverted,
       bottomOffset: insets.bottom,
     });
 

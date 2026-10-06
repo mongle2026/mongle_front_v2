@@ -33,7 +33,7 @@ const StampDetailScreen = ({ navigation, route }) => {
     showToast({
       message: '우표 정보를 불러오지 못했습니다.',
       icon: 'alert',
-      iconColor: colors.fgCritical,
+      iconColor: colors.fgCriticalInverted,
       bottomOffset: insets.bottom,
     });
     handleClose();

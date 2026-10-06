@@ -24,7 +24,7 @@ export const useRecordTextLimit = ({ bottomOffset }) => {
         showToast({
           message: '2,000자 이내로 내용을 줄여 주세요.',
           icon: 'alert',
-          iconColor: colors.fgCritical,
+          iconColor: colors.fgCriticalInverted,
           bottomOffset,
         });
 

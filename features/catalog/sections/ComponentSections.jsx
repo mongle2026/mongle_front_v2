@@ -375,7 +375,7 @@ const FeedbackSection = () => {
       <Specimen name="Toast" note="icon: check / alert · buttonText" contentStyle={stretch} dark>
         <Toast contentKey="a" text="저장했어요" />
         <Toast contentKey="b" text="삭제했어요" buttonText="실행 취소" onPressButton={noop} />
-        <Toast contentKey="c" text="문제가 생겼어요" icon="alert" iconColor={colors.fgCritical} />
+        <Toast contentKey="c" text="문제가 생겼어요" icon="alert" iconColor={colors.fgCriticalInverted} />
       </Specimen>
 
       <Specimen name="Dialog" dark>

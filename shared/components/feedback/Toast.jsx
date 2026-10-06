@@ -61,7 +61,7 @@ const Toast = ({
   contentKey,
   text,
   icon = 'check',
-  iconColor = colors.fgPositive,
+  iconColor = colors.fgPositiveInverted,
   buttonText,
   onPressButton,
 }) => {

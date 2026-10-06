@@ -175,7 +175,7 @@ const RecordScreen = ({ navigation, route }) => {
         showToast({
           message: missingToastMessage,
           icon: 'alert',
-          iconColor: colors.fgCritical,
+          iconColor: colors.fgCriticalInverted,
           bottomOffset,
         });
 

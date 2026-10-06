@@ -38,7 +38,7 @@ const useDeletedCommentToast = ({
     showToast({
       message: isReply ? '해당 답글은 이미 삭제되었어요.' : '해당 댓글은 이미 삭제되었어요.',
       icon: 'alert',
-      iconColor: colors.fgCritical,
+      iconColor: colors.fgCriticalInverted,
       bottomOffset,
     });
   }, [

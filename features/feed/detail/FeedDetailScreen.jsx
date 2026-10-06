@@ -101,7 +101,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
       showToast({
         message: '기록을 삭제하지 못했습니다.',
         icon: 'alert',
-        iconColor: colors.fgCritical,
+        iconColor: colors.fgCriticalInverted,
         bottomOffset: commentBarBottom + commentBarHeight,
       });
     },
