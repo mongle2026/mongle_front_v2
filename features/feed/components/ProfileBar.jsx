@@ -30,7 +30,7 @@ const ProfileBar = ({
       <View style={styles.container}>
         <Profile
           imageUri={imageUri}
-          imageSize="M"
+          imageSize="S"
           username={username}
           font={font}
           variant={profileVariant}
