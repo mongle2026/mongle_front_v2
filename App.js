@@ -226,6 +226,11 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (error) {
+      // 로딩에 실패해도 앱은 띄우되(시스템 폰트로 대체됨) 원인은 남긴다.
+      console.warn('폰트를 불러오지 못했습니다.', error);
+    }
+
     if (loaded || error) {
       SplashScreen.hideAsync();
     }

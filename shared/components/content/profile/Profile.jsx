@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, } from 'react-native';
 
 import ProfileImg from '../../atomic/ProfileImg';
 import { TextButton, TEXT_BUTTON_VARIANT } from '../../action/TextButton';
+import FontFallbackText from '../../atomic/FontFallbackText';
 
 import { colors } from '../../../styles/color';
 import { typo } from '../../../styles/typo';
@@ -112,7 +113,7 @@ const Profile = ({
         </View>
 
         <View style={styles.nicknameContainer}>
-          <Text
+          <FontFallbackText
             style={[
               letterTextStyle,
               styles.letterText,
@@ -120,7 +121,7 @@ const Profile = ({
             ]}
           >
             {recipientText}
-          </Text>
+          </FontFallbackText>
 
           <Text
             style={[

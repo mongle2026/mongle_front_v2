@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   label: {
     alignSelf: 'stretch',
     textAlign: 'center',
-    ...typo.suitCaptionLarge,
+    ...typo.suitLabelMedium,
   },
 });
 

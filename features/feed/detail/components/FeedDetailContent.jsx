@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
-import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
+import FontFallbackText from '../../../../shared/components/atomic/FontFallbackText';
 
 import useWriteImgRatio from '../../../../shared/hooks/useWriteImgRatio';
 
@@ -44,9 +44,9 @@ const FeedDetailContent = ({
     <Pressable onPress={onPress} style={styles.container}>
       {hasContent && (
         <View style={styles.textContainer}>
-          <SuitSafeText style={[styles.contentText, fontStyle]}>
+          <FontFallbackText style={[styles.contentText, fontStyle]}>
             {content}
-          </SuitSafeText>
+          </FontFallbackText>
         </View>
       )}
 

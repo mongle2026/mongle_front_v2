@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import SuitSafeText from '../../../../../shared/components/atomic/SuitSafeText';
+import FontFallbackText from '../../../../../shared/components/atomic/FontFallbackText';
 import { WriteImg } from '../../../../../shared/components/atomic/WriteImg';
 import useWriteImgRatio from '../../../../../shared/hooks/useWriteImgRatio';
 import { colors } from '../../../../../shared/styles/color';
@@ -23,7 +23,7 @@ const LetterDetailContent = ({ text = '', imageSources = [], font = FONT.KYOBO }
 
   return (
     <View style={styles.textContainer}>
-      {hasText && <SuitSafeText style={[styles.text, fontStyle]}>{text}</SuitSafeText>}
+      {hasText && <FontFallbackText style={[styles.text, fontStyle]}>{text}</FontFallbackText>}
 
       {visibleImages.map((imageSource, index) => (
         <LetterImage key={getImageKey(imageSource, index)} imageSource={imageSource} />

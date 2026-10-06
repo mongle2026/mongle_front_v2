@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import SuitSafeText from '../../../shared/components/atomic/SuitSafeText';
+import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
 import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import MusicCard from '../../../shared/components/content/MusicCard';
 
@@ -70,13 +70,13 @@ const ShortPostCard = ({
         {(hasContent || hasImage) && (
           <View style={styles.contentContainer}>
             {hasContent ? (
-              <SuitSafeText
+              <FontFallbackText
                 style={[styles.contentText, CONTENT_TYPOGRAPHY[normalizedFont]]}
                 numberOfLines={2}
                 ellipsizeMode="tail"
               >
                 {content}
-              </SuitSafeText>
+              </FontFallbackText>
             ) : (
               imageSources.map((imageSource, index) => (
                 <WriteImg

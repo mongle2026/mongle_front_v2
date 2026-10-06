@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Pressable as GesturePressable } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 
@@ -13,6 +13,7 @@ import { gap, padding } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
 import MusicCoverImg from '../atomic/MusicCoverImg';
+import FontFallbackText from '../atomic/FontFallbackText';
 
 const TITLE_TYPOGRAPHY = Object.freeze({
   [FONT.KYOBO]: typo.kyoboLabelLarge,
@@ -86,21 +87,21 @@ const MusicCard = ({
         />
 
         <View style={styles.musicInfoContainer}>
-          <Text
+          <FontFallbackText
             style={[styles.title, titleTypography]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {title}
-          </Text>
+          </FontFallbackText>
 
-          <Text
+          <FontFallbackText
             style={[styles.artist, artistTypography]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {artist}
-          </Text>
+          </FontFallbackText>
         </View>
       </PressArea>
 

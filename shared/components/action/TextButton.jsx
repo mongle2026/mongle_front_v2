@@ -1,10 +1,11 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
 import { colors } from '../../styles/color';
 import { padding, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 import { FONT, normalizeFont } from '../../styles/fontType';
+import FontFallbackText from '../atomic/FontFallbackText';
 
 export const TEXT_BUTTON_VARIANT = Object.freeze({
   SOLID: 'Solid',
@@ -291,7 +292,7 @@ export const TextButton = ({
           : style,
       ]}
     >
-      <Text
+      <FontFallbackText
         numberOfLines={1}
         style={[
           typographyStyle,
@@ -301,7 +302,7 @@ export const TextButton = ({
         ]}
       >
         {children}
-      </Text>
+      </FontFallbackText>
     </Pressable>
   );
 };

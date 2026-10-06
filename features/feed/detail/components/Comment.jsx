@@ -12,7 +12,7 @@ import IcKebab from '../../../../assets/icons/ic_kebab.svg';
 import IconButton from '../../../../shared/components/action/IconButton';
 import LabeledButton from '../../../../shared/components/action/LabeledButton';
 import ProfileImg from '../../../../shared/components/atomic/ProfileImg';
-import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
+import FontFallbackText from '../../../../shared/components/atomic/FontFallbackText';
 
 import { colors } from '../../../../shared/styles/color';
 import { gap, padding, radius } from '../../../../shared/styles/token';
@@ -106,9 +106,9 @@ const Comment = ({
               {showMenu && <View style={styles.menuPlaceholder} />}
             </View>
 
-            <SuitSafeText style={styles.comment}>
+            <FontFallbackText style={styles.comment}>
               {comment}
-            </SuitSafeText>
+            </FontFallbackText>
 
             {!isReply && (
               <LabeledButton

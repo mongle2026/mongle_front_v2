@@ -7,7 +7,7 @@ import ActionBar from '../../../../shared/components/content/ActionBar';
 
 import MusicCard from '../../../../shared/components/content/MusicCard';
 import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
-import SuitSafeText from '../../../../shared/components/atomic/SuitSafeText';
+import FontFallbackText from '../../../../shared/components/atomic/FontFallbackText';
 import usePressAnimation from '../../../../shared/hooks/usePressAnimation';
 import { colors } from '../../../../shared/styles/color';
 import { getImageKey } from '../../../../shared/utils/media';
@@ -124,7 +124,7 @@ const PostCard = ({
           <View style={styles.textContainer}>
             <View style={styles.textViewport} onLayout={handleTextViewportLayout}>
               {shouldMeasureContent && (
-                <SuitSafeText
+                <FontFallbackText
                   aria-hidden
                   pointerEvents="none"
                   onTextLayout={handleMeasureTextLayout}
@@ -135,10 +135,10 @@ const PostCard = ({
                   ]}
                 >
                   {content}
-                </SuitSafeText>
+                </FontFallbackText>
               )}
               {hasContent && (
-                <SuitSafeText
+                <FontFallbackText
                   numberOfLines={textNumberOfLines}
                   ellipsizeMode="tail"
                   style={[
@@ -147,7 +147,7 @@ const PostCard = ({
                   ]}
                 >
                   {displayContent}
-                </SuitSafeText>
+                </FontFallbackText>
               )}
             </View>
           </View>

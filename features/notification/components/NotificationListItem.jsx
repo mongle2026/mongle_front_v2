@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
-import SuitSafeText from '../../../shared/components/atomic/SuitSafeText';
+import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
 
 import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
@@ -106,8 +106,8 @@ const NotificationListItem = ({
       )}
 
       <View style={styles.textContainer}>
-        <SuitSafeText style={styles.title}>{title}</SuitSafeText>
-        <SuitSafeText style={styles.body}>{body}</SuitSafeText>
+        <FontFallbackText style={styles.title}>{title}</FontFallbackText>
+        <FontFallbackText style={styles.body}>{body}</FontFallbackText>
         <Text style={styles.date}>{formatNotificationDate(createdAt)}</Text>
       </View>
     </Pressable>

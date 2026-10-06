@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
-import SuitSafeText from '../../../../../shared/components/atomic/SuitSafeText';
+import FontFallbackText from '../../../../../shared/components/atomic/FontFallbackText';
 import { colors } from '../../../../../shared/styles/color';
 import { typo } from '../../../../../shared/styles/typo';
 import { gap, padding } from '../../../../../shared/styles/token';
@@ -126,14 +126,14 @@ const StampSummary = ({
       {/* 줄마다 폭이 달라서 가운데 정렬도 줄마다 따로 한다 */}
       <Animated.View style={[styles.layer, textStyle]} onLayout={handleTextLayout}>
         <CenterToStartRow progress={progress} startInset={EXPANDED_TEXT_LEFT}>
-          <SuitSafeText style={[styles.text, styles.title]} numberOfLines={1}>
+          <FontFallbackText style={[styles.text, styles.title]} numberOfLines={1}>
             {title}
-          </SuitSafeText>
+          </FontFallbackText>
         </CenterToStartRow>
         <CenterToStartRow progress={progress} startInset={EXPANDED_TEXT_LEFT}>
-          <SuitSafeText style={[styles.text, styles.caption]} numberOfLines={1}>
+          <FontFallbackText style={[styles.text, styles.caption]} numberOfLines={1}>
             {caption}
-          </SuitSafeText>
+          </FontFallbackText>
         </CenterToStartRow>
       </Animated.View>
     </Animated.View>

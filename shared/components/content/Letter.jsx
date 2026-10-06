@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import LetterBackground from '../../../assets/envelope/patterns/letter_cover_default.png';
@@ -10,6 +10,7 @@ import { colors } from '../../styles/color';
 import { typo } from '../../styles/typo';
 import { padding } from '../../styles/token';
 import { StampImage } from './Stamp';
+import FontFallbackText from '../atomic/FontFallbackText';
 
 // 편지 원본 크기(320x232). 편지를 쓰는 다른 화면도 이 값으로 크기·비율을 맞춘다
 export const LETTER_SIZE = Object.freeze({ width: 320, height: 232 });
@@ -91,12 +92,12 @@ function Letter({
         <View style={styles.card}>
           <View style={styles.section}>
             <View style={styles.container}>
-              <Text style={styles.name} numberOfLines={1}>
+              <FontFallbackText style={styles.name} numberOfLines={1}>
                 {recipient ? `${recipient}에게` : ''}
-              </Text>
-              <Text style={styles.name} numberOfLines={1}>
+              </FontFallbackText>
+              <FontFallbackText style={styles.name} numberOfLines={1}>
                 {sender ? `${sender}이가` : ''}
-              </Text>
+              </FontFallbackText>
             </View>
 
             <StampImage

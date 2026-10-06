@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { TEXT_BUTTON_VARIANT } from '../../../shared/components/action/TextButton';
 import CdCover from '../../../shared/components/atomic/CdCover';
-import SuitSafeText from '../../../shared/components/atomic/SuitSafeText';
+import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
 import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import Profile from '../../../shared/components/content/profile/Profile';
 
@@ -67,13 +67,13 @@ const OthersPostCard = ({
 
         <View style={styles.cdContainer}>
           <CdCover imageUri={musicImageUri} size={CD_SIZE} />
-          <Text
+          <FontFallbackText
             style={[styles.musicTitle, MUSIC_TITLE_TYPOGRAPHY[normalizedFont]]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {music.title}
-          </Text>
+          </FontFallbackText>
         </View>
       </View>
 
@@ -82,13 +82,13 @@ const OthersPostCard = ({
         {(hasContent || hasImage) && (
           <View style={styles.contentContainer}>
             {hasContent ? (
-              <SuitSafeText
+              <FontFallbackText
                 style={[styles.contentText, CONTENT_TYPOGRAPHY[normalizedFont]]}
                 numberOfLines={2}
                 ellipsizeMode="tail"
               >
                 {content}
-              </SuitSafeText>
+              </FontFallbackText>
             ) : (
               imageSources.map((imageSource, index) => (
                 <WriteImg
