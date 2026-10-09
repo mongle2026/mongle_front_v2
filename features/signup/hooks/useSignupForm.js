@@ -1,10 +1,14 @@
 import { useCallback, useState } from 'react';
 
+import useUserCodeAvailability, {
+  ID_PATTERN,
+  USER_CODE_AVAILABILITY,
+} from './useUserCodeAvailability';
+
 export const ID_MAX_LENGTH = 12;
 export const NICKNAME_MAX_LENGTH = 8;
 
-// 아이디: 영어 소문자, 숫자, _ 5~12자 / 닉네임: 띄어쓰기 없이 2~8자
-const ID_PATTERN = /^[a-z0-9_]{5,12}$/;
+// 닉네임: 띄어쓰기 없이 2~8자. 아이디 규칙은 useUserCodeAvailability
 const NICKNAME_PATTERN = /^\S{2,8}$/;
 
 // 아직 아무것도 입력하지 않았을 때는 error로 보여주지 않는다
@@ -17,8 +21,12 @@ const getStatus = (value, pattern) =>
  *
  * 아이디는 대문자로 입력해도 소문자로 바꿔서 저장한다.
  *
- * idStatus / nicknameStatus: 입력값이 규칙(글자 종류 · 글자 수)에 어긋나면 'error', 아니면 undefined
- * canSubmit: 아이디 · 닉네임이 모두 규칙을 만족하면 true
+ * idStatus: 규칙(글자 종류 · 글자 수)에 어긋나거나 이미 사용 중이면 'error',
+ *           사용할 수 있는 아이디임을 확인했으면 'positive', 아니면 undefined
+ * isIdTaken: 이미 사용 중인 아이디면 true
+ * isIdAvailable: 사용할 수 있는 아이디임을 확인했으면 true
+ * nicknameStatus: 규칙에 어긋나면 'error', 아니면 undefined
+ * canSubmit: 사용할 수 있는 아이디임을 확인했고 닉네임이 규칙을 만족하면 true
  */
 const useSignupForm = () => {
   const [id, setId] = useState('');
@@ -28,15 +36,29 @@ const useSignupForm = () => {
     setId(text.toLowerCase());
   }, []);
 
-  const idStatus = getStatus(id, ID_PATTERN);
+  const { availability } = useUserCodeAvailability(id);
+  const isIdTaken = availability === USER_CODE_AVAILABILITY.TAKEN;
+  const isIdAvailable = availability === USER_CODE_AVAILABILITY.AVAILABLE;
+
+  let idStatus = getStatus(id, ID_PATTERN);
+
+  if (isIdTaken) {
+    idStatus = 'error';
+  } else if (isIdAvailable) {
+    idStatus = 'positive';
+  }
+
   const nicknameStatus = getStatus(nickname, NICKNAME_PATTERN);
 
-  const canSubmit = ID_PATTERN.test(id) && NICKNAME_PATTERN.test(nickname);
+  // 중복 확인 중이거나 확인에 실패했을 때도 가입할 수 없다
+  const canSubmit = isIdAvailable && NICKNAME_PATTERN.test(nickname);
 
   return {
     id,
     changeId,
     idStatus,
+    isIdTaken,
+    isIdAvailable,
     nickname,
     setNickname,
     nicknameStatus,
