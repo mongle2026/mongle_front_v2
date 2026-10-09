@@ -16,8 +16,11 @@ import {
 } from '../../shared/components/action/Button';
 import TextField from '../../shared/components/input/TextField';
 import { useKeyboardHeight } from '../../shared/hooks/useFloatingBottomOffset';
+import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
 import BottomBar from '../write/components/bottombar/BottomBar';
 
+import ProfileImgEditBottomSheet from './components/ProfileImgEditBottomSheet';
+import useProfileImgPicker from './hooks/useProfileImgPicker';
 import useSignupForm, {
   ID_MAX_LENGTH,
   NICKNAME_MAX_LENGTH,
@@ -28,6 +31,7 @@ import { FONT } from '../../shared/styles/fontType';
 import { gap, padding, radius } from '../../shared/styles/token';
 
 const PROFILE_IMG_SIZE = 104;
+const PROFILE_IMG_EDIT_OVERLAY_ID = 'signup-profile-img-edit';
 
 const SignupScreen = () => {
   const {
@@ -39,6 +43,8 @@ const SignupScreen = () => {
     nicknameStatus,
     canSubmit,
   } = useSignupForm();
+
+  const { profileImg, pickProfileImgFromLibrary, deleteProfileImg } = useProfileImgPicker();
 
   const insets = useSafeAreaInsets();
   const keyboardHeight = useKeyboardHeight();
@@ -53,6 +59,33 @@ const SignupScreen = () => {
   const handlePressHideKeyboard = useCallback(() => {
     Keyboard.dismiss();
   }, []);
+
+  const { openOverlay } = useGlobalOverlay();
+
+  // TODO: 파일 선택 동작 연결
+  const handlePressProfileImgEdit = useCallback(() => {
+    Keyboard.dismiss();
+
+    openOverlay({
+      id: PROFILE_IMG_EDIT_OVERLAY_ID,
+      accessibilityLabel: '프로필 사진 편집 닫기',
+      contentContainerStyle: styles.profileImgEditOverlay,
+      renderContent: ({ close }) => (
+        <ProfileImgEditBottomSheet
+          onPressAlbum={() => {
+            close();
+            pickProfileImgFromLibrary();
+          }}
+          onPressFile={close}
+          onPressDelete={() => {
+            close();
+            deleteProfileImg();
+          }}
+          onClose={close}
+        />
+      ),
+    });
+  }, [openOverlay, pickProfileImgFromLibrary, deleteProfileImg]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -71,13 +104,14 @@ const SignupScreen = () => {
       >
         <View style={styles.content}>
           <View style={styles.profile}>
-            <ProfileImg style={styles.profileImg} />
+            <ProfileImg imageUri={profileImg?.uri} style={styles.profileImg} />
 
             <Button
               variant={BUTTON_VARIANT.WEAK}
               size={BUTTON_SIZE.M}
               font={FONT.SUIT}
               style={styles.profileEditButton}
+              onPress={handlePressProfileImgEdit}
             >
               프로필 사진 편집
             </Button>
@@ -175,6 +209,15 @@ const styles = StyleSheet.create({
   // Button은 기본이 alignSelf: 'flex-start'라서 가운데 정렬을 다시 지정한다
   profileEditButton: {
     alignSelf: 'center',
+  },
+
+  // BottomSheet를 화면 전체 위에 띄운다
+  profileImgEditOverlay: {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
   },
 
   // 화면 맨 아래에 붙인다
