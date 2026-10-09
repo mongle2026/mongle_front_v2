@@ -19,26 +19,32 @@ const BottomBarActions = ({
   onPressHideKeyboard,
   imageDisabled = false,
   keyboardVisible = false,
+  showLeftActions = true,
 }) => {
   return (
     <>
+      {/* 왼쪽 아이콘을 숨겨도 빈 자리를 남겨서 키보드 숨기기 버튼이 오른쪽에 붙게 한다 */}
       <View style={styles.container}>
-        <IconButton
-          size="L"
-          icon={IcImage}
-          color={colors.fgNeutralSecondary}
-          onPress={onPressImage}
-          disabled={imageDisabled}
-          accessibilityLabel="이미지 추가"
-        />
+        {showLeftActions && (
+          <>
+            <IconButton
+              size="L"
+              icon={IcImage}
+              color={colors.fgNeutralSecondary}
+              onPress={onPressImage}
+              disabled={imageDisabled}
+              accessibilityLabel="이미지 추가"
+            />
 
-        <IconButton
-          size="L"
-          icon={IcFont}
-          color={colors.fgNeutralSecondary}
-          onPress={onPressFont}
-          accessibilityLabel="폰트 선택"
-        />
+            <IconButton
+              size="L"
+              icon={IcFont}
+              color={colors.fgNeutralSecondary}
+              onPress={onPressFont}
+              accessibilityLabel="폰트 선택"
+            />
+          </>
+        )}
       </View>
 
       {keyboardVisible && (
@@ -104,6 +110,8 @@ const BottomBar = ({
 
   imageDisabled = false,
   keyboardVisible = false,
+  // false면 왼쪽 이미지 · 폰트 아이콘을 숨긴다 (mode = actions)
+  showLeftActions = true,
 
   onPressImage,
   onPressFont,
@@ -128,6 +136,7 @@ const BottomBar = ({
           onPressHideKeyboard={onPressHideKeyboard}
           imageDisabled={imageDisabled}
           keyboardVisible={keyboardVisible}
+          showLeftActions={showLeftActions}
         />
       ) : (
         <FontSelector

@@ -32,6 +32,7 @@ import GenreScreen from './features/archive/myfeed/genre/GenreScreen';
 import GenreDetailScreen from './features/archive/myfeed/genre/detail/GenreDetailScreen';
 import AllScreen from './features/archive/myfeed/all/AllScreen';
 import CatalogScreen from './features/catalog/CatalogScreen';
+import SignupScreen from './features/signup/SignupScreen';
 import PushNotificationHandler from './features/notification/push/PushNotificationHandler';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
@@ -137,11 +138,16 @@ const StampDetailRoute = props => (
 
 const RootNavigator = () => (
   <Stack.Navigator
-    initialRouteName="MainTabs"
+    // TODO: 회원가입 화면 작업용. 로그인 여부 분기 붙이면 MainTabs로 되돌린다
+    initialRouteName="Signup"
     screenOptions={{
       headerShown: false,
     }}
   >
+    <Stack.Screen
+      name="Signup"
+      component={SignupScreen}
+    />
     <Stack.Screen
       name="MainTabs"
       component={MainTabNavigator}
