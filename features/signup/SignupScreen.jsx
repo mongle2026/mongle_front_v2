@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 import IcArrowLeft from '../../assets/icons/ic_arrow_left.svg';
 
@@ -17,10 +18,13 @@ import {
 import TextField from '../../shared/components/input/TextField';
 import { useKeyboardHeight } from '../../shared/hooks/useFloatingBottomOffset';
 import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
+import { getApiErrorMessage } from '../../shared/api/client';
 import BottomBar from '../write/components/bottombar/BottomBar';
 
 import ProfileImgEditBottomSheet from './components/ProfileImgEditBottomSheet';
 import useProfileImgPicker from './hooks/useProfileImgPicker';
+import useSignup from './hooks/useSignup';
+import { ProfileImgUploadError } from './utils/uploadProfileImg';
 import useSignupForm, {
   ID_MAX_LENGTH,
   NICKNAME_MAX_LENGTH,
@@ -33,18 +37,31 @@ import { gap, padding, radius } from '../../shared/styles/token';
 const PROFILE_IMG_SIZE = 104;
 const PROFILE_IMG_EDIT_OVERLAY_ID = 'signup-profile-img-edit';
 
+const getIdDescription = ({ isIdTaken, isIdAvailable }) => {
+  if (isIdTaken) return '이미 사용 중인 아이디예요.';
+  if (isIdAvailable) return '사용할 수 있는 아이디예요.';
+  return '영어, 숫자, _를 5~12자로 입력할 수 있어요.';
+};
+
 const SignupScreen = () => {
   const {
     id,
     changeId,
     idStatus,
+    isIdTaken,
+    isIdAvailable,
     nickname,
     setNickname,
     nicknameStatus,
     canSubmit,
   } = useSignupForm();
 
-  const { profileImg, pickProfileImgFromLibrary, deleteProfileImg } = useProfileImgPicker();
+  const {
+    profileImg,
+    pickProfileImgFromLibrary,
+    deleteProfileImg,
+    getProfileImgKey,
+  } = useProfileImgPicker();
 
   const insets = useSafeAreaInsets();
   const keyboardHeight = useKeyboardHeight();
@@ -60,7 +77,31 @@ const SignupScreen = () => {
     Keyboard.dismiss();
   }, []);
 
-  const { openOverlay } = useGlobalOverlay();
+  const { openOverlay, showToast } = useGlobalOverlay();
+  const navigation = useNavigation();
+
+  // TODO: 받은 accessToken / refreshToken 저장은 로그인 붙일 때 함께 한다
+  const { signup, isSigningUp } = useSignup({
+    onSuccess: () => {
+      navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+    },
+
+    onError: error => {
+      showToast({
+        message: error instanceof ProfileImgUploadError
+          ? error.message
+          : getApiErrorMessage(error, '가입하지 못했습니다.'),
+        icon: 'alert',
+        iconColor: colors.fgCriticalInverted,
+        bottomOffset: insets.bottom,
+      });
+    },
+  });
+
+  const handlePressSubmit = useCallback(() => {
+    Keyboard.dismiss();
+    signup({ userCode: id, nickname, getProfileImgKey });
+  }, [signup, id, nickname, getProfileImgKey]);
 
   // TODO: 파일 선택 동작 연결
   const handlePressProfileImgEdit = useCallback(() => {
@@ -128,7 +169,7 @@ const SignupScreen = () => {
             // 앞 글자가 한 번 더 붙는다(qw + E → qwqwe). 조합을 쓰지 않는 키보드로 바꿔서 막는다
             keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
             placeholder="아이디를 입력하세요."
-            description="영어, 숫자, _를 5~12자로 입력할 수 있어요."
+            description={getIdDescription({ isIdTaken, isIdAvailable })}
             maxLength={ID_MAX_LENGTH}
             status={idStatus}
           />
@@ -152,6 +193,8 @@ const SignupScreen = () => {
             size={BUTTON_SIZE.XL}
             font={FONT.SUIT}
             style={styles.submitButton}
+            disabled={isSigningUp}
+            onPress={handlePressSubmit}
           >
             가입하기
           </Button>
