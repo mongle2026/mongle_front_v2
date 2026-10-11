@@ -5,6 +5,7 @@
     "scheme": "mongle",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/logo/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
