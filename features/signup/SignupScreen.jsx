@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { Keyboard, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import {
   SafeAreaView,
@@ -17,6 +17,7 @@ import {
 } from '../../shared/components/action/Button';
 import TextField from '../../shared/components/input/TextField';
 import { useKeyboardHeight } from '../../shared/hooks/useFloatingBottomOffset';
+import useScrollFocusedFieldToCenter from '../../shared/hooks/useScrollFocusedFieldToCenter';
 import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
 import { getApiErrorMessage } from '../../shared/api/client';
 import BottomBar from '../write/components/bottombar/BottomBar';
@@ -59,6 +60,7 @@ const SignupScreen = () => {
   const {
     profileImg,
     pickProfileImgFromLibrary,
+    pickProfileImgFromFile,
     deleteProfileImg,
     getProfileImgKey,
   } = useProfileImgPicker();
@@ -72,6 +74,16 @@ const SignupScreen = () => {
   // 가입하기 버튼까지 스크롤로 올릴 수 있다.
   // SafeAreaView가 이미 아래 안전영역만큼 띄워 두었으니 그만큼은 뺀다
   const keyboardInset = Math.max(0, keyboardHeight - insets.bottom);
+
+  // 입력창에 포커스하면 키보드 위로 보이는 영역의 가운데로 스크롤한다
+  const idFieldRef = useRef(null);
+  const nicknameFieldRef = useRef(null);
+  const {
+    scrollViewRef,
+    handleScrollViewLayout,
+    focusField,
+    blurField,
+  } = useScrollFocusedFieldToCenter({ isKeyboardVisible });
 
   const handlePressHideKeyboard = useCallback(() => {
     Keyboard.dismiss();
@@ -103,7 +115,6 @@ const SignupScreen = () => {
     signup({ userCode: id, nickname, getProfileImgKey });
   }, [signup, id, nickname, getProfileImgKey]);
 
-  // TODO: 파일 선택 동작 연결
   const handlePressProfileImgEdit = useCallback(() => {
     Keyboard.dismiss();
 
@@ -117,7 +128,10 @@ const SignupScreen = () => {
             close();
             pickProfileImgFromLibrary();
           }}
-          onPressFile={close}
+          onPressFile={() => {
+            close();
+            pickProfileImgFromFile();
+          }}
           onPressDelete={() => {
             close();
             deleteProfileImg();
@@ -126,7 +140,7 @@ const SignupScreen = () => {
         />
       ),
     });
-  }, [openOverlay, pickProfileImgFromLibrary, deleteProfileImg]);
+  }, [openOverlay, pickProfileImgFromLibrary, pickProfileImgFromFile, deleteProfileImg]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -138,6 +152,8 @@ const SignupScreen = () => {
       />
 
       <ScrollView
+        ref={scrollViewRef}
+        onLayout={handleScrollViewLayout}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -159,14 +175,14 @@ const SignupScreen = () => {
           </View>
 
           <TextField
+            containerRef={idFieldRef}
+            onFocus={() => focusField(idFieldRef)}
+            onBlur={() => blurField(idFieldRef)}
             label="아이디"
             value={id}
             onChangeText={changeId}
-            // 키보드가 첫 글자를 대문자로 바꾸지 않게 한다
             autoCapitalize="none"
             autoCorrect={false}
-            // Android 키보드는 입력 중인 글자를 묶어서(조합) 들고 있어서, 대문자를 소문자로 바꿔 넣으면
-            // 앞 글자가 한 번 더 붙는다(qw + E → qwqwe). 조합을 쓰지 않는 키보드로 바꿔서 막는다
             keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
             placeholder="아이디를 입력하세요."
             description={getIdDescription({ isIdTaken, isIdAvailable })}
@@ -176,6 +192,9 @@ const SignupScreen = () => {
 
           {/* 닉네임은 @ 없이 입력한다 */}
           <TextField
+            containerRef={nicknameFieldRef}
+            onFocus={() => focusField(nicknameFieldRef)}
+            onBlur={() => blurField(nicknameFieldRef)}
             label="닉네임"
             prefix={null}
             value={nickname}

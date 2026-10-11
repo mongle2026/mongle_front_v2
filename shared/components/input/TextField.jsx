@@ -33,8 +33,10 @@ const getDescriptionColor = status => {
  * @param {number} maxLength 최대 글자 수. 입력창 아래 오른쪽에 n/maxLength 로 항상 보여줍니다
  * @param {'positive' | 'error'} [status] positive면 설명이 초록색,
  *   error면 테두리·설명·글자 수가 빨간색이 됩니다
+ * @param {React.Ref} [containerRef] 제목부터 설명까지 감싼 바깥 View의 ref (위치 측정용)
  */
 const TextField = ({
+  containerRef,
   label,
   required = false,
   prefix = '@',
@@ -61,7 +63,7 @@ const TextField = ({
     status === 'error' ? colors.fgCritical : colors.fgNeutralTertiary;
 
   return (
-    <View style={styles.container}>
+    <View ref={containerRef} style={styles.container}>
       {label && (
         <View style={styles.label}>
           <Text style={styles.labelText}>{label}</Text>
