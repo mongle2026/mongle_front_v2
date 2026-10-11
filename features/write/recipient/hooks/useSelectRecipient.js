@@ -21,14 +21,12 @@ async function fetchUserSearchPage({
   keyword,
   pageParam,
   signal,
-  currentUserId,
 }) {
   const response = await apiClient.get(
     '/user/search',
     {
       params: {
         keyword,
-        currentUserId,
         page: pageParam,
         limit: USER_PAGE_LIMIT,
       },
@@ -81,10 +79,9 @@ export default function useSelectRecipient(
         keyword: searchKeyword,
         pageParam,
         signal,
-        currentUserId,
       });
     },
-    [currentUserId],
+    [],
   );
 
   const userQuery =

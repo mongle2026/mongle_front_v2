@@ -66,11 +66,6 @@ const useUpdateFeed = ({
             visibility: recordForm.visibility ?? 'PUBLIC',
             deleteFileIds,
           },
-          {
-            params: {
-              userId: String(userId),
-            },
-          },
         );
 
       return response.data;

@@ -7,7 +7,7 @@ import { archiveKeys } from '../../../api/archiveKeys';
 import { SESSION_COVER_SEED } from '../../utils/sessionCover';
 import { hasId } from '../../../../../shared/utils/id';
 
-// 모든 기록의 월 목록. GET /feed/me/months?userId=&limit=&coverSeed=&keyword=
+// 모든 기록의 월 목록. GET /feed/me/months?limit=&coverSeed=&keyword=
 // keyword 가 있으면 노래 제목 또는 아티스트에 검색어가 포함된 글이 있는 달만 온다.
 // 글을 쓴 달만 최신 달부터 온다(month: 한국 시간 'YYYY-MM').
 // 커버는 서버가 그 달 글들의 앨범 커버 중 하나를 골라 준다(앱 실행 동안 고정).
@@ -20,7 +20,7 @@ const useMyFeedMonths = ({ userId, limit, keyword = '' }) => {
     enabled: isConfigured,
     queryFn: async () => {
       const response = await apiClient.get('/feed/me/months', {
-        params: { userId, limit, coverSeed: SESSION_COVER_SEED, keyword: keyword || undefined },
+        params: { limit, coverSeed: SESSION_COVER_SEED, keyword: keyword || undefined },
       });
       return Array.isArray(response.data?.items) ? response.data.items : [];
     },

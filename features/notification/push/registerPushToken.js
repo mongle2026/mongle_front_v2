@@ -20,7 +20,7 @@ const requestPermission = async () => {
 };
 
 /**
- * 알림 권한을 받고 Expo 푸시 토큰을 서버에 등록한다.
+ * 알림 권한을 받고 Expo 푸시 토큰을 로그인한 계정으로 서버에 등록한다.
  * 토큰은 앱을 다시 설치하거나 기기를 바꾸면 달라질 수 있어서 앱을 켤 때마다 등록한다. (서버는 upsert)
  *
  * 권한 거절 · 시뮬레이터 · projectId 없음은 알림만 못 받을 뿐 앱 사용에는 문제가 없어서 조용히 넘긴다.
@@ -47,7 +47,6 @@ export const registerPushToken = async userId => {
   const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
 
   await apiClient.post('/notification/push-token', {
-    userId,
     token,
     platform: Platform.OS,
   });

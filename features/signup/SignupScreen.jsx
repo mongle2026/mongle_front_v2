@@ -4,7 +4,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 import IcArrowLeft from '../../assets/icons/ic_arrow_left.svg';
 
@@ -45,6 +45,11 @@ const getIdDescription = ({ isIdTaken, isIdAvailable }) => {
 };
 
 const SignupScreen = () => {
+  const navigation = useNavigation();
+
+  // 카카오/애플 로그인에서 받아 약관 화면을 거쳐 넘어온 값
+  const { signupToken, suggestedNickname } = useRoute().params ?? {};
+
   const {
     id,
     changeId,
@@ -55,7 +60,7 @@ const SignupScreen = () => {
     setNickname,
     nicknameStatus,
     canSubmit,
-  } = useSignupForm();
+  } = useSignupForm({ suggestedNickname });
 
   const {
     profileImg,
@@ -63,7 +68,7 @@ const SignupScreen = () => {
     pickProfileImgFromFile,
     deleteProfileImg,
     getProfileImgKey,
-  } = useProfileImgPicker();
+  } = useProfileImgPicker({ signupToken });
 
   const insets = useSafeAreaInsets();
   const keyboardHeight = useKeyboardHeight();
@@ -90,13 +95,9 @@ const SignupScreen = () => {
   }, []);
 
   const { openOverlay, showToast } = useGlobalOverlay();
-  const navigation = useNavigation();
 
-  // TODO: 받은 accessToken / refreshToken 저장은 로그인 붙일 때 함께 한다
   const { signup, isSigningUp } = useSignup({
-    onSuccess: () => {
-      navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
-    },
+    signupToken,
 
     onError: error => {
       showToast({
@@ -147,6 +148,7 @@ const SignupScreen = () => {
       <TopSubNavigation
         leftIcon={IcArrowLeft}
         leftAccessibilityLabel="뒤로가기"
+        onPressClose={navigation.goBack}
         showShare={false}
         showMore={false}
       />

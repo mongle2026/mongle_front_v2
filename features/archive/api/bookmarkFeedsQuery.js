@@ -5,13 +5,13 @@ import { hasId } from '../../../shared/utils/id';
 import { archiveKeys } from './archiveKeys';
 
 // 내가 북마크한 글 목록 쿼리. 보관함 화면(useBookmarkFeeds)과 피드의 미리 받기(prefetchBookmarkFeeds)가 같이 쓴다
-// GET /feed/bookmark/me?userId=&filter=&sort=&cursor=&limit=
+// GET /feed/bookmark/me?filter=&sort=&cursor=&limit=
 
 const BOOKMARK_FEED_LIMIT = 20;
 
-const fetchBookmarkFeedPage = ({ userId, filter, sort, pageParam }) =>
+const fetchBookmarkFeedPage = ({ filter, sort, pageParam }) =>
   fetchCursorPage('/feed/bookmark/me', {
-    params: { userId, filter, sort, limit: BOOKMARK_FEED_LIMIT },
+    params: { filter, sort, limit: BOOKMARK_FEED_LIMIT },
     cursor: pageParam,
   });
 
@@ -20,7 +20,7 @@ export const isBookmarkFeedsConfigured = ({ userId }) => Boolean(isApiConfigured
 export const getBookmarkFeedsQueryOptions = ({ userId, filter, sort }) => ({
   queryKey: archiveKeys.bookmarkFeeds(userId, filter, sort),
   initialPageParam: null,
-  queryFn: ({ pageParam }) => fetchBookmarkFeedPage({ userId, filter, sort, pageParam }),
+  queryFn: ({ pageParam }) => fetchBookmarkFeedPage({ filter, sort, pageParam }),
   getNextPageParam: getNextCursor,
 });
 

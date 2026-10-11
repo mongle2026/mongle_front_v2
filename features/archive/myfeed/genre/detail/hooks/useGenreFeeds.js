@@ -9,9 +9,9 @@ import { hasId } from '../../../../../../shared/utils/id';
 const GENRE_FEED_LIMIT = 20;
 const DEFAULT_SORT = 'latest';
 
-const fetchGenreFeedPage = ({ userId, genre, sort, pageParam }) =>
+const fetchGenreFeedPage = ({ genre, sort, pageParam }) =>
   fetchCursorPage('/feed/me', {
-    params: { userId, genre, sort, limit: GENRE_FEED_LIMIT },
+    params: { genre, sort, limit: GENRE_FEED_LIMIT },
     cursor: pageParam,
   });
 
@@ -21,7 +21,7 @@ const isGenreFeedsConfigured = ({ userId, genre }) =>
 const getGenreFeedsQueryOptions = ({ userId, genre, sort }) => ({
   queryKey: archiveKeys.genreFeeds(userId, genre, sort),
   initialPageParam: null,
-  queryFn: ({ pageParam }) => fetchGenreFeedPage({ userId, genre, sort, pageParam }),
+  queryFn: ({ pageParam }) => fetchGenreFeedPage({ genre, sort, pageParam }),
   getNextPageParam: getNextCursor,
 });
 
@@ -31,7 +31,7 @@ export const prefetchGenreFeeds = (queryClient, { userId, genre, sort = DEFAULT_
   void queryClient.prefetchInfiniteQuery(getGenreFeedsQueryOptions({ userId, genre, sort }));
 };
 
-// 선택한 장르의 기록. GET /feed/me?userId=&genre=&sort=&cursor=&limit=
+// 선택한 장르의 기록. GET /feed/me?genre=&sort=&cursor=&limit=
 // 그 장르 곡을 첨부한 내 피드만 온다.
 // sort: latest(최신순) / oldest(오래된순) / title(노래 제목순: 한글 → 영문 → 숫자·기호)
 const useGenreFeeds = ({ userId, genre, sort = DEFAULT_SORT }) => {

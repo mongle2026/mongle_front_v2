@@ -152,11 +152,6 @@ export default function useFeedComments({
     queryFn: async () => {
       const response = await apiClient.get(
         `/feed/${feedId}/comments`,
-        {
-          params: {
-            userId,
-          },
-        },
       );
 
       return response.data;
@@ -209,11 +204,6 @@ export default function useFeedComments({
                     replyToUserId,
                   }
                 : {}),
-            },
-            {
-              params: {
-                userId,
-              },
             },
           );
 
@@ -302,11 +292,6 @@ export default function useFeedComments({
         const response =
           await apiClient.delete(
             `/feed/${feedId}/comments/${commentId}`,
-            {
-              params: {
-                userId,
-              },
-            },
           );
 
         return response.data;

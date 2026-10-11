@@ -17,7 +17,7 @@ function normalizeStampCounts(data) {
   }, {});
 }
 
-// 편지함 우표 탭. GET /stamp?userId=
+// 편지함 우표 탭. GET /stamp
 // 우표 목록은 프론트(envelopeData STAMPS)가 기준이고, 서버에서는 받은 횟수만 받아 합친다.
 // 서버에 없는(또는 아직 못 불러온) 우표는 받은 적 없는 우표(count 0)로 둔다.
 const useStampBox = ({ userId } = {}) => {
@@ -27,7 +27,7 @@ const useStampBox = ({ userId } = {}) => {
     queryKey: letterboxKeys.stamps(userId),
     enabled: isConfigured,
     queryFn: async () => {
-      const response = await apiClient.get('/stamp', { params: { userId } });
+      const response = await apiClient.get('/stamp');
       return normalizeStampCounts(response.data);
     },
   });

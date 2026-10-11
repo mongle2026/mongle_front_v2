@@ -1,32 +1,23 @@
 import apiClient, { isApiConfigured } from '../api/client';
 import { useQuery } from '@tanstack/react-query';
 
-import { mockAuth } from '../auth/mockAuth';
+import { useAuthStore } from '../auth/useAuthStore';
 import { resolveMediaUri } from '../utils/media';
 import { hasId, toIdKey } from '../utils/id';
 
 export default function useCurrentUser() {
-  const isConfigured =
-    isApiConfigured;
-
-  const isAuthenticated =
-    mockAuth.isAuthenticated;
-
-  const mockUserId =
-    mockAuth.userId;
+  const sessionUserId = useAuthStore(state => state.session?.userId ?? null);
 
   const {
     data: currentUser,
   } = useQuery({
     queryKey: [
       'current-user',
-      toIdKey(mockUserId),
+      toIdKey(sessionUserId),
     ],
 
     queryFn: async () => {
-      const response = await apiClient.get(
-        `/user/${mockUserId}`,
-      );
+      const response = await apiClient.get('/auth/me');
 
       const user = response.data;
 
@@ -57,9 +48,8 @@ export default function useCurrentUser() {
     },
 
     enabled:
-      isConfigured &&
-      isAuthenticated &&
-      hasId(mockUserId),
+      isApiConfigured &&
+      hasId(sessionUserId),
 
     staleTime: 5 * 60 * 1000,
   });
@@ -69,12 +59,12 @@ export default function useCurrentUser() {
 
     /**
      * 사용자 API 조회 전에도
-     * 좋아요/댓글 등에 userId가 필요하기 때문에
-     * mockAuth의 ID를 fallback으로 사용
+     * 쿼리 키 · 내 글 확인 등에 userId가 필요하기 때문에
+     * 로그인할 때 저장한 userId를 fallback으로 사용
      */
     userId:
       currentUser?.userId ??
-      mockUserId,
+      sessionUserId,
 
   };
 }

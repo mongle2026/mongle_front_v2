@@ -32,12 +32,15 @@ import GenreScreen from './features/archive/myfeed/genre/GenreScreen';
 import GenreDetailScreen from './features/archive/myfeed/genre/detail/GenreDetailScreen';
 import AllScreen from './features/archive/myfeed/all/AllScreen';
 import CatalogScreen from './features/catalog/CatalogScreen';
+import WelcomeScreen from './features/auth/WelcomeScreen';
+import TermsScreen from './features/signup/terms/TermsScreen';
 import SignupScreen from './features/signup/SignupScreen';
 import PushNotificationHandler from './features/notification/push/PushNotificationHandler';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
 import { MAIN_TAB_ROUTES } from './shared/components/navigation/bottomnavigation/routeNames';
+import { AUTH_STATUS, useAuthStore } from './shared/auth/useAuthStore';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -136,90 +139,105 @@ const StampDetailRoute = props => (
   </GestureHandlerRootView>
 );
 
-const RootNavigator = () => (
+// 로그인 여부에 따라 화면 묶음을 바꾼다. 로그인 · 가입하거나 refresh 가 실패해 로그아웃되면
+// 바뀐 묶음의 첫 화면(MainTabs / Welcome)으로 자동으로 넘어간다
+const RootNavigator = ({ isSignedIn }) => (
   <Stack.Navigator
-    // TODO: 회원가입 화면 작업용. 로그인 여부 분기 붙이면 MainTabs로 되돌린다
-    initialRouteName="Signup"
     screenOptions={{
       headerShown: false,
     }}
   >
-    <Stack.Screen
-      name="Signup"
-      component={SignupScreen}
-    />
-    <Stack.Screen
-      name="MainTabs"
-      component={MainTabNavigator}
-    />
-    <Stack.Screen
-      name="FeedDetail"
-      component={FeedDetailRoute}
-      options={{
-        animation: 'ios_from_right',
-      }}
-    />
-    <Stack.Screen
-      name="LetterDetail"
-      component={LetterDetailScreen}
-      options={{
-        animation: 'ios_from_right',
-      }}
-    />
-    <Stack.Screen
-      name="StampDetail"
-      component={StampDetailRoute}
-      options={{
-        presentation: 'transparentModal',
-        animation: 'fade',
-      }}
-    />
-    <Stack.Screen
-      name="Record"
-      component={RecordScreen}
-    />
-    <Stack.Screen
-      name="RecordEdit"
-      component={RecordEditScreen}
-    />
-    <Stack.Screen
-      name="Envelope"
-      component={EnvelopeScreen}
-    />
-    <Stack.Screen
-      name="Notification"
-      component={NotificationScreen}
-    />
-    <Stack.Screen
-      name="MyFeedGenre"
-      component={GenreScreen}
-      options={{
-        animation: 'ios_from_right',
-      }}
-    />
-    <Stack.Screen
-      name="MyFeedGenreDetail"
-      component={GenreDetailScreen}
-      options={{
-        animation: 'ios_from_right',
-      }}
-    />
-    <Stack.Screen
-      name="MyFeedAll"
-      component={AllScreen}
-      options={{
-        animation: 'ios_from_right',
-      }}
-    />
-    {/* 개발 빌드에서만 등록하는 컴포넌트 카탈로그 (프로필 탭에서 진입) */}
-    {__DEV__ && (
-      <Stack.Screen
-        name="Catalog"
-        component={CatalogScreen}
-        options={{
-          animation: 'ios_from_right',
-        }}
-      />
+    {isSignedIn ? (
+      <Stack.Group>
+        <Stack.Screen
+          name="MainTabs"
+          component={MainTabNavigator}
+        />
+        <Stack.Screen
+          name="FeedDetail"
+          component={FeedDetailRoute}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="LetterDetail"
+          component={LetterDetailScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="StampDetail"
+          component={StampDetailRoute}
+          options={{
+            presentation: 'transparentModal',
+            animation: 'fade',
+          }}
+        />
+        <Stack.Screen
+          name="Record"
+          component={RecordScreen}
+        />
+        <Stack.Screen
+          name="RecordEdit"
+          component={RecordEditScreen}
+        />
+        <Stack.Screen
+          name="Envelope"
+          component={EnvelopeScreen}
+        />
+        <Stack.Screen
+          name="Notification"
+          component={NotificationScreen}
+        />
+        <Stack.Screen
+          name="MyFeedGenre"
+          component={GenreScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="MyFeedGenreDetail"
+          component={GenreDetailScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="MyFeedAll"
+          component={AllScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        {/* 개발 빌드에서만 등록하는 컴포넌트 카탈로그 (프로필 탭에서 진입) */}
+        {__DEV__ && (
+          <Stack.Screen
+            name="Catalog"
+            component={CatalogScreen}
+            options={{
+              animation: 'ios_from_right',
+            }}
+          />
+        )}
+      </Stack.Group>
+    ) : (
+      <Stack.Group>
+        <Stack.Screen
+          name="Welcome"
+          component={WelcomeScreen}
+        />
+        <Stack.Screen
+          name="Terms"
+          component={TermsScreen}
+        />
+        <Stack.Screen
+          name="Signup"
+          component={SignupScreen}
+        />
+      </Stack.Group>
     )}
   </Stack.Navigator>
 );
@@ -227,6 +245,21 @@ const RootNavigator = () => (
 export default function App() {
   const [loaded, error] = useFonts(fontMap);
   const [isNavigationReady, setIsNavigationReady] = useState(false);
+
+  const authStatus = useAuthStore(state => state.status);
+  const restoreSession = useAuthStore(state => state.restoreSession);
+  const isAuthRestored = authStatus !== AUTH_STATUS.RESTORING;
+
+  useEffect(() => {
+    void restoreSession();
+  }, [restoreSession]);
+
+  // 로그아웃하면 이전 계정으로 받아 둔 데이터를 지운다
+  useEffect(() => {
+    if (authStatus === AUTH_STATUS.SIGNED_OUT) {
+      queryClient.clear();
+    }
+  }, [authStatus]);
 
   useEffect(() => {
     const configureAudio = async () => {
@@ -248,12 +281,13 @@ export default function App() {
       console.warn('폰트를 불러오지 못했습니다.', error);
     }
 
-    if (loaded || error) {
+    // 저장된 로그인 정보를 읽을 때까지 스플래시를 유지해서 Welcome 이 잠깐 보이지 않게 한다
+    if ((loaded || error) && isAuthRestored) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [loaded, error, isAuthRestored]);
 
-  if (!loaded && !error) {
+  if ((!loaded && !error) || !isAuthRestored) {
     return null;
   }
 
@@ -272,7 +306,7 @@ export default function App() {
                 linking={linking}
                 onReady={() => setIsNavigationReady(true)}
               >
-                <RootNavigator />
+                <RootNavigator isSignedIn={authStatus === AUTH_STATUS.SIGNED_IN} />
               </NavigationContainer>
               <PushNotificationHandler
                 navigationRef={navigationRef}

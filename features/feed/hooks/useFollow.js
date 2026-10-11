@@ -39,11 +39,9 @@ export default function useFollow({
       }
 
       const url = `/follow/${targetUserId}`;
-      const params = { params: { currentUserId } };
-
       const response = nextFollowing
-        ? await apiClient.post(url, null, params)
-        : await apiClient.delete(url, params);
+        ? await apiClient.post(url)
+        : await apiClient.delete(url);
 
       return response.data;
     },

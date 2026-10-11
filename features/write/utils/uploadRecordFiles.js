@@ -44,7 +44,6 @@ const uploadRecordFile = async ({ userId, file, index }) => {
     await apiClient.post(
       '/record/upload-urls',
       {
-        userId: String(userId),
         files: [{ mimeType }],
       },
     );

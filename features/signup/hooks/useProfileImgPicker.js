@@ -6,8 +6,8 @@ import * as ImagePicker from 'expo-image-picker';
 import uploadProfileImg from '../utils/uploadProfileImg';
 
 // 업로드 실패를 기다리는 곳이 없어도 경고가 뜨지 않게 하고, 나중에 await하면 그대로 실패를 받는다
-const startUpload = profileImg => {
-  const promise = uploadProfileImg(profileImg);
+const startUpload = (profileImg, signupToken) => {
+  const promise = uploadProfileImg(profileImg, signupToken);
   promise.catch(() => {});
 
   return { profileImg, promise };
@@ -26,6 +26,7 @@ const getImgSize = uri => new Promise(resolve => {
  * 회원가입 프로필 사진. 사진 보관함이나 파일 앱에서 한 장을 골라 저장한다.
  *
  * 고르자마자 업로드를 시작해서, 아이디 · 닉네임을 입력하는 동안 끝나게 한다.
+ * 가입 전이라 로그인 토큰 대신 signupToken 으로 업로드 URL 을 받는다.
  *
  * profileImg: 고른 사진 ({ uri, name, type, width, height }), 고르기 전에는 null
  * pickProfileImgFromLibrary: 권한을 받은 뒤 사진 보관함을 연다. 권한이 없거나 취소하면 그대로 둔다
@@ -34,14 +35,14 @@ const getImgSize = uri => new Promise(resolve => {
  * getProfileImgKey: 업로드가 끝나기를 기다려 key를 돌려준다. 사진이 없으면 null.
  *                   미리 올리다 실패했으면 한 번 더 올려 보고, 그래도 실패하면 ProfileImgUploadError
  */
-const useProfileImgPicker = () => {
+const useProfileImgPicker = ({ signupToken } = {}) => {
   const [profileImg, setProfileImg] = useState(null);
   const uploadTaskRef = useRef(null);
 
   const selectProfileImg = useCallback(nextProfileImg => {
     setProfileImg(nextProfileImg);
-    uploadTaskRef.current = startUpload(nextProfileImg);
-  }, []);
+    uploadTaskRef.current = startUpload(nextProfileImg, signupToken);
+  }, [signupToken]);
 
   const pickProfileImgFromLibrary = useCallback(async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -102,12 +103,12 @@ const useProfileImgPicker = () => {
     try {
       return await uploadTask.promise;
     } catch {
-      const retryTask = startUpload(uploadTask.profileImg);
+      const retryTask = startUpload(uploadTask.profileImg, signupToken);
       uploadTaskRef.current = retryTask;
 
       return retryTask.promise;
     }
-  }, []);
+  }, [signupToken]);
 
   return {
     profileImg,

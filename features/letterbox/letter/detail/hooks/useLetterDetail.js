@@ -86,8 +86,8 @@ function removeLetterFromLetterbox(queryClient, userId, letterId) {
   void queryClient.invalidateQueries({ queryKey: letterboxKeys.stamps(userId) });
 }
 
-// 편지 상세 조회. GET /letter/:letterId?userId=
-// 편지 삭제(내 편지함에서만). DELETE /letter/:letterId?userId=
+// 편지 상세 조회. GET /letter/:letterId
+// 편지 삭제(내 편지함에서만). DELETE /letter/:letterId
 const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
   const queryClient = useQueryClient();
   const isConfigured = isApiConfigured;
@@ -98,9 +98,7 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
     enabled: isConfigured && hasId(letterId) && hasId(userId),
     staleTime: DETAIL_STALE_TIME,
     queryFn: async () => {
-      const response = await apiClient.get(`/letter/${letterId}`, {
-        params: { userId },
-      });
+      const response = await apiClient.get(`/letter/${letterId}`);
 
       const nextLetter = normalizeLetterDetail(response.data, userId);
 
@@ -114,9 +112,7 @@ const useLetterDetail = ({ letterId, userId, onDeleteSuccess } = {}) => {
 
   const deleteLetterMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiClient.delete(`/letter/${letterId}`, {
-        params: { userId },
-      });
+      const response = await apiClient.delete(`/letter/${letterId}`);
 
       return response.data;
     },

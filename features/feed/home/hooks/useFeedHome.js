@@ -28,9 +28,9 @@ function normalizeFeedPage(data) {
   };
 }
 
-async function fetchFeedPage({ userId, feedType, pageParam }) {
+async function fetchFeedPage({ feedType, pageParam }) {
   const feedPath = feedType === 'following' ? '/feed/following' : '/feed';
-  const params = withCursor({ userId, limit: FEED_LIMIT }, pageParam);
+  const params = withCursor({ limit: FEED_LIMIT }, pageParam);
   const response = await apiClient.get(feedPath, { params });
   return normalizeFeedPage(response.data);
 }
@@ -40,7 +40,7 @@ function createFeedQueryOptions({ userId, feedType, isConfigured }) {
     queryKey: feedHomeKeys.list(userId, feedType),
     initialPageParam: null,
     enabled: isConfigured,
-    queryFn: ({ pageParam }) => fetchFeedPage({ userId, feedType, pageParam }),
+    queryFn: ({ pageParam }) => fetchFeedPage({ feedType, pageParam }),
     getNextPageParam: getNextCursor,
     staleTime: FEED_STALE_TIME,
     gcTime: FEED_GC_TIME,

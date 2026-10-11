@@ -8,9 +8,9 @@ import { hasId } from '../../../shared/utils/id';
 
 const NOTIFICATION_LIMIT = 20;
 
-const fetchNotificationPage = ({ userId, type, pageParam }) =>
+const fetchNotificationPage = ({ type, pageParam }) =>
   fetchCursorPage('/notification', {
-    params: { userId, limit: NOTIFICATION_LIMIT, ...(type ? { type } : {}) },
+    params: { limit: NOTIFICATION_LIMIT, ...(type ? { type } : {}) },
     cursor: pageParam,
   });
 
@@ -28,7 +28,7 @@ const useNotifications = ({ userId, type = null } = {}) => {
     queryKey: notificationKeys.list(userId, type),
     initialPageParam: null,
     enabled: isConfigured,
-    queryFn: ({ pageParam }) => fetchNotificationPage({ userId, type, pageParam }),
+    queryFn: ({ pageParam }) => fetchNotificationPage({ type, pageParam }),
     getNextPageParam: getNextCursor,
   });
 

@@ -27,9 +27,7 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess, onDelet
     queryKey: detailQueryKey,
 
     queryFn: async () => {
-      const response = await apiClient.get(`/feed/${feedId}`, {
-        params: { userId },
-      });
+      const response = await apiClient.get(`/feed/${feedId}`);
 
       // 홈 캐시(placeholder)와 같은 형태로 맞춘다
       return normalizeFeedItem(response.data);
@@ -49,9 +47,7 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess, onDelet
 
   const deleteFeedMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiClient.delete(`/feed/${feedId}`, {
-        params: { userId },
-      });
+      const response = await apiClient.delete(`/feed/${feedId}`);
 
       return response.data;
     },

@@ -127,11 +127,6 @@ export function useFeedEditForm({
 
         const response = await apiClient.get(
           `/feed/${feedId}`,
-          {
-            params: {
-              userId,
-            },
-          },
         );
 
         if (ignore) {

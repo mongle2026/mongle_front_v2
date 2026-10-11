@@ -46,7 +46,7 @@ const isStampDetailConfigured = ({ stampCode, userId }) =>
 const getStampDetailQueryOptions = ({ stampCode, userId }) => ({
   queryKey: letterboxKeys.stampDetail(userId, stampCode),
   queryFn: async () => {
-    const response = await apiClient.get(`/stamp/${stampCode}`, { params: { userId } });
+    const response = await apiClient.get(`/stamp/${stampCode}`);
     return normalizeStampDetail(response.data);
   },
 });
@@ -58,7 +58,7 @@ export const prefetchStampDetail = (queryClient, { stampCode, userId }) => {
   void queryClient.prefetchQuery(getStampDetailQueryOptions({ stampCode, userId }));
 };
 
-// 우표 상세 조회. GET /stamp/:code?userId=
+// 우표 상세 조회. GET /stamp/:code
 // 우표 이미지는 프론트(envelopeData)에서 code로 관리하므로 로컬에서 찾는다.
 const useStampDetail = ({ stampCode, userId } = {}) => {
   const stamp = useMemo(() => findStamp(stampCode), [stampCode]);

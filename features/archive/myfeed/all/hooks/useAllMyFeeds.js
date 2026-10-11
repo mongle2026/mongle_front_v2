@@ -14,10 +14,10 @@ const DIRECTION = {
   NEWER: 'newer',
 };
 
-async function fetchAllFeedPage({ userId, keyword, pageParam }) {
+async function fetchAllFeedPage({ keyword, pageParam }) {
   const { direction, cursor } = pageParam;
   const isNewer = direction === DIRECTION.NEWER;
-  const params = { userId, limit: ALL_FEED_LIMIT };
+  const params = { limit: ALL_FEED_LIMIT };
 
   if (keyword) {
     params.keyword = keyword;
@@ -46,7 +46,7 @@ const getAllMyFeedsQueryOptions = ({ userId, anchorMonth, anchorCursor, keyword 
   return {
     queryKey: archiveKeys.allMyFeeds(userId, anchorMonth ?? 'all', keyword),
     initialPageParam: { direction: DIRECTION.OLDER, cursor: isAnchored ? anchorCursor : null },
-    queryFn: ({ pageParam }) => fetchAllFeedPage({ userId, keyword, pageParam }),
+    queryFn: ({ pageParam }) => fetchAllFeedPage({ keyword, pageParam }),
     getNextPageParam: lastPage => {
       // 아래 끝 = 마지막 older 페이지. newer 페이지는 항상 위에만 붙는다
       if (lastPage.direction !== DIRECTION.OLDER || !lastPage.hasNext) return undefined;
@@ -83,7 +83,7 @@ export const prefetchAllMyFeeds = (queryClient, { userId, anchorMonth, anchorCur
   void queryClient.prefetchInfiniteQuery(getAllMyFeedsQueryOptions({ userId, anchorMonth, anchorCursor, keyword }));
 };
 
-// 모든 기록 (최신순). GET /feed/me?userId=&cursor=&limit=&keyword=
+// 모든 기록 (최신순). GET /feed/me?cursor=&limit=&keyword=
 // anchorMonth('YYYY-MM') + anchorCursor(그 달 latestFeedId + 1)를 넘기면 중간 글을 건너뛰고 그 달부터 시작한다.
 //   아래로: 더 오래된 글 (fetchNextPage) / 위로: 더 최근 글 (fetchPreviousPage, sort=oldest)
 // anchorMonth 가 없으면 가장 최근 글부터 시작하고 위로 불러올 글은 없다.

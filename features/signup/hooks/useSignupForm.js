@@ -21,6 +21,8 @@ const getStatus = (value, pattern) =>
  *
  * 아이디는 대문자로 입력해도 소문자로 바꿔서 저장한다.
  *
+ * suggestedNickname: 소셜 계정의 닉네임. 닉네임 규칙에 맞을 때만 처음 값으로 채운다
+ *
  * idStatus: 규칙(글자 종류 · 글자 수)에 어긋나거나 이미 사용 중이면 'error',
  *           사용할 수 있는 아이디임을 확인했으면 'positive', 아니면 undefined
  * isIdTaken: 이미 사용 중인 아이디면 true
@@ -28,9 +30,11 @@ const getStatus = (value, pattern) =>
  * nicknameStatus: 규칙에 어긋나면 'error', 아니면 undefined
  * canSubmit: 사용할 수 있는 아이디임을 확인했고 닉네임이 규칙을 만족하면 true
  */
-const useSignupForm = () => {
+const useSignupForm = ({ suggestedNickname } = {}) => {
   const [id, setId] = useState('');
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState(() =>
+    NICKNAME_PATTERN.test(suggestedNickname ?? '') ? suggestedNickname : '',
+  );
 
   const changeId = useCallback(text => {
     setId(text.toLowerCase());

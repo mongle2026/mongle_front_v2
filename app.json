@@ -22,7 +22,8 @@
       "expo-asset",
       "expo-splash-screen",
       "expo-status-bar",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-apple-authentication"
     ],
     "extra": {
       "eas": {

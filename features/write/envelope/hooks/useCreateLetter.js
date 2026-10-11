@@ -60,7 +60,6 @@ const useCreateLetter = ({
         await apiClient.post(
           '/letter',
           {
-            userId: String(userId),
             ...recordBody,
 
             receiverId: String(letterForm.receiver.id),

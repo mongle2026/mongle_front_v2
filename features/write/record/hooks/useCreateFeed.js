@@ -65,7 +65,6 @@ const useCreateFeed = ({
         await apiClient.post(
           '/feed',
           {
-            userId: String(userId),
             ...recordBody,
 
             visibility:

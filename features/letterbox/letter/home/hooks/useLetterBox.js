@@ -18,9 +18,9 @@ const LETTERBOX_TAB = {
   self: 'SELF',
 };
 
-const fetchLetterboxPage = ({ userId, tab, pageParam }) =>
+const fetchLetterboxPage = ({ tab, pageParam }) =>
   fetchCursorPage('/letter', {
-    params: { userId, tab, limit: LETTERBOX_LIMIT },
+    params: { tab, limit: LETTERBOX_LIMIT },
     cursor: pageParam,
     mapItem: normalizeLetterboxItem,
   });
@@ -41,7 +41,7 @@ const useLetterBox = ({ userId, filter } = {}) => {
     queryKey: letterboxKeys.letterList(userId, tab),
     initialPageParam: null,
     enabled: isConfigured,
-    queryFn: ({ pageParam }) => fetchLetterboxPage({ userId, tab, pageParam }),
+    queryFn: ({ pageParam }) => fetchLetterboxPage({ tab, pageParam }),
     getNextPageParam: getNextCursor,
   });
 

@@ -87,13 +87,11 @@ export default function useFeedToggleMutation({
 
       const requestValue = state.desiredValue;
       const url = `/feed/${feedId}/${endpoint}`;
-      const params = { params: { userId } };
-
       state.inFlight = true;
 
       const request = requestValue
-        ? apiClient.post(url, null, params)
-        : apiClient.delete(url, params);
+        ? apiClient.post(url)
+        : apiClient.delete(url);
 
       request
         .then(() => {
