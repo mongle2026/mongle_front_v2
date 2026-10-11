@@ -18,7 +18,7 @@ const FADE_COLORS = [colors.bgSurface0, colors.bgSurface];
 /**
  * 이 우표를 보내준 사람들. 왼쪽이 오래된 순이고, 항상 가로로 스크롤된다.
  *
- * @param {{ userId: number, nickname: string, imageUri?: string, isMe: boolean }[]} senders
+ * @param {{ userId: string, nickname: string, imageUri?: string, isMe: boolean }[]} senders
  * @param {import('react-native-reanimated').SharedValue<number>} progress
  *   시트가 처음 떴을 때(0)는 가운데 정렬, 끌어올리면(1) 왼쪽 정렬. 줄을 넘치면 항상 왼쪽부터 채운다.
  */
