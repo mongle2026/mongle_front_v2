@@ -66,6 +66,8 @@ const FeedHomeScreen = ({ navigation }) => {
     paddingTop,
     paddingBottom,
     snapToInterval,
+    snapToOffsets,
+    getItemLayout,
     handleListLayout,
     handleListScrollEnd,
     handleChangeTab,
@@ -241,6 +243,7 @@ const FeedHomeScreen = ({ navigation }) => {
           data={posts}
           extraData={feedExtraData}
           keyExtractor={keyExtractor}
+          getItemLayout={getItemLayout}
           renderItem={renderPost}
           ItemSeparatorComponent={renderPostSeparator}
           contentContainerStyle={contentContainerStyle}
@@ -248,6 +251,7 @@ const FeedHomeScreen = ({ navigation }) => {
           onViewableItemsChanged={handleViewableItemsChanged}
           viewabilityConfig={VIEWABILITY_CONFIG}
           snapToInterval={snapToInterval}
+          snapToOffsets={snapToOffsets}
           decelerationRate="fast"
           disableIntervalMomentum
           showsVerticalScrollIndicator={false}

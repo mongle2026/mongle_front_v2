@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Platform } from 'react-native';
 
 import { gap } from '../../../../shared/styles/token';
 
@@ -23,6 +24,23 @@ const useFeedHomeListController = ({
   // 남은 공간을 전부 PostCard가 차지하도록 화면 높이에서 고정 간격만큼 뺀 값을 카드 높이로 사용
   const viewportHeight = Math.max(listHeight - reservedBottomSpace, 0);
   const postCardHeight = Math.max(viewportHeight - PEEK_HEIGHT - POST_GAP, 0);
+  const snapInterval = postCardHeight + POST_GAP;
+
+  // 게시물별 위치를 직접 계산한 snapToOffsets는 각 값만 따로 버려서 오차가 쌓이지 않는다
+  const snapToOffsets = useMemo(() => {
+    if (Platform.OS !== 'android' || snapInterval <= 0) return undefined;
+    return posts.map((_, index) => index * snapInterval);
+  }, [posts, snapInterval]);
+
+  // 카드 높이가 모두 같으니 위치를 직접 알려줘서 다음 게시물이 정확히 FAB 뒤에 숨도록 한다
+  const getItemLayout = useCallback(
+    (_, index) => ({
+      length: snapInterval,
+      offset: PEEK_HEIGHT + POST_GAP + index * snapInterval,
+      index,
+    }),
+    [snapInterval]
+  );
 
   const handleListLayout = useCallback(event => {
     const nextHeight = Math.round(event.nativeEvent.layout.height);
@@ -76,7 +94,9 @@ const useFeedHomeListController = ({
     postCardHeight,
     paddingTop: PEEK_HEIGHT + POST_GAP,
     paddingBottom: reservedBottomSpace,
-    snapToInterval: postCardHeight + POST_GAP,
+    snapToInterval: snapToOffsets ? undefined : snapInterval,
+    snapToOffsets,
+    getItemLayout,
     handleListLayout,
     handleListScrollEnd,
     handleChangeTab,
