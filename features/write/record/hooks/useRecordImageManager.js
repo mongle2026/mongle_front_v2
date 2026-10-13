@@ -29,6 +29,8 @@ const pickImagesFromLibrary = async remainingCount => {
     allowsMultipleSelection: true,
     selectionLimit: remainingCount,
     quality: 0.8,
+    // Android 사진 선택기에 '찾아보기' 메뉴를 띄운다. 선택기에서는 장수 제한이 안 걸려서 넘친 사진은 뒤에서부터 버려진다
+    legacy: true,
   });
 
   if (result.canceled) return [];

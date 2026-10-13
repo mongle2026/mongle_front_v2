@@ -55,6 +55,8 @@ const useProfileImgPicker = ({ signupToken } = {}) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: 'images',
       quality: 0.8,
+      // Android 사진 선택기에 '찾아보기' 메뉴를 띄운다
+      legacy: true,
     });
 
     if (result.canceled) return;
