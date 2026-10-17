@@ -52,6 +52,8 @@ const TopNavigation = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    // 알림 버튼이 없어도 높이 유지 (8 + 버튼 38 + 12)
+    minHeight: 58,
     paddingTop: padding.M,
     paddingRight: padding.L,
     paddingBottom: padding.L,
