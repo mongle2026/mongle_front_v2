@@ -10,7 +10,7 @@ import { WriteImg, getWriteImgRatio } from '../../../../shared/components/atomic
 
 // Shared Styles
 import { colors } from '../../../../shared/styles/color';
-import { gap } from '../../../../shared/styles/token';
+import { gap, padding } from '../../../../shared/styles/token';
 
 const SelectedImageList = ({ images = [], onRemove }) => {
   if (images.length === 0) return null;
@@ -65,8 +65,8 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: 'absolute',
-    top: 0,
-    right: 0,
+    top: padding.M,
+    right: padding.M,
     backgroundColor: colors.bgDimmed,
     zIndex: 1,
   },
