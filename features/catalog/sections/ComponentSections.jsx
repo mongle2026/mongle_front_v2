@@ -100,6 +100,7 @@ const ICON_BUTTON_SIZE_SPECS = [
   { size: 'M', icon: 18, padding: 'S (6)', radius: 'S (8)', button: 30, hitSlop: 7 },
   { size: 'L', icon: 20, padding: 'M (8)', radius: 'M (10)', button: 36, hitSlop: 4 },
   { size: 'XL', icon: 22, padding: 'M (8)', radius: 'M (10)', button: 38, hitSlop: 3 },
+  { size: 'XXL', icon: 28, padding: 'M (8)', radius: 'M (10)', button: 44, hitSlop: 0 },
 ];
 
 const SpecLine = ({ label, value }) => (
