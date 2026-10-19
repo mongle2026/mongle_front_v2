@@ -22,6 +22,7 @@ import FeedDetailScreen from './features/feed/detail/FeedDetailScreen';
 import RecordScreen from './features/write/record/RecordScreen';
 import RecordEditScreen from './features/write/record/RecordEditScreen';
 import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
+import LetterSendScreen from './features/write/send/LetterSendScreen';
 import LetterBoxScreen from './features/letterbox/LetterBoxScreen';
 import ArchiveScreen from './features/archive/ArchiveScreen';
 import ProfileScreen from './features/profile/ProfileScreen';
@@ -186,6 +187,15 @@ const RootNavigator = ({ isSignedIn }) => (
         <Stack.Screen
           name="Envelope"
           component={EnvelopeScreen}
+        />
+        <Stack.Screen
+          name="LetterSend"
+          component={LetterSendScreen}
+          options={{
+            // 보내는 중에는 뒤로가기 제스처를 막는다 (완료 화면에서 닫기로 나간다)
+            gestureEnabled: false,
+            animation: 'fade',
+          }}
         />
         <Stack.Screen
           name="Notification"

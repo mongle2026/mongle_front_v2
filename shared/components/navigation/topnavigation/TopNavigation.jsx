@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 import IcBell from '../../../../assets/icons/ic_bell.svg';
 
@@ -10,6 +11,12 @@ import IconButton from '../../action/IconButton';
 import Item from './Item';
 
 const EMPTY_TABS = [];
+
+const playSelectionHaptic = () => {
+  void Haptics.selectionAsync().catch(() => {
+    /* 햅틱을 지원하지 않는 환경에서도 탭 전환은 그대로 동작한다 */
+  });
+};
 
 // Figma 컴포넌트: navigation/TopNavigation (showButton)
 // tabs: [{ key, label, accessibilityLabel? }] — 탭 목록은 각 화면(feature)에서 넘긴다
@@ -30,7 +37,14 @@ const TopNavigation = ({
             key={tab.key}
             label={tab.label}
             isActive={activeTab === tab.key}
-            onPress={onChangeTab ? () => onChangeTab(tab.key) : undefined}
+            onPress={
+              onChangeTab
+                ? () => {
+                    if (tab.key !== activeTab) playSelectionHaptic();
+                    onChangeTab(tab.key);
+                  }
+                : undefined
+            }
             accessibilityLabel={tab.accessibilityLabel}
           />
         ))}

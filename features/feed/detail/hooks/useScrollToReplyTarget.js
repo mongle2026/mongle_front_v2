@@ -106,11 +106,58 @@ const useScrollToReplyTarget = ({
     scrollViewRef,
   ]);
 
+  /**
+   * 방금 작성한 댓글이 화면(스크롤 영역 위 ~ CommentBar 위)에 다 보이도록 스크롤한다.
+   * 아래로 가려져 있으면 CommentBar 바로 위까지 올리고, 위로 지나가 있으면 내려서 보여준다.
+   * 댓글이 보이는 영역보다 길면 윗부분(작성자)부터 보이게 맞춘다.
+   *
+   * @param {View} target 작성한 댓글의 View (measureInWindow 가능해야 함)
+   */
+  const revealComment = useCallback(target => {
+    const scrollView = scrollViewRef.current;
+    const commentBar = commentBarRef.current;
+
+    if (!scrollView || !commentBar || !target) {
+      return;
+    }
+
+    // 새 댓글이 레이아웃에 자리를 잡은 다음 프레임에 잰다.
+    requestAnimationFrame(() => {
+      scrollView.measureInWindow((scrollX, scrollY) => {
+        commentBar.measureInWindow((commentBarX, commentBarY) => {
+          target.measureInWindow((x, y, width, height) => {
+            const visibleTop = scrollY + VIEWPORT_MARGIN;
+            const visibleBottom = commentBarY - VIEWPORT_MARGIN;
+            const visibleHeight = visibleBottom - visibleTop;
+
+            let scrollAmount = 0;
+
+            if (height > visibleHeight || y < visibleTop) {
+              scrollAmount = y - visibleTop;
+            } else if (y + height > visibleBottom) {
+              scrollAmount = y + height - visibleBottom;
+            }
+
+            if (Math.abs(scrollAmount) <= 1) {
+              return;
+            }
+
+            scrollView.scrollTo({
+              y: Math.max(0, scrollOffsetRef.current + scrollAmount),
+              animated: true,
+            });
+          });
+        });
+      });
+    });
+  }, [commentBarRef, scrollViewRef]);
+
   return {
     handleScroll,
     handleScrollViewLayout,
     setReplyScrollTarget,
     clearReplyScrollTarget,
+    revealComment,
   };
 };
 
