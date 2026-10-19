@@ -59,7 +59,6 @@ const OthersPostCard = ({
         {/* 팔로우한 사람이면 Solid, 아니면 Ghost */}
         <Profile
           imageUri={profile.imageUri}
-          imageSize="S"
           username={profile.username}
           variant={profile.isFollowing ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.GHOST}
           onPress={onPressProfile}
