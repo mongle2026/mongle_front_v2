@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import ListHeader from '../../../../../shared/components/content/ListHeader';
 import { colors } from '../../../../../shared/styles/color';
@@ -10,8 +10,8 @@ import { toShortPost } from '../../../utils/postCardProps';
 
 const RecentFeedList = ({ feeds, playingFeedId, onPressPlayback, onPressFeed }) => {
   return (
-    <>
-      <ListHeader size="M" title="최근 기록" style={styles.listHeader} />
+    <View style={styles.wrapper}>
+      <ListHeader size="M" title="최근 기록" style={styles.listHeader} textStyle={styles.listHeaderText} />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -34,13 +34,20 @@ const RecentFeedList = ({ feeds, playingFeedId, onPressPlayback, onPressFeed }) 
           />
         ))}
       </ScrollView>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // ListHeader + 목록을 한 묶음으로 (MyFeedSection 의 섹션 간격이 이 사이에만 들어가도록)
+  wrapper: {
+    alignSelf: 'stretch',
+  },
   listHeader: {
     backgroundColor: colors.bgBase,
+  },
+  listHeaderText: {
+    color: colors.fgNeutralPrimary,
   },
   horizontalScroll: {
     alignSelf: 'stretch',

@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 
 import Empty from '../../../../shared/components/content/Empty';
 import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
-import { padding } from '../../../../shared/styles/token';
+import { gap, padding } from '../../../../shared/styles/token';
 import { resolveMediaUri, toImageSource } from '../../../../shared/utils/media';
 
 import useMyFeedGenres from '../genre/hooks/useMyFeedGenres';
@@ -91,6 +91,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    // 최근 기록 · 장르 · 모든 기록 섹션 사이
+    gap: gap.L,
   },
   emptyContainer: {
     flexGrow: 1,

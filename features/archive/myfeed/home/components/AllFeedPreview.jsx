@@ -31,7 +31,7 @@ const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
   }
 
   return (
-    <>
+    <View style={styles.wrapper}>
       <ListHeader
         size="M"
         title="모든 기록"
@@ -39,6 +39,7 @@ const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
         onIconButtonPress={() => onPressCard?.()}
         iconButtonAccessibilityLabel="모든 기록 전체 보기"
         style={styles.listHeader}
+        textStyle={styles.listHeaderText}
       />
       <View style={styles.grid}>
         {rows.map((row, rowIndex) => (
@@ -57,13 +58,20 @@ const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
           </View>
         ))}
       </View>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // ListHeader + 목록을 한 묶음으로 (MyFeedSection 의 섹션 간격이 이 사이에만 들어가도록)
+  wrapper: {
+    alignSelf: 'stretch',
+  },
   listHeader: {
     backgroundColor: colors.bgBase,
+  },
+  listHeaderText: {
+    color: colors.fgNeutralPrimary,
   },
   grid: {
     alignSelf: 'stretch',
