@@ -28,7 +28,7 @@ const BottomBarActions = ({
         {showLeftActions && (
           <>
             <IconButton
-              size="L"
+              size="XL"
               icon={IcImage}
               color={colors.fgNeutralSecondary}
               onPress={onPressImage}
@@ -37,7 +37,7 @@ const BottomBarActions = ({
             />
 
             <IconButton
-              size="L"
+              size="XL"
               icon={IcFont}
               color={colors.fgNeutralSecondary}
               onPress={onPressFont}
@@ -71,7 +71,7 @@ const FontSelector = ({
   return (
     <>
       <IconButton
-        size="L"
+        size="XL"
         icon={IcArrowLeft}
         color={colors.fgNeutralQuaternary}
         onPress={onPressBack}
