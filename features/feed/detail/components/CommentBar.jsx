@@ -1,8 +1,17 @@
 import React, { memo, useCallback, useEffect, useRef, useState, } from 'react';
 import { Platform, Pressable, StyleSheet, Text, TextInput, View, } from 'react-native';
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeInDown,
+  FadeOut,
+  LayoutAnimationConfig,
+  LinearTransition,
+} from 'react-native-reanimated';
 
 import ProfileImg from '../../../../shared/components/atomic/ProfileImg';
 import IconButton from '../../../../shared/components/action/IconButton';
+import CommentSendButton from './CommentSendButton';
 
 import IcArrowUp from '../../../../assets/icons/ic_arrowup.svg';
 
@@ -19,6 +28,21 @@ const MAX_COMMENT_LENGTH = 400;
 const INPUT_LINE_HEIGHT = 25.5;
 const INPUT_MIN_HEIGHT = INPUT_LINE_HEIGHT;
 const INPUT_MAX_HEIGHT = INPUT_LINE_HEIGHT * 4;
+
+/*
+ * 기본 바(한 줄) ↔ 입력 바(입력창 + 프로필 줄) 전환.
+ * 바 높이는 부드럽게 늘었다 줄고, 기본 줄은 빠르게 사라지며
+ * 입력창 · 프로필 줄은 높이가 늘어나는 동안 아래에서 살짝 떠오르며 나타난다.
+ */
+const BAR_LAYOUT_TRANSITION = LinearTransition.duration(260).easing(Easing.out(Easing.cubic));
+const DEFAULT_BAR_EXITING = FadeOut.duration(120);
+const DEFAULT_BAR_ENTERING = FadeIn.duration(200).delay(60);
+const EDITOR_FIELD_ENTERING = FadeIn.duration(220).delay(80);
+const EDITOR_PROFILE_ENTERING = FadeInDown.duration(240)
+  .delay(100)
+  .easing(Easing.out(Easing.cubic))
+  .withInitialValues({ opacity: 0, transform: [{ translateY: -6 }] });
+const EDITOR_EXITING = FadeOut.duration(100);
 
 const CommentBar = ({
   value = '',
@@ -219,156 +243,168 @@ const CommentBar = ({
     value,
   ]);
 
-  if (!isEditing) {
-    return (
-      <View
-        style={[
-          styles.container,
-          style,
-        ]}
-      >
-        <View style={styles.defaultBar}>
-          <ProfileImg
-            imageUri={profileImageUri}
-            size="S"
-          />
-
-          <Pressable
-            onPress={openEditor}
-            style={styles.placeholderButton}
-            accessibilityRole="button"
-            accessibilityLabel="댓글 작성"
-          >
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              style={styles.placeholder}
-            >
-              댓글을 남겨보세요.
-            </Text>
-          </Pressable>
-
-          <IconButton
-            size="M"
-            icon={IcArrowUp}
-            color={colors.fgDisabled}
-            disabled
-            style={styles.submitButton}
-            accessibilityLabel="댓글 등록"
-          />
-        </View>
-      </View>
-    );
-  }
-
   return (
-    <View
+    <Animated.View
+      layout={BAR_LAYOUT_TRANSITION}
       style={[
         styles.container,
         style,
       ]}
     >
-      <View style={styles.textField}>
-        {Platform.OS === 'ios' && (
-          <Text
-            pointerEvents="none"
-            accessible={false}
-            onLayout={handleMeasureLayout}
-            style={styles.inputMeasure}
+      {/* 화면이 처음 열릴 때는 그냥 보이고, 바를 누르거나 닫을 때만 전환 애니메이션을 준다 */}
+      <LayoutAnimationConfig skipEntering>
+        {!isEditing ? (
+          <Animated.View
+            key="default"
+            entering={DEFAULT_BAR_ENTERING}
+            exiting={DEFAULT_BAR_EXITING}
+            style={styles.defaultBar}
           >
-            {value || ' '}
-          </Text>
-        )}
+            <ProfileImg
+              imageUri={profileImageUri}
+              size="S"
+            />
 
-        <TextInput
-          ref={inputRef}
-          value={value}
-          onChangeText={onChangeText}
-          onBlur={handleBlur}
-          onContentSizeChange={
-            handleContentSizeChange
-          }
-          placeholder={
-            isReply
-              ? '답글을 남겨보세요.'
-              : '댓글을 남겨보세요.'
-          }
-          placeholderTextColor={
-            colors.fgNeutralTertiary
-          }
-          multiline
-          scrollEnabled={
-            inputHeight >= INPUT_MAX_HEIGHT
-          }
-          textAlignVertical="top"
-          selectionColor={colors.fgNeutralPrimary}
-          style={[
-            styles.input,
-            {
-              height: inputHeight,
-            },
-          ]}
-        />
-      </View>
-
-      <View style={styles.profileBar}>
-        <ProfileImg
-          imageUri={profileImageUri}
-          size="S"
-        />
-
-        <View style={styles.idContainer}>
-          {!!targetUsername && (
-            <>
-              <Text
-                numberOfLines={1}
-                style={styles.targetId}
-              >
-                @{targetUsername}
-              </Text>
-
-              <Text
-                numberOfLines={1}
-                style={styles.targetDescription}
-              >
-                {isReply
-                  ? '님에게 답글 작성'
-                  : '님에게 댓글 작성'}
-              </Text>
-            </>
-          )}
-        </View>
-
-        <View style={styles.actionBar}>
-          <View style={styles.countContainer}>
-            <Text
-              style={[
-                styles.currentCount,
-                textLength === 0 &&
-                styles.currentCountEmpty,
-                isOverLimit &&
-                styles.currentCountCritical,
+            <Pressable
+              onPress={openEditor}
+              style={({ pressed }) => [
+                styles.placeholderButton,
+                pressed && styles.placeholderButtonPressed,
               ]}
+              accessibilityRole="button"
+              accessibilityLabel="댓글 작성"
             >
-              {textLength}
-            </Text>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={styles.placeholder}
+              >
+                댓글을 남겨보세요.
+              </Text>
+            </Pressable>
 
-            <Text style={styles.maxCount}>
-              /{MAX_COMMENT_LENGTH}
-            </Text>
-          </View>
+            <IconButton
+              size="M"
+              icon={IcArrowUp}
+              color={colors.fgDisabled}
+              disabled
+              style={styles.submitButton}
+              accessibilityLabel="댓글 등록"
+            />
+          </Animated.View>
+        ) : (
+          <Animated.View
+            key="editor"
+            exiting={EDITOR_EXITING}
+            style={styles.editor}
+          >
+            <Animated.View
+              entering={EDITOR_FIELD_ENTERING}
+              style={styles.textField}
+            >
+              {Platform.OS === 'ios' && (
+                <Text
+                  pointerEvents="none"
+                  accessible={false}
+                  onLayout={handleMeasureLayout}
+                  style={styles.inputMeasure}
+                >
+                  {value || ' '}
+                </Text>
+              )}
 
-          <IconButton
-            size="M"
-            icon={IcArrowUp}
-            color={colors.fgNeutralPrimary}
-            onPress={handleSubmit}
-            disabled={isSubmitDisabled}
-            accessibilityLabel="댓글 등록"
-          />
-        </View>
-      </View>
-    </View>
+              <TextInput
+                ref={inputRef}
+                value={value}
+                onChangeText={onChangeText}
+                onBlur={handleBlur}
+                onContentSizeChange={
+                  handleContentSizeChange
+                }
+                placeholder={
+                  isReply
+                    ? '답글을 남겨보세요.'
+                    : '댓글을 남겨보세요.'
+                }
+                placeholderTextColor={
+                  colors.fgNeutralTertiary
+                }
+                multiline
+                scrollEnabled={
+                  inputHeight >= INPUT_MAX_HEIGHT
+                }
+                textAlignVertical="top"
+                selectionColor={colors.fgNeutralPrimary}
+                style={[
+                  styles.input,
+                  {
+                    height: inputHeight,
+                  },
+                ]}
+              />
+            </Animated.View>
+
+            <Animated.View
+              entering={EDITOR_PROFILE_ENTERING}
+              style={styles.profileBar}
+            >
+              <ProfileImg
+                imageUri={profileImageUri}
+                size="S"
+              />
+
+              <View style={styles.idContainer}>
+                {!!targetUsername && (
+                  <>
+                    <Text
+                      numberOfLines={1}
+                      style={styles.targetId}
+                    >
+                      @{targetUsername}
+                    </Text>
+
+                    <Text
+                      numberOfLines={1}
+                      style={styles.targetDescription}
+                    >
+                      {isReply
+                        ? '님에게 답글 작성'
+                        : '님에게 댓글 작성'}
+                    </Text>
+                  </>
+                )}
+              </View>
+
+              <View style={styles.actionBar}>
+                <View style={styles.countContainer}>
+                  <Text
+                    style={[
+                      styles.currentCount,
+                      textLength === 0 &&
+                      styles.currentCountEmpty,
+                      isOverLimit &&
+                      styles.currentCountCritical,
+                    ]}
+                  >
+                    {textLength}
+                  </Text>
+
+                  <Text style={styles.maxCount}>
+                    /{MAX_COMMENT_LENGTH}
+                  </Text>
+                </View>
+
+                <CommentSendButton
+                  onPress={handleSubmit}
+                  disabled={isSubmitDisabled}
+                  accessibilityLabel={isReply ? '답글 등록' : '댓글 등록'}
+                />
+              </View>
+            </Animated.View>
+          </Animated.View>
+        )}
+      </LayoutAnimationConfig>
+    </Animated.View>
   );
 };
 
@@ -401,6 +437,18 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     justifyContent: 'center',
+  },
+
+  placeholderButtonPressed: {
+    opacity: 0.6,
+  },
+
+  // 입력 상태: 입력창과 프로필 줄을 묶어 한 번에 바뀌게 한다 (간격은 container 와 같게)
+  editor: {
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: gap.M,
   },
 
   placeholder: {

@@ -13,6 +13,8 @@ import {
 } from '../../../../shared/styles/token';
 import { FONT } from '../../../../shared/styles/fontType';
 
+const HIT_SLOP = { top: 3, bottom: 3 };
+
 const Item = ({
   text,
   font = FONT.SUIT,
@@ -27,7 +29,9 @@ const Item = ({
   return (
     <Pressable
       onPress={onPress}
+      hitSlop={HIT_SLOP}
       accessibilityRole="button"
+      accessibilityState={{ selected }}
       style={styles.container}
     >
       <Text
@@ -46,7 +50,8 @@ export default memo(Item);
 
 const styles = StyleSheet.create({
   container: {
-    height: 44,
+    // Figma BottomBar/Item: 높이 38 (상하 4 · 좌우 8). 터치 영역은 hitSlop 으로 44 에 맞춘다
+    height: 38,
 
     paddingVertical: padding.XS,
     paddingHorizontal: padding.M,

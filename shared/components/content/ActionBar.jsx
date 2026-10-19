@@ -10,7 +10,6 @@ import IcHeartStroke from '../../../assets/icons/ic_heart_stroke.svg';
 import AnimatedLabeledButton, {
   ANIMATION_TYPE,
 } from '../action/AnimatedLabeledButton';
-import LabeledButton from '../action/LabeledButton';
 
 import { colors } from '../../styles/color';
 import { padding } from '../../styles/token';
@@ -84,10 +83,12 @@ const ActionBar = ({
 
       <View style={styles.actions}>
         {showCommentButton && (
-          <LabeledButton
+          <AnimatedLabeledButton
             size="M"
-            icon={IcComment}
-            iconColor={colors.fgNeutralQuaternary}
+            activeIcon={IcComment}
+            inactiveIcon={IcComment}
+            inactiveColor={colors.fgNeutralQuaternary}
+            animationType={ANIMATION_TYPE.COMMENT}
             onPress={onCommentPress}
             accessibilityLabel="댓글"
             style={styles.actionButton}

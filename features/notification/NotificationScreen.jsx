@@ -1,5 +1,6 @@
 import { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -38,6 +39,12 @@ const notificationKeyExtractor = notification =>
 const renderNotificationSeparator = () => (
   <View style={styles.notificationSeparator} />
 );
+
+// 필터를 바꾸면 목록이 툭 바뀌지 않고 살짝 위로 떠오르며 나타난다
+const LIST_ENTERING = FadeInUp.duration(220).withInitialValues({
+  opacity: 0,
+  transform: [{ translateY: 8 }],
+});
 
 const EMPTY_NOTIFICATION_BODY = '아직 알림이 없어요.\n새로운 소식이 생기면 알려드릴게요!';
 
@@ -121,7 +128,11 @@ const NotificationScreen = ({ navigation }) => {
       />
 
       {/* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */}
-      <View style={styles.listContainer}>
+      <Animated.View
+        key={activeFilterIndex}
+        entering={LIST_ENTERING}
+        style={styles.listContainer}
+      >
         <FlatList
           data={notifications}
           keyExtractor={notificationKeyExtractor}
@@ -133,7 +144,7 @@ const NotificationScreen = ({ navigation }) => {
           contentContainerStyle={listContentStyle}
           showsVerticalScrollIndicator={false}
         />
-      </View>
+      </Animated.View>
     </SafeAreaView>
   );
 };

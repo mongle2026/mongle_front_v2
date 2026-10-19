@@ -37,6 +37,7 @@ import useDoubleTapLike from '../hooks/useDoubleTapLike';
 import FeedDetailContent from './components/FeedDetailContent';
 import CommentSection from './components/CommentSection';
 import CommentComposer from './components/CommentComposer';
+import KeyboardGapFill from '../../../shared/components/layout/KeyboardGapFill';
 import FeedDetailHeader from './components/FeedDetailHeader';
 import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import CommentMenuOverlay from './components/CommentMenuOverlay';
@@ -168,6 +169,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
     handleScrollViewLayout,
     setReplyScrollTarget,
     clearReplyScrollTarget,
+    revealComment,
   } = useScrollToReplyTarget({
     scrollViewRef,
     commentBarRef,
@@ -500,6 +502,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
             openCommentMenuId={commentMenu?.comment?.commentId ?? null}
             onPressMenu={handleOpenCommentMenu}
             onPressReply={handlePressReply}
+            onNewCommentLayout={revealComment}
           />
         </View>
       </ScrollView>
@@ -525,6 +528,9 @@ const FeedDetailScreen = ({ navigation, route }) => {
           isReply={!!replyTarget}
           focusRequestKey={replyFocusRequestKey}
         />
+
+        {/* iOS 키보드 둥근 모서리 틈으로 댓글 목록이 비치지 않게 바 배경을 키보드 뒤까지 늘린다 */}
+        <KeyboardGapFill height={commentBarBottom} />
       </View>
 
       {commentMenu && (
