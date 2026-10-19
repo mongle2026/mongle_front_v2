@@ -2,7 +2,7 @@ import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
-import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import MusicCard from '../../../shared/components/content/MusicCard';
 
 import { colors } from '../../../shared/styles/color';
@@ -84,6 +84,7 @@ const ShortPostCard = ({
                   key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
                   ratio={WRITE_IMG_RATIO.FOUR_THREE}
+                  effect={WRITE_IMG_EFFECT.FILM}
                   borderRadius={radius.XS}
                   pointerEvents="none"
                   style={styles.image}

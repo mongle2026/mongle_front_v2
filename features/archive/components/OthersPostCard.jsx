@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import CdCover from '../../../shared/components/atomic/CdCover';
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
-import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import Profile from '../../../shared/components/content/profile/Profile';
 
 import { colors } from '../../../shared/styles/color';
@@ -96,6 +96,7 @@ const OthersPostCard = ({
                   key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
                   ratio={WRITE_IMG_RATIO.FOUR_THREE}
+                  effect={WRITE_IMG_EFFECT.FILM}
                   borderRadius={radius.XS}
                   pointerEvents="none"
                   style={styles.image}
