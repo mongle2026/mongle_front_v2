@@ -78,10 +78,10 @@ const hasKyobo = (variant, size) =>
 
 // 카드 설명용 type 별 색 토큰 (Button.jsx VARIANT_STYLES)
 const BUTTON_COLOR_NOTES = {
-  [BUTTON_VARIANT.SOLID]: 'fillNeutral · fgNeutralInverted',
+  [BUTTON_VARIANT.SOLID]: 'fillNeutralStrong · fgNeutralInverted',
   [BUTTON_VARIANT.GHOST]: 'stroke strokeNeutralPrimary · fgNeutralPrimary',
   [BUTTON_VARIANT.WEAK]: 'fillNeutralWeak · fgNeutralSecondary',
-  [BUTTON_VARIANT.CRITICAL]: 'fillCritical · fgNeutralInverted',
+  [BUTTON_VARIANT.CRITICAL]: 'fillCriticalStrong · fgNeutralInverted',
   [BUTTON_VARIANT.INFO_WEAK]: 'fillInfoWeak · fgInfo',
   [BUTTON_VARIANT.DISABLED]: 'fillNeutralWeak · fgDisabled',
 };
