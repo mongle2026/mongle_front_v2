@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT } from '../../../../shared/components/atomic/WriteImg';
 import FontFallbackText from '../../../../shared/components/atomic/FontFallbackText';
 
 import useWriteImgRatio from '../../../../shared/hooks/useWriteImgRatio';
@@ -14,6 +14,7 @@ import { gap, padding } from '../../../../shared/styles/token';
 const DETAIL_CONTENT_MIN_HEIGHT = 418;
 
 // 가로 사진 4:3, 세로 사진 5:6
+// 피드 홈과 같은 필름 보정. 사진을 눌러 크게 볼 때(ImageViewer)는 원본
 const DetailImage = ({ imageSource, onPress }) => {
   const ratio = useWriteImgRatio(imageSource);
 
@@ -22,6 +23,7 @@ const DetailImage = ({ imageSource, onPress }) => {
       <WriteImg
         imageSource={imageSource}
         ratio={ratio}
+        effect={WRITE_IMG_EFFECT.FILM}
         pointerEvents="none"
         style={styles.image}
       />

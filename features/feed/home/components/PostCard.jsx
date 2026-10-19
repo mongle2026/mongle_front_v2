@@ -6,7 +6,7 @@ import ProfileBar from '../../components/ProfileBar';
 import ActionBar from '../../../../shared/components/content/ActionBar';
 
 import MusicCard from '../../../../shared/components/content/MusicCard';
-import { WriteImg } from '../../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT } from '../../../../shared/components/atomic/WriteImg';
 import FontFallbackText from '../../../../shared/components/atomic/FontFallbackText';
 import usePressAnimation from '../../../../shared/hooks/usePressAnimation';
 import { colors } from '../../../../shared/styles/color';
@@ -158,6 +158,7 @@ const PostCard = ({
                 <WriteImg
                   key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
+                  effect={WRITE_IMG_EFFECT.FILM}
                   style={
                     hasTwoImages
                       ? styles.doubleImage
