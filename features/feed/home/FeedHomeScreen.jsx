@@ -161,7 +161,7 @@ const FeedHomeScreen = ({ navigation }) => {
       const feedId = item?.feedId;
       if (!hasId(feedId)) return;
 
-      navigation.navigate('FeedDetail', { feedId, scrollToComment: true, focusComment: true });
+      navigation.navigate('FeedDetail', { feedId, scrollToComment: true });
     },
     [navigation]
   );

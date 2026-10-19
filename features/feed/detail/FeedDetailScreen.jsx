@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import MusicCard from '../../../shared/components/content/MusicCard';
@@ -62,19 +62,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
   // 댓글/답글 알림으로 들어왔을 때 그 댓글 id와 답글 여부
   const notifiedCommentId = route?.params?.commentId ?? null;
   const isNotifiedReply = Boolean(route?.params?.isReply);
-  // 피드의 댓글 버튼으로 들어오면 댓글 입력창에 포커스해서 키보드를 올린다.
-  // 화면이 밀려 들어오는 중에 포커스하면 iOS 가 바로 풀어 버려서, 전환이 끝난 뒤에 건다
-  const shouldFocusComment = Boolean(route?.params?.focusComment);
-  const [initialCommentFocusKey, setInitialCommentFocusKey] = useState(0);
-
-  useEffect(() => {
-    if (!shouldFocusComment) return undefined;
-
-    return navigation.addListener('transitionEnd', event => {
-      if (event.data?.closing) return;
-      setInitialCommentFocusKey(1);
-    });
-  }, [navigation, shouldFocusComment]);
 
   const {
     scrollViewRef,
@@ -536,7 +523,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
           profileImageUri={currentUser?.profileImageUri}
           targetUsername={replyTarget?.userCode ?? user.userCode ?? ''}
           isReply={!!replyTarget}
-          focusRequestKey={replyFocusRequestKey + initialCommentFocusKey}
+          focusRequestKey={replyFocusRequestKey}
         />
       </View>
 
