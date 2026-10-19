@@ -69,16 +69,6 @@ const SIZE_STYLES = {
 
 const resolveSize = size => (SIZE_STYLES[size] ? size : S);
 
-const STROKE_WIDTH = 1;
-
-// 테두리 두께만큼 padding 을 빼서 테두리가 있어도 없는 variant 와 크기가 같다
-const getStrokeStyle = (sizeStyle, strokeColor) => ({
-  borderWidth: STROKE_WIDTH,
-  borderColor: strokeColor,
-  paddingVertical: sizeStyle.paddingVertical - STROKE_WIDTH,
-  paddingHorizontal: sizeStyle.paddingHorizontal - STROKE_WIDTH,
-});
-
 /**
  * Font + Size typography
  *
@@ -118,7 +108,6 @@ const TYPOGRAPHY_STYLES = {
 
 /**
  * Variant는 색상 / stroke만 담당합니다.
- * stroke 는 Figma 의 Inside stroke 처럼 버튼 크기에 더해지지 않게, 두께만큼 padding 을 줄여서 그린다.
  * padding, radius, typography는 size에서 담당합니다.
  */
 const VARIANT_STYLES = {
@@ -136,9 +125,9 @@ const VARIANT_STYLES = {
   [GHOST]: {
     container: {
       backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: colors.strokeNeutralPrimary,
     },
-
-    stroke: colors.strokeNeutralPrimary,
 
     text: {
       color: colors.fgNeutralPrimary,
@@ -258,7 +247,6 @@ export const Button = ({
         styles.container,
         sizeStyle,
         variantStyle.container,
-        variantStyle.stroke && getStrokeStyle(sizeStyle, variantStyle.stroke),
         state.pressed && !isDisabled && PRESSED_CONTAINER_STYLES[currentVariant],
         typeof style === 'function'
           ? style(state)
