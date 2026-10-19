@@ -65,7 +65,7 @@ export const shadow = {
 };
 
 // ── colors: Color System의 시맨틱 토큰, palette 참조를 실제 값으로 resolve ──
-// 투명도가 있는 토큰은 '#rrggbb' + 알파 hex로 표현 (8% → 14, 11% → 1c, 13% → 21, 16% → 29, 24% → 3d, 25% → 40, 50% → 80, 75% → bf)
+// 투명도가 있는 토큰은 '#rrggbb' + 알파 hex로 표현 (8% → 14, 11% → 1c, 13% → 21, 20% → 33, 25% → 40, 28% → 47, 50% → 80, 75% → bf)
 export const colors = {
   // ── bg ──
   bgBase: palette.neutral[100],
@@ -82,8 +82,8 @@ export const colors = {
   fillNeutralStrongPress: palette.neutral.black,
   fillNeutralWeak: `${palette.neutral.alpha}14`,
   fillNeutralWeakPress: `${palette.neutral.alpha}21`,
-  fillNeutralMedium: `${palette.neutral.alpha}29`,
-  fillNeutralMediumPress: `${palette.neutral.alpha}3d`,
+  fillNeutralMedium: `${palette.neutral.alpha}33`,
+  fillNeutralMediumPress: `${palette.neutral.alpha}47`,
   fillNeutralDisabled: `${palette.neutral.alpha}1c`,
   fillSurface: palette.neutral[0],
   fillSurfacePress: palette.neutral[50],
