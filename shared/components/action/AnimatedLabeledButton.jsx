@@ -1,12 +1,13 @@
 import React, { forwardRef, useCallback, useImperativeHandle, } from 'react';
 
-import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming, } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming, } from 'react-native-reanimated';
 
 import * as Haptics from 'expo-haptics';
 
 import { colors } from '../../styles/color';
 import LabeledButton from './LabeledButton';
 
+// LIKE: 아이콘이 통통 튄다 / BOOKMARK: 아이콘 애니메이션 없이 햅틱만 (눌림 효과는 바깥에서 건다)
 export const ANIMATION_TYPE = Object.freeze({
   LIKE: 'LIKE',
   BOOKMARK: 'BOOKMARK',
@@ -55,27 +56,14 @@ const AnimatedLabeledButton = forwardRef(
       onPress,
       accessibilityLabel,
       style,
+      // onPressIn / onPressOut 등은 LabeledButton(Pressable) 에 그대로 넘긴다 (예: 바깥 눌림 효과)
+      ...pressableProps
     },
     ref,
   ) {
     const scale = useSharedValue(1);
-    const translateY = useSharedValue(0);
 
     const animatedStyle = useAnimatedStyle(() => {
-      if (
-        animationType ===
-        ANIMATION_TYPE.BOOKMARK
-      ) {
-        return {
-          transform: [
-            {
-              translateY:
-                translateY.value,
-            },
-          ],
-        };
-      }
-
       return {
         transform: [
           {
@@ -104,17 +92,6 @@ const AnimatedLabeledButton = forwardRef(
           animationType ===
           ANIMATION_TYPE.BOOKMARK
         ) {
-          translateY.value =
-            withSequence(
-              withTiming(2, {
-                duration: 90,
-              }),
-              withSpring(0, {
-                damping: 20,
-                stiffness: 220,
-              }),
-            );
-
           return;
         }
 
@@ -133,7 +110,6 @@ const AnimatedLabeledButton = forwardRef(
         animationType,
         playHaptic,
         scale,
-        translateY,
       ]);
 
     useImperativeHandle(
@@ -169,6 +145,7 @@ const AnimatedLabeledButton = forwardRef(
 
     return (
       <LabeledButton
+        {...pressableProps}
         label={label}
         size={size}
         renderIcon={({ size: iconSize, color }) => (
