@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     bottom: padding.XXS,
     left: padding.XXS,
     borderRadius: radius.XS,
-    backgroundColor: colors.fillNeutral,
+    backgroundColor: colors.fillNeutralStrong,
   },
 
   fade: {
