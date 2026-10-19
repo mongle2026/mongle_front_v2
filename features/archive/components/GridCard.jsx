@@ -1,8 +1,10 @@
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import IcArrowRight from '../../../assets/icons/ic_arrow_right.svg';
 import MusicCoverImg from '../../../shared/components/atomic/MusicCoverImg';
+import usePressAnimation from '../../../shared/hooks/usePressAnimation';
 
 import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
@@ -12,31 +14,35 @@ const COVER_SIZE = 32;
 const ICON_SIZE = 14;
 
 const GridCard = ({ title, imageSource, onPress, style }) => {
+  const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
+
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={!onPress}
-      accessibilityRole="button"
-      accessibilityLabel={title}
-      style={[styles.container, style]}
-    >
-      <MusicCoverImg
-        imageSource={imageSource}
-        size={COVER_SIZE}
-        accessibilityLabel={`${title} 커버`}
-      />
+    <Animated.View style={[style, animatedStyle]}>
+      <Pressable
+        {...pressHandlers}
+        disabled={!onPress}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        style={styles.container}
+      >
+        <MusicCoverImg
+          imageSource={imageSource}
+          size={COVER_SIZE}
+          accessibilityLabel={`${title} 커버`}
+        />
 
-      <Text style={styles.label} numberOfLines={1} ellipsizeMode="tail">
-        {title}
-      </Text>
+        <Text style={styles.label} numberOfLines={1} ellipsizeMode="tail">
+          {title}
+        </Text>
 
-      <IcArrowRight
-        width={ICON_SIZE}
-        height={ICON_SIZE}
-        color={colors.fgDisabled}
-        fill={colors.fgDisabled}
-      />
-    </Pressable>
+        <IcArrowRight
+          width={ICON_SIZE}
+          height={ICON_SIZE}
+          color={colors.fgDisabled}
+          fill={colors.fgDisabled}
+        />
+      </Pressable>
+    </Animated.View>
   );
 };
 

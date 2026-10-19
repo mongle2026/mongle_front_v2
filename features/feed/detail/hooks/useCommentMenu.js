@@ -5,7 +5,6 @@ import { useDialog } from '../../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 
 const useCommentMenu = ({
-  commentBarRef,
   commentBarHeight,
   commentBarBottom,
   isKeyboardVisible,
@@ -118,14 +117,8 @@ const useCommentMenu = ({
       });
     };
 
+    // 바는 키보드를 따라 transform 으로 움직여서 재지 않고 최종 자리로 계산한다
     const measureCommentBar = (anchor, overlayY) => {
-      if (commentBarRef.current) {
-        commentBarRef.current.measureInWindow((x, y) => {
-          updateMenuPosition(anchor, overlayY, y);
-        });
-        return;
-      }
-
       updateMenuPosition(
         anchor,
         overlayY,
@@ -183,7 +176,6 @@ const useCommentMenu = ({
     };
   }, [
     commentBarHeight,
-    commentBarRef,
     commentBarBottom,
     isKeyboardVisible,
     layoutKey,

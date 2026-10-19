@@ -1,9 +1,11 @@
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
 import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import MusicCard from '../../../shared/components/content/MusicCard';
+import usePressAnimation from '../../../shared/hooks/usePressAnimation';
 
 import { colors } from '../../../shared/styles/color';
 import { FONT, normalizeFont } from '../../../shared/styles/fontType';
@@ -46,13 +48,16 @@ const ShortPostCard = ({
     onPressPlayback?.({ feedId, previewUrl });
   }, [feedId, previewUrl, onPressPlayback]);
 
+  // 피드 카드와 같은 눌림 효과: 카드 어디를 눌러도(음악 · 본문) 카드 전체가 살짝 눌린다
+  const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
+
   const PressArea = onPress ? Pressable : View;
   const pressAreaProps = onPress
-    ? { onPress, accessibilityRole: 'button' }
+    ? { ...pressHandlers, accessibilityRole: 'button' }
     : null;
 
   return (
-    <View style={[styles.container, style]}>
+    <Animated.View style={[styles.container, style, animatedStyle]}>
       <MusicCard
         imageSource={music.imageSource}
         title={music.title}
@@ -61,7 +66,7 @@ const ShortPostCard = ({
         disabled={!previewUrl}
         onPressPlayback={previewUrl ? handlePressPlayback : undefined}
         font={normalizedFont}
-        onPress={onPress}
+        {...pressHandlers}
         inset={false}
         coverSize={56}
       />
@@ -99,7 +104,7 @@ const ShortPostCard = ({
           </Text>
         </View>
       </PressArea>
-    </View>
+    </Animated.View>
   );
 };
 

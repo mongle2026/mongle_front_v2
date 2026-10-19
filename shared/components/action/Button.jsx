@@ -199,7 +199,7 @@ const PRESSED_CONTAINER_STYLES = {
 };
 
 // variant 가 바뀔 때(예: 팔로우 Solid → 팔로잉 Ghost) 이전 모습이 이 시간 동안 흐려지며 새 모습으로 넘어간다
-const VARIANT_TRANSITION_TIMING = { duration: 300, easing: Easing.out(Easing.quad) };
+const VARIANT_TRANSITION_TIMING = { duration: 380, easing: Easing.inOut(Easing.cubic) };
 
 const resolveVariant = variant => {
   if (VARIANT_STYLES[variant]) {

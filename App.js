@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Easing } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -90,6 +91,14 @@ const queryClient = new QueryClient({
   },
 });
 
+const TAB_FADE_TRANSITION_SPEC = {
+  animation: 'timing',
+  config: {
+    duration: 220,
+    easing: Easing.inOut(Easing.ease),
+  },
+};
+
 const MainTabNavigator = () => (
   <Tab.Navigator
     initialRouteName={MAIN_TAB_ROUTES.FEED}
@@ -98,6 +107,9 @@ const MainTabNavigator = () => (
       sceneStyle: {
         backgroundColor: colors.bgBase,
       },
+      // 탭을 옮길 때(하단 탭바 · 보관함 엠티뷰의 '피드 둘러보기' 등) 화면이 툭 바뀌지 않고 크로스페이드된다
+      animation: 'fade',
+      transitionSpec: TAB_FADE_TRANSITION_SPEC,
     }}
     tabBar={props => <BottomNavigation {...props} />}
   >
