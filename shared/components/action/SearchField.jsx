@@ -48,7 +48,7 @@ const SearchField = ({
   placeholder,
   collapsed,
   backgroundColor = colors.bgSurface,
-  fieldBackgroundColor = colors.bgBase,
+  fieldBackgroundColor = colors.fillNeutralWeak,
   ...textInputProps
 }) => {
   const hasValue = value?.length > 0;
@@ -127,8 +127,8 @@ const SearchField = ({
           ]}
         >
           <IcSearch
-            width={20}
-            height={20}
+            width={16}
+            height={16}
             color={foregroundColor}
           />
 

@@ -120,7 +120,8 @@ const styles = StyleSheet.create({
 
   // size = M
   containerM: {
-    paddingVertical: padding.L,
+    paddingTop: padding.L,
+    paddingBottom: padding.M,
     paddingHorizontal: padding.XL,
     gap: gap.XS,
   },

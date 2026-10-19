@@ -43,7 +43,6 @@ const Profile = ({
   imageUri,
 
   // Feed
-  imageSize = 'M',
   username,
   onPress,
   // username 버튼 Button variant. 보관함 북마크에서 팔로우한 사람은 Solid
@@ -62,6 +61,7 @@ const Profile = ({
   textStyle,
 }) => {
   const [endpointOffset, setEndpointOffset] = useState(0);
+  const [usernameHeight, setUsernameHeight] = useState(0);
 
   const normalizedFont = normalizeFont(font);
 
@@ -80,7 +80,17 @@ const Profile = ({
 
       return nextOffset;
     });
+
+    setUsernameHeight(height);
   }, []);
+
+  /**
+   * 폰트마다 username 버튼(S) 높이가 달라서(SUIT 24.75 / 교보 25~27)
+   * 프로필 이미지를 버튼 높이에 맞춥니다. 측정 전에는 S(24) 크기를 씁니다.
+   */
+  const feedImageSizeStyle = usernameHeight > 0
+    ? { width: usernameHeight, height: usernameHeight }
+    : null;
 
   /**
    * Letter
@@ -165,7 +175,8 @@ const Profile = ({
       >
         <ProfileImg
           imageUri={imageUri}
-          size={imageSize}
+          size="S"
+          style={feedImageSizeStyle}
         />
       </View>
 

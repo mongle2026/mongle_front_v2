@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     gap: gap.M,
     padding: padding.L,
     borderRadius: radius.S,
-    backgroundColor: colors.fillNeutral,
+    backgroundColor: colors.fillNeutralStrong,
     ...shadow.weakDown,
   },
 

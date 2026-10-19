@@ -7,10 +7,7 @@ import {
 
 import { colors } from '../../../../shared/styles/color';
 import { typo } from '../../../../shared/styles/typo';
-import {
-  padding,
-  radius,
-} from '../../../../shared/styles/token';
+import { padding } from '../../../../shared/styles/token';
 import { FONT } from '../../../../shared/styles/fontType';
 
 const HIT_SLOP = { top: 3, bottom: 3 };
@@ -50,8 +47,7 @@ export default memo(Item);
 
 const styles = StyleSheet.create({
   container: {
-    // Figma BottomBar/Item: 높이 38 (상하 4 · 좌우 8). 터치 영역은 hitSlop 으로 44 에 맞춘다
-    height: 38,
+    height: 44,
 
     paddingVertical: padding.XS,
     paddingHorizontal: padding.M,
@@ -59,8 +55,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-start',
-
-    borderRadius: radius.M,
   },
   text: {
     color: colors.fgNeutralSecondary,

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
-import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import MusicCard from '../../../shared/components/content/MusicCard';
 import usePressAnimation from '../../../shared/hooks/usePressAnimation';
 
@@ -17,9 +17,18 @@ import { getImageKey } from '../../../shared/utils/media';
 const CONTENT_HEIGHT = 44;
 const IMAGE_WIDTH = (CONTENT_HEIGHT * 4) / 3;
 
+const CONTENT_MAX_LINES = 2;
+
+// 글은 두 줄까지. 높이를 딱 두 줄로 잡아야 iOS 가 둘째 줄을 잘라 내지 않는다
+// (교보 줄 높이 22.4 × 2 = 44.8 이라 44 로 고정하면 한 줄만 보였다)
+const withContentHeight = typography => ({
+  ...typography,
+  height: typography.lineHeight * CONTENT_MAX_LINES,
+});
+
 const CONTENT_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboBodyMedium,
-  [FONT.SUIT]: typo.suitBodyMedium,
+  [FONT.KYOBO]: withContentHeight(typo.kyoboBodyMedium),
+  [FONT.SUIT]: withContentHeight(typo.suitBodyMedium),
 });
 
 const ShortPostCard = ({
@@ -78,7 +87,7 @@ const ShortPostCard = ({
             {hasContent ? (
               <FontFallbackText
                 style={[styles.contentText, CONTENT_TYPOGRAPHY[normalizedFont]]}
-                numberOfLines={2}
+                numberOfLines={CONTENT_MAX_LINES}
                 ellipsizeMode="tail"
               >
                 {content}
@@ -89,6 +98,7 @@ const ShortPostCard = ({
                   key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
                   ratio={WRITE_IMG_RATIO.FOUR_THREE}
+                  effect={WRITE_IMG_EFFECT.FILM}
                   borderRadius={radius.XS}
                   pointerEvents="none"
                   style={styles.image}
@@ -98,11 +108,14 @@ const ShortPostCard = ({
           </View>
         )}
 
-        <View style={styles.dateContainer}>
-          <Text style={styles.date} numberOfLines={1} ellipsizeMode="tail">
-            {date ? formatDateDetail(date) : ''}
-          </Text>
-        </View>
+        {/* 날짜를 안 넘기면 줄째로 그리지 않는다 (보관함 홈 최근 기록) */}
+        {date ? (
+          <View style={styles.dateContainer}>
+            <Text style={styles.date} numberOfLines={1} ellipsizeMode="tail">
+              {formatDateDetail(date)}
+            </Text>
+          </View>
+        ) : null}
       </PressArea>
     </Animated.View>
   );
@@ -131,7 +144,6 @@ const styles = StyleSheet.create({
 
   contentText: {
     flex: 1,
-    height: CONTENT_HEIGHT,
     color: colors.fgNeutralSecondary,
   },
 

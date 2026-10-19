@@ -6,7 +6,7 @@ import IcX from '../../../../assets/icons/ic_x.svg';
 
 // Shared Components
 import IconButton from '../../../../shared/components/action/IconButton';
-import { WriteImg, getWriteImgRatio } from '../../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT, getWriteImgRatio } from '../../../../shared/components/atomic/WriteImg';
 
 // Shared Styles
 import { colors } from '../../../../shared/styles/color';
@@ -25,9 +25,11 @@ const SelectedImageList = ({ images = [], onRemove }) => {
             key={image.uri ?? `selected-image-${index}`}
             style={styles.imageWrapper}
           >
+            {/* 작성 중에는 보정 없이 고른 사진 그대로 보여 준다 */}
             <WriteImg
               imageSource={{ uri: image.uri }}
               ratio={ratio}
+              effect={WRITE_IMG_EFFECT.NONE}
               pointerEvents="none"
               style={styles.image}
             />

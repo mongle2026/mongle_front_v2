@@ -121,7 +121,7 @@ const TYPOGRAPHY_STYLES = {
 const VARIANT_STYLES = {
   [SOLID]: {
     container: {
-      backgroundColor: colors.fillNeutral,
+      backgroundColor: colors.fillNeutralStrong,
       borderWidth: 0,
     },
 
@@ -155,7 +155,7 @@ const VARIANT_STYLES = {
 
   [CRITICAL]: {
     container: {
-      backgroundColor: colors.fillCritical,
+      backgroundColor: colors.fillCriticalStrong,
       borderWidth: 0,
     },
 
@@ -192,9 +192,9 @@ const VARIANT_STYLES = {
  * Ghost 는 press 배경이 없고, Disabled 는 눌리지 않는다.
  */
 const PRESSED_CONTAINER_STYLES = {
-  [SOLID]: { backgroundColor: colors.fillNeutralPress },
+  [SOLID]: { backgroundColor: colors.fillNeutralStrongPress },
   [WEAK]: { backgroundColor: colors.fillNeutralWeakPress },
-  [CRITICAL]: { backgroundColor: colors.fillCriticalPress },
+  [CRITICAL]: { backgroundColor: colors.fillCriticalStrongPress },
   [INFO_WEAK]: { backgroundColor: colors.fillInfoWeakPress },
 };
 

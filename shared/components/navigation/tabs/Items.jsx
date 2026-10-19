@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
 
   itemActive: {
-    backgroundColor: colors.fillNeutral,
+    backgroundColor: colors.fillNeutralStrong,
     color: colors.fgNeutralInverted,
   },
 });
