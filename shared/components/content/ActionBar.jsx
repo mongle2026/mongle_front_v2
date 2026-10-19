@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated from 'react-native-reanimated';
 
 import IcBookmarkFill from '../../../assets/icons/ic_bookmark_fill.svg';
 import IcBookmarkStroke from '../../../assets/icons/ic_bookmark_stroke.svg';
@@ -12,8 +11,6 @@ import AnimatedLabeledButton, {
   ANIMATION_TYPE,
 } from '../action/AnimatedLabeledButton';
 import LabeledButton from '../action/LabeledButton';
-
-import usePressAnimation from '../../hooks/usePressAnimation';
 
 import { colors } from '../../styles/color';
 import { padding } from '../../styles/token';
@@ -61,16 +58,6 @@ const ActionBar = ({
   onBookmarkPress,
   style,
 }) => {
-  // 바텀 네비 아이템과 같은 눌림 효과 (댓글 · 북마크)
-  const {
-    animatedStyle: commentAnimatedStyle,
-    pressHandlers: commentPressHandlers,
-  } = usePressAnimation({ onPress: onCommentPress });
-  const {
-    animatedStyle: bookmarkAnimatedStyle,
-    pressHandlers: bookmarkPressHandlers,
-  } = usePressAnimation({ onPress: onBookmarkPress });
-
   const formatCreatedAt =
     DATE_FORMATTERS[dateFormat] ?? formatRelativeDate;
 
@@ -97,16 +84,14 @@ const ActionBar = ({
 
       <View style={styles.actions}>
         {showCommentButton && (
-          <Animated.View style={[styles.actionButton, commentAnimatedStyle]}>
-            <LabeledButton
-              size="M"
-              icon={IcComment}
-              iconColor={colors.fgNeutralQuaternary}
-              onPress={onCommentPress}
-              {...commentPressHandlers}
-              accessibilityLabel="댓글"
-            />
-          </Animated.View>
+          <LabeledButton
+            size="M"
+            icon={IcComment}
+            iconColor={colors.fgNeutralQuaternary}
+            onPress={onCommentPress}
+            accessibilityLabel="댓글"
+            style={styles.actionButton}
+          />
         )}
 
         {showLikeButton && (
@@ -129,25 +114,23 @@ const ActionBar = ({
         )}
 
         {showBookmarkButton && (
-          <Animated.View style={[styles.actionButton, bookmarkAnimatedStyle]}>
-            <AnimatedLabeledButton
-              label={bookmarkLabel}
-              size="M"
-              isActive={isBookmarked}
-              activeIcon={IcBookmarkFill}
-              inactiveIcon={IcBookmarkStroke}
-              activeColor={colors.fgBookmarkActive}
-              inactiveColor={colors.fgNeutralQuaternary}
-              animationType={ANIMATION_TYPE.BOOKMARK}
-              {...bookmarkPressHandlers}
-              onPress={bookmarkPressHandlers.onPress ?? onBookmarkPress}
-              accessibilityLabel={
-                isBookmarked
-                  ? '북마크 해제'
-                  : '북마크'
-              }
-            />
-          </Animated.View>
+          <AnimatedLabeledButton
+            label={bookmarkLabel}
+            size="M"
+            isActive={isBookmarked}
+            activeIcon={IcBookmarkFill}
+            inactiveIcon={IcBookmarkStroke}
+            activeColor={colors.fgBookmarkActive}
+            inactiveColor={colors.fgNeutralQuaternary}
+            animationType={ANIMATION_TYPE.BOOKMARK}
+            onPress={onBookmarkPress}
+            accessibilityLabel={
+              isBookmarked
+                ? '북마크 해제'
+                : '북마크'
+            }
+            style={styles.actionButton}
+          />
         )}
       </View>
     </View>
