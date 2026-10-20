@@ -29,6 +29,8 @@ import ArchiveScreen from './features/archive/ArchiveScreen';
 import ProfileScreen from './features/profile/ProfileScreen';
 import ProfileInfoEditScreen from './features/profile/infoedit/ProfileInfoEditScreen';
 import ProfileFeedEditScreen from './features/profile/feededit/ProfileFeedEditScreen';
+import ProfileFollowScreen from './features/profile/follow/ProfileFollowScreen';
+import UserProfileScreen from './features/profile/user/UserProfileScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
@@ -246,6 +248,21 @@ const RootNavigator = ({ isSignedIn }) => (
         <Stack.Screen
           name="ProfileFeedEdit"
           component={ProfileFeedEditScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="ProfileFollow"
+          component={ProfileFollowScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        {/* 다른 사람 프로필. params: { userId } (publicId) */}
+        <Stack.Screen
+          name="UserProfile"
+          component={UserProfileScreen}
           options={{
             animation: 'ios_from_right',
           }}
