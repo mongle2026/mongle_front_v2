@@ -99,7 +99,7 @@ const EnvelopeScreen = ({ navigation }) => {
         onPressClose={handlePressBack}
         onPressNext={handlePressSend}
         nextTextStyle={{
-          color: isNextEnabled ? colors.fgNeutralSecondary : colors.fgDisabled,
+          color: isNextEnabled ? colors.fgNeutralPrimary : colors.fgDisabled,
         }}
       />
 
