@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { Dimensions } from 'react-native';
 
 // 키보드/CommentBar 바로 위에 붙지 않게 남겨 두는 여백
 const VIEWPORT_MARGIN = 12;
@@ -12,11 +13,21 @@ const VIEWPORT_MARGIN = 12;
  */
 const useScrollToReplyTarget = ({
   scrollViewRef,
-  commentBarRef,
   requestKey,
   isKeyboardVisible,
   commentBarHeight,
+  commentBarBottom = 0,
 }) => {
+  /*
+   * CommentBar 윗변(= 보이는 영역의 끝)의 창 좌표.
+   * 바는 키보드를 따라 transform 으로 움직여서, 움직이는 도중에 재면 위치가 어긋난다.
+   * 그래서 재지 않고 최종 자리(화면 아래에서 바 위치 + 바 높이)로 계산한다.
+   */
+  const getCommentBarTop = useCallback(
+    () => Dimensions.get('window').height - commentBarBottom - commentBarHeight,
+    [commentBarBottom, commentBarHeight],
+  );
+
   const targetRef = useRef(null);
   const scrollOffsetRef = useRef(0);
   const viewportTopRef = useRef(0);
@@ -45,13 +56,11 @@ const useScrollToReplyTarget = ({
 
   useEffect(() => {
     const scrollView = scrollViewRef.current;
-    const commentBar = commentBarRef.current;
     const target = targetRef.current?.current;
 
     if (
       !isKeyboardVisible ||
       !scrollView ||
-      !commentBar ||
       !target
     ) {
       return;
@@ -60,37 +69,37 @@ const useScrollToReplyTarget = ({
     // 키보드와 CommentBar가 자리를 잡은 다음 프레임에 잰다.
     const frame = requestAnimationFrame(() => {
       // CommentBar의 윗변이 곧 화면에서 보이는 영역의 끝이다.
-      commentBar.measureInWindow((commentBarX, commentBarY) => {
-        target.measureInWindow((x, y, width, height) => {
-          const visibleBottom =
-            commentBarY - VIEWPORT_MARGIN;
+      const commentBarY = getCommentBarTop();
 
-          const hiddenAmount =
-            y + height - visibleBottom;
+      target.measureInWindow((x, y, width, height) => {
+        const visibleBottom =
+          commentBarY - VIEWPORT_MARGIN;
 
-          if (hiddenAmount <= 1) {
-            return;
-          }
+        const hiddenAmount =
+          y + height - visibleBottom;
 
-          // 댓글이 보이는 영역보다 길면 위쪽(작성자)까지 밀려 올라가지 않게 막는다.
-          const availableRoom = Math.max(
-            0,
-            y - viewportTopRef.current - VIEWPORT_MARGIN,
-          );
+        if (hiddenAmount <= 1) {
+          return;
+        }
 
-          const scrollAmount = Math.min(
-            hiddenAmount,
-            availableRoom,
-          );
+        // 댓글이 보이는 영역보다 길면 위쪽(작성자)까지 밀려 올라가지 않게 막는다.
+        const availableRoom = Math.max(
+          0,
+          y - viewportTopRef.current - VIEWPORT_MARGIN,
+        );
 
-          if (scrollAmount <= 1) {
-            return;
-          }
+        const scrollAmount = Math.min(
+          hiddenAmount,
+          availableRoom,
+        );
 
-          scrollView.scrollTo({
-            y: scrollOffsetRef.current + scrollAmount,
-            animated: true,
-          });
+        if (scrollAmount <= 1) {
+          return;
+        }
+
+        scrollView.scrollTo({
+          y: scrollOffsetRef.current + scrollAmount,
+          animated: true,
         });
       });
     });
@@ -99,18 +108,63 @@ const useScrollToReplyTarget = ({
       cancelAnimationFrame(frame);
     };
   }, [
-    commentBarHeight,
-    commentBarRef,
+    getCommentBarTop,
     isKeyboardVisible,
     requestKey,
     scrollViewRef,
   ]);
+
+  /**
+   * 방금 작성한 댓글이 화면(스크롤 영역 위 ~ CommentBar 위)에 다 보이도록 스크롤한다.
+   * 아래로 가려져 있으면 CommentBar 바로 위까지 올리고, 위로 지나가 있으면 내려서 보여준다.
+   * 댓글이 보이는 영역보다 길면 윗부분(작성자)부터 보이게 맞춘다.
+   *
+   * @param {View} target 작성한 댓글의 View (measureInWindow 가능해야 함)
+   */
+  const revealComment = useCallback(target => {
+    const scrollView = scrollViewRef.current;
+
+    if (!scrollView || !target) {
+      return;
+    }
+
+    // 새 댓글이 레이아웃에 자리를 잡은 다음 프레임에 잰다.
+    requestAnimationFrame(() => {
+      scrollView.measureInWindow((scrollX, scrollY) => {
+        const commentBarY = getCommentBarTop();
+
+        target.measureInWindow((x, y, width, height) => {
+          const visibleTop = scrollY + VIEWPORT_MARGIN;
+          const visibleBottom = commentBarY - VIEWPORT_MARGIN;
+          const visibleHeight = visibleBottom - visibleTop;
+
+          let scrollAmount = 0;
+
+          if (height > visibleHeight || y < visibleTop) {
+            scrollAmount = y - visibleTop;
+          } else if (y + height > visibleBottom) {
+            scrollAmount = y + height - visibleBottom;
+          }
+
+          if (Math.abs(scrollAmount) <= 1) {
+            return;
+          }
+
+          scrollView.scrollTo({
+            y: Math.max(0, scrollOffsetRef.current + scrollAmount),
+            animated: true,
+          });
+        });
+      });
+    });
+  }, [getCommentBarTop, scrollViewRef]);
 
   return {
     handleScroll,
     handleScrollViewLayout,
     setReplyScrollTarget,
     clearReplyScrollTarget,
+    revealComment,
   };
 };
 

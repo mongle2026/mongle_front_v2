@@ -1,6 +1,6 @@
 import React, { forwardRef, useCallback, useImperativeHandle, } from 'react';
 
-import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming, } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming, } from 'react-native-reanimated';
 
 import * as Haptics from 'expo-haptics';
 
@@ -10,6 +10,8 @@ import LabeledButton from './LabeledButton';
 export const ANIMATION_TYPE = Object.freeze({
   LIKE: 'LIKE',
   BOOKMARK: 'BOOKMARK',
+  // 댓글: 켜고 끄는 상태가 없어서 말풍선이 살짝 눌렸다가 갸웃하며 튀어 오른다
+  COMMENT: 'COMMENT',
 });
 
 const AnimatedIcon = ({
@@ -60,6 +62,7 @@ const AnimatedLabeledButton = forwardRef(
   ) {
     const scale = useSharedValue(1);
     const translateY = useSharedValue(0);
+    const rotate = useSharedValue(0);
 
     const animatedStyle = useAnimatedStyle(() => {
       if (
@@ -72,6 +75,18 @@ const AnimatedLabeledButton = forwardRef(
               translateY:
                 translateY.value,
             },
+          ],
+        };
+      }
+
+      if (
+        animationType ===
+        ANIMATION_TYPE.COMMENT
+      ) {
+        return {
+          transform: [
+            { scale: scale.value },
+            { rotate: `${rotate.value}deg` },
           ],
         };
       }
@@ -118,6 +133,34 @@ const AnimatedLabeledButton = forwardRef(
           return;
         }
 
+        if (
+          animationType ===
+          ANIMATION_TYPE.COMMENT
+        ) {
+          scale.value = withSequence(
+            withTiming(0.88, {
+              duration: 80,
+              easing: Easing.out(Easing.quad),
+            }),
+            withSpring(1, {
+              damping: 9,
+              stiffness: 260,
+            }),
+          );
+          rotate.value = withSequence(
+            withTiming(-10, {
+              duration: 110,
+              easing: Easing.out(Easing.quad),
+            }),
+            withSpring(0, {
+              damping: 8,
+              stiffness: 200,
+            }),
+          );
+
+          return;
+        }
+
         scale.value = withSequence(
           withTiming(0.85, {
             duration: 90,
@@ -132,6 +175,7 @@ const AnimatedLabeledButton = forwardRef(
       }, [
         animationType,
         playHaptic,
+        rotate,
         scale,
         translateY,
       ]);

@@ -153,3 +153,29 @@ export const formatDeliveryDateLabel =
 
     return `${formatDate(date)}에 도착`;
   };
+
+/**
+ * 오늘부터 도착일까지 남은 일수
+ *
+ * 도착일이 없거나 오늘 이전이면 0
+ */
+export const getDaysUntilDelivery =
+  deliveryAt => {
+    const date =
+      deliveryAtToDate(deliveryAt);
+
+    if (!date) {
+      return 0;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return Math.max(
+      Math.round(
+        (date.getTime() - today.getTime()) /
+        (24 * 60 * 60 * 1000),
+      ),
+      0,
+    );
+  };

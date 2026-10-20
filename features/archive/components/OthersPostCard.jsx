@@ -1,10 +1,12 @@
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+import usePressAnimation from '../../../shared/hooks/usePressAnimation';
 
 import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import CdCover from '../../../shared/components/atomic/CdCover';
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
-import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import Profile from '../../../shared/components/content/profile/Profile';
 
 import { colors } from '../../../shared/styles/color';
@@ -48,13 +50,16 @@ const OthersPostCard = ({
   const musicImageUri =
     typeof music.imageSource === 'string' ? music.imageSource : music.imageSource?.uri;
 
+  // 피드 카드와 같은 눌림 효과: 본문을 누르면 카드 전체가 살짝 눌린다 (프로필 버튼은 따로)
+  const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
+
   const PressArea = onPress ? Pressable : View;
   const pressAreaProps = onPress
-    ? { onPress, accessibilityRole: 'button' }
+    ? { ...pressHandlers, accessibilityRole: 'button' }
     : null;
 
   return (
-    <View style={[styles.container, style]}>
+    <Animated.View style={[styles.container, style, animatedStyle]}>
       <View style={styles.profileMusicContainer}>
         {/* 팔로우한 사람이면 Solid, 아니면 Ghost */}
         <Profile
@@ -95,6 +100,7 @@ const OthersPostCard = ({
                   key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
                   ratio={WRITE_IMG_RATIO.FOUR_THREE}
+                  effect={WRITE_IMG_EFFECT.FILM}
                   borderRadius={radius.XS}
                   pointerEvents="none"
                   style={styles.image}
@@ -110,7 +116,7 @@ const OthersPostCard = ({
           </Text>
         </View>
       </PressArea>
-    </View>
+    </Animated.View>
   );
 };
 

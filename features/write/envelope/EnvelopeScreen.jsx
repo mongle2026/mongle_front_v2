@@ -30,11 +30,9 @@ import ColorItem from '../components/ColorItem';
 import StampItem from '../components/StampItem';
 
 import useEnvelopeSelect, { TABS } from './hooks/useEnvelopeSelect';
-import useCreateLetter from './hooks/useCreateLetter';
 import useEnvelopePreviewFlip from './hooks/useEnvelopePreviewFlip';
 import useLetterPreviewSize from './hooks/useLetterPreviewSize';
 import { TEMPLATES } from './data/envelopeTemplateData';
-import { getApiErrorMessage } from '../../../shared/api/client';
 
 /* TabBar 는 인덱스 기반이라 훅의 tab key 와 매핑한다 */
 const TAB_LABELS = TABS.map((tab) => tab.label);
@@ -56,7 +54,7 @@ const EnvelopeScreen = ({ navigation }) => {
   const activeTabIndex = TABS.findIndex((tab) => tab.key === activeTab);
 
   const receiver = useLetterFormStore((state) => state.receiver);
-  const { currentUser, userId } = useCurrentUser();
+  const { currentUser } = useCurrentUser();
   const { showToast } = useGlobalOverlay();
 
   const recipientName = receiver?.nickname ?? '';
@@ -69,23 +67,6 @@ const EnvelopeScreen = ({ navigation }) => {
     useLetterPreviewSize(LETTER_ASPECT_RATIO);
 
   const scrollBottomInset = { paddingBottom: insets.bottom };
-
-  const { createLetter, isCreatingLetter } = useCreateLetter({
-    userId,
-
-    onSuccess: () => {
-      navigation?.popToTop();
-    },
-
-    onError: (error) => {
-      showToast({
-        message: getApiErrorMessage(error, '편지를 보내지 못했습니다.'),
-        icon: 'alert',
-        iconColor: colors.fgCriticalInverted,
-        bottomOffset: insets.bottom,
-      });
-    },
-  });
 
   const handlePressBack = () => navigation?.goBack();
   const handlePressSend = () => {
@@ -101,14 +82,10 @@ const EnvelopeScreen = ({ navigation }) => {
     }
 
     /*
-     * 네트워크 요청 중 연속 탭으로
-     * 같은 편지가 여러 번 생성되는 것을 방지합니다.
+     * 전송 요청은 전송 화면에서 담기 애니메이션과 함께 보냅니다.
+     * push 가 아닌 navigate 라 연속 탭해도 전송 화면은 한 번만 열립니다.
      */
-    if (isCreatingLetter) {
-      return;
-    }
-
-    createLetter();
+    navigation?.navigate('LetterSend');
   };
 
   return (
@@ -122,7 +99,7 @@ const EnvelopeScreen = ({ navigation }) => {
         onPressClose={handlePressBack}
         onPressNext={handlePressSend}
         nextTextStyle={{
-          color: isNextEnabled ? colors.fgNeutralSecondary : colors.fgDisabled,
+          color: isNextEnabled ? colors.fgNeutralPrimary : colors.fgDisabled,
         }}
       />
 

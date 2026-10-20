@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Easing } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -22,6 +23,7 @@ import FeedDetailScreen from './features/feed/detail/FeedDetailScreen';
 import RecordScreen from './features/write/record/RecordScreen';
 import RecordEditScreen from './features/write/record/RecordEditScreen';
 import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
+import LetterSendScreen from './features/write/send/LetterSendScreen';
 import LetterBoxScreen from './features/letterbox/LetterBoxScreen';
 import ArchiveScreen from './features/archive/ArchiveScreen';
 import ProfileScreen from './features/profile/ProfileScreen';
@@ -91,6 +93,14 @@ const queryClient = new QueryClient({
   },
 });
 
+const TAB_FADE_TRANSITION_SPEC = {
+  animation: 'timing',
+  config: {
+    duration: 220,
+    easing: Easing.inOut(Easing.ease),
+  },
+};
+
 const MainTabNavigator = () => (
   <Tab.Navigator
     initialRouteName={MAIN_TAB_ROUTES.FEED}
@@ -99,6 +109,9 @@ const MainTabNavigator = () => (
       sceneStyle: {
         backgroundColor: colors.bgBase,
       },
+      // 탭을 옮길 때(하단 탭바 · 보관함 엠티뷰의 '피드 둘러보기' 등) 화면이 툭 바뀌지 않고 크로스페이드된다
+      animation: 'fade',
+      transitionSpec: TAB_FADE_TRANSITION_SPEC,
     }}
     tabBar={props => <BottomNavigation {...props} />}
   >
@@ -188,6 +201,15 @@ const RootNavigator = ({ isSignedIn }) => (
         <Stack.Screen
           name="Envelope"
           component={EnvelopeScreen}
+        />
+        <Stack.Screen
+          name="LetterSend"
+          component={LetterSendScreen}
+          options={{
+            // 보내는 중에는 뒤로가기 제스처를 막는다 (완료 화면에서 닫기로 나간다)
+            gestureEnabled: false,
+            animation: 'fade',
+          }}
         />
         <Stack.Screen
           name="Notification"

@@ -1,9 +1,11 @@
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
-import { WriteImg, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import MusicCard from '../../../shared/components/content/MusicCard';
+import usePressAnimation from '../../../shared/hooks/usePressAnimation';
 
 import { colors } from '../../../shared/styles/color';
 import { FONT, normalizeFont } from '../../../shared/styles/fontType';
@@ -55,13 +57,16 @@ const ShortPostCard = ({
     onPressPlayback?.({ feedId, previewUrl });
   }, [feedId, previewUrl, onPressPlayback]);
 
+  // 피드 카드와 같은 눌림 효과: 카드 어디를 눌러도(음악 · 본문) 카드 전체가 살짝 눌린다
+  const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
+
   const PressArea = onPress ? Pressable : View;
   const pressAreaProps = onPress
-    ? { onPress, accessibilityRole: 'button' }
+    ? { ...pressHandlers, accessibilityRole: 'button' }
     : null;
 
   return (
-    <View style={[styles.container, style]}>
+    <Animated.View style={[styles.container, style, animatedStyle]}>
       <MusicCard
         imageSource={music.imageSource}
         title={music.title}
@@ -70,7 +75,7 @@ const ShortPostCard = ({
         disabled={!previewUrl}
         onPressPlayback={previewUrl ? handlePressPlayback : undefined}
         font={normalizedFont}
-        onPress={onPress}
+        {...pressHandlers}
         inset={false}
         coverSize={56}
       />
@@ -93,6 +98,7 @@ const ShortPostCard = ({
                   key={getImageKey(imageSource, index)}
                   imageSource={imageSource}
                   ratio={WRITE_IMG_RATIO.FOUR_THREE}
+                  effect={WRITE_IMG_EFFECT.FILM}
                   borderRadius={radius.XS}
                   pointerEvents="none"
                   style={styles.image}
@@ -111,7 +117,7 @@ const ShortPostCard = ({
           </View>
         ) : null}
       </PressArea>
-    </View>
+    </Animated.View>
   );
 };
 

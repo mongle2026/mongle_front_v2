@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+import usePressAnimation from '../../../shared/hooks/usePressAnimation';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import MusicCoverImg from '../../../shared/components/atomic/MusicCoverImg';
@@ -20,34 +22,38 @@ const GenreCard = ({ genre, imageSource, onPress, style }) => {
     setCardSize(e.nativeEvent.layout.width);
   }, []);
 
+  const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
+
   const Container = onPress ? Pressable : View;
   const containerProps = onPress
-    ? { onPress, accessibilityRole: 'button', accessibilityLabel: `${genre} 장르 기록 보기` }
+    ? { ...pressHandlers, accessibilityRole: 'button', accessibilityLabel: `${genre} 장르 기록 보기` }
     : null;
 
   return (
-    <Container style={[styles.container, style]} onLayout={handleLayout} {...containerProps}>
-      {cardSize > 0 && (
-        <MusicCoverImg
-          imageSource={imageSource}
-          size={cardSize}
-          accessibilityLabel={`${genre} 장르 커버`}
-          style={styles.cover}
+    <Animated.View style={[style, animatedStyle]}>
+      <Container style={styles.container} onLayout={handleLayout} {...containerProps}>
+        {cardSize > 0 && (
+          <MusicCoverImg
+            imageSource={imageSource}
+            size={cardSize}
+            accessibilityLabel={`${genre} 장르 커버`}
+            style={styles.cover}
+          />
+        )}
+
+        <LinearGradient
+          pointerEvents="none"
+          colors={GRADIENT_COLORS}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 0, y: 0 }}
+          style={styles.gradient}
         />
-      )}
 
-      <LinearGradient
-        pointerEvents="none"
-        colors={GRADIENT_COLORS}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        style={styles.gradient}
-      />
-
-      <Text style={styles.label} numberOfLines={1} ellipsizeMode="tail">
-        {genre}
-      </Text>
-    </Container>
+        <Text style={styles.label} numberOfLines={1} ellipsizeMode="tail">
+          {genre}
+        </Text>
+      </Container>
+    </Animated.View>
   );
 };
 

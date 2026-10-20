@@ -1,19 +1,27 @@
 import { memo, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 
 import { colors } from '../../../styles/color';
 import Items from './Items';
 
 const DEFAULT_TABS = ['탭1', '탭2'];
 
-// 활성 탭 밑줄이 옆으로 미끄러지는 시간
-const INDICATOR_DURATION = 200;
+// 활성 탭 밑줄이 옆으로 미끄러지는 시간 (탭 글자색도 같은 속도로 바뀐다)
+const INDICATOR_TIMING = { duration: 260, easing: Easing.out(Easing.cubic) };
 const INDICATOR_HEIGHT = 1.5;
+
+const playSelectionHaptic = () => {
+  void Haptics.selectionAsync().catch(() => {
+    /* 햅틱을 지원하지 않는 환경에서도 탭 전환은 그대로 동작한다 */
+  });
+};
 
 const TabBar = ({
   tabs = DEFAULT_TABS,
@@ -25,7 +33,7 @@ const TabBar = ({
   const position = useSharedValue(activeIndex);
 
   useEffect(() => {
-    position.value = withTiming(activeIndex, { duration: INDICATOR_DURATION });
+    position.value = withTiming(activeIndex, INDICATOR_TIMING);
   }, [activeIndex, position]);
 
   const tabCount = tabs.length;
@@ -52,8 +60,13 @@ const TabBar = ({
         <Items
           key={`${label}-${index}`}
           label={label}
+          index={index}
           isActive={index === activeIndex}
-          onPress={() => onChange?.(index)}
+          activePosition={position}
+          onPress={() => {
+            if (index !== activeIndex) playSelectionHaptic();
+            onChange?.(index);
+          }}
           style={styles.tab}
         />
       ))}

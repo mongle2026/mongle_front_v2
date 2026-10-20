@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState, } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming, } from 'react-native-reanimated';
+import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming, } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import FeedIcon from '../../../assets/icons/ic_feed.svg';
@@ -17,7 +17,19 @@ import { typo } from '../../styles/typo';
 const TOGGLE_ICON_SIZE = 16;
 const ACTION_ICON_SIZE = 20;
 
-export const FAB_EXPAND_DURATION = 200;
+export const FAB_EXPAND_DURATION = 240;
+
+// 열 때는 빠르게 나왔다가 천천히 멈추고, 닫을 때는 천천히 출발해 빠르게 들어간다
+const OPEN_EASING = Easing.out(Easing.cubic);
+const CLOSE_EASING = Easing.inOut(Easing.cubic);
+
+// 기본 버튼의 문구 · 아이콘 전환: 이전 문구는 위로 살짝 빠지고 새 문구가 아래에서 올라오며,
+// + 아이콘은 45° 돌며 × 로 바뀐다
+const LABEL_SHIFT = 6;
+const ICON_ROTATE_DEG = 45;
+
+// 펼쳐지는 두 버튼(피드 작성 · 편지 작성)을 살짝 시간차로 올린다
+const ROW_STAGGER = 0.15;
 
 // expandedRow가 숨어 있을 때의 위치: 기본 버튼 바로 뒤(아랫변끼리 맞춤)
 // layout animation(exiting)은 행이 레이아웃에서 빠지며 위치가 밀리므로, 닫힘이 끝날 때까지 마운트를 유지하고 직접 애니메이션한다
@@ -125,7 +137,10 @@ const FAB = ({
   const toggleHeight = useSharedValue(0);
 
   useEffect(() => {
-    const timing = { duration: FAB_EXPAND_DURATION };
+    const timing = {
+      duration: FAB_EXPAND_DURATION,
+      easing: isOpen ? OPEN_EASING : CLOSE_EASING,
+    };
 
     if (isOpen) {
       setIsRowMounted(true);
@@ -148,10 +163,39 @@ const FAB = ({
       : EXPANDED_ROW_FALLBACK_OFFSET;
 
     return {
-      opacity: progress.value,
+      opacity: interpolate(progress.value, [0, 0.6], [0, 1], 'clamp'),
       transform: [{ translateY: (1 - progress.value) * hiddenOffset }],
     };
   });
+
+  // 두 번째 버튼(편지 작성)은 조금 늦게 따라 올라온다
+  const secondActionAnimatedStyle = useAnimatedStyle(() => {
+    const delayed = interpolate(progress.value, [ROW_STAGGER, 1], [0, 1], 'clamp');
+
+    return {
+      transform: [{ translateY: (1 - delayed) * LABEL_SHIFT * 2 }],
+    };
+  });
+
+  const defaultLabelAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0, 0.5], [1, 0], 'clamp'),
+    transform: [{ translateY: -progress.value * LABEL_SHIFT }],
+  }));
+
+  const expandedLabelAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0.5, 1], [0, 1], 'clamp'),
+    transform: [{ translateY: (1 - progress.value) * LABEL_SHIFT }],
+  }));
+
+  const plusIconAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0, 0.6], [1, 0], 'clamp'),
+    transform: [{ rotate: `${progress.value * ICON_ROTATE_DEG}deg` }],
+  }));
+
+  const closeIconAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0.4, 1], [0, 1], 'clamp'),
+    transform: [{ rotate: `${(progress.value - 1) * ICON_ROTATE_DEG}deg` }],
+  }));
 
   return (
     <View style={[styles.container, style]}>
@@ -167,12 +211,14 @@ const FAB = ({
             onPress={handleFeedPress}
           />
 
-          <ExpandedActionButton
-            icon={LetterIcon}
-            label="편지 작성"
-            accessibilityLabel="편지 작성"
-            onPress={handleLetterPress}
-          />
+          <Animated.View style={[styles.expandedButtonWrapper, secondActionAnimatedStyle]}>
+            <ExpandedActionButton
+              icon={LetterIcon}
+              label="편지 작성"
+              accessibilityLabel="편지 작성"
+              onPress={handleLetterPress}
+            />
+          </Animated.View>
         </Animated.View>
       )}
 
@@ -187,29 +233,45 @@ const FAB = ({
           onLayout={handleToggleLayout}
           style={styles.defaultButton}
         >
-          <Text
-            numberOfLines={1}
-            style={[
-              styles.defaultLabel,
-              isOpen && styles.defaultLabelExpanded,
-            ]}
-          >
-            {isOpen ? expandedLabel : label}
-          </Text>
+          {/* 닫힘 · 열림 문구와 아이콘을 겹쳐 두고 progress 에 따라 바꿔 보여준다 */}
+          <View style={styles.labelStack}>
+            <Animated.Text
+              numberOfLines={1}
+              style={[styles.defaultLabel, defaultLabelAnimatedStyle]}
+            >
+              {label}
+            </Animated.Text>
 
-          {isOpen ? (
-            <XIcon
-              width={TOGGLE_ICON_SIZE}
-              height={TOGGLE_ICON_SIZE}
-              color={colors.fgNeutralTertiary}
-            />
-          ) : (
-            <PlusIcon
-              width={TOGGLE_ICON_SIZE}
-              height={TOGGLE_ICON_SIZE}
-              color={colors.fgNeutralSecondary}
-            />
-          )}
+            <Animated.Text
+              numberOfLines={1}
+              style={[
+                styles.defaultLabel,
+                styles.defaultLabelExpanded,
+                styles.stackedLabel,
+                expandedLabelAnimatedStyle,
+              ]}
+            >
+              {expandedLabel}
+            </Animated.Text>
+          </View>
+
+          <View style={styles.iconStack}>
+            <Animated.View style={plusIconAnimatedStyle}>
+              <PlusIcon
+                width={TOGGLE_ICON_SIZE}
+                height={TOGGLE_ICON_SIZE}
+                color={colors.fgNeutralSecondary}
+              />
+            </Animated.View>
+
+            <Animated.View style={[StyleSheet.absoluteFill, closeIconAnimatedStyle]}>
+              <XIcon
+                width={TOGGLE_ICON_SIZE}
+                height={TOGGLE_ICON_SIZE}
+                color={colors.fgNeutralTertiary}
+              />
+            </Animated.View>
+          </View>
         </Pressable>
       </Animated.View>
     </View>
@@ -267,10 +329,25 @@ const styles = StyleSheet.create({
     ...shadow.weakDown,
   },
 
-  defaultLabel: {
+  labelStack: {
     flex: 1,
+  },
+
+  defaultLabel: {
     color: colors.fgNeutralSecondary,
     ...typo.suitLabelMediumStrong,
+  },
+
+  stackedLabel: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+
+  iconStack: {
+    width: TOGGLE_ICON_SIZE,
+    height: TOGGLE_ICON_SIZE,
   },
 
   defaultLabelExpanded: {

@@ -1,9 +1,15 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import IcTrash from '../../../../assets/icons/ic_trash.svg';
 
 import Item from '../../../../shared/components/action/menu/Item';
+import {
+  MENU_ENTERING,
+  MENU_EXITING,
+  MENU_TRANSFORM_ORIGIN,
+} from '../../../../shared/components/action/menu/Menu';
 
 import { colors, shadow } from '../../../../shared/styles/color';
 import { radius } from '../../../../shared/styles/token';
@@ -45,15 +51,23 @@ const CommentMenuOverlay = ({
         },
       ]}
     >
-      <Item
-        icon={IcTrash}
-        label="삭제"
-        color={colors.fgCritical}
-        onPress={onPressDelete}
-        disabled={deleteDisabled}
-        accessibilityLabel="댓글 삭제"
-        style={styles.commentDeleteItem}
-      />
+      {/* 위치를 잰 뒤(isMeasured)에 다시 붙여서, 제자리에서 펼쳐지는 애니메이션이 보이게 한다 */}
+      <Animated.View
+        key={menu.isMeasured ? 'measured' : 'measuring'}
+        entering={menu.isMeasured ? MENU_ENTERING : undefined}
+        exiting={menu.isMeasured ? MENU_EXITING : undefined}
+        style={styles.commentMenuMotion}
+      >
+        <Item
+          icon={IcTrash}
+          label="삭제"
+          color={colors.fgCritical}
+          onPress={onPressDelete}
+          disabled={deleteDisabled}
+          accessibilityLabel="댓글 삭제"
+          style={styles.commentDeleteItem}
+        />
+      </Animated.View>
     </View>
   </View>
 );
@@ -76,6 +90,10 @@ const styles = StyleSheet.create({
     right: 8,
     zIndex: 1,
     elevation: 101,
+  },
+
+  commentMenuMotion: {
+    transformOrigin: MENU_TRANSFORM_ORIGIN,
   },
 
   commentDeleteItem: {

@@ -110,7 +110,7 @@ const RecordScreen = ({ navigation, route }) => {
   const hasRecipient = !isLetter || Boolean(receiver);
   const hasDeliveryDate = !isLetter || Boolean(deliveryAt);
   const isNextReady = hasMusic && hasContent && hasRecipient && hasDeliveryDate;
-  const nextTextColor = isNextReady ? colors.fgNeutralSecondary : colors.fgDisabled;
+  const nextTextColor = isNextReady ? colors.fgNeutralPrimary : colors.fgDisabled;
 
   /* 작성 중인 값이 하나라도 있는지 (뒤로가기 시 확인 Dialog 노출 여부) */
   const hasWrittenAnything =
