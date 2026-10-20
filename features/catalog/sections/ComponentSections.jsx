@@ -409,7 +409,7 @@ const NavigationSection = () => {
   return (
     <CatalogSection title="Navigation">
       <Specimen name="TopNavigation" contentStyle={stretch}>
-        <TopNavigation tabs={SAMPLE_TOP_TABS} activeTab={topTab} onChangeTab={setTopTab} onPressBell={noop} />
+        <TopNavigation tabs={SAMPLE_TOP_TABS} activeTab={topTab} onChangeTab={setTopTab} onPressButton={noop} />
       </Specimen>
 
       <Specimen name="TopSubNavigation" note="type: icon / text" contentStyle={stretch}>

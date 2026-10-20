@@ -58,7 +58,7 @@ const LetterBoxScreen = ({ navigation }) => {
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
         <TopNavigation
           tabs={LETTER_TOP_NAVIGATION_TABS}
-          onPressBell={handlePressBell}
+          onPressButton={handlePressBell}
         />
       </SafeAreaView>
 

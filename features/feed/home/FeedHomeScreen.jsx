@@ -233,7 +233,7 @@ const FeedHomeScreen = ({ navigation }) => {
           tabs={FEED_TOP_NAVIGATION_TABS}
           activeTab={activeTab}
           onChangeTab={handleChangeTab}
-          onPressBell={handlePressBell}
+          onPressButton={handlePressBell}
         />
       </SafeAreaView>
 
