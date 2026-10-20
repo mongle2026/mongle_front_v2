@@ -1,10 +1,9 @@
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import Empty from '../../../../shared/components/content/Empty';
 import useFeedMusicPlayback from '../../../../shared/hooks/useFeedMusicPlayback';
 import { gap, padding } from '../../../../shared/styles/token';
-import { resolveMediaUri, toImageSource } from '../../../../shared/utils/media';
 
 import useMyFeedGenres from '../genre/hooks/useMyFeedGenres';
 import useMyFeedMonths from '../all/hooks/useMyFeedMonths';
@@ -15,8 +14,8 @@ import RecentFeedList from './components/RecentFeedList';
 
 const MAX_RECENT_FEEDS = 5;
 const MAX_GENRES = 8;
-// 모든 기록은 '전체' 포함 6칸 → 월은 5개까지
-const MAX_MONTHS = 5;
+// 모든 기록은 월 카드 6칸 (2열 × 3줄)
+const MAX_MONTHS = 6;
 
 // 보관함 - 내 기록. 편지는 들어가지 않고 내가 쓴 피드만 보여준다.
 const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore, onPressGenre, onPressAllFeed }) => {
@@ -45,13 +44,6 @@ const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore,
     onPressAllFeed?.(month, anchorCursor);
   }, [months, onPressAllFeed]);
 
-  // 전체 카드 커버 = 가장 최신 글의 앨범 커버
-  const latestArtworkUri = resolveMediaUri(recentFeeds[0]?.music?.musicArtwork);
-  const allImageSource = useMemo(
-    () => toImageSource(latestArtworkUri),
-    [latestArtworkUri],
-  );
-
   // 불러오는 중에는 빈 화면 안내를 띄우지 않는다
   if (isRecentFeedsLoading) return null;
 
@@ -76,7 +68,7 @@ const MyFeedSection = ({ navigation, userId, onPressWriteFeed, onPressGenreMore,
             onPressFeed={handlePressFeed}
           />
           <GenrePreview genres={genres} onPressMore={onPressGenreMore} onPressGenre={onPressGenre} />
-          <AllFeedPreview allImageSource={allImageSource} months={months} onPressCard={handlePressAllFeed} />
+          <AllFeedPreview months={months} onPressCard={handlePressAllFeed} />
         </>
       )}
     </ScrollView>
