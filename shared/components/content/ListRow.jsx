@@ -6,16 +6,16 @@ import {
 } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 
-import ProfileImg from '../../../shared/components/atomic/ProfileImg';
+import ProfileImg from '../atomic/ProfileImg';
 import {
   Button,
   BUTTON_SIZE,
   BUTTON_VARIANT,
-} from '../../../shared/components/action/Button';
+} from '../action/Button';
 
-import { colors } from '../../../shared/styles/color';
-import { gap, padding, radius } from '../../../shared/styles/token';
-import { typo } from '../../../shared/styles/typo';
+import { colors } from '../../styles/color';
+import { gap, padding, radius } from '../../styles/token';
+import { typo } from '../../styles/typo';
 
 export const LIST_ROW_TYPE = Object.freeze({
   RECIPIENT: 'recipient',

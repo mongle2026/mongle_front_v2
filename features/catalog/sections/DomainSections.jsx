@@ -38,7 +38,7 @@ import { NOTIFICATION_STATUS, NOTIFICATION_TYPE } from '../../notification/const
 
 // write
 import WriteLabeledButton from '../../write/components/LabeledButton';
-import ListRow, { LIST_ROW_TYPE } from '../../write/components/ListRow';
+import ListRow, { LIST_ROW_TYPE } from '../../../shared/components/content/ListRow';
 import ColorItem from '../../write/components/ColorItem';
 import PatternItem from '../../write/components/PatternItem';
 import StampItem from '../../write/components/StampItem';

@@ -4,7 +4,7 @@ import React from 'react';
 import { resolveMediaUri } from '../../../../shared/utils/media';
 
 // Feature Components & Hooks
-import ListRow, { LIST_ROW_TYPE } from '../../components/ListRow';
+import ListRow, { LIST_ROW_TYPE } from '../../../../shared/components/content/ListRow';
 import SearchSelectBottomSheet from '../../components/SearchSelectBottomSheet';
 import useSelectRecipient from '../hooks/useSelectRecipient';
 
