@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 import IcSettingStroke from '../../assets/icons/ic_setting_stroke.svg';
 import IcPersonList from '../../assets/icons/ic_personlist.svg';
@@ -10,16 +11,19 @@ import ProfileImg from '../../shared/components/atomic/ProfileImg';
 import IconButton from '../../shared/components/action/IconButton';
 import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../../shared/components/action/Button';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';
+import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
 import { colors } from '../../shared/styles/color';
 import { FONT } from '../../shared/styles/fontType';
 import { gap, padding, radius } from '../../shared/styles/token';
 import { chunk } from '../../shared/utils/arrayUtils';
 
+import ProfileEditBottomSheet from './components/ProfileEditBottomSheet';
 import ProfileMusicCard from './components/ProfileMusicCard';
 import useMyFeedCovers from './hooks/useMyFeedCovers';
 
 const COLUMN_COUNT = 2;
 const END_REACHED_THRESHOLD = 0.5;
+const PROFILE_EDIT_OVERLAY_ID = 'profile-edit';
 
 const USER_CODE_ROTATION_DEGREE = -4;
 const USER_CODE_ROTATION_RADIAN = (Math.abs(USER_CODE_ROTATION_DEGREE) * Math.PI) / 180;
@@ -55,6 +59,28 @@ const ProfileScreen = () => {
     const { width, height } = e.nativeEvent.layout;
     setUserCodeCornerOffset(getRotatedCornerOffset(width, height));
   }, []);
+
+  const navigation = useNavigation();
+  const { openOverlay } = useGlobalOverlay();
+
+  // TODO: 게시글 편집 화면이 생기면 이동시킨다
+  const handlePressEdit = useCallback(() => {
+    openOverlay({
+      id: PROFILE_EDIT_OVERLAY_ID,
+      accessibilityLabel: '프로필 편집 닫기',
+      contentContainerStyle: styles.profileEditOverlay,
+      renderContent: ({ close }) => (
+        <ProfileEditBottomSheet
+          onPressProfileInfoEdit={() => {
+            close();
+            navigation.navigate('ProfileInfoEdit');
+          }}
+          onPressFeedEdit={close}
+          onClose={close}
+        />
+      ),
+    });
+  }, [openOverlay, navigation]);
 
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -113,6 +139,7 @@ const ProfileScreen = () => {
           size={BUTTON_SIZE.L}
           font={FONT.SUIT}
           style={styles.editButton}
+          onPress={handlePressEdit}
         >
           프로필 편집
         </Button>
@@ -224,6 +251,15 @@ const styles = StyleSheet.create({
 
   rowSeparator: {
     height: gap.M,
+  },
+
+  // BottomSheet를 화면 전체 위에 띄운다
+  profileEditOverlay: {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
   },
 });
 

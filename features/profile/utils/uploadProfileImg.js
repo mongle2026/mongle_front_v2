@@ -38,19 +38,27 @@ const compressProfileImg = async ({ uri, width, height }) => {
 
 /**
  * 프로필 사진을 jpg로 압축하고 presigned URL로 R2에 올린다.
- * 가입 전이라 signupToken 으로 업로드 URL 을 받고, 돌려받은 key를 가입 요청에 실어 보낸다.
+ * 돌려받은 key를 가입 요청이나 프로필 수정 요청에 실어 보낸다.
  *
- * 가입하지 않고 나가서 쓰이지 않은 사진은 서버 크론이 지운다.
+ * signupToken: 가입 전에는 로그인 토큰이 없어서 이 토큰으로 업로드 URL 을 받는다. 없으면 로그인 토큰을 쓴다
+ *
+ * 저장하지 않고 나가서 쓰이지 않은 사진은 서버 크론이 지운다.
  */
 const uploadProfileImg = async (profileImg, signupToken) => {
   try {
     const uri = await compressProfileImg(profileImg);
 
-    const { data: upload } = await apiClient.post('/user/profile-image/upload-url', null, {
-      headers: { Authorization: `Bearer ${signupToken}` },
-      // 로그인 토큰이 아니라서 401 이어도 refresh 하지 않는다
-      skipAuthRefresh: true,
-    });
+    const { data: upload } = await apiClient.post(
+      '/user/profile-image/upload-url',
+      null,
+      signupToken
+        ? {
+          headers: { Authorization: `Bearer ${signupToken}` },
+          // 로그인 토큰이 아니라서 401 이어도 refresh 하지 않는다
+          skipAuthRefresh: true,
+        }
+        : undefined,
+    );
 
     const fileResponse = await fetch(uri);
     const fileBlob = await fileResponse.blob();

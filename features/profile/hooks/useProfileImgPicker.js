@@ -23,21 +23,28 @@ const getImgSize = uri => new Promise(resolve => {
 });
 
 /**
- * 회원가입 프로필 사진. 사진 보관함이나 파일 앱에서 한 장을 골라 저장한다.
+ * 프로필 사진. 사진 보관함이나 파일 앱에서 한 장을 골라 저장한다. 회원가입과 프로필 정보 편집에서 함께 쓴다.
  *
  * 고르자마자 업로드를 시작해서, 아이디 · 닉네임을 입력하는 동안 끝나게 한다.
- * 가입 전이라 로그인 토큰 대신 signupToken 으로 업로드 URL 을 받는다.
+ * 가입 전에는 로그인 토큰이 없어서 signupToken 으로 업로드 URL 을 받는다. 없으면 로그인 토큰으로 받는다.
  *
- * profileImg: 고른 사진 ({ uri, name, type, width, height }), 고르기 전에는 null
+ * initialProfileImgUri: 지금 쓰고 있는 사진 주소. 없으면 기본 프로필 사진에서 시작한다
+ *
+ * profileImg: 보여줄 사진 ({ uri, name, type, width, height }). 처음 사진은 { uri } 만 있고, 사진이 없으면 null
+ * isProfileImgChanged: 새 사진을 골랐거나, 처음 사진을 지웠으면 true
  * pickProfileImgFromLibrary: 권한을 받은 뒤 사진 보관함을 연다. 권한이 없거나 취소하면 그대로 둔다
  * pickProfileImgFromFile: 파일 앱을 연다. 시스템 파일 선택기라 권한은 받지 않는다. 취소하면 그대로 둔다
- * deleteProfileImg: 고른 사진을 지워서 기본 프로필 사진으로 되돌린다
- * getProfileImgKey: 업로드가 끝나기를 기다려 key를 돌려준다. 사진이 없으면 null.
+ * deleteProfileImg: 사진을 지워서 기본 프로필 사진으로 되돌린다
+ * getProfileImgKey: 새로 고른 사진의 업로드가 끝나기를 기다려 key를 돌려준다. 새로 고른 사진이 없으면 null.
  *                   미리 올리다 실패했으면 한 번 더 올려 보고, 그래도 실패하면 ProfileImgUploadError
  */
-const useProfileImgPicker = ({ signupToken } = {}) => {
-  const [profileImg, setProfileImg] = useState(null);
+const useProfileImgPicker = ({ signupToken, initialProfileImgUri } = {}) => {
+  const [profileImg, setProfileImg] = useState(() =>
+    initialProfileImgUri ? { uri: initialProfileImgUri } : null,
+  );
   const uploadTaskRef = useRef(null);
+
+  const isProfileImgChanged = (profileImg?.uri ?? null) !== (initialProfileImgUri ?? null);
 
   const selectProfileImg = useCallback(nextProfileImg => {
     setProfileImg(nextProfileImg);
@@ -114,6 +121,7 @@ const useProfileImgPicker = ({ signupToken } = {}) => {
 
   return {
     profileImg,
+    isProfileImgChanged,
     pickProfileImgFromLibrary,
     pickProfileImgFromFile,
     deleteProfileImg,
