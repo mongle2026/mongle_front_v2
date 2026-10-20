@@ -18,7 +18,7 @@ import { gap, padding, radius } from '../../shared/styles/token';
 import { chunk } from '../../shared/utils/arrayUtils';
 
 import ProfileEditBottomSheet from './components/ProfileEditBottomSheet';
-import ProfileMusicCard from './components/ProfileMusicCard';
+import ProfileMusicCard, { ProfileMusicCardSpacer } from './components/ProfileMusicCard';
 import useMyFeedCovers from './hooks/useMyFeedCovers';
 
 const COLUMN_COUNT = 2;
@@ -63,7 +63,6 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
   const { openOverlay } = useGlobalOverlay();
 
-  // TODO: 게시글 편집 화면이 생기면 이동시킨다
   const handlePressEdit = useCallback(() => {
     openOverlay({
       id: PROFILE_EDIT_OVERLAY_ID,
@@ -75,7 +74,10 @@ const ProfileScreen = () => {
             close();
             navigation.navigate('ProfileInfoEdit');
           }}
-          onPressFeedEdit={close}
+          onPressFeedEdit={() => {
+            close();
+            navigation.navigate('ProfileFeedEdit');
+          }}
           onClose={close}
         />
       ),
@@ -98,7 +100,7 @@ const ProfileScreen = () => {
         />
       ))}
       {/* 마지막 줄이 한 개뿐이어도 카드가 반 폭을 유지하도록 빈 칸을 채운다 */}
-      {row.length < COLUMN_COUNT && <View style={styles.emptyCell} />}
+      {row.length < COLUMN_COUNT && <ProfileMusicCardSpacer />}
     </View>
   ), []);
 
@@ -243,10 +245,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: gap.M,
     alignSelf: 'stretch',
-  },
-
-  emptyCell: {
-    flex: 1,
   },
 
   rowSeparator: {

@@ -26,6 +26,7 @@ import LetterBoxScreen from './features/letterbox/LetterBoxScreen';
 import ArchiveScreen from './features/archive/ArchiveScreen';
 import ProfileScreen from './features/profile/ProfileScreen';
 import ProfileInfoEditScreen from './features/profile/infoedit/ProfileInfoEditScreen';
+import ProfileFeedEditScreen from './features/profile/feededit/ProfileFeedEditScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
@@ -216,6 +217,13 @@ const RootNavigator = ({ isSignedIn }) => (
         <Stack.Screen
           name="ProfileInfoEdit"
           component={ProfileInfoEditScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="ProfileFeedEdit"
+          component={ProfileFeedEditScreen}
           options={{
             animation: 'ios_from_right',
           }}
