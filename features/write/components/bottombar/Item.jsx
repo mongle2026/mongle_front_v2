@@ -47,7 +47,8 @@ export default memo(Item);
 
 const styles = StyleSheet.create({
   container: {
-    height: 44,
+    // BottomBar 높이(38)에 맞춘다. 터치 영역은 hitSlop으로 44를 채운다
+    height: 38,
 
     paddingVertical: padding.XS,
     paddingHorizontal: padding.M,
