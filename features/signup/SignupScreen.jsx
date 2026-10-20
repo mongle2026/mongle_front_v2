@@ -20,7 +20,6 @@ import { useKeyboardHeight } from '../../shared/hooks/useFloatingBottomOffset';
 import useScrollFocusedFieldToCenter from '../../shared/hooks/useScrollFocusedFieldToCenter';
 import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
 import { getApiErrorMessage } from '../../shared/api/client';
-import BottomBar from '../write/components/bottombar/BottomBar';
 
 import ProfileImgEditBottomSheet from './components/ProfileImgEditBottomSheet';
 import useProfileImgPicker from './hooks/useProfileImgPicker';
@@ -75,8 +74,7 @@ const SignupScreen = () => {
 
   const isKeyboardVisible = keyboardHeight > 0;
 
-  // BottomBar를 키보드 바로 위에 붙인다. 그 위의 ScrollView가 남은 높이만큼 줄어서
-  // 가입하기 버튼까지 스크롤로 올릴 수 있다.
+  // ScrollView를 키보드 높이만큼 줄여서 가입하기 버튼까지 스크롤로 올릴 수 있게 한다.
   // SafeAreaView가 이미 아래 안전영역만큼 띄워 두었으니 그만큼은 뺀다
   const keyboardInset = Math.max(0, keyboardHeight - insets.bottom);
 
@@ -89,10 +87,6 @@ const SignupScreen = () => {
     focusField,
     blurField,
   } = useScrollFocusedFieldToCenter({ isKeyboardVisible });
-
-  const handlePressHideKeyboard = useCallback(() => {
-    Keyboard.dismiss();
-  }, []);
 
   const { openOverlay, showToast } = useGlobalOverlay();
 
@@ -156,7 +150,7 @@ const SignupScreen = () => {
       <ScrollView
         ref={scrollViewRef}
         onLayout={handleScrollViewLayout}
-        style={styles.scrollView}
+        style={[styles.scrollView, { marginBottom: keyboardInset }]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -221,15 +215,6 @@ const SignupScreen = () => {
           </Button>
         </View>
       </ScrollView>
-
-      {isKeyboardVisible && (
-        <BottomBar
-          showLeftActions={false}
-          keyboardVisible
-          onPressHideKeyboard={handlePressHideKeyboard}
-          style={{ marginBottom: keyboardInset }}
-        />
-      )}
     </SafeAreaView>
   );
 };
