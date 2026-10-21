@@ -5,10 +5,12 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+// TODO(임시): 시스템 버튼 비교용. 확인 후 삭제
 import * as AppleAuthentication from 'expo-apple-authentication';
 
 import LogoSigniture from '../../assets/logo/logo_signiture.svg';
 import IcKakao from '../../assets/icons/ic_kakao.svg';
+import IcApple from '../../assets/icons/ic_apple.svg';
 
 import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
 import { getApiErrorMessage } from '../../shared/api/client';
@@ -30,12 +32,37 @@ const SOCIAL_BUTTON_RADIUS = radius.XL;
 // 카카오 로그인 디자인 가이드: 컨테이너 #FEE500, 심볼 #000000, 레이블 #000000 85% + OS 기본 서체
 const KAKAO_CONTAINER_COLOR = '#FEE500';
 const KAKAO_LABEL_COLOR = 'rgba(0, 0, 0, 0.85)';
-const KAKAO_SYMBOL_SIZE = 15;
+const KAKAO_SYMBOL_SIZE = 18;
 const KAKAO_PADDING_X = 15;
 
 // Apple 가이드상 버튼 테두리(stroke)는 바꿀 수 있다
 const APPLE_BORDER_WIDTH = 1;
 const APPLE_BORDER_COLOR = '#BFBFBF';
+
+// Apple 가이드: 배경 · 로고 · 제목은 흑백만, 제목은 시스템 서체로 버튼 높이의 43%
+const APPLE_CONTAINER_COLOR = '#FFFFFF';
+const APPLE_LABEL_COLOR = '#000000';
+const APPLE_LABEL_SIZE = Math.round(SOCIAL_BUTTON_HEIGHT * 0.43);
+
+// 좌우 여백은 카카오 버튼과 맞춘다
+const APPLE_PADDING_X = KAKAO_PADDING_X;
+
+// 왼쪽 정렬 로고(Medium, 원본 31 × 44)는 자르지 않고 높이를 버튼 안쪽 높이에 맞춘다
+const APPLE_LOGO_HEIGHT = SOCIAL_BUTTON_HEIGHT - APPLE_BORDER_WIDTH * 2;
+const APPLE_LOGO_SCALE = APPLE_LOGO_HEIGHT / 44;
+const APPLE_LOGO_WIDTH = 31 * APPLE_LOGO_SCALE;
+
+// 로고 파일 안에서 사과 모양이 차지하는 가로 범위 (원본 좌표)
+const APPLE_GLYPH_LEFT = 7.75;
+const APPLE_GLYPH_RIGHT = 23.21;
+
+// Apple 가이드상 다른 로그인 로고와 맞추려면 로고를 안쪽으로 옮길 수 있다.
+// 사과 모양 가운데를 카카오 심볼 가운데에 맞춘다 (absolute 기준은 테두리 안쪽)
+const KAKAO_SYMBOL_CENTER_X = KAKAO_PADDING_X + KAKAO_SYMBOL_SIZE / 2;
+const APPLE_LOGO_INSET =
+  KAKAO_SYMBOL_CENTER_X -
+  APPLE_BORDER_WIDTH -
+  ((APPLE_GLYPH_LEFT + APPLE_GLYPH_RIGHT) / 2) * APPLE_LOGO_SCALE;
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
@@ -89,25 +116,43 @@ const WelcomeScreen = () => {
       </View>
 
       <View style={styles.footer}>
-        {/* Sign in with Apple은 iOS에서만 제공한다. 로고 · 문구 · 비율은 시스템 버튼을 쓰고 테두리만 바깥 View로 입힌다 */}
+        {/* Sign in with Apple은 iOS에서만 제공한다. 왼쪽 정렬 로고는 시스템 버튼에 없어서 Apple 로고 파일로 직접 만든다 */}
+        {/* TODO(임시): 디자인 확인용으로 Android에도 보인다. Android에서는 눌러도 로그인하지 않는다. 확인 후 iOS 전용으로 되돌리기 */}
+        <Pressable
+          accessibilityRole="button"
+          onPress={Platform.OS === 'ios' ? handleApplePress : undefined}
+          style={styles.appleButton}
+        >
+          <IcApple
+            width={APPLE_LOGO_WIDTH}
+            height={APPLE_LOGO_HEIGHT}
+            style={styles.appleLogo}
+          />
+          <Text style={styles.appleLabel}>Apple로 계속하기</Text>
+        </Pressable>
+
+        {/* TODO(임시): 예전 시스템 버튼. 보이기만 하고 로그인하지 않는다. iOS에서만 그려진다. 확인 후 삭제 */}
         {Platform.OS === 'ios' && (
-          <View style={styles.appleButtonFrame}>
+          <View style={styles.tempSystemAppleFrame}>
             <AppleAuthentication.AppleAuthenticationButton
               buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
               buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
               cornerRadius={SOCIAL_BUTTON_RADIUS - APPLE_BORDER_WIDTH}
-              onPress={handleApplePress}
-              style={styles.appleButton}
+              onPress={() => {}}
+              style={styles.tempSystemAppleButton}
             />
           </View>
         )}
 
+        {/* 심볼은 왼쪽에 붙이고 레이블은 버튼 가운데에 둔다 */}
         <Pressable
           accessibilityRole="button"
           onPress={handleKakaoPress}
           style={styles.kakaoButton}
         >
-          <IcKakao width={KAKAO_SYMBOL_SIZE} height={KAKAO_SYMBOL_SIZE} />
+          <View style={styles.kakaoSymbol}>
+            <IcKakao width={KAKAO_SYMBOL_SIZE} height={KAKAO_SYMBOL_SIZE} />
+          </View>
           <Text style={styles.kakaoLabel}>카카오 로그인</Text>
         </Pressable>
       </View>
@@ -145,7 +190,38 @@ const styles = StyleSheet.create({
     gap: gap.M,
   },
 
-  appleButtonFrame: {
+  appleButton: {
+    alignSelf: 'stretch',
+    height: SOCIAL_BUTTON_HEIGHT,
+    paddingHorizontal: APPLE_PADDING_X,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: APPLE_BORDER_WIDTH,
+    borderColor: APPLE_BORDER_COLOR,
+    borderRadius: SOCIAL_BUTTON_RADIUS,
+    backgroundColor: APPLE_CONTAINER_COLOR,
+    // 로고 파일의 흰 배경이 모서리 테두리를 덮지 않게 자른다
+    overflow: 'hidden',
+  },
+
+  appleLogo: {
+    position: 'absolute',
+    top: 0,
+    left: APPLE_LOGO_INSET,
+  },
+
+  // fontFamily를 비워 시스템 서체를 쓴다
+  appleLabel: {
+    includeFontPadding: false,
+    fontSize: APPLE_LABEL_SIZE,
+    fontWeight: '500',
+    lineHeight: APPLE_LABEL_SIZE * 1.25,
+    color: APPLE_LABEL_COLOR,
+  },
+
+  // TODO(임시): 예전 시스템 버튼 스타일. 확인 후 삭제
+  tempSystemAppleFrame: {
     alignSelf: 'stretch',
     height: SOCIAL_BUTTON_HEIGHT,
     borderWidth: APPLE_BORDER_WIDTH,
@@ -154,7 +230,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  appleButton: {
+  tempSystemAppleButton: {
     width: '100%',
     height: '100%',
   },
@@ -166,13 +242,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: gap.M,
     borderRadius: SOCIAL_BUTTON_RADIUS,
     backgroundColor: KAKAO_CONTAINER_COLOR,
   },
 
+  kakaoSymbol: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: KAKAO_PADDING_X,
+    justifyContent: 'center',
+  },
+
   // fontFamily를 비워 OS 기본 서체를 쓴다. 크기는 가이드 최대치(버튼 높이의 1/3)로
-  // Apple 시스템 버튼 글자(높이의 약 43%)와 차이를 줄인다
+  // Apple 버튼 제목(높이의 43%)과 차이를 줄인다
   kakaoLabel: {
     includeFontPadding: false,
     fontSize: SOCIAL_BUTTON_HEIGHT / 3,
