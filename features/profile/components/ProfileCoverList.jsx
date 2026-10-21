@@ -1,7 +1,9 @@
 import { useCallback, useContext, useMemo } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { chunk } from '../../../shared/utils/arrayUtils';
@@ -16,7 +18,8 @@ const keyExtractor = row => String(row[0].feedId);
 const RowSeparator = () => <View style={styles.rowSeparator} />;
 
 // 프로필 정보(header) + 노래 커버를 한 줄에 두 개씩 보여주는 그리드 (내 프로필, 다른 사람 프로필 공용).
-// header 와 커버가 함께 스크롤된다. covers 등은 useProfileFeedCovers 결과를 그대로 넘긴다
+// header 와 커버가 함께 스크롤된다. covers 등은 useProfileFeedCovers 결과를 그대로 넘긴다.
+// 커버를 누르면 그 게시글 상세로 간다
 const ProfileCoverList = ({
   header,
   covers,
@@ -24,6 +27,7 @@ const ProfileCoverList = ({
   isFetchingNextPage,
   fetchNextPage,
 }) => {
+  const navigation = useNavigation();
   const coverRows = useMemo(() => chunk(covers, COLUMN_COUNT), [covers]);
 
   // 마지막 줄이 안드로이드 하단 시스템 바(홈 인디케이터)에 가리지 않게 inset 만큼 더 띄운다.
@@ -43,6 +47,11 @@ const ProfileCoverList = ({
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const handlePressFeed = useCallback(
+    feedId => navigation.navigate('FeedDetail', { feedId }),
+    [navigation],
+  );
+
   const renderRow = useCallback(({ item: row }) => (
     <View style={styles.coverRow}>
       {row.map(cover => (
@@ -50,12 +59,19 @@ const ProfileCoverList = ({
           key={cover.feedId}
           imageSource={cover.imageSource}
           title={cover.title}
-        />
+        >
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${cover.title || '게시글'} 보러 가기`}
+            onPress={() => handlePressFeed(cover.feedId)}
+            style={styles.cardPressArea}
+          />
+        </ProfileMusicCard>
       ))}
       {/* 마지막 줄이 한 개뿐이어도 카드가 반 폭을 유지하도록 빈 칸을 채운다 */}
       {row.length < COLUMN_COUNT && <ProfileMusicCardSpacer />}
     </View>
-  ), []);
+  ), [handlePressFeed]);
 
   return (
     <FlatList
@@ -93,6 +109,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: gap.M,
     alignSelf: 'stretch',
+  },
+
+  // 카드 전체를 덮는 터치 영역
+  cardPressArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 
   rowSeparator: {
