@@ -13,4 +13,5 @@ export const NOTIFICATION_STATUS = {
   REPLY: 'reply',
   SYSTEM: 'system',
   EVENT: 'event',
+  FOLLOW: 'follow',
 };

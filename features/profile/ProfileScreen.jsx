@@ -59,6 +59,10 @@ const ProfileScreen = () => {
     navigation.navigate('ProfileFollow');
   }, [navigation]);
 
+  const handlePressSetting = useCallback(() => {
+    navigation.navigate('Setting');
+  }, [navigation]);
+
   const header = (
     <>
       <ProfileUserRow
@@ -95,6 +99,7 @@ const ProfileScreen = () => {
         title={currentUser?.nickname ?? ''}
         icon={IcSettingStroke}
         buttonAccessibilityLabel="설정"
+        onPressButton={handlePressSetting}
       />
 
       {/* TopNavigation 아래 전체(프로필 정보 + 커버 그리드)가 함께 스크롤된다 */}

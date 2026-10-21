@@ -8,7 +8,7 @@ import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 import { formatDate, formatRelativeDate } from '../../../shared/utils/dateUtils';
-import { getFromSuffix } from '../../../shared/utils/koreanUtils';
+import { getFromSuffix, hasFinalConsonant } from '../../../shared/utils/koreanUtils';
 import { NOTIFICATION_STATUS, NOTIFICATION_TYPE } from '../constants';
 
 
@@ -50,6 +50,10 @@ const NOTIFICATION_CONTENT = {
     [NOTIFICATION_STATUS.REPLY]: ({ name, content }) => ({
       title: `${toUserCode(name)}의 답글`,
       body: truncate(content, MAX_FEED_CONTENT_LENGTH),
+    }),
+    // name: 나를 팔로우한 사람 닉네임. 조사는 받침 기준 (예: 지훈이, 민수가)
+    [NOTIFICATION_STATUS.FOLLOW]: ({ name }) => ({
+      title: `${name}${hasFinalConsonant(name) ? '이' : '가'} 팔로우 했어요`,
     }),
   },
   [NOTIFICATION_TYPE.NEWS]: {
@@ -107,7 +111,7 @@ const NotificationListItem = ({
 
       <View style={styles.textContainer}>
         <FontFallbackText style={styles.title}>{title}</FontFallbackText>
-        <FontFallbackText style={styles.body}>{body}</FontFallbackText>
+        {body ? <FontFallbackText style={styles.body}>{body}</FontFallbackText> : null}
         <Text style={styles.date}>{formatNotificationDate(createdAt)}</Text>
       </View>
     </Pressable>

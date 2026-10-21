@@ -31,6 +31,8 @@ import ProfileInfoEditScreen from './features/profile/infoedit/ProfileInfoEditSc
 import ProfileFeedEditScreen from './features/profile/feededit/ProfileFeedEditScreen';
 import ProfileFollowScreen from './features/profile/follow/ProfileFollowScreen';
 import UserProfileScreen from './features/profile/user/UserProfileScreen';
+import SettingScreen from './features/setting/SettingScreen';
+import SettingNotificationScreen from './features/setting/notification/SettingNotificationScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
@@ -263,6 +265,20 @@ const RootNavigator = ({ isSignedIn }) => (
         <Stack.Screen
           name="UserProfile"
           component={UserProfileScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="Setting"
+          component={SettingScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="SettingNotification"
+          component={SettingNotificationScreen}
           options={{
             animation: 'ios_from_right',
           }}
