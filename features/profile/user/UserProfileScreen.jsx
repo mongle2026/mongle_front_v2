@@ -61,6 +61,7 @@ const UserProfileScreen = () => {
       <ProfileUserRow
         imageUri={user?.profileImageUri}
         userCode={user?.userCode}
+        isFollowing={isFollowing}
       />
 
       {/* 내 프로필이면 팔로우 버튼이 없다 */}

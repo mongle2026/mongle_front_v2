@@ -22,8 +22,10 @@ const getRotatedCornerOffset = (width, height) => {
 };
 
 // 프로필 사진 + 기울어진 @userCode 버튼 (내 프로필, 다른 사람 프로필 공용)
-const ProfileUserRow = ({ imageUri, userCode }) => {
+// 팔로우한 사람이면 userCode 버튼은 Solid, 아니면 Ghost (피드 ProfileBar 와 같다)
+const ProfileUserRow = ({ imageUri, userCode, isFollowing = false }) => {
   const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
+  const userCodeVariant = isFollowing ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.GHOST;
 
   const [userCodeCornerOffset, setUserCodeCornerOffset] = useState(0);
 
@@ -52,7 +54,7 @@ const ProfileUserRow = ({ imageUri, userCode }) => {
       {/* onLayout 은 회전 전 크기를 주므로 감싼 View 에서 측정한다 */}
       <View onLayout={handleUserCodeLayout}>
         <Button
-          variant={BUTTON_VARIANT.GHOST}
+          variant={userCodeVariant}
           size={BUTTON_SIZE.M}
           font={FONT.SUIT}
           style={styles.userCodeButton}
