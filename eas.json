@@ -7,13 +7,16 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "environment": "development"
+      "environment": "development",
+      "node": "24.22.1"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "node": "24.22.1"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "node": "24.22.1"
     }
   },
   "submit": {
