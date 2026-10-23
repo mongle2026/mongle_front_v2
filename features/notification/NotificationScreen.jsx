@@ -51,7 +51,8 @@ const EMPTY_NOTIFICATION_BODY = '아직 알림이 없어요.\n새로운 소식�
 const NotificationScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [activeFilterIndex, setActiveFilterIndex] = useState(0);
-  const { userId } = useCurrentUser();
+  const { userId, currentUser } = useCurrentUser();
+  const myNickname = currentUser?.nickname;
 
   // 페이지 단위로 받아서 탭마다 서버에서 걸러 받는다
   const { type } = NOTIFICATION_FILTERS[activeFilterIndex];
@@ -76,11 +77,12 @@ const NotificationScreen = ({ navigation }) => {
       return (
         <NotificationListItem
           {...item}
+          myNickname={myNickname}
           onPress={route ? () => navigation.navigate(route.name, route.params) : undefined}
         />
       );
     },
-    [navigation]
+    [navigation, myNickname]
   );
 
   // 로딩 중에는 엠티뷰가 깜빡이지 않게 띄우지 않는다

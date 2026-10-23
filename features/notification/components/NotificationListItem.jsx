@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
@@ -8,9 +8,11 @@ import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 import { formatDate, formatRelativeDate } from '../../../shared/utils/dateUtils';
-import { getFromSuffix, hasFinalConsonant } from '../../../shared/utils/koreanUtils';
+import { getFromSuffix } from '../../../shared/utils/koreanUtils';
 import { NOTIFICATION_STATUS, NOTIFICATION_TYPE } from '../constants';
 
+
+const APP_LOGO_IMAGE = require('../../../assets/logo/icon.png');
 
 // 댓글/답글 내용은 최대 20자까지만 보여준다
 const MAX_FEED_CONTENT_LENGTH = 20;
@@ -51,9 +53,10 @@ const NOTIFICATION_CONTENT = {
       title: `${toUserCode(name)}의 답글`,
       body: truncate(content, MAX_FEED_CONTENT_LENGTH),
     }),
-    // name: 나를 팔로우한 사람 닉네임. 조사는 받침 기준 (예: 지훈이, 민수가)
-    [NOTIFICATION_STATUS.FOLLOW]: ({ name }) => ({
-      title: `${name}${hasFinalConsonant(name) ? '이' : '가'} 팔로우 했어요`,
+    // name: 나를 팔로우한 사람 아이디, myNickname: 내 닉네임
+    [NOTIFICATION_STATUS.FOLLOW]: ({ name, myNickname }) => ({
+      title: `${toUserCode(name)}님의 새로운 팔로우`,
+      body: `${toUserCode(name)}님이 ${myNickname ?? ''}님을 팔로우하기 시작했습니다.`,
     }),
   },
   [NOTIFICATION_TYPE.NEWS]: {
@@ -68,6 +71,14 @@ const NOTIFICATION_CONTENT = {
       showLogo: true,
     }),
   },
+  [NOTIFICATION_TYPE.SUMMARY]: {
+    // summaryCount: 야간 알림을 끈 사람에게 밤사이 쌓인 알림 개수
+    [NOTIFICATION_STATUS.NIGHT_SUMMARY]: ({ summaryCount }) => ({
+      title: `${summaryCount}개 알림`,
+      body: `지난 밤 동안 알림이 ${summaryCount}개 왔습니다.`,
+      showLogo: true,
+    }),
+  },
 };
 
 // n분 전 / n시간 전 / 24시간 이상은 yy.mm.dd
@@ -76,8 +87,10 @@ const formatNotificationDate = value => formatRelativeDate(value, formatDate);
 const NotificationListItem = ({
   type,
   status,
-  // letter: 받는/보낸 사람 닉네임, feed: 작성자 아이디
+  // letter: 받는/보낸 사람 닉네임, feed: 작성자/팔로우한 사람 아이디
   name,
+  // feed/follow: 본문에 들어가는 내 닉네임
+  myNickname,
   profileImageUrl,
   // feed: 댓글/답글 내용
   content,
@@ -85,6 +98,8 @@ const NotificationListItem = ({
   eventTitle,
   // letter/receive: 나에게 보낸 편지인지
   isToSelf = false,
+  // summary/night_summary: 묶인 알림 개수
+  summaryCount,
   // 알림이 뜬 시각
   createdAt,
   onPress,
@@ -98,13 +113,14 @@ const NotificationListItem = ({
     content,
     eventTitle,
     isToSelf,
+    myNickname,
+    summaryCount,
   });
 
   return (
     <Pressable style={[styles.container, style]} onPress={onPress} disabled={!onPress}>
       {showLogo ? (
-        // TODO: 앱 로고 나오면 교체
-        <View style={styles.logo} />
+        <Image source={APP_LOGO_IMAGE} style={styles.logo} />
       ) : (
         <ProfileImg imageUri={profileImageUrl} size="S" />
       )}
@@ -132,7 +148,6 @@ const styles = StyleSheet.create({
     height: 24,
     flexShrink: 0,
     borderRadius: radius.XS,
-    backgroundColor: colors.fgNeutralQuaternary,
   },
   textContainer: {
     flex: 1,
