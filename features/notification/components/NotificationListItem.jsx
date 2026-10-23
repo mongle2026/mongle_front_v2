@@ -71,14 +71,6 @@ const NOTIFICATION_CONTENT = {
       showLogo: true,
     }),
   },
-  [NOTIFICATION_TYPE.SUMMARY]: {
-    // summaryCount: 야간 알림을 끈 사람에게 밤사이 쌓인 알림 개수
-    [NOTIFICATION_STATUS.NIGHT_SUMMARY]: ({ summaryCount }) => ({
-      title: `${summaryCount}개 알림`,
-      body: `지난 밤 동안 알림이 ${summaryCount}개 왔습니다.`,
-      showLogo: true,
-    }),
-  },
 };
 
 // n분 전 / n시간 전 / 24시간 이상은 yy.mm.dd
@@ -98,8 +90,6 @@ const NotificationListItem = ({
   eventTitle,
   // letter/receive: 나에게 보낸 편지인지
   isToSelf = false,
-  // summary/night_summary: 묶인 알림 개수
-  summaryCount,
   // 알림이 뜬 시각
   createdAt,
   onPress,
@@ -114,7 +104,6 @@ const NotificationListItem = ({
     eventTitle,
     isToSelf,
     myNickname,
-    summaryCount,
   });
 
   return (
