@@ -7,7 +7,7 @@ import IcProfile from '../../../assets/icons/ic_profile.svg';
 import IcCalendar from '../../../assets/icons/ic_calendar.svg';
 
 // Shared Components & Providers
-import { DividerLine } from '../../../shared/components/atomic/DividerLine';
+import { Divider } from '../../../shared/components/atomic/Divider';
 import Profile from '../../../shared/components/content/profile/Profile';
 import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
@@ -310,7 +310,7 @@ const RecordScreen = ({ navigation, route }) => {
       </View>
 
       <View style={styles.dividerContainer}>
-        <DividerLine />
+        <Divider />
       </View>
     </>
   );
