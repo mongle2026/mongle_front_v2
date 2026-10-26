@@ -9,6 +9,7 @@ import { prefetchBookmarkFeeds } from '../../archive/api/bookmarkFeedsQuery';
 import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 import { useFloatingBottomOffset } from '../../../shared/hooks/useFloatingBottomOffset';
+import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
 
 import { findFeedItemInCache } from '../api/feedCache';
 import useFeedToggleMutation from './useFeedToggleMutation';
@@ -26,6 +27,7 @@ const useFeedActions = ({
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { showToast } = useGlobalOverlay();
+  const { requireLogin } = useLoginDialog();
 
   const floatingBottomOffset =
     useFloatingBottomOffset();
@@ -134,19 +136,21 @@ const useFeedActions = ({
   const handlePressLike = useCallback(
     feed => {
       if (!feed?.feedId) return;
+      if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.LIKE)) return;
 
       toggleLike({
         feedId: feed.feedId,
         currentValue: feed.isLiked,
       });
     },
-    [toggleLike],
+    [requireLogin, toggleLike],
   );
 
   // 서버 응답을 기다리지 않고 바로 토스트를 띄운다. 실패하면 되돌리고 실패 토스트로 바뀐다.
   const handlePressBookmark = useCallback(
     feed => {
       if (!feed?.feedId) return;
+      if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.BOOKMARK)) return;
 
       const isAddingBookmark = toggleBookmark({
         feedId: feed.feedId,
@@ -155,7 +159,7 @@ const useFeedActions = ({
 
       showBookmarkToast(isAddingBookmark);
     },
-    [showBookmarkToast, toggleBookmark],
+    [requireLogin, showBookmarkToast, toggleBookmark],
   );
 
   return {

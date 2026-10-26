@@ -158,27 +158,36 @@ const StampDetailRoute = props => (
   </GestureHandlerRootView>
 );
 
-// 로그인 여부에 따라 화면 묶음을 바꾼다. 로그인 · 가입하거나 refresh 가 실패해 로그아웃되면
-// 바뀐 묶음의 첫 화면(MainTabs / Welcome)으로 자동으로 넘어간다
+/*
+ * MainTabs · FeedDetail · Notification 은 로그인하지 않아도 볼 수 있다
+ * (피드 추천 · 상세만 내용이 보이고 나머지 탭과 알림은 로그인 엠티뷰).
+ * 나머지는 로그인 여부에 따라 묶음을 바꾼다. 로그인하지 않았을 때 Welcome 은 로그인 버튼 · Dialog 로 위에 띄운다.
+ * 로그인 · 가입하면 Welcome · 약관 · 가입 화면이 빠지면서 보던 화면(MainTabs / FeedDetail)으로 돌아오고,
+ * refresh 가 실패해 로그아웃되면 로그인 전용 화면이 빠지면서 남은 화면을 로그인 전 상태로 보여준다
+ */
 const RootNavigator = ({ isSignedIn }) => (
   <Stack.Navigator
     screenOptions={{
       headerShown: false,
     }}
   >
+    <Stack.Screen
+      name="MainTabs"
+      component={MainTabNavigator}
+    />
+    <Stack.Screen
+      name="FeedDetail"
+      component={FeedDetailRoute}
+      options={{
+        animation: 'ios_from_right',
+      }}
+    />
+    <Stack.Screen
+      name="Notification"
+      component={NotificationScreen}
+    />
     {isSignedIn ? (
       <Stack.Group>
-        <Stack.Screen
-          name="MainTabs"
-          component={MainTabNavigator}
-        />
-        <Stack.Screen
-          name="FeedDetail"
-          component={FeedDetailRoute}
-          options={{
-            animation: 'ios_from_right',
-          }}
-        />
         <Stack.Screen
           name="LetterDetail"
           component={LetterDetailScreen}
@@ -214,10 +223,6 @@ const RootNavigator = ({ isSignedIn }) => (
             gestureEnabled: false,
             animation: 'fade',
           }}
-        />
-        <Stack.Screen
-          name="Notification"
-          component={NotificationScreen}
         />
         <Stack.Screen
           name="MyFeedGenre"
@@ -325,10 +330,12 @@ export default function App() {
     void restoreSession();
   }, [restoreSession]);
 
-  // 로그아웃하면 이전 계정으로 받아 둔 데이터를 지운다
+  // 로그아웃하면 이전 계정으로 받아 둔 데이터를 지운다.
+  // 피드는 로그인하지 않아도 떠 있으므로, 지금 화면이 쓰는(로그인 전 상태로 새로 받는) 조회는 남긴다
   useEffect(() => {
     if (authStatus === AUTH_STATUS.SIGNED_OUT) {
-      queryClient.clear();
+      queryClient.removeQueries({ type: 'inactive' });
+      queryClient.getMutationCache().clear();
     }
   }, [authStatus]);
 
@@ -352,7 +359,7 @@ export default function App() {
       console.warn('폰트를 불러오지 못했습니다.', error);
     }
 
-    // 저장된 로그인 정보를 읽을 때까지 스플래시를 유지해서 Welcome 이 잠깐 보이지 않게 한다
+    // 저장된 로그인 정보를 읽을 때까지 스플래시를 유지해서 로그인 전 화면이 잠깐 보이지 않게 한다
     if ((loaded || error) && isAuthRestored) {
       SplashScreen.hideAsync();
     }

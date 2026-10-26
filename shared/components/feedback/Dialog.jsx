@@ -10,6 +10,7 @@ import IlDialogDelete from '../../../assets/illustrations/il_dialog_delete.svg';
 
 /*
  * confirmText에 null을 넘기면 오른쪽 버튼 없이 왼쪽 버튼만 보여준다.
+ * illustration에 null을 넘기면 일러스트 없이 글자와 버튼만 보여주고, 높이는 내용에 맞춘다.
  */
 export const Dialog = ({
   illustration: Illustration = IlDialogDelete,
@@ -23,10 +24,12 @@ export const Dialog = ({
   style,
 }) => {
   return (
-    <View style={[styles.container, style]}>
-      <View style={styles.illustrationContainer}>
-        {Illustration && <Illustration width={200} height={144} />}
-      </View>
+    <View style={[styles.container, Illustration && styles.withIllustration, style]}>
+      {Illustration && (
+        <View style={styles.illustrationContainer}>
+          <Illustration width={200} height={144} />
+        </View>
+      )}
 
       <View style={styles.textContainer}>
         <Text style={styles.title}>
@@ -67,7 +70,6 @@ export const Dialog = ({
 const styles = StyleSheet.create({
   container: {
     width: 302,
-    height: 301,
     padding: padding.XL,
     flexDirection: 'column',
     justifyContent: 'center',
@@ -75,6 +77,9 @@ const styles = StyleSheet.create({
     gap: gap.L,
     borderRadius: radius.XL,
     backgroundColor: colors.bgSurface,
+  },
+  withIllustration: {
+    height: 301,
   },
   illustrationContainer: {
     width: 200,

@@ -35,11 +35,11 @@ async function fetchFeedPage({ feedType, pageParam }) {
   return normalizeFeedPage(response.data);
 }
 
-function createFeedQueryOptions({ userId, feedType, isConfigured }) {
+function createFeedQueryOptions({ userId, feedType, enabled }) {
   return {
     queryKey: feedHomeKeys.list(userId, feedType),
     initialPageParam: null,
-    enabled: isConfigured,
+    enabled,
     queryFn: ({ pageParam }) => fetchFeedPage({ feedType, pageParam }),
     getNextPageParam: getNextCursor,
     staleTime: FEED_STALE_TIME,
@@ -50,17 +50,18 @@ function createFeedQueryOptions({ userId, feedType, isConfigured }) {
 export default function useFeedHome({ userId, isFollowing = false }) {
   const queryClient = useQueryClient();
 
-  const hasUserId = hasId(userId);
-  const isConfigured = Boolean(isApiConfigured && hasUserId);
+  // 추천 피드는 로그인하지 않아도 받는다(userId 없음). 팔로잉 피드는 로그인했을 때만 받는다
+  const isConfigured = isApiConfigured;
+  const canFetchFollowing = isConfigured && hasId(userId);
 
   const recommendedQueryOptions = useMemo(
-    () => createFeedQueryOptions({ userId, feedType: 'recommended', isConfigured }),
+    () => createFeedQueryOptions({ userId, feedType: 'recommended', enabled: isConfigured }),
     [isConfigured, userId]
   );
 
   const followingQueryOptions = useMemo(
-    () => createFeedQueryOptions({ userId, feedType: 'following', isConfigured }),
-    [isConfigured, userId]
+    () => createFeedQueryOptions({ userId, feedType: 'following', enabled: canFetchFollowing }),
+    [canFetchFollowing, userId]
   );
 
   const activeQueryOptions = isFollowing ? followingQueryOptions : recommendedQueryOptions;
@@ -94,14 +95,14 @@ export default function useFeedHome({ userId, isFollowing = false }) {
   const posts = useMemo(() => flattenPages(data?.pages), [data?.pages]);
 
   useEffect(() => {
-    if (!isConfigured || isFollowing || !data?.pages?.length) return;
+    if (!canFetchFollowing || isFollowing || !data?.pages?.length) return;
 
     const handle = requestIdleCallback(() => {
       void queryClient.prefetchInfiniteQuery(followingQueryOptions);
     });
 
     return () => cancelIdleCallback(handle);
-  }, [data?.pages?.length, followingQueryOptions, isConfigured, isFollowing, queryClient]);
+  }, [canFetchFollowing, data?.pages?.length, followingQueryOptions, isFollowing, queryClient]);
 
   // 새로 팔로우하면 팔로잉 피드를 미리 불러온다
   const handleFollowed = useCallback(

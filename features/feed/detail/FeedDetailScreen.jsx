@@ -20,6 +20,7 @@ import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvide
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import { useKeyboardHeight } from '../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
 import useDeletedContentDialog, { isDeletedContentError } from '../../../shared/hooks/useDeletedContentDialog';
 
 import { colors } from '../../../shared/styles/color';
@@ -57,6 +58,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
   const { openDialog } = useDialog();
   const { openOverlay, showToast, hideToast } = useGlobalOverlay();
   const { currentUser, userId } = useCurrentUser();
+  const { requireLogin } = useLoginDialog();
 
   const commentBarRef = useRef(null);
 
@@ -335,6 +337,12 @@ const FeedDetailScreen = ({ navigation, route }) => {
     });
   }, [deleteFeed, isDeletingFeed, openDialog]);
 
+  // 로그인하지 않았으면 댓글을 보내지 않고 로그인 안내 Dialog 를 띄운다
+  const canSubmitComment = useCallback(
+    () => requireLogin(LOGIN_DIALOG_DESCRIPTION.COMMENT),
+    [requireLogin],
+  );
+
   const handleCommentBarLayout = useCallback(event => {
     const height = event.nativeEvent.layout.height;
 
@@ -532,6 +540,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
       >
         <CommentComposer
           onSubmit={handleSubmitComment}
+          canSubmit={canSubmitComment}
           onClose={handleCloseComposer}
           disabled={isCreatingComment}
           profileImageUri={currentUser?.profileImageUri}

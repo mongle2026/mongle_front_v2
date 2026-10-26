@@ -9,11 +9,13 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/action/WriteFab';
+import Empty from '../../../shared/components/content/Empty';
 import PullToRefresh from '../../../shared/components/layout/PullToRefresh';
 import TopNavigation from '../../../shared/components/navigation/topnavigation/TopNavigation';
 import { FEED_TAB, FEED_TOP_NAVIGATION_TABS } from '../constants';
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import { useIsSignedIn } from '../../../shared/auth/useAuthStore';
 import usePullRefresh from '../../../shared/hooks/usePullRefresh';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding } from '../../../shared/styles/token';
@@ -41,6 +43,7 @@ const getTabIndex = tab => FEED_TOP_NAVIGATION_TABS.findIndex(item => item.key =
 const FeedHomeScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState(FEED_TAB.RECOMMENDED);
   const { userId } = useCurrentUser();
+  const isSignedIn = useIsSignedIn();
   const isFollowing = activeTab === FEED_TAB.FOLLOWING;
 
   const [fabHeight, setFabHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
@@ -263,6 +266,10 @@ const FeedHomeScreen = ({ navigation }) => {
     navigation.navigate('Notification');
   }, [navigation]);
 
+  const handlePressLogin = useCallback(() => {
+    navigation.navigate('Welcome');
+  }, [navigation]);
+
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
@@ -306,6 +313,18 @@ const FeedHomeScreen = ({ navigation }) => {
             ListFooterComponent={renderListFooter}
           />
         </PullToRefresh>
+
+        {/* 로그인하지 않았으면 팔로잉 목록 대신 엠티뷰로 덮는다 (목록은 탭별 스크롤 위치 때문에 그대로 둔다) */}
+        {isFollowing && !isSignedIn && (
+          <View style={[styles.loginEmpty, { paddingBottom: fabHeight }]}>
+            <Empty
+              type="login"
+              title="로그인이 필요해요"
+              buttonLabel="로그인"
+              onButtonPress={handlePressLogin}
+            />
+          </View>
+        )}
       </Animated.View>
 
       <WriteFab navigation={navigation} expandedLabel="피드 더 둘러보기" onHeightChange={setFabHeight} />
@@ -326,6 +345,12 @@ const styles = StyleSheet.create({
   },
   listTransition: {
     flex: 1,
+  },
+  // FAB 에 가려지는 높이(paddingBottom)를 빼고 가운데에 둔다
+  loginEmpty: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
+    backgroundColor: colors.bgBase,
   },
   postList: {
     flexGrow: 1,
