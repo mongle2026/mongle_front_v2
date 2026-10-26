@@ -20,6 +20,7 @@ import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvide
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import { useKeyboardHeight } from '../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
 import useDeletedContentDialog, { isDeletedContentError } from '../../../shared/hooks/useDeletedContentDialog';
 
 import { colors } from '../../../shared/styles/color';
@@ -51,12 +52,13 @@ import useCommentComposer from './hooks/useCommentComposer';
 import useScrollToComment from './hooks/useScrollToComment';
 import useScrollToReplyTarget from './hooks/useScrollToReplyTarget';
 import useDeletedCommentToast from './hooks/useDeletedCommentToast';
-import { isSameId } from '../../../shared/utils/id';
+import { hasId, isSameId } from '../../../shared/utils/id';
 
 const FeedDetailScreen = ({ navigation, route }) => {
   const { openDialog } = useDialog();
   const { openOverlay, showToast, hideToast } = useGlobalOverlay();
   const { currentUser, userId } = useCurrentUser();
+  const { requireLogin } = useLoginDialog();
 
   const commentBarRef = useRef(null);
 
@@ -231,6 +233,17 @@ const FeedDetailScreen = ({ navigation, route }) => {
     toggleFollow(feed.user?.userId, Boolean(feed.user?.isFollowing));
   }, [feed, toggleFollow]);
 
+  // 글 작성자 · 댓글 작성자 프로필로 이동 (내 프로필은 넘기지 않는다)
+  const handlePressUserProfile = useCallback(targetUserId => {
+    if (!hasId(targetUserId)) return;
+
+    navigation.navigate('UserProfile', { userId: targetUserId });
+  }, [navigation]);
+
+  const handlePressAuthorProfile = useCallback(() => {
+    handlePressUserProfile(feed?.user?.userId);
+  }, [feed, handlePressUserProfile]);
+
   const handlePressLike = useCallback(() => {
     if (!feed) return;
 
@@ -334,6 +347,12 @@ const FeedDetailScreen = ({ navigation, route }) => {
       ),
     });
   }, [deleteFeed, isDeletingFeed, openDialog]);
+
+  // 로그인하지 않았으면 댓글을 보내지 않고 로그인 안내 Dialog 를 띄운다
+  const canSubmitComment = useCallback(
+    () => requireLogin(LOGIN_DIALOG_DESCRIPTION.COMMENT),
+    [requireLogin],
+  );
 
   const handleCommentBarLayout = useCallback(event => {
     const height = event.nativeEvent.layout.height;
@@ -474,6 +493,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
           isFollowing={isFollowing}
           showFollowButton={!isMine}
           followDisabled={isTargetPending(user.userId)}
+          onPressProfile={isMine ? undefined : handlePressAuthorProfile}
           onPressFollow={handlePressFollow}
         />
 
@@ -515,6 +535,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
             openCommentMenuId={commentMenu?.comment?.commentId ?? null}
             onPressMenu={handleOpenCommentMenu}
             onPressReply={handlePressReply}
+            onPressProfile={handlePressUserProfile}
             onNewCommentLayout={revealComment}
           />
         </View>
@@ -532,6 +553,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
       >
         <CommentComposer
           onSubmit={handleSubmitComment}
+          canSubmit={canSubmitComment}
           onClose={handleCloseComposer}
           disabled={isCreatingComment}
           profileImageUri={currentUser?.profileImageUri}

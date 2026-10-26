@@ -6,6 +6,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import TopNavigation from '../../shared/components/navigation/topnavigation/TopNavigation';
 import TabBar from '../../shared/components/navigation/tabbar/TabBar';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';
+import { useIsSignedIn } from '../../shared/auth/useAuthStore';
+import Empty from '../../shared/components/content/Empty';
 import { colors } from '../../shared/styles/color';
 
 import BookmarkSection from './bookmark/BookmarkSection';
@@ -25,6 +27,7 @@ const ARCHIVE_TAB_LABELS = ARCHIVE_TABS.map(tab => tab.label);
 // route.params.tab 으로 열 탭을 지정할 수 있다 (예: 북마크 토스트의 '이동' → ARCHIVE_TAB.BOOKMARK)
 const ArchiveScreen = ({ navigation, route }) => {
   const { userId } = useCurrentUser();
+  const isSignedIn = useIsSignedIn();
   const queryClient = useQueryClient();
 
   const routeTab = route?.params?.tab;
@@ -50,6 +53,10 @@ const ArchiveScreen = ({ navigation, route }) => {
   const handleChangeTab = useCallback(index => {
     setActiveTab(ARCHIVE_TABS[index].key);
   }, []);
+
+  const handlePressLogin = useCallback(() => {
+    navigation.navigate('Welcome');
+  }, [navigation]);
 
   const handlePressWriteFeed = useCallback(() => {
     navigation.navigate('Record', { type: 'feed' });
@@ -83,25 +90,39 @@ const ArchiveScreen = ({ navigation, route }) => {
         />
       </SafeAreaView>
 
-      <TabBar
-        tabs={ARCHIVE_TAB_LABELS}
-        activeIndex={activeTabIndex}
-        onChange={handleChangeTab}
-      />
+      {/* 로그인하지 않았으면 내 기록/북마크 탭 없이 엠티뷰만 보여준다 */}
+      {isSignedIn ? (
+        <>
+          <TabBar
+            tabs={ARCHIVE_TAB_LABELS}
+            activeIndex={activeTabIndex}
+            onChange={handleChangeTab}
+          />
 
-      {activeTab === ARCHIVE_TAB.MYFEED && (
-        <MyFeedSection
-          navigation={navigation}
-          userId={userId}
-          onPressWriteFeed={handlePressWriteFeed}
-          onPressGenreMore={handlePressGenreMore}
-          onPressGenre={handlePressGenre}
-          onPressAllFeed={handlePressAllFeed}
-        />
-      )}
+          {activeTab === ARCHIVE_TAB.MYFEED && (
+            <MyFeedSection
+              navigation={navigation}
+              userId={userId}
+              onPressWriteFeed={handlePressWriteFeed}
+              onPressGenreMore={handlePressGenreMore}
+              onPressGenre={handlePressGenre}
+              onPressAllFeed={handlePressAllFeed}
+            />
+          )}
 
-      {activeTab === ARCHIVE_TAB.BOOKMARK && (
-        <BookmarkSection navigation={navigation} userId={userId} />
+          {activeTab === ARCHIVE_TAB.BOOKMARK && (
+            <BookmarkSection navigation={navigation} userId={userId} />
+          )}
+        </>
+      ) : (
+        <View style={styles.loginEmpty}>
+          <Empty
+            type="login"
+            title="로그인이 필요해요"
+            buttonLabel="로그인"
+            onButtonPress={handlePressLogin}
+          />
+        </View>
       )}
     </View>
   );
@@ -117,6 +138,10 @@ const styles = StyleSheet.create({
     width: '100%',
     zIndex: 10,
     backgroundColor: colors.bgBase,
+  },
+  loginEmpty: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });
 

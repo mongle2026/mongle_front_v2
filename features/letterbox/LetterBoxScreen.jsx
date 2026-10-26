@@ -4,10 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../shared/components/action/WriteFab';
+import Empty from '../../shared/components/content/Empty';
 import TopNavigation from '../../shared/components/navigation/topnavigation/TopNavigation';
 import { LETTER_TOP_NAVIGATION_TABS } from './constants';
 import TabBar from '../../shared/components/navigation/tabbar/TabBar';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';
+import { useIsSignedIn } from '../../shared/auth/useAuthStore';
 import { colors } from '../../shared/styles/color';
 
 import LetterSection from './letter/home/LetterSection';
@@ -29,6 +31,7 @@ const LETTER_BOX_TAB_LABELS = LETTER_BOX_TABS.map(tab => tab.label);
 
 const LetterBoxScreen = ({ navigation }) => {
   const { userId } = useCurrentUser();
+  const isSignedIn = useIsSignedIn();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState(LETTER_BOX_TAB.LETTER);
@@ -42,6 +45,10 @@ const LetterBoxScreen = ({ navigation }) => {
 
   const handlePressBell = useCallback(() => {
     navigation.navigate('Notification');
+  }, [navigation]);
+
+  const handlePressLogin = useCallback(() => {
+    navigation.navigate('Welcome');
   }, [navigation]);
 
   const handlePressLetter = useCallback(letter => {
@@ -62,20 +69,34 @@ const LetterBoxScreen = ({ navigation }) => {
         />
       </SafeAreaView>
 
-      <TabBar
-        tabs={LETTER_BOX_TAB_LABELS}
-        activeIndex={activeTabIndex}
-        onChange={handleChangeTab}
-      />
+      {/* 로그인하지 않았으면 편지/우표 탭 없이 엠티뷰만 보여준다. 작성 FAB 은 남겨 두고 누르면 로그인 안내 Dialog 를 띄운다 */}
+      {isSignedIn ? (
+        <>
+          <TabBar
+            tabs={LETTER_BOX_TAB_LABELS}
+            activeIndex={activeTabIndex}
+            onChange={handleChangeTab}
+          />
 
-      <View style={styles.content}>
-        {activeTab === LETTER_BOX_TAB.LETTER && (
-          <LetterSection userId={userId} bottomInset={fabHeight} onPressLetter={handlePressLetter} />
-        )}
-        {activeTab === LETTER_BOX_TAB.STAMP && (
-          <StampSection userId={userId} bottomInset={fabHeight} onPressStamp={handlePressStamp} />
-        )}
-      </View>
+          <View style={styles.content}>
+            {activeTab === LETTER_BOX_TAB.LETTER && (
+              <LetterSection userId={userId} bottomInset={fabHeight} onPressLetter={handlePressLetter} />
+            )}
+            {activeTab === LETTER_BOX_TAB.STAMP && (
+              <StampSection userId={userId} bottomInset={fabHeight} onPressStamp={handlePressStamp} />
+            )}
+          </View>
+        </>
+      ) : (
+        <View style={[styles.loginEmpty, { paddingBottom: fabHeight }]}>
+          <Empty
+            type="login"
+            title="로그인이 필요해요"
+            buttonLabel="로그인"
+            onButtonPress={handlePressLogin}
+          />
+        </View>
+      )}
 
       <WriteFab navigation={navigation} expandedLabel="편지함 더 둘러보기" onHeightChange={setFabHeight} />
     </View>
@@ -96,6 +117,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
+  },
+  // FAB 에 가려지는 높이(paddingBottom)를 빼고 가운데에 둔다
+  loginEmpty: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });
 
