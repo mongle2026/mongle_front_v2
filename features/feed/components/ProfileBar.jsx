@@ -10,7 +10,7 @@ import * as Haptics from 'expo-haptics';
 
 import Profile from '../../../shared/components/content/profile/Profile';
 import { BUTTON_VARIANT, Button } from '../../../shared/components/action/Button';
-import { DividerLine } from '../../../shared/components/atomic/DividerLine';
+import { Divider } from '../../../shared/components/atomic/Divider';
 
 import { colors } from '../../../shared/styles/color';
 import { gap, padding } from '../../../shared/styles/token';
@@ -104,7 +104,7 @@ const ProfileBar = ({
       </View>
 
       <View style={styles.dividerArea}>
-        <DividerLine />
+        <Divider />
       </View>
     </View>
   );

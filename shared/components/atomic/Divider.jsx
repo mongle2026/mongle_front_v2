@@ -10,6 +10,11 @@ import { colors } from '../../styles/color';
 const TEXTURE_SIZE = 58.4;
 const RADIUS = 3.1;
 
+export const DIVIDER_TYPE = Object.freeze({
+  LINE: 'line',
+  FILL: 'fill',
+});
+
 const LINE_COLOR = colors.strokeNeutralPrimary;
 const STROKE_WIDTH = 1;
 
@@ -17,6 +22,10 @@ const STROKE_WIDTH = 1;
 // 너무 작게 설정해도 실제 선이 잘릴 정도라면
 // 아래 MIN_CANVAS_HEIGHT가 자동으로 우선됩니다.
 const DESIRED_HEIGHT = 6;
+
+// Fill 타입: 섹션 사이를 나누는 면 형태
+const FILL_HEIGHT = 6;
+const FILL_COLOR = colors.fillNeutralWeak;
 
 // 선과 Canvas 끝 사이에 남겨둘 여유 공간
 const SAFETY_PADDING = 1;
@@ -122,7 +131,7 @@ const createDividerPath = width => {
   return path;
 };
 
-export const DividerLine = memo(() => {
+const DividerLine = memo(() => {
   const [width, setWidth] = useState(0);
 
   const handleLayout = useCallback(event => {
@@ -180,9 +189,32 @@ export const DividerLine = memo(() => {
 
 DividerLine.displayName = 'DividerLine';
 
+const DividerFill = memo(() => (
+  <View accessible={false} pointerEvents="none" style={styles.fill} />
+));
+
+DividerFill.displayName = 'DividerFill';
+
+/**
+ * 구분선.
+ *
+ * @param {'line'|'fill'} [type] LINE = 텍스처 웨이브 선, FILL = 6px 면 (기본 LINE)
+ */
+export const Divider = memo(({ type = DIVIDER_TYPE.LINE }) =>
+  type === DIVIDER_TYPE.FILL ? <DividerFill /> : <DividerLine />,
+);
+
+Divider.displayName = 'Divider';
+
 const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: CANVAS_HEIGHT,
+  },
+
+  fill: {
+    width: '100%',
+    height: FILL_HEIGHT,
+    backgroundColor: FILL_COLOR,
   },
 });

@@ -28,7 +28,7 @@ import Menu from '../../../shared/components/action/menu/Menu';
 import MenuItem from '../../../shared/components/action/menu/Item';
 
 import CdCover from '../../../shared/components/atomic/CdCover';
-import { DividerLine } from '../../../shared/components/atomic/DividerLine';
+import { DIVIDER_TYPE, Divider } from '../../../shared/components/atomic/Divider';
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
 import MusicCoverImg from '../../../shared/components/atomic/MusicCoverImg';
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
@@ -295,8 +295,12 @@ const AtomicSection = () => (
       </View>
     </Specimen>
 
-    <Specimen name="DividerLine" contentStyle={stretch}>
-      <DividerLine />
+    <Specimen name="Divider · Line" note="텍스처 웨이브 선 · strokeNeutralPrimary" contentStyle={stretch}>
+      <Divider type={DIVIDER_TYPE.LINE} />
+    </Specimen>
+
+    <Specimen name="Divider · Fill" note="높이 6 · fillNeutralWeak" contentStyle={stretch}>
+      <Divider type={DIVIDER_TYPE.FILL} />
     </Specimen>
 
     <Specimen name="FontFallbackText" note="교보체에 없는 한자는 Kiwi Maru 로 대체">
