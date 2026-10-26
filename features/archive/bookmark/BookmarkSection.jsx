@@ -10,6 +10,7 @@ import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnav
 import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../shared/components/navigation/tabs/Tabs';
 import usePullRefresh from '../../../shared/hooks/usePullRefresh';
 import { gap, padding } from '../../../shared/styles/token';
+import { hasId, isSameId } from '../../../shared/utils/id';
 
 import OthersPostCard from '../components/OthersPostCard';
 import { toOthersPost } from '../utils/postCardProps';
@@ -79,6 +80,11 @@ const BookmarkSection = ({ navigation, userId }) => {
     [navigation],
   );
 
+  const handlePressProfile = useCallback(
+    targetUserId => navigation.navigate('UserProfile', { userId: targetUserId }),
+    [navigation],
+  );
+
   const handlePressBrowseFeed = useCallback(
     () => navigation.navigate(MAIN_TAB_ROUTES.FEED),
     [navigation],
@@ -90,17 +96,24 @@ const BookmarkSection = ({ navigation, userId }) => {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const renderPost = useCallback(({ item: post }) => (
-    <OthersPostCard
-      profile={post.profile}
-      music={post.music}
-      font={post.font}
-      content={post.content}
-      imageSources={post.imageSources}
-      date={post.date}
-      onPress={() => handlePressPost(post.feedId)}
-    />
-  ), [handlePressPost]);
+  const renderPost = useCallback(({ item: post }) => {
+    // 내 글을 북마크했으면 프로필로 이동하지 않는다
+    const canPressProfile =
+      hasId(post.profile.userId) && !isSameId(post.profile.userId, userId);
+
+    return (
+      <OthersPostCard
+        profile={post.profile}
+        onPressProfile={canPressProfile ? () => handlePressProfile(post.profile.userId) : undefined}
+        music={post.music}
+        font={post.font}
+        content={post.content}
+        imageSources={post.imageSources}
+        date={post.date}
+        onPress={() => handlePressPost(post.feedId)}
+      />
+    );
+  }, [handlePressPost, handlePressProfile, userId]);
 
   // 메뉴를 ListControlBar 바로 밑에 둔다. ListControlBar 는 controlBar 안에 겹쳐 있어서 두 위치를 더한다
   const controlBarTopRef = useRef(0);

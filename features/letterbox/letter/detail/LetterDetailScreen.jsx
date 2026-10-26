@@ -25,6 +25,7 @@ import { getSenderSuffix } from '../../../../shared/utils/koreanUtils';
 
 import ActionBar, { DATE_FORMAT } from '../../../../shared/components/content/ActionBar';
 import { formatDate } from '../../../../shared/utils/dateUtils';
+import { hasId, isSameId } from '../../../../shared/utils/id';
 
 import { useLetterFormStore } from '../../../write/store/useLetterFormStore';
 
@@ -215,6 +216,13 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
   // 보낸 편지는 받는 사람, 받은 편지는 보낸 사람을 보여준다
   const counterpart = isSent ? letter?.receiver : letter?.sender;
+  // 나에게 쓴 편지면 상대가 나라서 프로필로 이동하지 않는다
+  const canPressCounterpart =
+    hasId(counterpart?.userId) && !isSameId(counterpart.userId, userId);
+
+  const handlePressCounterpart = useCallback(() => {
+    navigation.navigate('UserProfile', { userId: counterpart?.userId });
+  }, [counterpart?.userId, navigation]);
 
   // 작성 날짜와 도착 날짜가 다를 때만(예약 발송) 작성/도착을 나눠 보여준다
   const isDeliveredLater =
@@ -271,6 +279,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
                 recipientName={counterpart.nickname}
                 nameSuffix={isSent ? '에게' : getSenderSuffix(counterpart.nickname)}
                 font={letter.font}
+                onPress={canPressCounterpart ? handlePressCounterpart : undefined}
               />
             </View>
 

@@ -196,6 +196,16 @@ const FeedHomeScreen = ({ navigation }) => {
     [navigation]
   );
 
+  const handlePressProfile = useCallback(
+    item => {
+      const targetUserId = item?.user?.userId;
+      if (!hasId(targetUserId)) return;
+
+      navigation.navigate('UserProfile', { userId: targetUserId });
+    },
+    [navigation]
+  );
+
   const handlePressComment = useCallback(
     item => {
       const feedId = item?.feedId;
@@ -220,6 +230,7 @@ const FeedHomeScreen = ({ navigation }) => {
           followDisabled={pendingTargetUserIds.has(targetUserId)}
           isMusicPlaying={isMusicPlaying}
           onPressPost={handlePressPost}
+          onPressProfile={handlePressProfile}
           onPressComment={handlePressComment}
           onPressLike={handlePressLike}
           onPressBookmark={handlePressBookmark}
@@ -236,6 +247,7 @@ const FeedHomeScreen = ({ navigation }) => {
       handlePressLike,
       handlePressMusicPlayback,
       handlePressPost,
+      handlePressProfile,
       pendingTargetUserIds,
       playingFeedId,
       userId,

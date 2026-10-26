@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
-import { StyleSheet, Text, View, } from 'react-native';
+import { Pressable, StyleSheet, Text, View, } from 'react-native';
 
 import ProfileImg from '../../atomic/ProfileImg';
 import { Button, BUTTON_VARIANT } from '../../action/Button';
@@ -42,9 +42,11 @@ const Profile = ({
 
   imageUri,
 
+  // 누르면 프로필로 이동. Feed 는 이미지 · username 버튼, Letter 는 전체 영역
+  onPress,
+
   // Feed
   username,
-  onPress,
   // username 버튼 Button variant. 보관함 북마크에서 팔로우한 사람은 Solid
   variant = BUTTON_VARIANT.GHOST,
 
@@ -103,8 +105,18 @@ const Profile = ({
         ? typo.suitLabelLarge
         : typo.kyoboLabelLarge;
 
+    const LetterContainer = onPress ? Pressable : View;
+    const letterContainerProps = onPress
+      ? {
+        onPress,
+        accessibilityRole: 'button',
+        accessibilityLabel: `${recipientText} 프로필 보기`,
+      }
+      : null;
+
     return (
-      <View
+      <LetterContainer
+        {...letterContainerProps}
         style={[
           styles.letterContainer,
           style,
@@ -143,13 +155,19 @@ const Profile = ({
             {nameSuffix}
           </Text>
         </View>
-      </View>
+      </LetterContainer>
     );
   }
 
   /**
    * Feed
    */
+  // 이미지는 username 버튼과 같은 프로필로 이동한다. 스크린 리더는 username 버튼만 읽는다
+  const FeedImageArea = onPress ? Pressable : View;
+  const feedImageAreaProps = onPress
+    ? { onPress, accessible: false }
+    : null;
+
   return (
     <View
       style={[
@@ -160,7 +178,8 @@ const Profile = ({
         style,
       ]}
     >
-      <View
+      <FeedImageArea
+        {...feedImageAreaProps}
         style={[
           styles.feedImageArea,
           {
@@ -178,7 +197,7 @@ const Profile = ({
           size="S"
           style={feedImageSizeStyle}
         />
-      </View>
+      </FeedImageArea>
 
       <View
         onLayout={handleUsernameLayout}

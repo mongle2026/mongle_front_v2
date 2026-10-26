@@ -1,5 +1,7 @@
 import { memo, useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+// 우표 상세 BottomSheet 의 gesture-handler ScrollView 안에서 쓰여서 시트 제스처와 함께 동작하도록 gesture-handler 것을 쓴다
+import { Pressable } from 'react-native-gesture-handler';
 
 import { colors } from '../../../shared/styles/color';
 import { typo } from '../../../shared/styles/typo';
@@ -20,8 +22,9 @@ const BADGE_TOP = 24;
  * @param {string} [imageUri]
  * @param {string} name
  * @param {boolean} [isMe]
+ * @param {() => void} [onPress] 누르면 그 사람 프로필로 이동
  */
-const Profile = ({ imageUri, name, isMe = false, style }) => {
+const Profile = ({ imageUri, name, isMe = false, onPress, style }) => {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
@@ -30,8 +33,13 @@ const Profile = ({ imageUri, name, isMe = false, style }) => {
 
   const showImage = Boolean(imageUri) && !hasError;
 
+  const Container = onPress ? Pressable : View;
+  const containerProps = onPress
+    ? { onPress, accessibilityRole: 'button', accessibilityLabel: `${name} 프로필 보기` }
+    : null;
+
   return (
-    <View style={[styles.container, style]}>
+    <Container {...containerProps} style={[styles.container, style]}>
       <View style={styles.imageArea}>
         {showImage ? (
           <Image
@@ -54,7 +62,7 @@ const Profile = ({ imageUri, name, isMe = false, style }) => {
       <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
         {name}
       </Text>
-    </View>
+    </Container>
   );
 };
 

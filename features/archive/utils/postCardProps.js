@@ -32,6 +32,7 @@ export const toShortPost = feed => {
 export const toOthersPost = feed => ({
   ...toPostCardBase(feed),
   profile: {
+    userId: feed?.user?.userId,
     imageUri: resolveMediaUri(feed?.user?.profileImageUrl),
     username: feed?.user?.userCode ?? '',
     isFollowing: Boolean(feed?.user?.isFollowing),

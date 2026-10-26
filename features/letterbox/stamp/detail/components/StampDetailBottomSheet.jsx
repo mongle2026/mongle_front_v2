@@ -70,9 +70,10 @@ const FollowSummary = ({ offset, style, onLayout, children }) => {
  * @param {string} stampCode
  * @param {object|null} detail useStampDetail 의 detail (불러오기 전에는 null)
  * @param {(letter: object) => void} onPressLetter 편지를 눌러 앞면으로 뒤집힌 뒤 호출
+ * @param {(sender: object) => void} onPressSender 보낸 사람 프로필을 누르면 호출
  * @param {() => void} onClose
  */
-const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) => {
+const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onPressSender, onClose }) => {
   const insets = useSafeAreaInsets();
 
   // 상단 배치가 끌어올리는 동안 바뀌어서, 처음 높이 계산에 쓰는 높이는 배치와 상관없는 값으로 따로 받는다
@@ -178,7 +179,11 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
           onCollapseDistanceChange={handleCollapseDistanceChange}
         />
         <FollowSummary offset={belowSummaryOffset} onLayout={handleProfileRowLayout}>
-          <SenderProfileList senders={detail?.senders ?? []} progress={layoutProgress} />
+          <SenderProfileList
+            senders={detail?.senders ?? []}
+            progress={layoutProgress}
+            onPressSender={onPressSender}
+          />
         </FollowSummary>
       </>
     ),
@@ -189,6 +194,7 @@ const StampDetailBottomSheet = ({ stampCode, detail, onPressLetter, onClose }) =
       belowSummaryOffset,
       handleCollapseDistanceChange,
       handleProfileRowLayout,
+      onPressSender,
     ],
   );
 

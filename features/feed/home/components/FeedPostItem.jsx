@@ -13,6 +13,7 @@ const FeedPostItem = ({
   followDisabled = false,
   isMusicPlaying = false,
   onPressPost,
+  onPressProfile,
   onPressComment,
   onPressLike,
   onPressBookmark,
@@ -42,6 +43,10 @@ const FeedPostItem = ({
   const handlePressPost = useCallback(() => {
     onPressPost?.(item);
   }, [item, onPressPost]);
+
+  const handleProfile = useCallback(() => {
+    onPressProfile?.(item);
+  }, [item, onPressProfile]);
 
   const handleComment = useCallback(() => {
     onPressComment?.(item);
@@ -85,6 +90,8 @@ const FeedPostItem = ({
         isFollowing,
         showFollowButton: !isMine,
         followDisabled,
+        // 내 글이면 프로필로 이동하지 않는다
+        onPressProfile: isMine ? undefined : handleProfile,
         onPressFollow: handleFollow,
       }}
       musicProps={{

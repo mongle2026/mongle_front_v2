@@ -26,6 +26,8 @@ const Comment = ({
   depth = 0,
   onPressMenu,
   onPressReply,
+  // 프로필 이미지를 누르면 작성자 프로필로 이동. 없으면 본문과 같이 답글 달기로 이어진다
+  onPressProfile,
   showMenu = true,
   isMenuOpen = false,
   style,
@@ -83,10 +85,23 @@ const Comment = ({
             (isMenuOpen || pressed) && styles.activeContent,
           ]}
         >
-          <ProfileImg
-            imageUri={profileImageUrl}
-            size="M"
-          />
+          {onPressProfile ? (
+            <Pressable
+              onPress={onPressProfile}
+              accessibilityRole="button"
+              accessibilityLabel={`@${normalizedUserCode} 프로필 보기`}
+            >
+              <ProfileImg
+                imageUri={profileImageUrl}
+                size="M"
+              />
+            </Pressable>
+          ) : (
+            <ProfileImg
+              imageUri={profileImageUrl}
+              size="M"
+            />
+          )}
 
           <View style={styles.body}>
             <View style={styles.header}>
