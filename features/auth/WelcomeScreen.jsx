@@ -5,8 +5,9 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import LottieView from 'lottie-react-native';
 
-import LogoSigniture from '../../assets/logo/logo_signiture.svg';
+import logoSignitureMotion from '../../assets/logo/logo_signiture_motion.json';
 import IcKakao from '../../assets/icons/ic_kakao.svg';
 import IcApple from '../../assets/icons/ic_apple.svg';
 
@@ -99,7 +100,13 @@ const WelcomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.hero}>
-        <LogoSigniture width={LOGO_WIDTH} height={LOGO_HEIGHT} />
+        {/* 화면에 들어올 때 서명 모션을 한 번 재생하고 마지막 프레임에 멈춘다 */}
+        <LottieView
+          source={logoSignitureMotion}
+          autoPlay
+          loop={false}
+          style={styles.logo}
+        />
         <Text style={styles.tagline}>당신의 추억이 음악으로 남는 곳</Text>
       </View>
 
@@ -150,6 +157,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: gap.XL,
+  },
+
+  logo: {
+    width: LOGO_WIDTH,
+    height: LOGO_HEIGHT,
   },
 
   tagline: {
