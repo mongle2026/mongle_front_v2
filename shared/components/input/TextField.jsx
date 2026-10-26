@@ -12,11 +12,11 @@ import { typo } from '../../styles/typo';
 
 const BORDER_WIDTH = 1;
 
-// 상태별 입력창 테두리 색. 테두리가 없는 상태도 같은 두께의 투명 테두리를 둬서 크기가 바뀌지 않게 한다
+// 상태별 입력창 테두리 색
 const getBorderColor = ({ status, isFocused }) => {
   if (status === 'error') return colors.strokeCritical;
   if (isFocused) return colors.strokeInfo;
-  return 'transparent';
+  return colors.strokeNeutralSecondary;
 };
 
 const getDescriptionColor = status => {
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     ...typo.suitTitleSmallStrong,
   },
 
-  // 테두리 두께만큼 패딩을 줄여 테두리 유무와 상관없이 Figma 크기(안쪽 테두리)를 유지한다
+  // 테두리 두께만큼 패딩을 줄여 Figma 크기(안쪽 테두리)를 유지한다
   textField: {
     paddingVertical: padding.L - BORDER_WIDTH,
     paddingHorizontal: padding.XL - BORDER_WIDTH,
@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     borderRadius: radius.M,
     borderWidth: BORDER_WIDTH,
-    backgroundColor: colors.fillNeutralWeak,
   },
 
   inputText: {
