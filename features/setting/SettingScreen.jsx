@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
 import IcArrowLeft from '../../assets/icons/ic_arrow_left.svg';
+import IcArrowUpRight from '../../assets/icons/ic_arrow_up_right.svg';
 
 import TopSubNavigation from '../../shared/components/navigation/topnavigation/TopSubNavigation';
 import ListHeader from '../../shared/components/content/ListHeader';
@@ -17,6 +18,7 @@ import useNotificationSettings, { NOTIFICATION_SETTING_KEY } from './hooks/useNo
 
 const HEADER_TEXT = '설정';
 const APP_VERSION = '버전 정보v1.0';
+const FEEDBACK_FORM_URL = 'https://forms.gle/rLfpp8FSaCvBRtHF9';
 
 const NIGHT_ALERT_CAPTION_ON = '오후 9시~오전 8시에도 알림을 받아요.';
 const NIGHT_ALERT_CAPTION_OFF = '오후 9시 이후 알림은 오전 8시에 모아서 보내드려요.';
@@ -80,7 +82,12 @@ const SettingScreen = () => {
 
         <View style={styles.section}>
           <ListHeader title="고객 지원" textStyle={styles.headerText} />
-          <ListRow text="피드백 보내기" showArrow />
+          <ListRow
+            text="피드백 보내기"
+            showArrow
+            arrowIcon={IcArrowUpRight}
+            onPress={() => Linking.openURL(FEEDBACK_FORM_URL)}
+          />
         </View>
 
         <ListRow caption={APP_VERSION} />
