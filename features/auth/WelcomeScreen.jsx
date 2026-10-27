@@ -11,6 +11,7 @@ import logoSignitureMotion from '../../assets/logo/logo_signiture_motion.json';
 import IcKakao from '../../assets/icons/ic_kakao.svg';
 import IcApple from '../../assets/icons/ic_apple.svg';
 
+import TopSubNavigation from '../../shared/components/navigation/topnavigation/TopSubNavigation';
 import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
 import { getApiErrorMessage } from '../../shared/api/client';
 import useKakaoLogin from './hooks/useKakaoLogin';
@@ -99,6 +100,12 @@ const WelcomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TopSubNavigation
+        onPressClose={navigation.goBack}
+        showShare={false}
+        showMore={false}
+      />
+
       <View style={styles.hero}>
         {/* 화면에 들어올 때 서명 모션을 한 번 재생하고 마지막 프레임에 멈춘다 */}
         <LottieView
