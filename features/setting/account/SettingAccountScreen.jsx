@@ -15,7 +15,7 @@ import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { colors } from '../../../shared/styles/color';
 
 import ListRow from '../components/ListRow';
-import useLogout from '../hooks/useLogout';
+import useLogout from '../../auth/hooks/useLogout';
 
 const HEADER_TEXT = '계정 정보';
 
