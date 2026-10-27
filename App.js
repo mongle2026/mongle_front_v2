@@ -159,8 +159,8 @@ const StampDetailRoute = props => (
 );
 
 /*
- * MainTabs · FeedDetail · Notification 은 로그인하지 않아도 볼 수 있다
- * (피드 추천 · 상세만 내용이 보이고 나머지 탭과 알림은 로그인 엠티뷰).
+ * MainTabs · FeedDetail · Notification · Setting 은 로그인하지 않아도 볼 수 있다
+ * (피드 추천 · 상세만 내용이 보이고 나머지 탭과 알림은 로그인 엠티뷰, 설정은 약관 및 정책부터).
  * 나머지는 로그인 여부에 따라 묶음을 바꾼다. 로그인하지 않았을 때 Welcome 은 로그인 버튼 · Dialog 로 위에 띄운다.
  * 로그인 · 가입하면 Welcome · 약관 · 가입 화면이 빠지면서 보던 화면(MainTabs / FeedDetail)으로 돌아오고,
  * refresh 가 실패해 로그아웃되면 로그인 전용 화면이 빠지면서 남은 화면을 로그인 전 상태로 보여준다
@@ -185,6 +185,13 @@ const RootNavigator = ({ isSignedIn }) => (
     <Stack.Screen
       name="Notification"
       component={NotificationScreen}
+    />
+    <Stack.Screen
+      name="Setting"
+      component={SettingScreen}
+      options={{
+        animation: 'ios_from_right',
+      }}
     />
     {isSignedIn ? (
       <Stack.Group>
@@ -270,13 +277,6 @@ const RootNavigator = ({ isSignedIn }) => (
         <Stack.Screen
           name="UserProfile"
           component={UserProfileScreen}
-          options={{
-            animation: 'ios_from_right',
-          }}
-        />
-        <Stack.Screen
-          name="Setting"
-          component={SettingScreen}
           options={{
             animation: 'ios_from_right',
           }}
