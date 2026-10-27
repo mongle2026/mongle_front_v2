@@ -9,6 +9,7 @@ import IlDialogLogout from '../../../assets/illustrations/il_dialog_logout.svg';
 import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import { Dialog } from '../../../shared/components/feedback/Dialog';
 import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
+import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 import { useDialog } from '../../../shared/providers/DialogProvider';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 
@@ -54,12 +55,14 @@ const SettingAccountScreen = () => {
           onCancel={close}
           onConfirm={() => {
             close();
+            // 설정 · 계정 정보를 빼고 피드 탭으로 돌아간 뒤 로그아웃한다
+            navigation.popTo('MainTabs', { screen: MAIN_TAB_ROUTES.FEED });
             void logout();
           }}
         />
       ),
     });
-  }, [logout, openDialog]);
+  }, [logout, navigation, openDialog]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -78,7 +81,6 @@ const SettingAccountScreen = () => {
           caption={getAccountCaption(currentUser)}
         />
 
-        {/* 로그아웃하면 RootNavigator 가 로그인 전용 화면을 빼서 설정 화면으로 돌아간다 */}
         <ListRow text="로그아웃" onPress={handlePressLogout} />
 
         <ListRow text="계정 탈퇴" textStyle={styles.criticalText} />
