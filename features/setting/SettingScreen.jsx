@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
 
 import IcArrowLeft from '../../assets/icons/ic_arrow_left.svg';
 import IcArrowUpRight from '../../assets/icons/ic_arrow_up_right.svg';
@@ -17,7 +18,8 @@ import useNotificationPermission from './hooks/useNotificationPermission';
 import useNotificationSettings, { NOTIFICATION_SETTING_KEY } from './hooks/useNotificationSettings';
 
 const HEADER_TEXT = '설정';
-const APP_VERSION = '버전 정보v1.0';
+// app.json 의 expo.version 을 그대로 보여준다. 버전은 app.json 한 곳에서만 올리면 된다.
+const APP_VERSION = `버전 정보 v${Constants.expoConfig?.version ?? ''}`;
 const FEEDBACK_FORM_URL = 'https://forms.gle/rLfpp8FSaCvBRtHF9';
 
 const NIGHT_ALERT_CAPTION_ON = '오후 9시~오전 8시에도 알림을 받아요.';
