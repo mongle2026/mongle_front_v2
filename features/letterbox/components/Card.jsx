@@ -37,6 +37,7 @@ const SINGER_DOT = { dotSize: 2, colGap: 2, rowPitch: 4 }; // 3줄 12px + paddin
  * @param {object}   [letter]
  * @param {string}   [letter.profileImageUri] 상대 프로필 이미지 (받은 편지: 보낸 사람, 보낸 편지: 받는 사람)
  * @param {string}   [letter.nickname]        상대 이름 (받은 편지: 보낸 사람, 보낸 편지: 받는 사람)
+ * @param {boolean}  [letter.isWithdrawn]     상대가 탈퇴한 회원인지 (프로필 사진을 탈퇴 회원 이미지로 고정)
  * @param {string|number|Date} [letter.receivedAt] 받은 날짜 (= deliveryAt)
  * @param {string|number|Date} [letter.createdAt]  작성 날짜 (보낸 편지에서 receivedAt 앞에 함께 표기)
  * @param {boolean}  [letter.isSent]          보낸 편지 여부 (보낸 편지는 읽음 여부와 관계없이 점으로 가리지 않음)
@@ -51,6 +52,7 @@ function Card({ letter = {}, type, onPress, style }) {
   const {
     profileImageUri,
     nickname = '',
+    isWithdrawn,
     receivedAt,
     createdAt,
     isSent,
@@ -73,8 +75,8 @@ function Card({ letter = {}, type, onPress, style }) {
       <View style={styles.firstContainer}>
         {/* profile container */}
         <View style={styles.profileContainer}>
-          <ProfileImg imageUri={profileImageUri} size="S" />
-          <Text style={styles.nickname} numberOfLines={1}>
+          <ProfileImg imageUri={profileImageUri} isWithdrawn={isWithdrawn} size="S" />
+          <Text style={[styles.nickname, isWithdrawn && styles.withdrawnNickname]} numberOfLines={1}>
             {nickname}
           </Text>
         </View>
@@ -182,6 +184,10 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.fgNeutralPrimary,
     ...typo.suitLabelXLargeStrong,
+  },
+  // 탈퇴한 회원 이름 '(탈퇴한 회원)'
+  withdrawnNickname: {
+    color: colors.fgDisabled,
   },
 
   // music container: column, align flex-start, gap XS(4), stretch

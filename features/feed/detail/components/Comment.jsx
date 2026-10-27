@@ -20,6 +20,9 @@ import { typo } from '../../../../shared/styles/typo';
 
 const Comment = ({
   userCode,
+  // 탈퇴한 회원의 댓글이면 아이디 대신 닉네임(서버가 '(탈퇴한 회원)'으로 보낸다), 프로필 사진은 탈퇴 회원 이미지로 고정한다
+  isWithdrawn = false,
+  nickname,
   comment,
   createdAt,
   profileImageUrl,
@@ -37,6 +40,7 @@ const Comment = ({
   const menuButtonRef = useRef(null);
 
   const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
+  const authorName = isWithdrawn ? nickname : `@${normalizedUserCode}`;
 
   // 키보드가 올라온 뒤 이 댓글이 가려졌는지 다시 재야 해서
   // 좌표 대신 View ref를 넘긴다.
@@ -89,16 +93,18 @@ const Comment = ({
             <Pressable
               onPress={onPressProfile}
               accessibilityRole="button"
-              accessibilityLabel={`@${normalizedUserCode} 프로필 보기`}
+              accessibilityLabel={`${authorName} 프로필 보기`}
             >
               <ProfileImg
                 imageUri={profileImageUrl}
+                isWithdrawn={isWithdrawn}
                 size="M"
               />
             </Pressable>
           ) : (
             <ProfileImg
               imageUri={profileImageUrl}
+              isWithdrawn={isWithdrawn}
               size="M"
             />
           )}
@@ -108,9 +114,9 @@ const Comment = ({
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={styles.userId}
+                style={[styles.userId, isWithdrawn && styles.withdrawnUserId]}
               >
-                @{normalizedUserCode}
+                {authorName}
               </Text>
 
               <Text style={styles.date}>
@@ -212,6 +218,11 @@ const styles = StyleSheet.create({
     ...typo.suitLabelMediumStrong,
     flexShrink: 1,
     color: colors.fgNeutralTertiary,
+  },
+
+  // 탈퇴한 회원 이름 '(탈퇴한 회원)'
+  withdrawnUserId: {
+    color: colors.fgDisabled,
   },
 
   date: {

@@ -83,7 +83,11 @@ const SettingAccountScreen = () => {
 
         <ListRow text="로그아웃" onPress={handlePressLogout} />
 
-        <ListRow text="계정 탈퇴" textStyle={styles.criticalText} />
+        <ListRow
+          text="계정 탈퇴"
+          textStyle={styles.criticalText}
+          onPress={() => navigation.navigate('SettingAccountWithdraw')}
+        />
       </ScrollView>
     </SafeAreaView>
   );

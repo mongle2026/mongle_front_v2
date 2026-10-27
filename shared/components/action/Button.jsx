@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -217,6 +217,8 @@ export const Button = ({
   font = FONT.KYOBO,
 
   disabled = false,
+  // 요청을 기다리는 동안 글자 대신 로딩 모양을 보이고 누를 수 없게 한다
+  loading = false,
 
   onPress,
 
@@ -246,6 +248,9 @@ export const Button = ({
   const isDisabled =
     disabled ||
     currentVariant === DISABLED;
+
+  // 로딩 중에는 모습은 그대로 두고 누르는 것만 막는다
+  const isPressable = !isDisabled && !loading;
 
   /*
    * variant 전환 크로스페이드.
@@ -293,29 +298,38 @@ export const Button = ({
       accessibilityState={{
         ...props.accessibilityState,
         disabled: isDisabled,
+        busy: loading,
       }}
-      disabled={isDisabled}
-      onPress={isDisabled ? undefined : onPress}
+      disabled={!isPressable}
+      onPress={isPressable ? onPress : undefined}
       style={state => [
         styles.container,
         sizeWithBorderStyle,
         variantStyle.container,
-        state.pressed && !isDisabled && PRESSED_CONTAINER_STYLES[currentVariant],
+        state.pressed && isPressable && PRESSED_CONTAINER_STYLES[currentVariant],
         typeof style === 'function'
           ? style(state)
           : style,
       ]}
     >
+      {/* 로딩 중에도 글자 자리를 그대로 두어 버튼 크기가 바뀌지 않게 한다 */}
       <FontFallbackText
         numberOfLines={1}
         style={[
           typographyStyle,
           variantStyle.text,
           textStyle,
+          loading && styles.hidden,
         ]}
       >
         {children}
       </FontFallbackText>
+
+      {loading && (
+        <View style={styles.loadingLayer} pointerEvents="none">
+          <ActivityIndicator color={variantStyle.text.color} />
+        </View>
+      )}
 
       {transition && (
         <VariantFadeOutLayer
@@ -396,6 +410,18 @@ const styles = StyleSheet.create({
   // 버튼 전체를 덮는 직전 모습. 가운데 정렬이라 글자가 새 글자와 같은 자리에 겹친다
   transitionLayer: {
     position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  hidden: {
+    opacity: 0,
+  },
+
+  // 글자 자리 위 가운데에 로딩 모양을 겹친다
+  loadingLayer: {
+    ...StyleSheet.absoluteFill,
+
     justifyContent: 'center',
     alignItems: 'center',
   },
