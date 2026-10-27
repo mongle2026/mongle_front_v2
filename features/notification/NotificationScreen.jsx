@@ -162,7 +162,7 @@ const NotificationScreen = ({ navigation }) => {
           <Empty
             type="login"
             title="로그인이 필요해요"
-            buttonLabel="로그인"
+            buttonLabel="로그인하러 가기"
             onButtonPress={handlePressLogin}
           />
         </View>
