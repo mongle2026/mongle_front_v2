@@ -56,7 +56,11 @@ const SettingScreen = () => {
           <>
             <View style={styles.section}>
               <ListHeader title="회원 정보" textStyle={styles.headerText} />
-              <ListRow text="계정 정보" showArrow />
+              <ListRow
+                text="계정 정보"
+                showArrow
+                onPress={() => navigation.navigate('SettingAccount')}
+              />
               <ListRow
                 text="프로필 정보 편집"
                 showArrow
