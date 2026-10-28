@@ -13,7 +13,7 @@ const COUNT_BADGE_OFFSET = 8;
 
 /**
  * 편지함 우표 탭의 우표 한 칸.
- * 받아본 적 없는 우표(count 0)는 회색으로, 받은 우표는 원래 색 + 받은 횟수 배지로 보여준다.
+ * 받아본 적 없는 우표(count 0)는 흐린 회색으로, 받은 우표는 원래 색 + 받은 횟수 배지로 보여준다.
  *
  * @param {string} stampCode 예: 's10'
  * @param {number} count 이 우표가 붙은 편지를 받은 횟수

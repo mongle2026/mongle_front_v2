@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { GestureDetector } from 'react-native-gesture-handler';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurMask, Canvas, Oval } from '@shopify/react-native-skia';
 
 import IcArrowUp from '../../../assets/icons/ic_arrowup.svg';
 import IlLetterSuccess from '../../../assets/illustrations/il_letter_success.svg';
+import IcFilledAlert from '../../../assets/icons/ic_filledalert.svg';
 
 import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../../../shared/components/action/Button';
 
@@ -16,8 +17,7 @@ import { typo } from '../../../shared/styles/typo';
 import { formatDate } from '../../../shared/utils/dateUtils';
 
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
-import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
-import { getApiErrorDetail, getApiErrorMessage } from '../../../shared/api/client';
+import { getApiErrorDetail } from '../../../shared/api/client';
 import { fetchCursorPage } from '../../../shared/api/cursorPage';
 import { resolveEnvelope } from '../../../shared/utils/envelopeUtils';
 import { resolveMediaUri } from '../../../shared/utils/media';
@@ -54,6 +54,15 @@ const SHADOW_HEIGHT = 44;
 const SHADOW_BLUR = 10;
 
 const WRITE_FLOW_FIRST_ROUTE = 'Record';
+
+// 전송 실패 아이콘: 연한 빨간 원 안에 빨간 느낌표
+const FAILED_ICON_CIRCLE_SIZE = 72;
+const FAILED_ICON_SIZE = 40;
+
+const resetWriteForms = () => {
+  useRecordFormStore.getState().resetRecordForm();
+  useLetterFormStore.getState().resetLetterForm();
+};
 
 /*
  * 편지 저장 응답에서 새 편지 id.
@@ -113,14 +122,13 @@ const readSendSnapshot = currentUser => {
 };
 
 const LetterSendScreen = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
 
   const { currentUser, userId } = useCurrentUser();
-  const { showToast } = useGlobalOverlay();
 
   const [snapshot] = useState(() => readSendSnapshot(currentUser));
   const [isSent, setIsSent] = useState(false);
+  const [isFailed, setIsFailed] = useState(false);
   const [sentLetterId, setSentLetterId] = useState(null);
   const [stageHeight, setStageHeight] = useState(0);
 
@@ -130,16 +138,8 @@ const LetterSendScreen = ({ navigation }) => {
       setSentLetterId(resolveSentLetterId(data));
       setIsSent(true);
     },
-    onError: error => {
-      showToast({
-        message: getApiErrorMessage(error, '편지를 보내지 못했습니다.'),
-        icon: 'alert',
-        iconColor: colors.fgCriticalInverted,
-        bottomOffset: insets.bottom,
-      });
-
-      navigation?.goBack();
-    },
+    // 실패하면 담기 애니메이션을 멈추고 실패 화면을 보여준다
+    onError: () => setIsFailed(true),
   });
 
   // 화면에 들어오자마자 전송을 시작하고, 그동안 담기 애니메이션을 보여준다
@@ -235,15 +235,38 @@ const LetterSendScreen = ({ navigation }) => {
     }
   }, [navigation, sentLetterId, snapshot.isToMe, handleClose]);
 
-  // 보내는 중에는 뒤로 갈 수 없고, 완료 뒤에는 작성 흐름을 모두 닫는다
+  // 전송에 실패하면 작성한 내용은 버리고 작성 흐름을 닫는다
+  const handleCloseAfterFailure = useCallback(() => {
+    resetWriteForms();
+    handleClose();
+  }, [handleClose]);
+
+  // 작성한 내용을 버리고 빈 편지 작성 화면을 새로 연다
+  const handleWriteNewLetter = useCallback(() => {
+    resetWriteForms();
+    handleClose();
+    navigation?.navigate(WRITE_FLOW_FIRST_ROUTE, { type: 'letter' });
+  }, [navigation, handleClose]);
+
+  // 보내는 중에는 뒤로 갈 수 없고, 완료 · 실패 뒤에는 작성 흐름을 모두 닫는다
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (isDone) handleClose();
+      if (isFailed) handleCloseAfterFailure();
+      else if (isDone) handleClose();
       return true;
     });
 
     return () => subscription.remove();
-  }, [isDone, handleClose]);
+  }, [isDone, isFailed, handleClose, handleCloseAfterFailure]);
+
+  if (isFailed) {
+    return (
+      <LetterSendFailed
+        onClose={handleCloseAfterFailure}
+        onWriteNewLetter={handleWriteNewLetter}
+      />
+    );
+  }
 
   if (isDone) {
     return (
@@ -349,6 +372,43 @@ const LetterSendScreen = ({ navigation }) => {
 };
 
 /* 편지를 날려 보낸 뒤 완료 화면 (Figma: write/letter : case : 전송 완료 · 도착일 지정 / 나에게 보내기) */
+/* 편지 전송에 실패했을 때 (Figma: write/letter : case : 전송 실패2) */
+const LetterSendFailed = ({ onClose, onWriteNewLetter }) => (
+  <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+    <Animated.View entering={FadeIn.duration(400)} style={styles.done}>
+      <View style={styles.failedIcon}>
+        <IcFilledAlert width={FAILED_ICON_SIZE} height={FAILED_ICON_SIZE} color={colors.fillCriticalStrong} />
+      </View>
+
+      <View style={styles.doneTextGroup}>
+        <Text style={styles.doneTitle}>편지를 보내지 못했어요</Text>
+        <Text style={styles.doneDescription}>
+          {'편지 전송 중 오류가 발생했어요.\n작성한 내용은 저장되지 않았어요.'}
+        </Text>
+      </View>
+    </Animated.View>
+
+    <View style={styles.doneButtonContainer}>
+      <Button
+        variant={BUTTON_VARIANT.WEAK}
+        size={BUTTON_SIZE.XL}
+        onPress={onClose}
+        style={styles.doneButton}
+      >
+        돌아가기
+      </Button>
+      <Button
+        variant={BUTTON_VARIANT.SOLID}
+        size={BUTTON_SIZE.XL}
+        onPress={onWriteNewLetter}
+        style={styles.doneButton}
+      >
+        새 편지 작성하기
+      </Button>
+    </View>
+  </SafeAreaView>
+);
+
 const LetterSendDone = ({ snapshot, onClose, onViewSentLetter, isOpeningSentLetter }) => {
   // 도착일을 고르지 않았으면 오늘 도착한다
   const arrivalDate = formatDate(deliveryAtToDate(snapshot.deliveryAt) ?? new Date());
@@ -466,5 +526,15 @@ const styles = StyleSheet.create({
   doneButton: {
     flex: 1,
     alignSelf: 'auto',
+  },
+
+  /* 실패 화면 */
+  failedIcon: {
+    width: FAILED_ICON_CIRCLE_SIZE,
+    height: FAILED_ICON_CIRCLE_SIZE,
+    borderRadius: FAILED_ICON_CIRCLE_SIZE / 2,
+    backgroundColor: colors.fillCriticalWeak,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
