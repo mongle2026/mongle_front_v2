@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import Animated, { FadeIn, useSharedValue } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurMask, Canvas, Oval } from '@shopify/react-native-skia';
 
 import IcArrowUp from '../../../assets/icons/ic_arrowup.svg';
+import IlLetterSuccess from '../../../assets/illustrations/il_letter_success.svg';
 
-import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
+import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../../../shared/components/action/Button';
 
 import { colors, palette } from '../../../shared/styles/color';
-import { gap, radius } from '../../../shared/styles/token';
+import { gap, padding } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
+import { formatDate } from '../../../shared/utils/dateUtils';
 
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
@@ -22,7 +24,7 @@ import { resolveMediaUri } from '../../../shared/utils/media';
 import { useLetterFormStore } from '../store/useLetterFormStore';
 import { useRecordFormStore } from '../store/useRecordFormStore';
 import useCreateLetter from '../envelope/hooks/useCreateLetter';
-import { getDaysUntilDelivery } from '../date/utils/deliveryDate';
+import { deliveryAtToDate } from '../date/utils/deliveryDate';
 
 import { BODY_ASPECT_RATIO } from './data/sendEnvelopeData';
 import SendEnvelope from './components/SendEnvelope';
@@ -72,6 +74,8 @@ const readSendSnapshot = currentUser => {
     color: envelope.color?.color ?? palette.neutral[300],
     FlapSvg: envelope.FlapSvg,
     deliveryAt: letterForm.deliveryAt,
+    receiverNickname: letterForm.receiver?.nickname ?? '',
+    isToMe: Boolean(letterForm.receiver?.isMe),
     items: [
       { key: 'profile', kind: 'profile', uri: currentUser?.profileImageUri ?? null },
       ...(recordForm.music ? [{ key: 'music', kind: 'music', uri: musicArtworkUri }] : []),
@@ -89,11 +93,15 @@ const LetterSendScreen = ({ navigation }) => {
 
   const [snapshot] = useState(() => readSendSnapshot(currentUser));
   const [isSent, setIsSent] = useState(false);
+  const [sentLetterId, setSentLetterId] = useState(null);
   const [stageHeight, setStageHeight] = useState(0);
 
   const { createLetter } = useCreateLetter({
     userId,
-    onSuccess: () => setIsSent(true),
+    onSuccess: data => {
+      setSentLetterId(data?.letterId ?? null);
+      setIsSent(true);
+    },
     onError: error => {
       showToast({
         message: getApiErrorMessage(error, '편지를 보내지 못했습니다.'),
@@ -178,6 +186,14 @@ const LetterSendScreen = ({ navigation }) => {
     navigation?.popToTop();
   }, [navigation]);
 
+  // 작성 흐름을 닫고 방금 보낸 편지 상세로 간다. id 를 못 받았으면 닫기만 한다
+  const handleViewSentLetter = useCallback(() => {
+    navigation?.popToTop();
+    if (sentLetterId != null) {
+      navigation?.navigate('LetterDetail', { letterId: sentLetterId });
+    }
+  }, [navigation, sentLetterId]);
+
   // 보내는 중에는 뒤로 갈 수 없고, 완료 뒤에는 작성 흐름을 모두 닫는다
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -192,8 +208,8 @@ const LetterSendScreen = ({ navigation }) => {
     return (
       <LetterSendDone
         snapshot={snapshot}
-        envelopeWidth={windowWidth * 0.4}
         onClose={handleClose}
+        onViewSentLetter={handleViewSentLetter}
       />
     );
   }
@@ -290,39 +306,47 @@ const LetterSendScreen = ({ navigation }) => {
   );
 };
 
-/* 편지를 날려 보낸 뒤 완료 화면 */
-const LetterSendDone = ({ snapshot, envelopeWidth, onClose }) => {
-  const closedFlap = useSharedValue(1);
-  const days = getDaysUntilDelivery(snapshot.deliveryAt);
+/* 편지를 날려 보낸 뒤 완료 화면 (Figma: write/letter : case : 전송 완료 · 도착일 지정 / 나에게 보내기) */
+const LetterSendDone = ({ snapshot, onClose, onViewSentLetter }) => {
+  // 도착일을 고르지 않았으면 오늘 도착한다
+  const arrivalDate = formatDate(deliveryAtToDate(snapshot.deliveryAt) ?? new Date());
+
+  const title = snapshot.isToMe ? '미래의 나에게 편지를 보냈어요' : '편지를 보냈어요';
+  const description = snapshot.isToMe
+    ? `${arrivalDate}에 편지함으로 도착해요`
+    : `${arrivalDate}에 ${snapshot.receiverNickname}님에게 도착해요`;
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
-      <TopSubNavigation
-        type="icon"
-        showShare={false}
-        showMore={false}
-        onPressClose={onClose}
-      />
-
       <Animated.View entering={FadeIn.duration(400)} style={styles.done}>
-        <View style={styles.doneCard}>
-          <SendEnvelope
-            width={envelopeWidth}
-            colorId={snapshot.colorId}
-            color={snapshot.color}
-            FallbackFlapSvg={snapshot.FlapSvg}
-            flapProgress={closedFlap}
-            contentClipTop={0}
-          />
+        <View style={styles.doneIllustration}>
+          <IlLetterSuccess width="100%" height="100%" />
         </View>
 
         <View style={styles.doneTextGroup}>
-          <Text style={styles.doneTitle}>전송이 무사히 완료되었어요</Text>
-          <Text style={styles.doneDescription}>
-            {days > 0 ? `${days}일 후에 편지가 도착합니다` : '곧 편지가 도착합니다'}
-          </Text>
+          <Text style={styles.doneTitle}>{title}</Text>
+          <Text style={styles.doneDescription}>{description}</Text>
         </View>
       </Animated.View>
+
+      <View style={styles.doneButtonContainer}>
+        <Button
+          variant={BUTTON_VARIANT.WEAK}
+          size={BUTTON_SIZE.XL}
+          onPress={onClose}
+          style={styles.doneButton}
+        >
+          돌아가기
+        </Button>
+        <Button
+          variant={BUTTON_VARIANT.SOLID}
+          size={BUTTON_SIZE.XL}
+          onPress={onViewSentLetter}
+          style={styles.doneButton}
+        >
+          보낸 편지 보기
+        </Button>
+      </View>
     </SafeAreaView>
   );
 };
@@ -368,27 +392,36 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: gap.XL,
-    paddingBottom: 56,
+    gap: gap.L,
+    paddingVertical: padding.XL,
   },
-  doneCard: {
-    width: '60%',
-    aspectRatio: 1,
-    borderRadius: radius.XL,
-    backgroundColor: colors.fillNeutralWeak,
-    alignItems: 'center',
-    justifyContent: 'center',
+  doneIllustration: {
+    width: 200,
+    height: 200,
   },
   doneTextGroup: {
     alignItems: 'center',
-    gap: gap.S,
+    gap: gap.XS,
   },
   doneTitle: {
-    ...typo.suitTitleSmallStrong,
+    ...typo.suitTitleXLargeStrong,
     color: colors.fgNeutralPrimary,
+    textAlign: 'center',
   },
   doneDescription: {
-    ...typo.suitLabelMedium,
+    ...typo.suitBodyXLarge,
     color: colors.fgNeutralTertiary,
+    textAlign: 'center',
+  },
+  doneButtonContainer: {
+    flexDirection: 'row',
+    gap: gap.M,
+    paddingHorizontal: padding.L,
+    paddingBottom: padding.L,
+  },
+  // Button 기본 alignSelf(flex-start)를 덮어써 두 버튼이 너비를 반씩 나눈다
+  doneButton: {
+    flex: 1,
+    alignSelf: 'auto',
   },
 });
