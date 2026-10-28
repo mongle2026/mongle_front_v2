@@ -17,7 +17,8 @@ import { formatDate } from '../../../shared/utils/dateUtils';
 
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
-import { getApiErrorMessage } from '../../../shared/api/client';
+import { getApiErrorDetail, getApiErrorMessage } from '../../../shared/api/client';
+import { fetchCursorPage } from '../../../shared/api/cursorPage';
 import { resolveEnvelope } from '../../../shared/utils/envelopeUtils';
 import { resolveMediaUri } from '../../../shared/utils/media';
 
@@ -51,6 +52,33 @@ const CARD_SINK_TOP_RATIO = 0.12;
 
 const SHADOW_HEIGHT = 44;
 const SHADOW_BLUR = 10;
+
+const WRITE_FLOW_FIRST_ROUTE = 'Record';
+
+/*
+ * 편지 저장 응답에서 새 편지 id.
+ * 응답의 맨 위 id 는 기록(record) id 일 수 있어 쓰지 않고, 편지 id 로 확실한 값만 읽는다
+ */
+const resolveSentLetterId = data => {
+  const letterId = data?.letterId ?? data?.letter?.id ?? data?.letter?.letterId;
+  if (letterId == null && __DEV__) {
+    console.warn('편지 저장 응답에서 letterId 를 찾지 못해 보낸 편지함에서 찾습니다.', data);
+  }
+  return letterId ?? null;
+};
+
+/* 저장 응답에 편지 id 가 없을 때, 편지함(나에게 쓴 편지 / 보낸 편지)의 가장 최근 편지를 방금 보낸 편지로 본다 */
+const fetchLatestSentLetterId = async isToMe => {
+  try {
+    const page = await fetchCursorPage('/letter', {
+      params: { tab: isToMe ? 'SELF' : 'SENT', limit: 1 },
+    });
+    return page.items[0]?.letterId ?? null;
+  } catch (error) {
+    console.warn('보낸 편지를 찾지 못했습니다.', getApiErrorDetail(error));
+    return null;
+  }
+};
 
 /* 전송 버튼을 누른 순간의 작성값. 전송이 성공하면 store 가 초기화되므로 처음 한 번만 읽어 둔다 */
 const readSendSnapshot = currentUser => {
@@ -99,7 +127,7 @@ const LetterSendScreen = ({ navigation }) => {
   const { createLetter } = useCreateLetter({
     userId,
     onSuccess: data => {
-      setSentLetterId(data?.letterId ?? null);
+      setSentLetterId(resolveSentLetterId(data));
       setIsSent(true);
     },
     onError: error => {
@@ -182,17 +210,30 @@ const LetterSendScreen = ({ navigation }) => {
 
   const isDone = phase === 'done';
 
+  // 작성 흐름(Record → Envelope → LetterSend)을 닫고, 작성을 시작한 화면(피드 · 편지함 · 편지 상세 등)으로 돌아간다
   const handleClose = useCallback(() => {
-    navigation?.popToTop();
+    const routes = navigation?.getState()?.routes ?? [];
+    const recordIndex = routes.findLastIndex(route => route.name === WRITE_FLOW_FIRST_ROUTE);
+
+    if (recordIndex > 0) {
+      navigation.pop(routes.length - recordIndex);
+    } else {
+      navigation?.popToTop();
+    }
   }, [navigation]);
 
-  // 작성 흐름을 닫고 방금 보낸 편지 상세로 간다. id 를 못 받았으면 닫기만 한다
-  const handleViewSentLetter = useCallback(() => {
-    navigation?.popToTop();
-    if (sentLetterId != null) {
-      navigation?.navigate('LetterDetail', { letterId: sentLetterId });
+  // 작성 흐름을 닫고 방금 보낸 편지 상세로 간다. id 를 못 찾으면 닫기만 한다
+  const [isOpeningSentLetter, setIsOpeningSentLetter] = useState(false);
+  const handleViewSentLetter = useCallback(async () => {
+    setIsOpeningSentLetter(true);
+    const letterId = sentLetterId ?? (await fetchLatestSentLetterId(snapshot.isToMe));
+    setIsOpeningSentLetter(false);
+
+    handleClose();
+    if (letterId != null) {
+      navigation?.push('LetterDetail', { letterId });
     }
-  }, [navigation, sentLetterId]);
+  }, [navigation, sentLetterId, snapshot.isToMe, handleClose]);
 
   // 보내는 중에는 뒤로 갈 수 없고, 완료 뒤에는 작성 흐름을 모두 닫는다
   useEffect(() => {
@@ -210,6 +251,7 @@ const LetterSendScreen = ({ navigation }) => {
         snapshot={snapshot}
         onClose={handleClose}
         onViewSentLetter={handleViewSentLetter}
+        isOpeningSentLetter={isOpeningSentLetter}
       />
     );
   }
@@ -307,7 +349,7 @@ const LetterSendScreen = ({ navigation }) => {
 };
 
 /* 편지를 날려 보낸 뒤 완료 화면 (Figma: write/letter : case : 전송 완료 · 도착일 지정 / 나에게 보내기) */
-const LetterSendDone = ({ snapshot, onClose, onViewSentLetter }) => {
+const LetterSendDone = ({ snapshot, onClose, onViewSentLetter, isOpeningSentLetter }) => {
   // 도착일을 고르지 않았으면 오늘 도착한다
   const arrivalDate = formatDate(deliveryAtToDate(snapshot.deliveryAt) ?? new Date());
 
@@ -342,6 +384,7 @@ const LetterSendDone = ({ snapshot, onClose, onViewSentLetter }) => {
           variant={BUTTON_VARIANT.SOLID}
           size={BUTTON_SIZE.XL}
           onPress={onViewSentLetter}
+          loading={isOpeningSentLetter}
           style={styles.doneButton}
         >
           보낸 편지 보기
