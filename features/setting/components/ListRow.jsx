@@ -25,7 +25,7 @@ const ListRow = ({
   showSubtext = false,
   subtext,
 
-  // 화살표를 켜면 행 전체를 누를 수 있다
+  // 화살표를 켜거나 onPress 를 주면 행 전체를 누를 수 있다
   showArrow = false,
   arrowIcon: ArrowIcon = IcArrowRight,
   onPress,
@@ -39,12 +39,13 @@ const ListRow = ({
   disabled = false,
 
   style,
+  textStyle,
 }) => {
   const content = (
     <>
       <View style={styles.textContainer}>
         {text ? (
-          <Text style={[styles.text, disabled && styles.disabledText]}>
+          <Text style={[styles.text, textStyle, disabled && styles.disabledText]}>
             {text}
           </Text>
         ) : null}
@@ -90,7 +91,7 @@ const ListRow = ({
     </>
   );
 
-  if (showArrow) {
+  if (showArrow || onPress) {
     return (
       <Pressable
         accessibilityRole="button"

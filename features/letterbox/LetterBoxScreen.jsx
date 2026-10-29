@@ -69,34 +69,38 @@ const LetterBoxScreen = ({ navigation }) => {
         />
       </SafeAreaView>
 
-      {/* 로그인하지 않았으면 편지/우표 탭 없이 엠티뷰만 보여준다. 작성 FAB 은 남겨 두고 누르면 로그인 안내 Dialog 를 띄운다 */}
-      {isSignedIn ? (
-        <>
-          <TabBar
-            tabs={LETTER_BOX_TAB_LABELS}
-            activeIndex={activeTabIndex}
-            onChange={handleChangeTab}
-          />
+      <TabBar
+        tabs={LETTER_BOX_TAB_LABELS}
+        activeIndex={activeTabIndex}
+        onChange={handleChangeTab}
+      />
 
-          <View style={styles.content}>
-            {activeTab === LETTER_BOX_TAB.LETTER && (
-              <LetterSection userId={userId} bottomInset={fabHeight} onPressLetter={handlePressLetter} />
-            )}
-            {activeTab === LETTER_BOX_TAB.STAMP && (
-              <StampSection userId={userId} bottomInset={fabHeight} onPressStamp={handlePressStamp} />
-            )}
-          </View>
-        </>
-      ) : (
-        <View style={[styles.loginEmpty, { paddingBottom: fabHeight }]}>
-          <Empty
-            type="login"
-            title="로그인이 필요해요"
-            buttonLabel="로그인"
-            onButtonPress={handlePressLogin}
+      {/* 로그인하지 않았으면 편지 탭은 필터 Tabs 아래에, 우표 탭은 바로 엠티뷰를 보여준다. 작성 FAB 은 남겨 두고 누르면 로그인 안내 Dialog 를 띄운다 */}
+      <View style={styles.content}>
+        {activeTab === LETTER_BOX_TAB.LETTER && (
+          <LetterSection
+            userId={userId}
+            isSignedIn={isSignedIn}
+            bottomInset={fabHeight}
+            onPressLetter={handlePressLetter}
+            onPressLogin={handlePressLogin}
           />
-        </View>
-      )}
+        )}
+        {activeTab === LETTER_BOX_TAB.STAMP && (
+          isSignedIn ? (
+            <StampSection userId={userId} bottomInset={fabHeight} onPressStamp={handlePressStamp} />
+          ) : (
+            <View style={[styles.loginEmpty, { paddingBottom: fabHeight }]}>
+              <Empty
+                type="login"
+                title="로그인이 필요해요"
+                buttonLabel="로그인하러 가기"
+                onButtonPress={handlePressLogin}
+              />
+            </View>
+          )
+        )}
+      </View>
 
       <WriteFab navigation={navigation} expandedLabel="편지함 더 둘러보기" onHeightChange={setFabHeight} />
     </View>

@@ -8,7 +8,7 @@ import IlDialogDeletedletter from '../../../../assets/illustrations/il_dialog_de
 
 import { Dialog } from '../../../../shared/components/feedback/Dialog';
 import Menu from '../../../../shared/components/action/menu/Menu';
-import { Button } from '../../../../shared/components/action/Button';
+import { Button, BUTTON_VARIANT } from '../../../../shared/components/action/Button';
 import MusicCard from '../../../../shared/components/content/MusicCard';
 import LoadStateView from '../../../../shared/components/feedback/LoadStateView';
 import Profile from '../../../../shared/components/content/profile/Profile';
@@ -187,9 +187,12 @@ const LetterDetailScreen = ({ navigation, route }) => {
     });
   }, [deleteLetter, guardCancelSend, isDeletingLetter, openDialog]);
 
+  // 탈퇴한 회원에게는 답장할 수 없다
+  const canReply = Boolean(letter && !letter.sender.isWithdrawn);
+
   // 보낸이를 수신인으로 미리 채운 채 편지 작성 화면으로 이동한다
   const handlePressReply = useCallback(() => {
-    if (!letter) return;
+    if (!letter || !canReply) return;
 
     setIsMenuOpen(false);
 
@@ -206,7 +209,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
     });
 
     navigation.navigate('Record', { type: 'letter' });
-  }, [letter, navigation, setReceiver]);
+  }, [canReply, letter, navigation, setReceiver]);
 
   const handleMusicPlayback = useCallback(() => {
     if (!playbackId || !previewUri) return;
@@ -216,9 +219,9 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
   // 보낸 편지는 받는 사람, 받은 편지는 보낸 사람을 보여준다
   const counterpart = isSent ? letter?.receiver : letter?.sender;
-  // 나에게 쓴 편지면 상대가 나라서 프로필로 이동하지 않는다
+  // 나에게 쓴 편지면 상대가 나라서, 탈퇴한 회원은 프로필이 없어서 프로필로 이동하지 않는다
   const canPressCounterpart =
-    hasId(counterpart?.userId) && !isSameId(counterpart.userId, userId);
+    hasId(counterpart?.userId) && !isSameId(counterpart.userId, userId) && !counterpart.isWithdrawn;
 
   const handlePressCounterpart = useCallback(() => {
     navigation.navigate('UserProfile', { userId: counterpart?.userId });
@@ -276,8 +279,10 @@ const LetterDetailScreen = ({ navigation, route }) => {
               <Profile
                 type="Letter"
                 imageUri={counterpart.profileImageUri}
+                isWithdrawn={counterpart.isWithdrawn}
                 recipientName={counterpart.nickname}
-                nameSuffix={isSent ? '에게' : getSenderSuffix(counterpart.nickname)}
+                // 탈퇴한 회원 이름은 '(탈퇴한 회원)'이라 받침으로 정하지 않고 편지함처럼 '이가'로 고정한다
+                nameSuffix={isSent ? '에게' : counterpart.isWithdrawn ? '이가' : getSenderSuffix(counterpart.nickname)}
                 font={letter.font}
                 onPress={canPressCounterpart ? handlePressCounterpart : undefined}
               />
@@ -319,15 +324,26 @@ const LetterDetailScreen = ({ navigation, route }) => {
           {/* 답장은 받은 편지에서만 */}
           {letter.isReceiver && (
             <View style={[styles.buttonContainer, { paddingBottom: padding.XXL + insets.bottom }]}>
-              <Button
-                variant="Solid"
-                size="XL"
-                font={FONT.SUIT}
-                onPress={handlePressReply}
-                style={styles.bottomButton}
-              >
-                {`${letter.sender.nickname}에게 답장하기`}
-              </Button>
+              {canReply ? (
+                <Button
+                  variant="Solid"
+                  size="XL"
+                  font={FONT.SUIT}
+                  onPress={handlePressReply}
+                  style={styles.bottomButton}
+                >
+                  {`${letter.sender.nickname}에게 답장하기`}
+                </Button>
+              ) : (
+                <Button
+                  variant={BUTTON_VARIANT.DISABLED}
+                  size="XL"
+                  font={FONT.SUIT}
+                  style={styles.bottomButton}
+                >
+                  답장하기
+                </Button>
+              )}
             </View>
           )}
 

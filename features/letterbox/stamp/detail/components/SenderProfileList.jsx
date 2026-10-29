@@ -18,10 +18,10 @@ const FADE_COLORS = [colors.bgSurface0, colors.bgSurface];
 /**
  * 이 우표를 보내준 사람들. 왼쪽이 오래된 순이고, 항상 가로로 스크롤된다.
  *
- * @param {{ userId: string, nickname: string, imageUri?: string, isMe: boolean }[]} senders
+ * @param {{ userId: string, nickname: string, imageUri?: string, isMe: boolean, isWithdrawn: boolean }[]} senders
  * @param {import('react-native-reanimated').SharedValue<number>} progress
  *   시트가 처음 떴을 때(0)는 가운데 정렬, 끌어올리면(1) 왼쪽 정렬. 줄을 넘치면 항상 왼쪽부터 채운다.
- * @param {(sender: object) => void} [onPressSender] 다른 사람 프로필을 누르면 호출. 내 프로필은 누를 수 없다
+ * @param {(sender: object) => void} [onPressSender] 다른 사람 프로필을 누르면 호출. 내 프로필과 탈퇴한 회원은 누를 수 없다
  */
 const SenderProfileList = ({ senders, progress, onPressSender }) => (
   <View style={styles.container}>
@@ -38,7 +38,8 @@ const SenderProfileList = ({ senders, progress, onPressSender }) => (
             imageUri={sender.imageUri}
             name={sender.nickname}
             isMe={sender.isMe}
-            onPress={sender.isMe || !onPressSender ? undefined : () => onPressSender(sender)}
+            isWithdrawn={sender.isWithdrawn}
+            onPress={sender.isMe || sender.isWithdrawn || !onPressSender ? undefined : () => onPressSender(sender)}
           />
         ))}
       </CenterToStartRow>

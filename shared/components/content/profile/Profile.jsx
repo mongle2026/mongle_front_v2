@@ -41,6 +41,8 @@ const Profile = ({
   type = PROFILE_TYPE.FEED,
 
   imageUri,
+  // 탈퇴한 회원이면 사진 대신 탈퇴 회원 이미지로 고정한다
+  isWithdrawn = false,
 
   // 누르면 프로필로 이동. Feed 는 이미지 · username 버튼, Letter 는 전체 영역
   onPress,
@@ -130,6 +132,7 @@ const Profile = ({
         >
           <ProfileImg
             imageUri={imageUri}
+            isWithdrawn={isWithdrawn}
             size="S"
           />
         </View>
@@ -139,6 +142,7 @@ const Profile = ({
             style={[
               letterTextStyle,
               styles.letterText,
+              isWithdrawn && styles.withdrawnLetterText,
               textStyle,
             ]}
           >
@@ -194,6 +198,7 @@ const Profile = ({
       >
         <ProfileImg
           imageUri={imageUri}
+          isWithdrawn={isWithdrawn}
           size="S"
           style={feedImageSizeStyle}
         />
@@ -280,6 +285,11 @@ const styles = StyleSheet.create({
 
   letterText: {
     color: colors.fgNeutralPrimary,
+  },
+
+  // 탈퇴한 회원 이름 '(탈퇴한 회원)'. 뒤에 붙는 말('이가')은 색을 바꾸지 않는다
+  withdrawnLetterText: {
+    color: colors.fgDisabled,
   },
 });
 

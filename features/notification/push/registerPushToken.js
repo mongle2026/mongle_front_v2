@@ -11,6 +11,9 @@ import { hasId } from '../../../shared/utils/id';
 const getProjectId = () =>
   Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId ?? null;
 
+// 로그아웃할 때 서버에서 지울 토큰. 앱을 켤 때마다 등록하므로 로그인해 있으면 들고 있다
+let registeredToken = null;
+
 const requestPermission = async () => {
   const { status: currentStatus } = await Notifications.getPermissionsAsync();
   if (currentStatus === 'granted') return true;
@@ -51,5 +54,20 @@ export const registerPushToken = async userId => {
     platform: Platform.OS,
   });
 
+  registeredToken = token;
+
   return token;
+};
+
+/**
+ * 로그아웃할 때 이 기기 토큰을 계정에서 뗀다. 그래야 로그아웃한 기기로 그 계정 알림이 오지 않는다.
+ * 로그인 토큰이 필요해서 signOut 전에 불러야 한다.
+ */
+export const unregisterPushToken = async config => {
+  const token = registeredToken;
+  if (!token) return;
+
+  registeredToken = null;
+
+  await apiClient.delete('/notification/push-token', { ...config, data: { token } });
 };

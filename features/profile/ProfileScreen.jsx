@@ -62,10 +62,9 @@ const ProfileScreen = () => {
     navigation.navigate('ProfileFollow');
   }, [navigation]);
 
-  // 로그인하지 않았으면 설정 대신 바로 Welcome 으로 간다
   const handlePressSetting = useCallback(() => {
-    navigation.navigate(isSignedIn ? 'Setting' : 'Welcome');
-  }, [isSignedIn, navigation]);
+    navigation.navigate('Setting');
+  }, [navigation]);
 
   const handlePressLogin = useCallback(() => {
     navigation.navigate('Welcome');
@@ -118,7 +117,7 @@ const ProfileScreen = () => {
           <Empty
             type="login"
             title="로그인이 필요해요"
-            buttonLabel="로그인"
+            buttonLabel="로그인하러 가기"
             onButtonPress={handlePressLogin}
           />
         </View>

@@ -2,12 +2,14 @@ import { useCallback } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
 
 import IcArrowLeft from '../../assets/icons/ic_arrow_left.svg';
 import IcArrowUpRight from '../../assets/icons/ic_arrow_up_right.svg';
 
 import TopSubNavigation from '../../shared/components/navigation/topnavigation/TopSubNavigation';
 import ListHeader from '../../shared/components/content/ListHeader';
+import { useIsSignedIn } from '../../shared/auth/useAuthStore';
 
 import { colors } from '../../shared/styles/color';
 import { padding } from '../../shared/styles/token';
@@ -17,7 +19,8 @@ import useNotificationPermission from './hooks/useNotificationPermission';
 import useNotificationSettings, { NOTIFICATION_SETTING_KEY } from './hooks/useNotificationSettings';
 
 const HEADER_TEXT = '설정';
-const APP_VERSION = '버전 정보v1.0';
+// app.json 의 expo.version 을 그대로 보여준다. 버전은 app.json 한 곳에서만 올리면 된다.
+const APP_VERSION = `버전 정보 v${Constants.expoConfig?.version ?? ''}`;
 const FEEDBACK_FORM_URL = 'https://forms.gle/rLfpp8FSaCvBRtHF9';
 
 const NIGHT_ALERT_CAPTION_ON = '오후 9시~오전 8시에도 알림을 받아요.';
@@ -26,6 +29,7 @@ const NIGHT_ALERT_CAPTION_OFF = '오후 9시 이후 알림은 오전 8시에 모
 // 프로필 탭 오른쪽 위 설정 버튼으로 들어오는 설정 화면
 const SettingScreen = () => {
   const navigation = useNavigation();
+  const isSignedIn = useIsSignedIn();
   const isPermissionGranted = useNotificationPermission();
 
   const { settings, updateSettings } = useNotificationSettings();
@@ -47,32 +51,41 @@ const SettingScreen = () => {
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.section}>
-          <ListHeader title="회원 정보" textStyle={styles.headerText} />
-          <ListRow text="계정 정보" showArrow />
-          <ListRow
-            text="프로필 정보 편집"
-            showArrow
-            onPress={() => navigation.navigate('ProfileInfoEdit')}
-          />
-        </View>
+        {/* 로그인하지 않았으면 회원 정보 · 알림 없이 약관 및 정책부터 보여준다 */}
+        {isSignedIn && (
+          <>
+            <View style={styles.section}>
+              <ListHeader title="회원 정보" textStyle={styles.headerText} />
+              <ListRow
+                text="계정 정보"
+                showArrow
+                onPress={() => navigation.navigate('SettingAccount')}
+              />
+              <ListRow
+                text="프로필 정보 편집"
+                showArrow
+                onPress={() => navigation.navigate('ProfileInfoEdit')}
+              />
+            </View>
 
-        <View style={styles.section}>
-          <ListHeader title="알림" textStyle={styles.headerText} />
-          <ListRow
-            text="야간 알림"
-            caption={isNightAlertActive ? NIGHT_ALERT_CAPTION_ON : NIGHT_ALERT_CAPTION_OFF}
-            showToggle
-            toggleActive={isNightAlertActive}
-            onTogglePress={handleToggleNightAlert}
-            disabled={!isPermissionGranted}
-          />
-          <ListRow
-            text="알림 설정"
-            showArrow
-            onPress={() => navigation.navigate('SettingNotification')}
-          />
-        </View>
+            <View style={styles.section}>
+              <ListHeader title="알림" textStyle={styles.headerText} />
+              <ListRow
+                text="야간 알림"
+                caption={isNightAlertActive ? NIGHT_ALERT_CAPTION_ON : NIGHT_ALERT_CAPTION_OFF}
+                showToggle
+                toggleActive={isNightAlertActive}
+                onTogglePress={handleToggleNightAlert}
+                disabled={!isPermissionGranted}
+              />
+              <ListRow
+                text="알림 설정"
+                showArrow
+                onPress={() => navigation.navigate('SettingNotification')}
+              />
+            </View>
+          </>
+        )}
 
         <View style={styles.section}>
           <ListHeader title="약관 및 정책" textStyle={styles.headerText} />

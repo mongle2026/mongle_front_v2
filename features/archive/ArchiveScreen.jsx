@@ -90,15 +90,15 @@ const ArchiveScreen = ({ navigation, route }) => {
         />
       </SafeAreaView>
 
-      {/* 로그인하지 않았으면 내 기록/북마크 탭 없이 엠티뷰만 보여준다 */}
+      <TabBar
+        tabs={ARCHIVE_TAB_LABELS}
+        activeIndex={activeTabIndex}
+        onChange={handleChangeTab}
+      />
+
+      {/* 로그인하지 않았으면 내 기록/북마크 탭 아래에 엠티뷰만 보여준다 */}
       {isSignedIn ? (
         <>
-          <TabBar
-            tabs={ARCHIVE_TAB_LABELS}
-            activeIndex={activeTabIndex}
-            onChange={handleChangeTab}
-          />
-
           {activeTab === ARCHIVE_TAB.MYFEED && (
             <MyFeedSection
               navigation={navigation}
@@ -119,7 +119,7 @@ const ArchiveScreen = ({ navigation, route }) => {
           <Empty
             type="login"
             title="로그인이 필요해요"
-            buttonLabel="로그인"
+            buttonLabel="로그인하러 가기"
             onButtonPress={handlePressLogin}
           />
         </View>

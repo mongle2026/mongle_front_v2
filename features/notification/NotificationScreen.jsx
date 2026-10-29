@@ -126,43 +126,41 @@ const NotificationScreen = ({ navigation }) => {
         onPressClose={handlePressBack}
       />
 
-      {/* 로그인하지 않았으면 안내 배너 · 필터 탭 없이 엠티뷰만 보여준다 */}
+      <InfoBanner />
+
+      <Tabs
+        tabs={NOTIFICATION_FILTER_LABELS}
+        activeIndex={activeFilterIndex}
+        onChange={setActiveFilterIndex}
+        backgroundColor={colors.bgSurface}
+      />
+
+      {/* 로그인하지 않았으면 필터 탭 아래에 엠티뷰만 보여준다 */}
       {isSignedIn ? (
-        <>
-          <InfoBanner />
-
-          <Tabs
-            tabs={NOTIFICATION_FILTER_LABELS}
-            activeIndex={activeFilterIndex}
-            onChange={setActiveFilterIndex}
-            backgroundColor={colors.bgSurface}
+        /* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */
+        <Animated.View
+          key={activeFilterIndex}
+          entering={LIST_ENTERING}
+          style={styles.listContainer}
+        >
+          <FlatList
+            data={notifications}
+            keyExtractor={notificationKeyExtractor}
+            renderItem={renderNotification}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            ItemSeparatorComponent={renderNotificationSeparator}
+            ListEmptyComponent={renderListEmpty}
+            contentContainerStyle={listContentStyle}
+            showsVerticalScrollIndicator={false}
           />
-
-          {/* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */}
-          <Animated.View
-            key={activeFilterIndex}
-            entering={LIST_ENTERING}
-            style={styles.listContainer}
-          >
-            <FlatList
-              data={notifications}
-              keyExtractor={notificationKeyExtractor}
-              renderItem={renderNotification}
-              onEndReached={handleEndReached}
-              onEndReachedThreshold={0.5}
-              ItemSeparatorComponent={renderNotificationSeparator}
-              ListEmptyComponent={renderListEmpty}
-              contentContainerStyle={listContentStyle}
-              showsVerticalScrollIndicator={false}
-            />
-          </Animated.View>
-        </>
+        </Animated.View>
       ) : (
         <View style={[styles.loginEmpty, { paddingBottom: insets.bottom }]}>
           <Empty
             type="login"
             title="로그인이 필요해요"
-            buttonLabel="로그인"
+            buttonLabel="로그인하러 가기"
             onButtonPress={handlePressLogin}
           />
         </View>

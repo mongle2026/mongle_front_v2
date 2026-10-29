@@ -44,6 +44,16 @@ export default function useCurrentUser() {
           resolveMediaUri(
             user.profileImageUrl,
           ),
+
+        // 가입한 소셜 계정. 'KAKAO' | 'APPLE'
+        provider:
+          user.provider ??
+          null,
+
+        // 가입할 때 소셜 계정에서 받은 이메일. 못 받았으면 null
+        email:
+          user.email ??
+          null,
       };
     },
 

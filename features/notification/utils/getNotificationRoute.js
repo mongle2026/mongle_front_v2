@@ -20,8 +20,12 @@ export const getNotificationRoute = notification => {
     };
   }
 
-  // 팔로우: 나를 팔로우한 사람 프로필
-  if (notification?.status === NOTIFICATION_STATUS.FOLLOW && notification.actorPublicId) {
+  // 팔로우: 나를 팔로우한 사람 프로필. 탈퇴한 회원은 프로필이 없다
+  if (
+    notification?.status === NOTIFICATION_STATUS.FOLLOW &&
+    notification.actorPublicId &&
+    !notification.isActorWithdrawn
+  ) {
     return {
       name: 'UserProfile',
       params: { userId: notification.actorPublicId },
