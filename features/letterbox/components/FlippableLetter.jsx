@@ -22,7 +22,7 @@ export const getLetterRotation = index =>
  * 뒷면으로 보이고, 누르면 앞면으로 뒤집힌 뒤 onPress 가 호출되는 편지 한 장 (편지 상세로 이동).
  * 상세에서 돌아와 화면이 다시 포커스되면 뒷면으로 되돌린다.
  *
- * @param {object} letter envelope, recipientName, senderName 을 가진 편지
+ * @param {object} letter envelope, recipientName, senderName, isSenderWithdrawn 을 가진 편지
  * @param {import('react-native-reanimated').SharedValue<boolean>} isFlipping 목록 전체에서 한 번에 한 장만 뒤집히게 공유하는 값
  * @param {(letter: object) => void} [onPress] 앞면으로 다 뒤집힌 뒤 호출
  * @param {object} [style] 누르는 영역 스타일 (기울기 등)
@@ -51,6 +51,7 @@ const FlippableLetter = ({ letter, isFlipping, onPress, style }) => {
             StampSvg={StampSvg}
             recipient={letter.recipientName}
             sender={letter.senderName}
+            isSenderWithdrawn={letter.isSenderWithdrawn}
           />
         ) : (
           <Letter type="front" BackgroundSvg={FrontSvg} FlapSvg={FlapSvg} />

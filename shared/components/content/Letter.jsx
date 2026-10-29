@@ -11,6 +11,7 @@ import { typo } from '../../styles/typo';
 import { padding } from '../../styles/token';
 import { StampImage } from './Stamp';
 import FontFallbackText from '../atomic/FontFallbackText';
+import { getSenderSuffix } from '../../utils/koreanUtils';
 
 // 편지 원본 크기(320x232). 편지를 쓰는 다른 화면도 이 값으로 크기·비율을 맞춘다
 export const LETTER_SIZE = Object.freeze({ width: 320, height: 232 });
@@ -45,6 +46,7 @@ function Letter({
   StampSvg,
   recipient = '',
   sender = '',
+  isSenderWithdrawn = false,
   style,
   flapStyle,
 }) {
@@ -96,7 +98,8 @@ function Letter({
                 {recipient ? `${recipient}에게` : ''}
               </FontFallbackText>
               <FontFallbackText style={styles.name} numberOfLines={1}>
-                {sender ? `${sender}이가` : ''}
+                {/* 탈퇴한 회원 이름은 '(탈퇴한 회원)'이라 받침으로 정하지 않고 '이가'로 고정한다 */}
+                {sender ? `${sender}${isSenderWithdrawn ? '이가' : getSenderSuffix(sender)}` : ''}
               </FontFallbackText>
             </View>
 
