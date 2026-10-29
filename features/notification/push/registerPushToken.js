@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import apiClient, { isApiConfigured } from '../../../shared/api/client';
 
 import { setupNotificationChannels } from './notificationChannels';
+import { saveFirstNotificationPermissionResult } from './notificationDeniedNotice';
 import { hasId } from '../../../shared/utils/id';
 
 // eas init 을 하면 app.json 의 extra.eas.projectId 에 들어간다
@@ -16,10 +17,20 @@ let registeredToken = null;
 
 const requestPermission = async () => {
   const { status: currentStatus } = await Notifications.getPermissionsAsync();
-  if (currentStatus === 'granted') return true;
+
+  // 처음부터 허용돼 있었으면(안드로이드 12 이하 등) 나중에 설정에서 꺼도 거절 안내는 하지 않는다
+  if (currentStatus === 'granted') {
+    void saveFirstNotificationPermissionResult(true);
+    return true;
+  }
 
   const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
+  const granted = status === 'granted';
+
+  // 첫 권한 창에서 거절했으면 피드 홈에서 안내한다
+  void saveFirstNotificationPermissionResult(granted);
+
+  return granted;
 };
 
 /**

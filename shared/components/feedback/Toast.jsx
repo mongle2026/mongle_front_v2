@@ -8,6 +8,7 @@ import Animated, {
 
 import IcFilledCheck from '../../../assets/icons/ic_filledcheck.svg';
 import IcFilledAlert from '../../../assets/icons/ic_filledalert.svg';
+import IcFilledInfo from '../../../assets/icons/ic_filledinfo.svg';
 
 import ButtonText from '../action/ButtonText';
 
@@ -18,6 +19,7 @@ import { typo } from '../../styles/typo';
 const TOAST_ICONS = {
   check: IcFilledCheck,
   alert: IcFilledAlert,
+  info: IcFilledInfo,
 };
 
 // 내용 전환: 이전 내용이 먼저 페이드 아웃되고, 거의 사라진 뒤에 새 내용이 페이드 인된다

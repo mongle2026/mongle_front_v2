@@ -25,6 +25,7 @@ import FeedPostItem from './components/FeedPostItem';
 import useFeedActions from '../hooks/useFeedActions';
 import useFeedHome from './hooks/useFeedHome';
 import useFeedHomeListController from './hooks/useFeedHomeListController';
+import useNotificationDeniedToast from './hooks/useNotificationDeniedToast';
 import { useCreatedFeedStore } from '../store/useCreatedFeedStore';
 import { hasId } from '../../../shared/utils/id';
 
@@ -72,6 +73,8 @@ const FeedHomeScreen = ({ navigation }) => {
     handlePressLike,
     handlePressBookmark,
   } = useFeedActions({ userId });
+
+  useNotificationDeniedToast();
 
   const {
     listRef,
