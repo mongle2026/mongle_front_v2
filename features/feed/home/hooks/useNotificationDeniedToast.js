@@ -17,8 +17,10 @@ import {
  * - 다른 화면(가입 완료 등)에서 거절했으면 피드 홈에 들어올 때 띄운다
  * - 피드 홈 위에서 거절했으면 권한 창이 닫힌 뒤 띄운다
  * 그 사이 설정 앱에서 허용했으면 안내하지 않는다.
+ *
+ * @param {boolean} [enabled] false 면 true 가 될 때까지 미룬다 (코치마크가 떠 있을 때 등)
  */
-const useNotificationDeniedToast = () => {
+const useNotificationDeniedToast = ({ enabled = true } = {}) => {
   const { showToast } = useGlobalOverlay();
   const bottomOffset = useFloatingBottomOffset();
   const isFocused = useIsFocused();
@@ -30,7 +32,7 @@ const useNotificationDeniedToast = () => {
   }, []);
 
   useEffect(() => {
-    if (!isFocused || !isPending) return undefined;
+    if (!enabled || !isFocused || !isPending) return undefined;
 
     let isActive = true;
 
@@ -57,7 +59,7 @@ const useNotificationDeniedToast = () => {
     return () => {
       isActive = false;
     };
-  }, [bottomOffset, isFocused, isPending, showToast]);
+  }, [bottomOffset, enabled, isFocused, isPending, showToast]);
 };
 
 export default useNotificationDeniedToast;

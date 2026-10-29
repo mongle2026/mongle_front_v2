@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 import FAB, { FAB_EXPAND_DURATION } from './FAB';
+import Coachmark from '../feedback/Coachmark';
 import {
   useBottomNavigationHeight,
   useBottomNavigationWindowTop,
@@ -95,6 +96,80 @@ const WriteFabOverlayContent = memo(({
 
 WriteFabOverlayContent.displayName = 'WriteFabOverlayContent';
 
+// 전역 오버레이 안에 렌더링되는 코치마크 안내.
+// 단계마다 FAB 를 닫힌(open: false) · 펼친(open: true) 채로 보여 주고, 그 FAB 의 맨 윗줄에서 gap.M 위 가운데에 코치마크를 띄운다.
+// 화면 어디를 눌러도(FAB 포함) 다음 단계로 넘어가고, 마지막 단계에서 누르면 FAB 를 닫으며 Dim 과 같이 사라진다.
+const WriteFabCoachmarkContent = memo(({
+  coachmarks,
+  expandedLabel,
+  bottomInset,
+  onCloseStart,
+  onClosed,
+}) => {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [isClosing, setIsClosing] = useState(false);
+  const closeTimerRef = useRef(null);
+
+  const step = coachmarks[stepIndex];
+  const isLastStep = stepIndex === coachmarks.length - 1;
+
+  const handlePress = useCallback(() => {
+    if (closeTimerRef.current) return;
+
+    if (!isLastStep) {
+      setStepIndex(stepIndex + 1);
+      return;
+    }
+
+    setIsClosing(true);
+    onCloseStart?.();
+    closeTimerRef.current = setTimeout(onClosed, FAB_EXPAND_DURATION);
+  }, [isLastStep, onCloseStart, onClosed, stepIndex]);
+
+  // 뒤로가기도 화면을 누른 것처럼 다음 단계로 넘긴다
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      handlePress();
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [handlePress]);
+
+  useEffect(() => () => clearTimeout(closeTimerRef.current), []);
+
+  return (
+    <>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={isLastStep ? '안내 닫기' : '다음 안내 보기'}
+        onPress={handlePress}
+        style={StyleSheet.absoluteFill}
+      />
+
+      {/* FAB 는 눌리지 않고 뒤의 Pressable 로 터치가 넘어가게 한다 */}
+      <View pointerEvents="none" style={[styles.fabBackground, { marginBottom: bottomInset }]}>
+        <View>
+          {!isClosing && (
+            <View style={styles.coachmark}>
+              <Coachmark
+                title={step.title}
+                body={step.body}
+                arrowPosition="bottom"
+                arrowAlign="center"
+              />
+            </View>
+          )}
+
+          <FAB open={!isClosing && step.open} expandedLabel={expandedLabel} />
+        </View>
+      </View>
+    </>
+  );
+});
+
+WriteFabCoachmarkContent.displayName = 'WriteFabCoachmarkContent';
+
 /**
  * 화면 하단에 떠 있는 작성 FAB (편지 작성 / 피드 작성).
  * 열리면 Dim이 BottomNavigation까지 덮도록 전역 오버레이(WindowOverlay)로 옮겨 렌더링한다.
@@ -102,8 +177,17 @@ WriteFabOverlayContent.displayName = 'WriteFabOverlayContent';
  * @param {object} navigation 작성 화면(Record)으로 이동할 navigation
  * @param {string} [expandedLabel] 열렸을 때 기본 버튼 문구 (화면마다 다르게 지정)
  * @param {(height: number) => void} [onHeightChange] 목록 하단 여백 계산용 FAB 영역 높이
+ * @param {{ title: string, body: string, open: boolean }[]} [coachmarks]
+ *   넘기면 FAB 코치마크 안내를 띄운다. open 은 그 단계에서 FAB 를 펼칠지. 마운트된 동안 한 번만 띄운다
+ * @param {() => void} [onCoachmarkEnd] 코치마크 안내가 닫혔을 때
  */
-const WriteFab = ({ navigation, expandedLabel, onHeightChange }) => {
+const WriteFab = ({
+  navigation,
+  expandedLabel,
+  onHeightChange,
+  coachmarks,
+  onCoachmarkEnd,
+}) => {
   const overlayId = `write-fab-${useId()}`;
   const bottomNavigationHeight = useBottomNavigationHeight();
   const bottomNavigationWindowTop = useBottomNavigationWindowTop();
@@ -192,6 +276,61 @@ const WriteFab = ({ navigation, expandedLabel, onHeightChange }) => {
     });
   }, [openOverlay, overlayId, renderOverlayContent]);
 
+  const onCoachmarkEndRef = useRef(onCoachmarkEnd);
+  useEffect(() => {
+    onCoachmarkEndRef.current = onCoachmarkEnd;
+  });
+
+  const hasShownCoachmarkRef = useRef(false);
+
+  // 안내를 끝까지 봤을 때뿐 아니라 다른 오버레이가 덮어쓰거나 화면이 언마운트될 때도 불린다
+  const handleCoachmarkClose = useCallback(() => {
+    setIsOpen(false);
+    onCoachmarkEndRef.current?.();
+  }, []);
+
+  const handleCoachmarkClosed = useCallback(() => {
+    closeOverlay(overlayId);
+  }, [closeOverlay, overlayId]);
+
+  // 오버레이 쪽 FAB 가 닫힌 FAB 자리에 그대로 오도록 BottomNavigation 위치가 측정된 뒤에 띄운다
+  const canShowCoachmark = Boolean(coachmarks?.length) && bottomNavigationWindowTop > 0;
+
+  useEffect(() => {
+    if (!canShowCoachmark || hasShownCoachmarkRef.current) return;
+    hasShownCoachmarkRef.current = true;
+
+    // handleOpen 과 같이 isOpen 변경과 openOverlay 를 한 커밋에 배치한다
+    setIsOpen(true);
+
+    openOverlay({
+      id: overlayId,
+      accessibilityLabel: '안내 닫기',
+      closeOnDimPress: false,
+      closeOnBackPress: false,
+      contentContainerStyle: styles.overlayContent,
+      onClose: handleCoachmarkClose,
+      renderContent: ({ hideDim }) => (
+        <WriteFabCoachmarkContent
+          coachmarks={coachmarks}
+          expandedLabel={expandedLabel}
+          bottomInset={overlayBottomInset}
+          onCloseStart={hideDim}
+          onClosed={handleCoachmarkClosed}
+        />
+      ),
+    });
+  }, [
+    canShowCoachmark,
+    coachmarks,
+    expandedLabel,
+    handleCoachmarkClose,
+    handleCoachmarkClosed,
+    openOverlay,
+    overlayBottomInset,
+    overlayId,
+  ]);
+
   if (isOpen) {
     // 오버레이로 옮겨간 동안 화면 쪽에는 배경만 남겨 목록이 비치지 않게 한다
     return (
@@ -236,6 +375,15 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: colors.bgBase,
+  },
+  // FAB(펼쳤으면 피드 작성 · 편지 작성 줄) 윗변에서 gap.M 위, 가운데
+  coachmark: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: '100%',
+    paddingBottom: gap.M,
+    alignItems: 'center',
   },
   overlayContent: {
     top: 0,
