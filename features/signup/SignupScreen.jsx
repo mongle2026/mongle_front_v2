@@ -46,6 +46,14 @@ const SignupScreen = () => {
   const { signup, isSigningUp } = useSignup({
     signupToken,
 
+    onSuccess: (data, { userCode, nickname: signedUpNickname }) => {
+      navigation.navigate('SignupComplete', {
+        nickname: signedUpNickname,
+        userCode,
+        profileImgUri: profileImgPicker.profileImg?.uri,
+      });
+    },
+
     onError: error => {
       showToast({
         message: error instanceof ProfileImgUploadError

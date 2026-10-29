@@ -42,9 +42,12 @@ import GenreScreen from './features/archive/myfeed/genre/GenreScreen';
 import GenreDetailScreen from './features/archive/myfeed/genre/detail/GenreDetailScreen';
 import AllScreen from './features/archive/myfeed/all/AllScreen';
 import CatalogScreen from './features/catalog/CatalogScreen';
+import OnboardingScreen from './features/onboarding/OnboardingScreen';
+import { useOnboardingStore } from './features/onboarding/useOnboardingStore';
 import WelcomeScreen from './features/auth/WelcomeScreen';
 import TermsScreen from './features/signup/terms/TermsScreen';
 import SignupScreen from './features/signup/SignupScreen';
+import SignupCompleteScreen from './features/signup/complete/SignupCompleteScreen';
 import PushNotificationHandler from './features/notification/push/PushNotificationHandler';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
@@ -164,11 +167,14 @@ const StampDetailRoute = props => (
  * MainTabs · FeedDetail · Notification · Setting 은 로그인하지 않아도 볼 수 있다
  * (피드 추천 · 상세만 내용이 보이고 나머지 탭과 알림은 로그인 엠티뷰, 설정은 약관 및 정책부터).
  * 나머지는 로그인 여부에 따라 묶음을 바꾼다. 로그인하지 않았을 때 Welcome 은 로그인 버튼 · Dialog 로 위에 띄운다.
- * 로그인 · 가입하면 Welcome · 약관 · 가입 화면이 빠지면서 보던 화면(MainTabs / FeedDetail)으로 돌아오고,
+ * 로그인 · 가입하면 Welcome · 약관 · 가입 화면이 빠지면서 보던 화면(MainTabs / FeedDetail)으로 돌아오고
+ * (가입은 가입 완료 화면을 먼저 띄우고, 시작하기로 닫으면 돌아온다),
  * refresh 가 실패해 로그아웃되면 로그인 전용 화면이 빠지면서 남은 화면을 로그인 전 상태로 보여준다
  */
-const RootNavigator = ({ isSignedIn }) => (
+const RootNavigator = ({ isSignedIn, showOnboarding }) => (
   <Stack.Navigator
+    // 앱을 처음 켰을 때만 온보딩부터 보여준다. 온보딩을 마치면 MainTabs로 돌아온다
+    initialRouteName={showOnboarding ? 'Onboarding' : 'MainTabs'}
     screenOptions={{
       headerShown: false,
     }}
@@ -193,6 +199,15 @@ const RootNavigator = ({ isSignedIn }) => (
       component={SettingScreen}
       options={{
         animation: 'ios_from_right',
+      }}
+    />
+    {/* 가입 완료. 가입 화면에서 띄운 뒤 로그인되어도 남아 있도록 로그인 여부와 상관없이 둔다 */}
+    <Stack.Screen
+      name="SignupComplete"
+      component={SignupCompleteScreen}
+      options={{
+        // 시작하기로만 나간다 (뒤에 있던 가입 화면은 로그인되면서 빠진다)
+        gestureEnabled: false,
       }}
     />
     {isSignedIn ? (
@@ -318,6 +333,10 @@ const RootNavigator = ({ isSignedIn }) => (
     ) : (
       <Stack.Group>
         <Stack.Screen
+          name="Onboarding"
+          component={OnboardingScreen}
+        />
+        <Stack.Screen
           name="Welcome"
           component={WelcomeScreen}
         />
@@ -342,9 +361,21 @@ export default function App() {
   const restoreSession = useAuthStore(state => state.restoreSession);
   const isAuthRestored = authStatus !== AUTH_STATUS.RESTORING;
 
+  const isOnboardingRestored = useOnboardingStore(state => state.isRestored);
+  const isOnboardingCompleted = useOnboardingStore(state => state.isCompleted);
+  const restoreOnboarding = useOnboardingStore(state => state.restore);
+
+  // 첫 화면(온보딩 / 피드 홈)을 정하려면 로그인 정보와 온보딩 완료 여부를 둘 다 읽어야 한다
+  const isStartupRestored = isAuthRestored && isOnboardingRestored;
+  const isSignedIn = authStatus === AUTH_STATUS.SIGNED_IN;
+
   useEffect(() => {
     void restoreSession();
   }, [restoreSession]);
+
+  useEffect(() => {
+    void restoreOnboarding();
+  }, [restoreOnboarding]);
 
   // 로그아웃하면 이전 계정으로 받아 둔 데이터를 지운다.
   // 피드는 로그인하지 않아도 떠 있으므로, 지금 화면이 쓰는(로그인 전 상태로 새로 받는) 조회는 남긴다
@@ -375,13 +406,13 @@ export default function App() {
       console.warn('폰트를 불러오지 못했습니다.', error);
     }
 
-    // 저장된 로그인 정보를 읽을 때까지 스플래시를 유지해서 로그인 전 화면이 잠깐 보이지 않게 한다
-    if ((loaded || error) && isAuthRestored) {
+    // 저장된 로그인 정보 · 온보딩 완료 여부를 읽을 때까지 스플래시를 유지해서 엉뚱한 첫 화면이 잠깐 보이지 않게 한다
+    if ((loaded || error) && isStartupRestored) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, error, isAuthRestored]);
+  }, [loaded, error, isStartupRestored]);
 
-  if ((!loaded && !error) || !isAuthRestored) {
+  if ((!loaded && !error) || !isStartupRestored) {
     return null;
   }
 
@@ -400,7 +431,10 @@ export default function App() {
                 linking={linking}
                 onReady={() => setIsNavigationReady(true)}
               >
-                <RootNavigator isSignedIn={authStatus === AUTH_STATUS.SIGNED_IN} />
+                <RootNavigator
+                  isSignedIn={isSignedIn}
+                  showOnboarding={!isSignedIn && !isOnboardingCompleted}
+                />
               </NavigationContainer>
               <PushNotificationHandler
                 navigationRef={navigationRef}
