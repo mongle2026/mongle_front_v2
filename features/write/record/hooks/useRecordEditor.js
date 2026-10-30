@@ -86,17 +86,19 @@ export default function useRecordEditor({
     handleShowActionsMode,
   } = useBottomBarPanel();
 
-  /* 본문이 길어질 때 커서를 따라 스크롤 */
+  /* 본문을 쓰는 동안 커서를 따라 스크롤 */
   const {
     scrollViewRef,
     textInputRef,
+    caretMirrorRef,
     textInputHeight,
     handleScroll,
     handleScrollViewLayout,
     handleTextContentSizeChange,
+    scrollToCaret,
   } = useAutoScrollTextInput({
     bottomBarHeight,
-    bottomOffset: bottomBarBottom,
+    bottomBarBottom,
     lineHeight: bodyTypography.lineHeight,
   });
 
@@ -163,10 +165,12 @@ export default function useRecordEditor({
 
     scrollViewRef,
     textInputRef,
+    caretMirrorRef,
     textInputHeight,
     handleScroll,
     handleScrollViewLayout,
     handleTextContentSizeChange,
+    scrollToCaret,
     handleFocusText,
   };
 }

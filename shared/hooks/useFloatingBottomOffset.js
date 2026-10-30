@@ -9,19 +9,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 /**
  * 지금 키보드가 화면을 얼마나 덮고 있는지(px).
  * 키보드가 내려가 있으면 0.
- *
- * @param {object} [options]
- * @param {boolean} [options.animateLayout=true]
- *   iOS 에서 이 값으로 바뀌는 레이아웃을 키보드 애니메이션에 맞춰 움직일지.
- *   바를 직접 키보드에 붙여 움직이는 화면(useAnimatedKeyboard 사용)은 false 로 둔다
+ * iOS 에서는 이 값으로 바뀌는 레이아웃을 키보드 애니메이션에 맞춰 움직인다.
  */
-export function useKeyboardHeight({ animateLayout = true } = {}) {
+export function useKeyboardHeight() {
   const [keyboardBottom, setKeyboardBottom] =
     useState(0);
 
   useEffect(() => {
     const handleShow = event => {
-      if (Platform.OS === 'ios' && animateLayout) {
+      if (Platform.OS === 'ios') {
         Keyboard.scheduleLayoutAnimation?.(event);
       }
 
@@ -42,7 +38,7 @@ export function useKeyboardHeight({ animateLayout = true } = {}) {
     };
 
     const handleHide = event => {
-      if (Platform.OS === 'ios' && animateLayout && event) {
+      if (Platform.OS === 'ios' && event) {
         Keyboard.scheduleLayoutAnimation?.(event);
       }
 
@@ -73,7 +69,7 @@ export function useKeyboardHeight({ animateLayout = true } = {}) {
       showSub.remove();
       hideSub.remove();
     };
-  }, [animateLayout]);
+  }, []);
 
   return keyboardBottom;
 }
