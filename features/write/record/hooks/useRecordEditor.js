@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Keyboard } from 'react-native';
 
-import { useFloatingBarPlacement } from '../../../../shared/hooks/useFloatingBottomOffset';
+import useKeyboardAttachedBar from '../../../../shared/hooks/useKeyboardAttachedBar';
 import { useRecordFormStore } from '../../store/useRecordFormStore';
 
 import useRecordMusicPlayback from './useRecordMusicPlayback';
@@ -26,13 +26,29 @@ export default function useRecordEditor({
   const hasText = useRecordFormStore(state => state.text.trim().length > 0);
   const music = useRecordFormStore(state => state.music);
 
+  /*
+   * BottomBar 위치 (키보드에 붙어 움직인다).
+   * bottomBarBottom  : 키보드가 다 올라왔을 때 바를 화면 아래에서 띄우는 값 (스크롤 여백 · 위치 계산용)
+   * bottomBarPadding : 바 안쪽 SafeArea 여백(홈 인디케이터)
+   * bottomOffset     : Toast 처럼 바 없이 떠야 하는 요소용 총 여백
+   */
+  const {
+    keyboardHeight,
+    isKeyboardVisible,
+    barBottom: bottomBarBottom,
+    barPadding: bottomBarPadding,
+    barAnimatedStyle: bottomBarAnimatedStyle,
+  } = useKeyboardAttachedBar();
+
+  const bottomOffset = bottomBarBottom + bottomBarPadding;
+
   /* 이미지 선택, 삭제 및 되돌리기 */
   const {
     imageFiles,
     isImageLimitReached,
     handlePressImage,
     handleRemoveImage,
-  } = useRecordImageManager();
+  } = useRecordImageManager({ bottomOffset });
 
   /* 폰트 정규화 및 타이포 선택 */
   const {
@@ -52,18 +68,6 @@ export default function useRecordEditor({
 
   const hasMusic = Boolean(music);
   const hasContent = hasText || imageFiles.length > 0;
-
-  /*
-   * BottomBar 위치.
-   * bottomBarBottom  : 바를 화면 아래에서 띄우는 값(키보드 높이)
-   * bottomBarPadding : 바 안쪽 SafeArea 여백(홈 인디케이터)
-   * bottomOffset     : Toast 처럼 바 없이 떠야 하는 요소용 총 여백
-   */
-  const {
-    bottom: bottomBarBottom,
-    paddingBottom: bottomBarPadding,
-    total: bottomOffset,
-  } = useFloatingBarPlacement();
 
   /* 키보드 강제로 내리기 */
   const handlePressHideKeyboard = useCallback(() => {
@@ -143,8 +147,11 @@ export default function useRecordEditor({
     handleOpenMusicSelect,
 
     bottomOffset,
+    keyboardHeight,
+    isKeyboardVisible,
     bottomBarBottom,
     bottomBarPadding,
+    bottomBarAnimatedStyle,
     handlePressHideKeyboard,
     handleChangeText,
 

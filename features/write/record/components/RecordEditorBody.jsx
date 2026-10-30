@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, {
   Easing,
@@ -38,23 +38,45 @@ const RecordTextInput = memo(({
   const text = useRecordFormStore(state => state.text);
 
   /*
-   * iOS 에서 폰트가 바뀌지 않는 문제 때문에 폰트가 바뀌면 TextInput 을 새로 만든다(key={font}).
-   * 그대로 두면 포커스가 풀려 키보드가 내려가고 하단 바가 툭 떨어지므로,
-   * 입력 중이었다면 새 입력창에 포커스와 커서 위치를 이어 주고 글자는 살짝 페이드인한다.
+   * iOS 에서 폰트가 바뀌지 않는 문제 때문에 폰트가 바뀌면 TextInput 을 새로 만든다(key={renderedFont}).
+   * 입력 중에 그대로 바꾸면 이전 입력창이 사라지는 순간 포커스가 비어 키보드가 내려갔다 올라오므로,
+   * 바꾸기 전에 숨은 입력창(keyboardKeeper)에 포커스를 잠깐 맡겨 키보드를 붙잡아 두고,
+   * 새 입력창이 생기면 포커스와 커서 위치를 이어 준다. 글자는 살짝 페이드인한다.
    */
   const isFocusedRef = useRef(false);
   const selectionRef = useRef(null);
-  const prevFontRef = useRef(font);
+  const keyboardKeeperRef = useRef(null);
+  const shouldRestoreFocusRef = useRef(false);
+  const [renderedFont, setRenderedFont] = useState(font);
+  const prevRenderedFontRef = useRef(renderedFont);
   const fontFade = useSharedValue(1);
 
   useEffect(() => {
-    if (prevFontRef.current === font) return;
-    prevFontRef.current = font;
+    if (renderedFont === font) return;
+
+    if (!isFocusedRef.current) {
+      setRenderedFont(font);
+      return;
+    }
+
+    // 숨은 입력창이 포커스를 받은 뒤(onFocus)에 입력창을 바꾼다
+    shouldRestoreFocusRef.current = true;
+    keyboardKeeperRef.current?.focus();
+  }, [font, renderedFont]);
+
+  const handleKeyboardKeeperFocus = useCallback(() => {
+    setRenderedFont(font);
+  }, [font]);
+
+  useEffect(() => {
+    if (prevRenderedFontRef.current === renderedFont) return;
+    prevRenderedFontRef.current = renderedFont;
 
     fontFade.value = 0.2;
     fontFade.value = withTiming(1, { duration: 220, easing: Easing.out(Easing.quad) });
 
-    if (!isFocusedRef.current) return;
+    if (!shouldRestoreFocusRef.current) return;
+    shouldRestoreFocusRef.current = false;
 
     const input = inputRef?.current;
     input?.focus();
@@ -63,7 +85,7 @@ const RecordTextInput = memo(({
     if (selection && typeof input?.setSelection === 'function') {
       input.setSelection(selection.start, selection.end);
     }
-  }, [font, inputRef, fontFade]);
+  }, [renderedFont, inputRef, fontFade]);
 
   const fontFadeStyle = useAnimatedStyle(() => ({
     opacity: fontFade.value,
@@ -72,14 +94,25 @@ const RecordTextInput = memo(({
   return (
     <Animated.View style={[styles.textInputFade, fontFadeStyle]}>
       <TextInput
-        key={font}
+        ref={keyboardKeeperRef}
+        onFocus={handleKeyboardKeeperFocus}
+        caretHidden
+        pointerEvents="none"
+        accessible={false}
+        importantForAccessibility="no"
+        accessibilityElementsHidden
+        style={styles.keyboardKeeper}
+      />
+
+      <TextInput
+        key={renderedFont}
         ref={inputRef}
         value={text}
         onFocus={() => {
           isFocusedRef.current = true;
         }}
         onBlur={() => {
-          // 폰트 변경으로 이전 입력창이 사라지며 오는 blur 는 무시한다 (새 입력창이 포커스를 이어받음)
+          // 폰트 변경으로 숨은 입력창에 포커스를 맡길 때도 blur 가 오지만, 새 입력창이 다시 이어받는다
           isFocusedRef.current = Boolean(inputRef?.current?.isFocused?.());
         }}
         onSelectionChange={event => {
@@ -128,8 +161,11 @@ const RecordEditorBody = ({
     isMusicPlaying,
     handlePlayback,
     handleOpenMusicSelect,
+    keyboardHeight,
+    isKeyboardVisible,
     bottomBarBottom,
     bottomBarPadding,
+    bottomBarAnimatedStyle,
     handlePressHideKeyboard,
     handleChangeText,
     bottomBarHeight,
@@ -220,13 +256,11 @@ const RecordEditorBody = ({
         </View>
       </ScrollView>
 
-      <View
+      <Animated.View
         style={[
           styles.bottomBarContainer,
-          {
-            bottom: bottomBarBottom,
-            paddingBottom: bottomBarPadding,
-          },
+          { paddingBottom: bottomBarPadding },
+          bottomBarAnimatedStyle,
         ]}
         onLayout={handleBottomBarLayout}
       >
@@ -234,7 +268,7 @@ const RecordEditorBody = ({
           mode={bottomBarMode}
           selectedFont={normalizedFont}
           imageDisabled={isImageLimitReached}
-          keyboardVisible={bottomBarBottom > 0}
+          keyboardVisible={isKeyboardVisible}
           onPressImage={handlePressImage}
           onPressFont={handleShowFontMode}
           onPressHideKeyboard={handlePressHideKeyboard}
@@ -243,8 +277,8 @@ const RecordEditorBody = ({
         />
 
         {/* iOS 키보드 둥근 모서리 틈으로 뒤 화면이 비치지 않게 바 배경을 키보드 뒤까지 늘린다 */}
-        <KeyboardGapFill height={bottomBarBottom} />
-      </View>
+        <KeyboardGapFill height={keyboardHeight} />
+      </Animated.View>
     </>
   );
 };
@@ -293,6 +327,12 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'stretch',
   },
+  keyboardKeeper: {
+    position: 'absolute',
+    width: 1,
+    height: 1,
+    opacity: 0,
+  },
   textInput: {
     width: '100%',
     alignSelf: 'stretch',
@@ -304,6 +344,7 @@ const styles = StyleSheet.create({
   },
   bottomBarContainer: {
     position: 'absolute',
+    bottom: 0,
     left: 0,
     right: 0,
     zIndex: 10,
