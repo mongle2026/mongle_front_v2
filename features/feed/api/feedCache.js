@@ -4,6 +4,7 @@ import {
   refreshBookmarkFollowingFeeds,
   revertBookmarkFollowState,
 } from '../../archive/api/bookmarkCache';
+import { profileKeys } from '../../profile/api/profileKeys';
 import {
   findInfiniteItem,
   isLoadedQuery,
@@ -99,6 +100,12 @@ function writeFollowState(queryClient, { userId, targetUserId, nextFollowing }) 
     { queryKey: feedDetailKeys.user(userId) },
     feed => withAuthorFollowing(feed, targetUserId, nextFollowing),
   );
+
+  // 다른 사람 프로필의 팔로우 상태도 같이 바꿔서, 피드에서 팔로우한 뒤 프로필에 가도 맞게 보이게 한다
+  queryClient.setQueryData(
+    profileKeys.followStatus(userId, targetUserId),
+    status => (status ? { ...status, isFollowing: nextFollowing } : status),
+  );
 }
 
 // 서버 응답 전에 팔로우 상태를 화면에 반영한다
@@ -107,6 +114,7 @@ export async function applyFollowState(queryClient, { userId, targetUserId, next
     queryClient.cancelQueries({ queryKey: feedHomeKeys.user(userId), predicate: isLoadedQuery }),
     queryClient.cancelQueries({ queryKey: feedDetailKeys.user(userId), predicate: isLoadedQuery }),
     cancelLoadedBookmarkQueries(queryClient, userId),
+    queryClient.cancelQueries({ queryKey: profileKeys.followStatus(userId, targetUserId) }),
   ]);
 
   writeFollowState(queryClient, { userId, targetUserId, nextFollowing });
@@ -121,6 +129,11 @@ export function refreshFollowingFeeds(queryClient, { userId }) {
   });
 
   refreshBookmarkFollowingFeeds(queryClient, { userId });
+}
+
+// 팔로우 여부에 따라 보이는 글(팔로워 공개)이 달라지므로 그 사람 프로필의 커버 그리드를 다시 받게 한다
+export function refreshUserCovers(queryClient, { userId, targetUserId }) {
+  queryClient.invalidateQueries({ queryKey: profileKeys.userCovers(userId, targetUserId) });
 }
 
 // 팔로우 요청이 실패하면 되돌린다. 언팔로우로 뺀 글은 캐시에 남아 있지 않으니 다시 받는다
