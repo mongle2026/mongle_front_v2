@@ -49,6 +49,7 @@ import TermsScreen from './features/signup/terms/TermsScreen';
 import SignupScreen from './features/signup/SignupScreen';
 import SignupCompleteScreen from './features/signup/complete/SignupCompleteScreen';
 import PushNotificationHandler from './features/notification/push/PushNotificationHandler';
+import AppSplash from './features/splash/AppSplash';
 import DialogProvider from './shared/providers/DialogProvider';
 import GlobalOverlayProvider from './shared/providers/GlobalOverlayProvider';
 import BottomNavigation from './shared/components/navigation/bottomnavigation/BottomNavigation';
@@ -56,6 +57,9 @@ import { MAIN_TAB_ROUTES } from './shared/components/navigation/bottomnavigation
 import { AUTH_STATUS, useAuthStore } from './shared/auth/useAuthStore';
 
 SplashScreen.preventAutoHideAsync();
+
+// 시작 준비가 빨리 끝나도 스플래시(AppSplash)를 이 시간만큼은 보여 준다
+const SPLASH_MIN_DURATION_MS = 1000;
 
 // 푸시 알림을 눌렀을 때처럼 화면 밖에서 이동해야 할 때 쓴다
 const navigationRef = createNavigationContainerRef();
@@ -356,6 +360,10 @@ const RootNavigator = ({ isSignedIn, showOnboarding }) => (
 export default function App() {
   const [loaded, error] = useFonts(fontMap);
   const [isNavigationReady, setIsNavigationReady] = useState(false);
+  const [isSplashMinElapsed, setIsSplashMinElapsed] = useState(false);
+
+  // 폰트 로딩에 실패해도 앱은 띄운다(시스템 폰트로 대체됨)
+  const isFontReady = loaded || !!error;
 
   const authStatus = useAuthStore(state => state.status);
   const restoreSession = useAuthStore(state => state.restoreSession);
@@ -402,18 +410,34 @@ export default function App() {
 
   useEffect(() => {
     if (error) {
-      // 로딩에 실패해도 앱은 띄우되(시스템 폰트로 대체됨) 원인은 남긴다.
       console.warn('폰트를 불러오지 못했습니다.', error);
     }
+  }, [error]);
 
-    // 저장된 로그인 정보 · 온보딩 완료 여부를 읽을 때까지 스플래시를 유지해서 엉뚱한 첫 화면이 잠깐 보이지 않게 한다
-    if ((loaded || error) && isStartupRestored) {
-      SplashScreen.hideAsync();
+  // 폰트가 준비되면 네이티브 스플래시를 내리고 같은 배경의 AppSplash로 넘긴다
+  useEffect(() => {
+    if (!isFontReady) {
+      return undefined;
     }
-  }, [loaded, error, isStartupRestored]);
 
-  if ((!loaded && !error) || !isStartupRestored) {
+    SplashScreen.hideAsync();
+
+    const timer = setTimeout(() => setIsSplashMinElapsed(true), SPLASH_MIN_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [isFontReady]);
+
+  if (!isFontReady) {
     return null;
+  }
+
+  // 저장된 로그인 정보 · 온보딩 완료 여부를 읽을 때까지 스플래시를 유지해서 엉뚱한 첫 화면이 잠깐 보이지 않게 한다
+  if (!isStartupRestored || !isSplashMinElapsed) {
+    return (
+      <>
+        <AppSplash />
+        <StatusBar style="dark" />
+      </>
+    );
   }
 
   return (
