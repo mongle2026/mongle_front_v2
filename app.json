@@ -31,7 +31,19 @@
       ],
       "expo-status-bar",
       "expo-notifications",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/SUITX/SUITX-Regular.ttf",
+            "./assets/fonts/SUITX/SUITX-SemiBold.ttf",
+            "./assets/fonts/SUITX/SUITX-Bold.ttf",
+            "./assets/fonts/Kyobo/KyoboHandwriting2025lyb.ttf",
+            "./assets/fonts/KiwiMaru/KiwiMaru-Light.ttf"
+          ]
+        }
+      ]
     ],
     "extra": {
       "eas": {

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Easing } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { setAudioModeAsync } from 'expo-audio';
 import {
@@ -16,7 +15,6 @@ import {
 } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView, } from 'react-native-gesture-handler';
-import { fontMap } from './shared/styles/fonts';
 import { colors } from './shared/styles/color';
 import FeedHomeScreen from './features/feed/home/FeedHomeScreen';
 import FeedDetailScreen from './features/feed/detail/FeedDetailScreen';
@@ -358,12 +356,8 @@ const RootNavigator = ({ isSignedIn, showOnboarding }) => (
 );
 
 export default function App() {
-  const [loaded, error] = useFonts(fontMap);
   const [isNavigationReady, setIsNavigationReady] = useState(false);
   const [isSplashMinElapsed, setIsSplashMinElapsed] = useState(false);
-
-  // 폰트 로딩에 실패해도 앱은 띄운다(시스템 폰트로 대체됨)
-  const isFontReady = loaded || !!error;
 
   const authStatus = useAuthStore(state => state.status);
   const restoreSession = useAuthStore(state => state.restoreSession);
@@ -408,27 +402,14 @@ export default function App() {
     void configureAudio();
   }, []);
 
+  // 폰트는 빌드할 때 앱에 넣어서(app.json expo-font) 따로 불러올 필요가 없다.
+  // AppSplash가 그려지면 바로 네이티브 스플래시를 내리고 같은 배경의 AppSplash로 넘긴다
   useEffect(() => {
-    if (error) {
-      console.warn('폰트를 불러오지 못했습니다.', error);
-    }
-  }, [error]);
-
-  // 폰트가 준비되면 네이티브 스플래시를 내리고 같은 배경의 AppSplash로 넘긴다
-  useEffect(() => {
-    if (!isFontReady) {
-      return undefined;
-    }
-
     SplashScreen.hideAsync();
 
     const timer = setTimeout(() => setIsSplashMinElapsed(true), SPLASH_MIN_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [isFontReady]);
-
-  if (!isFontReady) {
-    return null;
-  }
+  }, []);
 
   // 저장된 로그인 정보 · 온보딩 완료 여부를 읽을 때까지 스플래시를 유지해서 엉뚱한 첫 화면이 잠깐 보이지 않게 한다
   if (!isStartupRestored || !isSplashMinElapsed) {

@@ -1,14 +1,17 @@
 # Fonts
 
-`shared/styles/fonts.js`의 `fontMap`이 아래 파일들을 참조합니다. 패밀리별 하위 폴더에 배치합니다.
+`app.json`의 `expo-font` 플러그인이 아래 파일들을 빌드할 때 앱에 넣습니다. 패밀리별 하위 폴더에 배치합니다.
+
+앱에 넣은 폰트는 안드로이드는 **파일 이름(확장자 제외)**, iOS는 **폰트 안의 이름(PostScript)**으로 찾습니다.
+그래서 `typo.js`의 fontFamily = 파일 이름 = 폰트 안의 이름이 모두 같아야 합니다.
 
 | 경로 | 용도 (typo.js fontFamily) |
 | --- | --- |
 | `SUITX/SUITX-Regular.ttf`  | `SUITX-Regular` (400) |
 | `SUITX/SUITX-SemiBold.ttf` | `SUITX-SemiBold` (600) |
 | `SUITX/SUITX-Bold.ttf`     | `SUITX-Bold` (700) |
-| `Kyobo/KyoboHandwriting2025lyb.ttf` | `KyoboHandwriting2025` |
-| `KiwiMaru/KiwiMaru-Light.subset.ttf` | `KiwiMaru-Light` (Kyobo 한자 대체용) |
+| `Kyobo/KyoboHandwriting2025lyb.ttf` | `KyoboHandwriting2025lyb` |
+| `KiwiMaru/KiwiMaru-Light.ttf` | `KiwiMaru-Light` (Kyobo 한자 대체용, 서브셋) |
 
 - SUITX: SUIT 2.040(https://sunn.us/suit/)에서 윤곽선이 비어 있던 한글 8,504자를
   Source Han Sans KR(https://github.com/adobe-fonts/source-han-sans)로 채운 폰트입니다. 두 원본 모두 SIL OFL이므로 SUITX도 OFL입니다.
@@ -26,6 +29,8 @@
     한국 표준 한자(KS X 1001, 4,620자) 중 2,931자만 포함되어 있습니다.
   - `FontFallbackText`로 감싼 Text에서만 대체됩니다. `TextInput`(글쓰기 에디터 등)에서는 한자가 시스템 폰트로 보입니다.
   - 다시 만드는 방법: `KiwiMaru/subset_han_fallback.py` (fontTools 필요)
-    `python subset_han_fallback.py <KiwiMaru-Light.ttf 원본> KiwiMaru-Light.subset.ttf`
+    `python subset_han_fallback.py <KiwiMaru-Light.ttf 원본> KiwiMaru-Light.ttf`
+  - 파일 이름은 폰트 안의 이름(`KiwiMaru-Light`)과 같아야 해서 서브셋이어도 `.subset`을 붙이지 않습니다.
 
-파일 경로/이름이 바뀌면 `shared/styles/fonts.js`의 `require` 경로도 함께 수정하세요.
+파일을 추가하거나 경로/이름이 바뀌면 `app.json`의 `expo-font` 경로도 함께 수정하고, 네이티브 빌드를 새로 해야 반영됩니다.
+(로컬 안드로이드 빌드는 `npx expo prebuild --clean` 후 빌드, EAS 빌드는 자동으로 다시 만듭니다)
