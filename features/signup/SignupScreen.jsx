@@ -32,7 +32,12 @@ const SignupScreen = () => {
   const navigation = useNavigation();
 
   // 카카오/애플 로그인에서 받아 약관 화면을 거쳐 넘어온 값
-  const { signupToken, suggestedNickname, isMarketingAgreed } = useRoute().params ?? {};
+  const {
+    signupToken,
+    suggestedNickname,
+    isMarketingAgreed,
+    isFromOnboarding,
+  } = useRoute().params ?? {};
 
   // 소셜 계정의 닉네임은 닉네임 규칙에 맞을 때만 처음 값으로 채운다
   const form = useProfileForm({
@@ -55,6 +60,7 @@ const SignupScreen = () => {
         nickname: signedUpNickname,
         userCode,
         profileImgUri: profileImgPicker.profileImg?.uri,
+        isFromOnboarding,
       });
     },
 
@@ -98,7 +104,7 @@ const SignupScreen = () => {
               size={BUTTON_SIZE.XL}
               font={FONT.SUIT}
               style={styles.submitButton}
-              disabled={isSigningUp}
+              loading={isSigningUp}
               onPress={handlePressSubmit}
             >
               가입하기
