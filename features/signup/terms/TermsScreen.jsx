@@ -1,77 +1,133 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import * as WebBrowser from 'expo-web-browser';
 
-import IcArrowLeft from '../../../assets/icons/ic_arrow_left.svg';
-import IcFilledCheck from '../../../assets/icons/ic_filledcheck.svg';
+import IcX from '../../../assets/icons/ic_x.svg';
+import IcArrowUpRight from '../../../assets/icons/ic_arrow_up_right.svg';
 
 import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
+import IconButton from '../../../shared/components/action/IconButton';
 import {
   Button,
   BUTTON_SIZE,
   BUTTON_VARIANT,
 } from '../../../shared/components/action/Button';
+import CheckContainer from '../../setting/components/CheckContainer';
 
 import { colors } from '../../../shared/styles/color';
 import { typo } from '../../../shared/styles/typo';
 import { FONT } from '../../../shared/styles/fontType';
 import { gap, padding } from '../../../shared/styles/token';
 
-const CHECK_ICON_SIZE = 24;
+const HEADER_TEXT = '약관 동의';
+const WELCOME_TEXT = '당신의 추억이 음악을 남는 곳,\n몽글에 오신 걸 환영합니다!';
 
-// TODO: 약관 내용이 정해지면 항목별 동의 · 전문 보기를 붙인다. 지금은 전체 동의 체크 하나만 둔다
+// url이 있는 항목만 오른쪽에 전문 보기 버튼을 둔다
+const TERMS = [
+  {
+    key: 'service',
+    label: '(필수) 이용 약관 동의',
+    required: true,
+    url: 'https://mongle-music-letter.notion.site/4058a27574f080d49a63e15237a48fb3',
+  },
+  {
+    key: 'privacy',
+    label: '(필수) 개인정보 수집 및 이용 동의',
+    required: true,
+    url: 'https://mongle-music-letter.notion.site/4058a27574f0800e9b0fd1a49021ad73',
+  },
+  {
+    key: 'marketing',
+    label: '(선택) 광고성 정보 수신',
+    required: false,
+  },
+];
+
+const INITIAL_AGREEMENTS = Object.fromEntries(TERMS.map(({ key }) => [key, false]));
+
 const TermsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const [isAgreed, setIsAgreed] = useState(false);
+  const [agreements, setAgreements] = useState(INITIAL_AGREEMENTS);
 
-  const handlePressAgree = () => {
-    setIsAgreed(prev => !prev);
+  const isAllAgreed = TERMS.every(({ key }) => agreements[key]);
+  const isRequiredAgreed = TERMS.every(({ key, required }) => !required || agreements[key]);
+
+  const handlePressTerm = key => {
+    setAgreements(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // 전체 동의를 누르면 모든 항목을 같은 값으로 맞춘다
+  const handlePressAll = () => {
+    const next = !isAllAgreed;
+    setAgreements(Object.fromEntries(TERMS.map(({ key }) => [key, next])));
   };
 
   const handlePressSubmit = () => {
-    // 로그인에서 받은 signupToken · suggestedNickname 을 그대로 넘긴다
-    navigation.navigate('Signup', route.params);
+    // 로그인에서 받은 signupToken · suggestedNickname 에 광고성 정보 수신 동의 여부를 더해 넘긴다
+    navigation.navigate('Signup', {
+      ...route.params,
+      isMarketingAgreed: agreements.marketing,
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <TopSubNavigation
-        leftIcon={IcArrowLeft}
-        leftAccessibilityLabel="뒤로가기"
+        type="text"
+        headerText={HEADER_TEXT}
+        leftIcon={IcX}
         onPressClose={navigation.goBack}
-        showShare={false}
-        showMore={false}
+        showNext={false}
       />
 
-      <View style={styles.content} />
+      <View style={styles.welcome}>
+        <Text style={styles.welcomeText}>{WELCOME_TEXT}</Text>
+      </View>
 
-      <View style={styles.footer}>
-        <Pressable
-          accessibilityRole="checkbox"
-          accessibilityState={{ checked: isAgreed }}
-          onPress={handlePressAgree}
-          style={styles.agree}
-        >
-          <IcFilledCheck
-            width={CHECK_ICON_SIZE}
-            height={CHECK_ICON_SIZE}
-            color={isAgreed ? colors.fgNeutralPrimary : colors.fgDisabled}
-          />
-          <Text style={styles.agreeLabel}>약관 동의하기</Text>
-        </Pressable>
+      <View style={styles.agreements}>
+        <View style={styles.termList}>
+          {TERMS.map(({ key, label, url }) => (
+            <View key={key} style={styles.termRow}>
+              <CheckContainer
+                text={label}
+                selected={agreements[key]}
+                onPress={() => handlePressTerm(key)}
+                style={styles.termCheck}
+              />
 
-        <Button
-          variant={isAgreed ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.DISABLED}
-          size={BUTTON_SIZE.XL}
-          font={FONT.SUIT}
-          style={styles.submitButton}
-          onPress={handlePressSubmit}
-        >
-          가입하기
-        </Button>
+              {url && (
+                <IconButton
+                  icon={IcArrowUpRight}
+                  size="M"
+                  color={colors.fgNeutralTertiary}
+                  onPress={() => WebBrowser.openBrowserAsync(url)}
+                  accessibilityLabel={`${label} 전문 보기`}
+                />
+              )}
+            </View>
+          ))}
+        </View>
+
+        <CheckContainer
+          text="전체 동의"
+          selected={isAllAgreed}
+          onPress={handlePressAll}
+        />
+
+        <View style={styles.footer}>
+          <Button
+            variant={isRequiredAgreed ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.DISABLED}
+            size={BUTTON_SIZE.XL}
+            font={FONT.SUIT}
+            style={styles.submitButton}
+            onPress={handlePressSubmit}
+          >
+            다음으로
+          </Button>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -80,11 +136,53 @@ const TermsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: gap.L,
     backgroundColor: colors.bgSurface,
   },
 
-  // 약관 내용이 들어올 자리. 남은 높이를 채워서 footer를 맨 아래로 민다
-  content: {
+  welcome: {
+    paddingVertical: padding.XL,
+    paddingHorizontal: padding.L,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: gap.M,
+    alignSelf: 'stretch',
+  },
+
+  welcomeText: {
+    ...typo.suitTitleMediumStrong,
+    alignSelf: 'stretch',
+    color: colors.fgNeutralPrimary,
+  },
+
+  // 약관 목록 · 전체 동의 · 버튼을 묶어 화면 하단으로 민다
+  // 안쪽 행이 width 100%라서 부모도 가로를 채워야 한다
+  agreements: {
+    marginTop: 'auto',
+    alignSelf: 'stretch',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: gap.M,
+  },
+
+  termList: {
+    alignSelf: 'stretch',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+
+  termRow: {
+    width: '100%',
+    paddingRight: padding.M,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  // CheckContainer는 기본이 width 100%라서 IconButton 자리를 남기도록 늘어나게만 둔다
+  termCheck: {
     flex: 1,
   },
 
@@ -94,17 +192,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: gap.M,
-  },
-
-  agree: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: gap.M,
-  },
-
-  agreeLabel: {
-    ...typo.suitLabelXLarge,
-    color: colors.fgNeutralPrimary,
   },
 
   // Button은 기본이 alignSelf: 'flex-start'라서 가로로 꽉 채운다

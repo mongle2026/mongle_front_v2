@@ -31,7 +31,7 @@ const SignupScreen = () => {
   const navigation = useNavigation();
 
   // 카카오/애플 로그인에서 받아 약관 화면을 거쳐 넘어온 값
-  const { signupToken, suggestedNickname } = useRoute().params ?? {};
+  const { signupToken, suggestedNickname, isMarketingAgreed } = useRoute().params ?? {};
 
   // 소셜 계정의 닉네임은 닉네임 규칙에 맞을 때만 처음 값으로 채운다
   const form = useProfileForm({
@@ -45,6 +45,7 @@ const SignupScreen = () => {
 
   const { signup, isSigningUp } = useSignup({
     signupToken,
+    isMarketingAgreed,
 
     onSuccess: (data, { userCode, nickname: signedUpNickname }) => {
       navigation.navigate('SignupComplete', {
