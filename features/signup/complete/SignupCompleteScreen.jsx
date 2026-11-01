@@ -1,6 +1,9 @@
 import { useCallback, useEffect } from 'react';
 import { BackHandler, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import {
@@ -8,6 +11,7 @@ import {
   BUTTON_SIZE,
   BUTTON_VARIANT,
 } from '../../../shared/components/action/Button';
+import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 import ProfileUserRow from '../../profile/components/ProfileUserRow';
 
@@ -20,15 +24,26 @@ import { gap, padding, radius } from '../../../shared/styles/token';
  * 가입 완료. 가입 화면에서 넘어온 뒤 로그인되면서 Welcome · 약관 · 가입 화면이 아래에서 빠진다.
  * 시작하기(안드로이드 뒤로가기 포함)를 누르면 이 화면만 닫혀 가입 전에 보던 화면으로 돌아간다
  *
- * params: { nickname, userCode, profileImgUri }
+ * params: { nickname, userCode, profileImgUri, isFromOnboarding }
  */
 const SignupCompleteScreen = () => {
   const navigation = useNavigation();
-  const { nickname, userCode, profileImgUri } = useRoute().params ?? {};
+  const insets = useSafeAreaInsets();
+  const { showToast } = useGlobalOverlay();
+  const { nickname, userCode, profileImgUri, isFromOnboarding } = useRoute().params ?? {};
 
+  // 둘러보다가 가입했으면 보던 화면으로 돌아가서 가입을 마쳤다고 알린다.
+  // 온보딩에서 바로 가입했으면 처음 보는 피드 홈으로 가므로 띄우지 않는다
   const handlePressStart = useCallback(() => {
     navigation.goBack();
-  }, [navigation]);
+
+    if (isFromOnboarding) return;
+
+    showToast({
+      message: '가입을 완료했어요.',
+      bottomOffset: insets.bottom,
+    });
+  }, [insets.bottom, isFromOnboarding, navigation, showToast]);
 
   // 안드로이드 뒤로가기도 시작하기와 같게 이 화면만 닫는다
   useEffect(() => {

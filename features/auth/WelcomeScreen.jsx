@@ -4,7 +4,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 
 import logoSignitureMotion from '../../assets/logo/logo_signiture_motion.json';
@@ -59,9 +59,12 @@ const WelcomeScreen = () => {
   const insets = useSafeAreaInsets();
   const { showToast } = useGlobalOverlay();
 
+  // 온보딩의 로그인하기로 들어왔는지. 가입 완료 화면까지 넘겨서 가입 완료 Toast 를 띄울지 정한다
+  const { isFromOnboarding = false } = useRoute().params ?? {};
+
   // 신규 유저만 약관 화면으로 보낸다. 기존 유저는 로그인되면 RootNavigator가 MainTabs로 바꾼다
   const handleNewUser = ({ signupToken, suggestedNickname }) => {
-    navigation.navigate('Terms', { signupToken, suggestedNickname });
+    navigation.navigate('Terms', { signupToken, suggestedNickname, isFromOnboarding });
   };
 
   const showLoginErrorToast = (error, fallbackMessage) => {

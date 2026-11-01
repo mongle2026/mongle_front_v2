@@ -76,13 +76,14 @@ const OnboardingScreen = () => {
 
   // 마지막 페이지의 두 버튼 중 하나를 누르면 다 본 것으로 저장해서, 다음 실행부터는 바로 피드 홈이 뜬다
   // 온보딩을 빼고 피드 홈 위에 Welcome을 올려서, Welcome에서 닫거나 뒤로 가면 피드 홈으로 간다
+  // 온보딩에서 바로 가입하면 가입 완료 Toast 를 띄우지 않도록 표시해 둔다
   const handlePressLogin = () => {
     void completeOnboarding();
     navigation.reset({
       index: 1,
       routes: [
         { name: 'MainTabs', params: { screen: MAIN_TAB_ROUTES.FEED } },
-        { name: 'Welcome' },
+        { name: 'Welcome', params: { isFromOnboarding: true } },
       ],
     });
   };
