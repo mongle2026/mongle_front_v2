@@ -9,8 +9,8 @@ import IcArrowUpRight from '../../../assets/icons/ic_arrow_up_right.svg';
 import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 
 import { colors } from '../../../shared/styles/color';
-import { openNotificationSettings } from '../../../shared/utils/openNotificationSettings';
 
+import { turnOnNotifications } from '../../notification/push/registerPushToken';
 import ListRow from '../components/ListRow';
 import useNotificationPermission from '../hooks/useNotificationPermission';
 import useNotificationSettings, { NOTIFICATION_SETTING_KEY } from '../hooks/useNotificationSettings';
@@ -63,7 +63,7 @@ const SettingNotificationScreen = () => {
             text="푸시 알림 사용"
             showArrow
             arrowIcon={IcArrowUpRight}
-            onPress={openNotificationSettings}
+            onPress={turnOnNotifications}
           />
         ) : null}
 

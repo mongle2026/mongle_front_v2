@@ -5,12 +5,12 @@ import * as Notifications from 'expo-notifications';
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
 import { useFloatingBottomOffset } from '../../../../shared/hooks/useFloatingBottomOffset';
 import { colors } from '../../../../shared/styles/color';
-import { openNotificationSettings } from '../../../../shared/utils/openNotificationSettings';
 import {
   completeNotificationDeniedNotice,
   restoreNotificationDeniedNotice,
   useIsNotificationDeniedNoticePending,
 } from '../../../notification/push/notificationDeniedNotice';
+import { turnOnNotifications } from '../../../notification/push/registerPushToken';
 
 /**
  * 첫 알림 권한 창에서 거절했으면 피드 홈에서 Toast로 한 번 알린다.
@@ -49,7 +49,7 @@ const useNotificationDeniedToast = ({ enabled = true } = {}) => {
         icon: 'info',
         iconColor: colors.fgInfoInverted,
         buttonText: '설정',
-        onPressButton: openNotificationSettings,
+        onPressButton: turnOnNotifications,
         bottomOffset,
       });
     };

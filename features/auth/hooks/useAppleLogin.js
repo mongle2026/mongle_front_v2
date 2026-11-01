@@ -28,12 +28,13 @@ const loginWithApple = async () => {
 /**
  * 애플 로그인 (iOS 전용). 흐름은 useSocialLogin
  */
-const useAppleLogin = ({ onNewUser, onError } = {}) => {
+const useAppleLogin = ({ onNewUser, onBeforeSignIn, onError } = {}) => {
   const { login: startLogin, isLoggingIn } = useSocialLogin({
     login: loginWithApple,
     isCancelled: isAppleLoginCancelled,
     providerLabel: '애플',
     onNewUser,
+    onBeforeSignIn,
     onError,
   });
 

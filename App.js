@@ -46,6 +46,7 @@ import WelcomeScreen from './features/auth/WelcomeScreen';
 import TermsScreen from './features/signup/terms/TermsScreen';
 import SignupScreen from './features/signup/SignupScreen';
 import SignupCompleteScreen from './features/signup/complete/SignupCompleteScreen';
+import NotificationPermissionScreen from './features/notification/permission/NotificationPermissionScreen';
 import PushNotificationHandler from './features/notification/push/PushNotificationHandler';
 import AppSplash from './features/splash/AppSplash';
 import DialogProvider from './shared/providers/DialogProvider';
@@ -170,7 +171,8 @@ const StampDetailRoute = props => (
  * (피드 추천 · 상세만 내용이 보이고 나머지 탭과 알림은 로그인 엠티뷰, 설정은 약관 및 정책부터).
  * 나머지는 로그인 여부에 따라 묶음을 바꾼다. 로그인하지 않았을 때 Welcome 은 로그인 버튼 · Dialog 로 위에 띄운다.
  * 로그인 · 가입하면 Welcome · 약관 · 가입 화면이 빠지면서 보던 화면(MainTabs / FeedDetail)으로 돌아오고
- * (가입은 가입 완료 화면을 먼저 띄우고, 시작하기로 닫으면 돌아온다),
+ * (가입은 가입 완료 화면을 먼저 띄우고, 시작하기로 닫으면 돌아온다. 가입 완료 다음 · 로그인 직후에는
+ * 이 기기에서 알림 권한을 아직 묻지 않았으면 알림 권한 화면을 거친다),
  * refresh 가 실패해 로그아웃되면 로그인 전용 화면이 빠지면서 남은 화면을 로그인 전 상태로 보여준다
  */
 const RootNavigator = ({ isSignedIn, showOnboarding }) => (
@@ -209,6 +211,15 @@ const RootNavigator = ({ isSignedIn, showOnboarding }) => (
       component={SignupCompleteScreen}
       options={{
         // 시작하기로만 나간다 (뒤에 있던 가입 화면은 로그인되면서 빠진다)
+        gestureEnabled: false,
+      }}
+    />
+    {/* 알림 권한. 가입 완료 다음 · 로그인 직후에 뜬다. 로그인 전에 띄워서 Welcome 이 빠져도 남도록 로그인 여부와 상관없이 둔다 */}
+    <Stack.Screen
+      name="NotificationPermission"
+      component={NotificationPermissionScreen}
+      options={{
+        // 알림 받기 · 다음에 할게요로만 나간다
         gestureEnabled: false,
       }}
     />

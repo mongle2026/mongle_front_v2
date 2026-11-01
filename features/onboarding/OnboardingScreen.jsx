@@ -15,6 +15,7 @@ import IlEmptyArchive from '../../assets/illustrations/il_empty_archive.svg';
 
 import PageIndicator from './components/PageIndicator';
 import { useOnboardingStore } from './useOnboardingStore';
+import { shouldAskNotificationPermission } from '../notification/push/registerPushToken';
 import {
   Button,
   BUTTON_SIZE,
@@ -88,9 +89,22 @@ const OnboardingScreen = () => {
     });
   };
 
-  // 로그인하지 않은 상태로 피드 홈으로 간다. 온보딩이 첫 화면이면 온보딩 자리를 MainTabs로 바꾼다
-  const handlePressBrowse = () => {
+  // 로그인하지 않은 상태로 피드 홈으로 간다. 온보딩이 첫 화면이면 온보딩 자리를 MainTabs로 바꾼다.
+  // 알림 권한을 아직 묻지 않았으면 피드 홈 위에 알림 권한 화면을 올려서, 닫으면 피드 홈으로 간다
+  const handlePressBrowse = async () => {
     void completeOnboarding();
+
+    if (await shouldAskNotificationPermission()) {
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'MainTabs', params: { screen: MAIN_TAB_ROUTES.FEED } },
+          { name: 'NotificationPermission' },
+        ],
+      });
+      return;
+    }
+
     navigation.popTo('MainTabs', { screen: MAIN_TAB_ROUTES.FEED });
   };
 

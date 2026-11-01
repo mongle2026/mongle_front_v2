@@ -3,9 +3,13 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import apiClient, { isApiConfigured } from '../../../shared/api/client';
+import { openNotificationSettings } from '../../../shared/utils/openNotificationSettings';
 
 import { setupNotificationChannels } from './notificationChannels';
-import { saveFirstNotificationPermissionResult } from './notificationDeniedNotice';
+import {
+  hasAnsweredNotificationPermission,
+  saveFirstNotificationPermissionResult,
+} from './notificationDeniedNotice';
 
 // eas init 을 하면 app.json 의 extra.eas.projectId 에 들어간다
 const getProjectId = () =>
@@ -16,6 +20,23 @@ let registeredToken = null;
 
 // 로그인 · 로그아웃이 빠르게 이어져도 서버에 마지막 상태가 남도록 등록 요청을 순서대로 보낸다
 let registerQueue = Promise.resolve();
+
+/**
+ * 로그인 · 가입 뒤 알림 권한 화면(NotificationPermission)을 띄울지.
+ * 이미 허용돼 있거나 이 기기에서 한 번 답했으면 띄우지 않는다. 로그아웃해도 기기 권한은 그대로라 다시 묻지 않는다
+ */
+export const shouldAskNotificationPermission = async () => {
+  try {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status === 'granted') return false;
+
+    return !(await hasAnsweredNotificationPermission());
+  } catch (error) {
+    // 확인하지 못하면 묻지 않고 넘어간다. 설정 화면에서 켤 수 있다
+    console.warn('알림 권한을 확인하지 못했습니다.', error?.message ?? error);
+    return false;
+  }
+};
 
 /**
  * 알림 권한 창을 띄운다. 이미 허용돼 있으면 띄우지 않는다.
@@ -43,6 +64,25 @@ export const requestNotificationPermission = async () => {
   void saveFirstNotificationPermissionResult(granted);
 
   return granted;
+};
+
+/**
+ * 꺼진 알림을 켤 때 (설정 화면 · 거절 안내 Toast).
+ * 설정 앱의 알림 설정으로 보낸다.
+ * 다만 iOS 에서 '다음에 할게요'로 권한 창을 한 번도 띄우지 않았으면 설정 앱에 알림 항목이 없어서 권한 창을 띄운다
+ */
+export const turnOnNotifications = async () => {
+  const { status } = await Notifications.getPermissionsAsync();
+
+  // 안드로이드는 권한 창을 띄운 적이 없어도 설정 앱에 알림 항목이 있어서 늘 설정 앱으로 보낸다
+  if (Platform.OS !== 'ios' || status !== 'undetermined') {
+    await openNotificationSettings();
+    return;
+  }
+
+  if (await requestNotificationPermission()) {
+    await registerPushToken();
+  }
 };
 
 const registerPushTokenNow = async () => {

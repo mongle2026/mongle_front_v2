@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import {
@@ -16,6 +17,7 @@ import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
 import { getApiErrorMessage } from '../../shared/api/client';
 import useKakaoLogin from './hooks/useKakaoLogin';
 import useAppleLogin from './hooks/useAppleLogin';
+import { shouldAskNotificationPermission } from '../notification/push/registerPushToken';
 
 import { colors } from '../../shared/styles/color';
 import { typo } from '../../shared/styles/typo';
@@ -67,6 +69,28 @@ const WelcomeScreen = () => {
     navigation.navigate('Terms', { signupToken, suggestedNickname, isFromOnboarding });
   };
 
+  // 닫기(X)는 알림 권한을 아직 묻지 않았으면 Welcome 을 알림 권한 화면으로 바꾸고, 그 화면을 닫을 때 보던 화면으로 돌아간다
+  const isClosingRef = useRef(false);
+
+  const handlePressClose = async () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+
+    if (await shouldAskNotificationPermission()) {
+      navigation.replace('NotificationPermission');
+      return;
+    }
+
+    navigation.goBack();
+  };
+
+  // 기존 유저는 로그인되기 전에 알림 권한 화면을 띄워 둔다. 로그인되면 그 아래의 Welcome 만 빠진다
+  const handleBeforeSignIn = async () => {
+    if (await shouldAskNotificationPermission()) {
+      navigation.navigate('NotificationPermission');
+    }
+  };
+
   const showLoginErrorToast = (error, fallbackMessage) => {
     showToast({
       message: getApiErrorMessage(error, fallbackMessage),
@@ -78,11 +102,13 @@ const WelcomeScreen = () => {
 
   const { loginWithKakao, isLoggingIn: isKakaoLoggingIn } = useKakaoLogin({
     onNewUser: handleNewUser,
+    onBeforeSignIn: handleBeforeSignIn,
     onError: error => showLoginErrorToast(error, '카카오로 로그인하지 못했습니다.'),
   });
 
   const { loginWithApple, isLoggingIn: isAppleLoggingIn } = useAppleLogin({
     onNewUser: handleNewUser,
+    onBeforeSignIn: handleBeforeSignIn,
     onError: error => showLoginErrorToast(error, 'Apple로 로그인하지 못했습니다.'),
   });
 
@@ -104,7 +130,7 @@ const WelcomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <TopSubNavigation
-        onPressClose={navigation.goBack}
+        onPressClose={handlePressClose}
         showShare={false}
         showMore={false}
       />

@@ -1,4 +1,6 @@
 // 처음 뜬 알림 권한 창에서 거절했는지. 거절했으면 피드 홈에서 Toast로 한 번 안내한다.
+// 알림 권한 화면에서 '다음에 할게요'를 누른 것도 거절로 남긴다 (OS 권한 창은 띄우지 않는다).
+// 값이 있으면 이 기기에서 이미 답했다는 뜻이라, 로그아웃 후 다시 로그인해도 알림 권한 화면을 띄우지 않는다.
 // 거절한 화면(가입 완료 등)에서 바로 띄우지 않고 피드 홈까지 넘겨야 해서, 앱을 다시 켜도 남도록 SecureStore 에 저장한다.
 //
 // 안드로이드 13 이상은 권한 창을 띄우기 전에도 상태가 'denied' 로 와서 OS 상태만으로는 처음 창인지 알 수 없다.
@@ -56,5 +58,9 @@ export const saveFirstNotificationPermissionResult = async granted => {
 
   await saveStatus(granted ? NOTICE_STATUS.DONE : NOTICE_STATUS.PENDING);
 };
+
+// 이 기기에서 알림 권한 화면에 이미 답했는지 (허용 · 거절 · 다음에 할게요)
+export const hasAnsweredNotificationPermission = async () =>
+  (await restoreNotificationDeniedNotice()) != null;
 
 export const completeNotificationDeniedNotice = () => saveStatus(NOTICE_STATUS.DONE);

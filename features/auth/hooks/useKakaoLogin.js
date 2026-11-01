@@ -30,12 +30,13 @@ const loginWithKakao = async () => {
 /**
  * 카카오 로그인. 흐름은 useSocialLogin
  */
-const useKakaoLogin = ({ onNewUser, onError } = {}) => {
+const useKakaoLogin = ({ onNewUser, onBeforeSignIn, onError } = {}) => {
   const { login: startLogin, isLoggingIn } = useSocialLogin({
     login: loginWithKakao,
     isCancelled: isKakaoLoginCancelled,
     providerLabel: '카카오',
     onNewUser,
+    onBeforeSignIn,
     onError,
   });
 
