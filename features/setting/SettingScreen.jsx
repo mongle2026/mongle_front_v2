@@ -89,8 +89,8 @@ const SettingScreen = () => {
 
         <View style={styles.section}>
           <ListHeader title="약관 및 정책" textStyle={styles.headerText} />
-          <ListRow text="개인정보처리방침" showArrow />
-          <ListRow text="이용약관" showArrow />
+          <ListRow text="개인정보처리방침" showArrow arrowIcon={IcArrowUpRight} />
+          <ListRow text="이용약관" showArrow arrowIcon={IcArrowUpRight} />
         </View>
 
         <View style={styles.section}>
