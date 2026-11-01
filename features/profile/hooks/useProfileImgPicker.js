@@ -28,23 +28,27 @@ const getImgSize = uri => new Promise(resolve => {
  * 고르자마자 업로드를 시작해서, 아이디 · 닉네임을 입력하는 동안 끝나게 한다.
  * 가입 전에는 로그인 토큰이 없어서 signupToken 으로 업로드 URL 을 받는다. 없으면 로그인 토큰으로 받는다.
  *
- * initialProfileImgUri: 지금 쓰고 있는 사진 주소. 없으면 기본 프로필 사진에서 시작한다
+ * initialProfileImgUri: 지금 쓰고 있는 사진 주소. 없으면 defaultProfileImg 에서 시작한다
+ * defaultProfileImg: 사진이 없을 때 쓸 사진 (pickDefaultProfileImg 반환값). 바뀌지 않게 한 번만 골라서 넘긴다.
+ *                    없으면 사진 없이(null) 둔다
  *
  * profileImg: 보여줄 사진 ({ uri, name, type, width, height }). 처음 사진은 { uri } 만 있고, 사진이 없으면 null
  * isProfileImgChanged: 새 사진을 골랐거나, 처음 사진을 지웠으면 true
  * pickProfileImgFromLibrary: 권한을 받은 뒤 사진 보관함을 연다. 권한이 없거나 취소하면 그대로 둔다
  * pickProfileImgFromFile: 파일 앱을 연다. 시스템 파일 선택기라 권한은 받지 않는다. 취소하면 그대로 둔다
- * deleteProfileImg: 사진을 지워서 기본 프로필 사진으로 되돌린다
+ * deleteProfileImg: 사진을 지워서 defaultProfileImg 로 되돌린다
  * getProfileImgKey: 새로 고른 사진의 업로드가 끝나기를 기다려 key를 돌려준다. 새로 고른 사진이 없으면 null.
+ *                   defaultProfileImg 를 쓰고 있으면 이때 올린다.
  *                   미리 올리다 실패했으면 한 번 더 올려 보고, 그래도 실패하면 ProfileImgUploadError
  */
-const useProfileImgPicker = ({ signupToken, initialProfileImgUri } = {}) => {
+const useProfileImgPicker = ({ signupToken, initialProfileImgUri, defaultProfileImg } = {}) => {
   const [profileImg, setProfileImg] = useState(() =>
-    initialProfileImgUri ? { uri: initialProfileImgUri } : null,
+    initialProfileImgUri ? { uri: initialProfileImgUri } : defaultProfileImg ?? null,
   );
   const uploadTaskRef = useRef(null);
 
   const isProfileImgChanged = (profileImg?.uri ?? null) !== (initialProfileImgUri ?? null);
+  const isDefaultProfileImg = defaultProfileImg != null && profileImg === defaultProfileImg;
 
   const selectProfileImg = useCallback(nextProfileImg => {
     setProfileImg(nextProfileImg);
@@ -100,11 +104,16 @@ const useProfileImgPicker = ({ signupToken, initialProfileImgUri } = {}) => {
 
   // 이미 올라간 사진은 서버 크론이 지운다
   const deleteProfileImg = useCallback(() => {
-    setProfileImg(null);
+    setProfileImg(defaultProfileImg ?? null);
     uploadTaskRef.current = null;
-  }, []);
+  }, [defaultProfileImg]);
 
   const getProfileImgKey = useCallback(async () => {
+    // 기본 사진은 미리 올리지 않고, 저장할 때 처음 올린다
+    if (!uploadTaskRef.current && isDefaultProfileImg) {
+      uploadTaskRef.current = startUpload(defaultProfileImg, signupToken);
+    }
+
     const uploadTask = uploadTaskRef.current;
 
     if (!uploadTask) return null;
@@ -117,7 +126,7 @@ const useProfileImgPicker = ({ signupToken, initialProfileImgUri } = {}) => {
 
       return retryTask.promise;
     }
-  }, [signupToken]);
+  }, [signupToken, isDefaultProfileImg, defaultProfileImg]);
 
   return {
     profileImg,

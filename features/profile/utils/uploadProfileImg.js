@@ -16,8 +16,19 @@ export class ProfileImgUploadError extends Error {
   }
 }
 
+// 앱에 들어 있는 기본 프로필 사진은 파일로 꺼내야 압축할 수 있다
+const getLocalUri = async ({ uri, asset }) => {
+  if (!asset) return uri;
+
+  await asset.downloadAsync();
+
+  return asset.localUri;
+};
+
 // 서버는 jpg만 받으므로 png · heic도 jpg로 바꾼다
-const compressProfileImg = async ({ uri, width, height }) => {
+const compressProfileImg = async profileImg => {
+  const { width, height } = profileImg;
+  const uri = await getLocalUri(profileImg);
   const actions = [];
 
   if (Math.min(width ?? 0, height ?? 0) > PROFILE_IMG_MAX_DIMENSION) {
