@@ -48,6 +48,7 @@ import useCommentComposer from './hooks/useCommentComposer';
 import useScrollToComment from './hooks/useScrollToComment';
 import useScrollToReplyTarget from './hooks/useScrollToReplyTarget';
 import useDeletedCommentToast from './hooks/useDeletedCommentToast';
+import { useSignupCompleteToast } from '../../signup/signupCompleteToast';
 import { hasId, isSameId } from '../../../shared/utils/id';
 
 const FeedDetailScreen = ({ navigation, route }) => {
@@ -155,6 +156,12 @@ const FeedDetailScreen = ({ navigation, route }) => {
     isFeedVisible: Boolean(feed) && !isDeleted,
     bottomOffset: commentBarBottom + commentBarHeight,
     isCommentBarMeasured: commentBarHeight > 0,
+  });
+
+  // 여기서 로그인해 가입하고 돌아왔으면 다른 Toast 처럼 CommentBar 위에 가입 완료 Toast 를 띄운다
+  useSignupCompleteToast({
+    bottomOffset: commentBarBottom + commentBarHeight,
+    enabled: commentBarHeight > 0,
   });
 
   const {

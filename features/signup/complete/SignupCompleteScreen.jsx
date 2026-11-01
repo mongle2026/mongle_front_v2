@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { BackHandler, StyleSheet, Text, View } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import {
@@ -11,9 +8,9 @@ import {
   BUTTON_SIZE,
   BUTTON_VARIANT,
 } from '../../../shared/components/action/Button';
-import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 import ProfileUserRow from '../../profile/components/ProfileUserRow';
+import { useGoBackWithSignupCompleteToast } from '../signupCompleteToast';
 import { shouldAskNotificationPermission } from '../../notification/push/registerPushToken';
 
 import { colors } from '../../../shared/styles/color';
@@ -30,8 +27,7 @@ import { gap, padding, radius } from '../../../shared/styles/token';
  */
 const SignupCompleteScreen = () => {
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
-  const { showToast } = useGlobalOverlay();
+  const goBackWithSignupCompleteToast = useGoBackWithSignupCompleteToast();
   const { nickname, userCode, profileImgUri, isFromOnboarding } = useRoute().params ?? {};
 
   // 알림 권한을 확인하는 사이 다시 눌러도 한 번만 넘어간다
@@ -48,15 +44,8 @@ const SignupCompleteScreen = () => {
       return;
     }
 
-    navigation.goBack();
-
-    if (isFromOnboarding) return;
-
-    showToast({
-      message: '가입을 완료했어요.',
-      bottomOffset: insets.bottom,
-    });
-  }, [insets.bottom, isFromOnboarding, navigation, showToast]);
+    goBackWithSignupCompleteToast(!isFromOnboarding);
+  }, [goBackWithSignupCompleteToast, isFromOnboarding, navigation]);
 
   // 안드로이드 뒤로가기도 시작하기와 같게 이 화면만 닫는다
   useEffect(() => {

@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { BackHandler, StyleSheet, Text, View } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRoute } from '@react-navigation/native';
 
 import IlEmptyNotification from '../../../assets/illustrations/il_empty_notification.svg';
 
@@ -14,13 +11,13 @@ import {
   BUTTON_VARIANT,
 } from '../../../shared/components/action/Button';
 import ButtonText from '../../../shared/components/action/ButtonText';
-import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 import {
   registerPushToken,
   requestNotificationPermission,
 } from '../push/registerPushToken';
 import { saveFirstNotificationPermissionResult } from '../push/notificationDeniedNotice';
+import { useGoBackWithSignupCompleteToast } from '../../signup/signupCompleteToast';
 
 import { colors } from '../../../shared/styles/color';
 import { typo } from '../../../shared/styles/typo';
@@ -40,24 +37,15 @@ const ILLUSTRATION_SIZE = 200;
  * params: { showSignupToast } 둘러보다가 가입했으면 돌아가서 가입을 마쳤다고 알린다
  */
 const NotificationPermissionScreen = () => {
-  const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
-  const { showToast } = useGlobalOverlay();
+  const goBackWithSignupCompleteToast = useGoBackWithSignupCompleteToast();
   const { showSignupToast = false } = useRoute().params ?? {};
 
   // 권한 창이 떠 있는 사이 버튼을 다시 눌러도 한 번만 처리한다
   const isLeavingRef = useRef(false);
 
   const leave = useCallback(() => {
-    navigation.goBack();
-
-    if (!showSignupToast) return;
-
-    showToast({
-      message: '가입을 완료했어요.',
-      bottomOffset: insets.bottom,
-    });
-  }, [insets.bottom, navigation, showSignupToast, showToast]);
+    goBackWithSignupCompleteToast(showSignupToast);
+  }, [goBackWithSignupCompleteToast, showSignupToast]);
 
   const handlePressAllow = useCallback(async () => {
     if (isLeavingRef.current) return;
