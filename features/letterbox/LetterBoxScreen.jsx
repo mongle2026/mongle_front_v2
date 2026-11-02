@@ -20,6 +20,7 @@ import { colors } from '../../shared/styles/color';
 import LetterSection from './letter/home/LetterSection';
 import StampSection from './stamp/home/StampSection';
 import { prefetchStampDetail } from './stamp/detail/hooks/useStampDetail';
+import useHasUnreadNotification from '../notification/hooks/useHasUnreadNotification';
 
 // 탭을 바꾸면 피드 홈과 같은 값으로 내용이 옆에서 들어온다
 const TAB_SWITCH_OFFSET = 24;
@@ -29,6 +30,7 @@ const getTabIndex = tab => LETTER_TOP_NAVIGATION_TABS.findIndex(item => item.key
 const LetterBoxScreen = ({ navigation }) => {
   const { userId } = useCurrentUser();
   const isSignedIn = useIsSignedIn();
+  const hasUnreadNotification = useHasUnreadNotification();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState(LETTER_BOX_TAB.LETTER);
@@ -83,6 +85,7 @@ const LetterBoxScreen = ({ navigation }) => {
           activeTab={activeTab}
           onChangeTab={setActiveTab}
           onPressButton={handlePressBell}
+          showDot={hasUnreadNotification}
         />
       </SafeAreaView>
 

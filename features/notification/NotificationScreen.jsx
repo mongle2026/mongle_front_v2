@@ -19,6 +19,7 @@ import InfoBanner from './components/InfoBanner';
 import NotificationListItem from './components/NotificationListItem';
 import { NOTIFICATION_TYPE } from './constants';
 import useNotifications from './hooks/useNotifications';
+import useCheckNotificationsOnLeave from './hooks/useCheckNotificationsOnLeave';
 import { getNotificationRoute } from './utils/getNotificationRoute';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';
 import { useIsSignedIn } from '../../shared/auth/useAuthStore';
@@ -55,6 +56,9 @@ const NotificationScreen = ({ navigation }) => {
   const { userId, currentUser } = useCurrentUser();
   const isSignedIn = useIsSignedIn();
   const myNickname = currentUser?.nickname;
+
+  // 들어왔다 나가기만 해도 종 아이콘 레드닷을 끈다
+  useCheckNotificationsOnLeave();
 
   // 페이지 단위로 받아서 탭마다 서버에서 걸러 받는다
   const { type } = NOTIFICATION_FILTERS[activeFilterIndex];

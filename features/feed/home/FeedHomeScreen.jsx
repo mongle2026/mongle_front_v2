@@ -27,6 +27,7 @@ import useFeedActions from '../hooks/useFeedActions';
 import useFeedHome from './hooks/useFeedHome';
 import useFeedHomeListController from './hooks/useFeedHomeListController';
 import useNotificationDeniedToast from './hooks/useNotificationDeniedToast';
+import useHasUnreadNotification from '../../notification/hooks/useHasUnreadNotification';
 import { useCreatedFeedStore } from '../store/useCreatedFeedStore';
 import { useFeedCoachmarkStore } from '../store/useFeedCoachmarkStore';
 import { hasId } from '../../../shared/utils/id';
@@ -61,6 +62,7 @@ const FeedHomeScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState(FEED_TAB.RECOMMENDED);
   const { userId } = useCurrentUser();
   const isSignedIn = useIsSignedIn();
+  const hasUnreadNotification = useHasUnreadNotification();
   const isFollowing = activeTab === FEED_TAB.FOLLOWING;
 
   const [fabHeight, setFabHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
@@ -321,6 +323,7 @@ const FeedHomeScreen = ({ navigation }) => {
           activeTab={activeTab}
           onChangeTab={handleChangeTab}
           onPressButton={handlePressBell}
+          showDot={hasUnreadNotification}
         />
       </SafeAreaView>
 

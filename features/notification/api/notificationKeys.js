@@ -10,6 +10,8 @@ export const notificationKeys = {
   all: NOTIFICATION_QUERY_ROOT,
   // type: null(전체) | 'feed' | 'letter' | 'news'
   list: (userId, type) => [...NOTIFICATION_QUERY_ROOT, toIdKey(userId), type ?? 'all'],
+  // 종 아이콘 레드닷. 루트 아래에 둬서 새 알림이 오면(all invalidate) 함께 갱신된다
+  unread: userId => [...NOTIFICATION_QUERY_ROOT, toIdKey(userId), 'unread'],
   // 알림 목록 갱신(all invalidate)에 휩쓸리지 않게 루트를 따로 둔다
   settings: userId => ['notification-settings', toIdKey(userId)],
 };
