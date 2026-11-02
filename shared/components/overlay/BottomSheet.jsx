@@ -348,8 +348,8 @@ export default BottomSheet;
 
 const styles = StyleSheet.create({
   container: {
-    borderTopLeftRadius: radius.M,
-    borderTopRightRadius: radius.M,
+    borderTopLeftRadius: radius.XL,
+    borderTopRightRadius: radius.XL,
 
     ...shadow.middleUp,
   },
@@ -360,8 +360,8 @@ const styles = StyleSheet.create({
   },
 
   background: {
-    borderTopLeftRadius: radius.M,
-    borderTopRightRadius: radius.M,
+    borderTopLeftRadius: radius.XL,
+    borderTopRightRadius: radius.XL,
 
     backgroundColor:
       colors.bgSurface,
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: DRAG_HANDLE_SHAPE_HEIGHT,
 
-    borderRadius: radius.M,
+    borderRadius: radius.XS,
 
     backgroundColor:
       colors.strokeNeutralTertiary,

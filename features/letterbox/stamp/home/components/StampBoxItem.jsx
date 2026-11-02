@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-    borderRadius: radius.XL,
+    borderRadius: radius[999],
     backgroundColor: colors.bgDimmedStrong,
   },
 

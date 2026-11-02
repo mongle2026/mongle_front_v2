@@ -56,6 +56,8 @@ const resolvePositiveNumber = (
 const MusicCoverImg = ({
   imageSource,
   size = 'M',
+  // 앨범 커버는 크기와 상관없이 XS. 카드를 꽉 채울 때만 카드 라운딩을 넘긴다
+  borderRadius = radius.XS,
   style,
   accessibilityLabel = '앨범 커버',
 
@@ -115,10 +117,10 @@ const MusicCoverImg = ({
     () =>
       rrect(
         destinationRect,
-        radius.XS,
-        radius.XS
+        borderRadius,
+        borderRadius
       ),
-    [destinationRect]
+    [destinationRect, borderRadius]
   );
 
   const uniforms = useMemo(
@@ -172,6 +174,7 @@ const MusicCoverImg = ({
         {
           width: currentSize,
           height: currentSize,
+          borderRadius,
         },
       ]}
     >
@@ -209,7 +212,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     flexShrink: 0,
     overflow: 'hidden',
-    borderRadius: radius.XS,
   },
 });
 

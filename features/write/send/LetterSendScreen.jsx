@@ -12,7 +12,7 @@ import IcFilledAlert from '../../../assets/icons/ic_filledalert.svg';
 import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../../../shared/components/action/Button';
 
 import { colors, palette } from '../../../shared/styles/color';
-import { gap, padding } from '../../../shared/styles/token';
+import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 import { formatDate } from '../../../shared/utils/dateUtils';
 
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
   failedIcon: {
     width: FAILED_ICON_CIRCLE_SIZE,
     height: FAILED_ICON_CIRCLE_SIZE,
-    borderRadius: FAILED_ICON_CIRCLE_SIZE / 2,
+    borderRadius: radius[999],
     backgroundColor: colors.fillCriticalWeak,
     alignItems: 'center',
     justifyContent: 'center',

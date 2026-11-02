@@ -23,6 +23,7 @@ const ProfileMusicCard = ({ imageSource, title, style, children }) => {
           <MusicCoverImg
             imageSource={imageSource}
             size={cardSize}
+            borderRadius={radius.M}
             accessibilityLabel={`${title || '음악'} 앨범 커버`}
           />
         )}

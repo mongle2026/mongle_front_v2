@@ -99,7 +99,7 @@ const ShortPostCard = ({
                   imageSource={imageSource}
                   ratio={WRITE_IMG_RATIO.FOUR_THREE}
                   effect={WRITE_IMG_EFFECT.FILM}
-                  borderRadius={radius.XS}
+                  borderRadius={radius.M}
                   pointerEvents="none"
                   style={styles.image}
                 />

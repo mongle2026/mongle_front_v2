@@ -45,33 +45,34 @@ const { S, M, L, XL } = BUTTON_SIZE;
 
 /**
  * 버튼 크기. 모든 variant가 S / M / L / XL 을 가진다.
+ * 높이는 폰트와 상관없이 minHeight 로 정한다. height 로 고정하면 시스템 글자 크기를 키웠을 때 글자가 잘린다.
  *
  * inline-flex는 React Native에 없으므로
  * alignSelf: 'flex-start'로 content width를 사용합니다.
  */
 const SIZE_STYLES = {
   [S]: {
-    paddingVertical: padding.XXS,
-    paddingHorizontal: padding.S,
-    borderRadius: radius.XS,
+    minHeight: 28,
+    paddingHorizontal: padding.M,
+    borderRadius: radius.S,
   },
 
   [M]: {
-    paddingVertical: padding.M,
+    minHeight: 36,
     paddingHorizontal: padding.L,
     borderRadius: radius.S,
   },
 
   [L]: {
-    paddingVertical: padding.L,
+    minHeight: 44,
     paddingHorizontal: padding.XL,
     borderRadius: radius.M,
   },
 
   [XL]: {
-    paddingVertical: padding.XL,
+    minHeight: 52,
     paddingHorizontal: padding.XXL,
-    borderRadius: radius.M,
+    borderRadius: radius.XL,
   },
 };
 
@@ -286,7 +287,6 @@ export const Button = ({
   const sizeWithBorderStyle = borderWidth > 0
     ? {
       ...sizeStyle,
-      paddingVertical: sizeStyle.paddingVertical - borderWidth,
       paddingHorizontal: sizeStyle.paddingHorizontal - borderWidth,
     }
     : sizeStyle;

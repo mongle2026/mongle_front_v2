@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: gap.M,
-    borderRadius: radius.S,
+    borderRadius: radius.M,
   },
 
   input: {

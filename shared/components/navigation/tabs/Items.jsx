@@ -13,6 +13,9 @@ import { padding, radius } from '../../../styles/token';
 import { typo } from '../../../styles/typo';
 
 const PRESSED_SCALE = 0.95;
+// 위아래로 터치 영역을 44 이상으로 넓힌다. 좌우는 옆 탭과 겹치지 않게 두지 않는다
+export const TAB_HIT_SLOP = 5;
+const HIT_SLOP = { top: TAB_HIT_SLOP, bottom: TAB_HIT_SLOP };
 
 /*
  * activePosition 이 있으면 활성 칩 배경은 Tabs 가 미끄러지게 그리고,
@@ -55,6 +58,7 @@ const Items = ({
 
   return (
     <Pressable
+      hitSlop={HIT_SLOP}
       onPress={onPress}
       onPressIn={() => {
         pressScale.value = withTiming(PRESSED_SCALE, { duration: 90 });
@@ -89,16 +93,15 @@ const Items = ({
 const styles = StyleSheet.create({
   wrapper: {
     alignSelf: 'flex-start',
-    padding: padding.XXS,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   item: {
-    paddingVertical: padding.XS,
-    paddingHorizontal: padding.M,
+    paddingVertical: padding.M,
+    paddingHorizontal: padding.L,
     textAlign: 'center',
-    borderRadius: radius.XS,
+    borderRadius: radius[999],
     overflow: 'hidden',
     ...typo.suitLabelLarge,
   },

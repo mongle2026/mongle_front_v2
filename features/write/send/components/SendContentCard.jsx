@@ -39,7 +39,13 @@ const SendContentCard = ({ kind, uri, layout, columnBottom, sinkOffset, contentO
     <Animated.View
       style={[
         styles.card,
-        { left, top, width: size, height: size },
+        {
+          left,
+          top,
+          width: size,
+          height: size,
+          borderRadius: kind === 'music' ? radius.XS : radius.XL,
+        },
         animatedStyle,
       ]}
     >
@@ -59,7 +65,6 @@ const SendContentCard = ({ kind, uri, layout, columnBottom, sinkOffset, contentO
 const styles = StyleSheet.create({
   card: {
     position: 'absolute',
-    borderRadius: radius.S,
     overflow: 'hidden',
   },
   image: {

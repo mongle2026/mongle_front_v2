@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet } from 'react-native';
 
 import { colors } from '../../../shared/styles/color';
+import { radius } from '../../../shared/styles/token';
 
 // color: envelopeData.PATTERNS[].colors[].color (hex 문자열)
 export default function ColorItem({ color, isActive = false, onPress, style }) {
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     aspectRatio: 1,
     flexShrink: 0,
-    borderRadius: 109,
+    borderRadius: radius[999],
     borderWidth: 1,
     borderColor: colors.strokeNeutralTertiary, // 밝은 컬러도 경계가 보이도록
     backgroundColor: colors.strokeNeutralTertiary, 

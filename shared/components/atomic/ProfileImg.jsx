@@ -14,6 +14,12 @@ const PROFILE_IMG_SIZE = {
   L: 40,
 };
 
+const PROFILE_IMG_RADIUS = {
+  S: radius.XS,
+  M: radius.S,
+  L: radius.M,
+};
+
 const ProfileImg = ({
   imageUri,
   size = 'M',
@@ -25,6 +31,8 @@ const ProfileImg = ({
 
   const imageSize =
     PROFILE_IMG_SIZE[size] ?? PROFILE_IMG_SIZE.M;
+  const imageRadius =
+    PROFILE_IMG_RADIUS[size] ?? PROFILE_IMG_RADIUS.M;
 
   useEffect(() => {
     setHasError(false);
@@ -39,6 +47,7 @@ const ProfileImg = ({
           {
             width: imageSize,
             height: imageSize,
+            borderRadius: imageRadius,
           },
           style,
         ]}
@@ -63,6 +72,7 @@ const ProfileImg = ({
         {
           width: imageSize,
           height: imageSize,
+          borderRadius: imageRadius,
         },
         style,
       ]}
@@ -73,7 +83,6 @@ const ProfileImg = ({
 const styles = StyleSheet.create({
   image: {
     flexShrink: 0,
-    borderRadius: radius.XS,
   },
   // SVG 는 borderRadius 로 잘리지 않아 감싼 View 에서 자른다
   withdrawn: {

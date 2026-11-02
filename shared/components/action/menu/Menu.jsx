@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   shadowContainer: {
     alignSelf: 'flex-start',
     transformOrigin: MENU_TRANSFORM_ORIGIN,
-    borderRadius: radius.M,
+    borderRadius: radius.XL,
     ...shadow.middleDown,
   },
   container: {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: gap.XS,
-    borderRadius: radius.M,
+    borderRadius: radius.XL,
     backgroundColor: colors.bgBase,
     overflow: 'hidden',
   },

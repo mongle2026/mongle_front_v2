@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   profileImg: {
     width: PROFILE_IMG_SIZE,
     height: PROFILE_IMG_SIZE,
-    borderRadius: radius.S,
+    borderRadius: radius.XL,
   },
 
   // Button은 기본이 alignSelf: 'flex-start'라서 가운데 정렬을 다시 지정한다
