@@ -1,8 +1,10 @@
 import { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import Svg, { Path, Rect } from 'react-native-svg';
 
+import FlapShadow from '../../../../assets/envelope/patterns/flap_shadow.png';
+import { FLAP_SHADOW_PAD } from '../../../../shared/components/content/Letter';
 import {
   BODY_ASPECT_RATIO,
   FLAP_HEIGHT_RATIO,
@@ -13,9 +15,6 @@ import {
 
 const { width: VB_W, bodyHeight: VB_BODY_H, flapHeight: VB_FLAP_H } =
   SEND_ENVELOPE_VIEWBOX;
-
-// 기존 봉투 flap SVG(편지 미리보기용)는 그림자 여백이 있어 도형만 박스에 맞게 키워 그린다
-const LEGACY_FLAP_BLEED = { x: 0.0262, y: 0.0492 };
 
 // 반쯤 접힌 뒤 숨는 면은 scaleY 를 이 값으로 눌러 보이지 않게 한다.
 // 0 이면 뷰가 사라졌다 다시 그려지며 깜빡일 수 있어 아주 얇게만 남긴다
@@ -149,6 +148,18 @@ const SendEnvelope = ({
         pointerEvents="none"
         collapsable={false}
       >
+        {/* 덮개와 앞주머니가 같은 색이어도 덮개 윤곽이 보이도록 편지와 같은 그림자를 깐다 */}
+        <Image
+          source={FlapShadow}
+          style={{
+            position: 'absolute',
+            left: -FLAP_SHADOW_PAD.left * width,
+            top: flapHeight * (1 - FLAP_SHADOW_PAD.top),
+            width: width * (1 + FLAP_SHADOW_PAD.left + FLAP_SHADOW_PAD.right),
+            height: flapHeight * (1 + FLAP_SHADOW_PAD.top + FLAP_SHADOW_PAD.bottom),
+          }}
+          resizeMode="stretch"
+        />
         <View
           style={[
             styles.hingeBottom,
@@ -158,9 +169,7 @@ const SendEnvelope = ({
           {layers ? (
             <layers.Flap width="100%" height="100%" preserveAspectRatio="none" />
           ) : FallbackFlapSvg ? (
-            <View style={bleedStyle(LEGACY_FLAP_BLEED)}>
-              <FallbackFlapSvg width="100%" height="100%" preserveAspectRatio="none" />
-            </View>
+            <FallbackFlapSvg width="100%" height="100%" preserveAspectRatio="none" />
           ) : (
             <ShapeSvg
               viewBoxHeight={VB_FLAP_H}
@@ -184,16 +193,6 @@ const ShapeSvg = ({ viewBoxHeight, path, color }) => (
     <Path d={path} fill={color} />
   </Svg>
 );
-
-function bleedStyle(pad) {
-  return {
-    position: 'absolute',
-    left: `${-pad.x * 100}%`,
-    top: `${-pad.y * 100}%`,
-    width: `${(1 + 2 * pad.x) * 100}%`,
-    height: `${(1 + 2 * pad.y) * 100}%`,
-  };
-}
 
 const styles = StyleSheet.create({
   hingeTop: {
