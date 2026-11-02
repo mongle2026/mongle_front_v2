@@ -31,6 +31,7 @@ const TopNavigation = ({
   icon = IcBell,
   buttonAccessibilityLabel = '알림 보기',
   onPressButton,
+  onLongPressButton,
   showButton = true,
   style,
 }) => {
@@ -69,6 +70,7 @@ const TopNavigation = ({
           icon={icon}
           color={colors.fgNeutralPrimary}
           onPress={onPressButton}
+          onLongPress={onLongPressButton}
           accessibilityLabel={buttonAccessibilityLabel}
         />
       )}

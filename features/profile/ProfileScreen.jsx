@@ -66,6 +66,11 @@ const ProfileScreen = () => {
     navigation.navigate('Setting');
   }, [navigation]);
 
+  // 컴포넌트 카탈로그 진입 (개발 빌드 전용)
+  const handleLongPressSetting = useCallback(() => {
+    navigation.navigate('Catalog');
+  }, [navigation]);
+
   const handlePressLogin = useCallback(() => {
     navigation.navigate('Welcome');
   }, [navigation]);
@@ -107,6 +112,7 @@ const ProfileScreen = () => {
         icon={IcSettingStroke}
         buttonAccessibilityLabel="설정"
         onPressButton={handlePressSetting}
+        onLongPressButton={__DEV__ ? handleLongPressSetting : undefined}
       />
 
       {/* TopNavigation 아래 전체(프로필 정보 + 커버 그리드)가 함께 스크롤된다. 로그인하지 않았으면 엠티뷰만 보여준다 */}

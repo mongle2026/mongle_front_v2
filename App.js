@@ -304,7 +304,7 @@ const RootNavigator = ({ isSignedIn }) => (
             animation: 'ios_from_right',
           }}
         />
-        {/* 개발 빌드에서만 등록하는 컴포넌트 카탈로그 (프로필 탭에서 진입) */}
+        {/* 개발 빌드에서만 등록하는 컴포넌트 카탈로그 (프로필의 설정 버튼을 길게 눌러 진입) */}
         {__DEV__ && (
           <Stack.Screen
             name="Catalog"

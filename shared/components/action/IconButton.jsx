@@ -11,6 +11,7 @@ const IconButton = ({
   color = colors.fgNeutralPrimary,
   size = 'S',
   onPress,
+  onLongPress,
   disabled = false,
   accessibilityLabel,
   style,
@@ -39,6 +40,7 @@ const IconButton = ({
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       disabled={disabled}
       hitSlop={currentSize.hitSlop}
       accessibilityRole="button"
