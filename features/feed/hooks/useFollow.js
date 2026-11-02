@@ -1,7 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient, { getApiErrorDetail } from '../../../shared/api/client';
 import { isSameId, toIdKey } from '../../../shared/utils/id';
+import { recipientKeys } from '../../write/recipient/api/recipientKeys';
 
 /*
  * 팔로우/언팔로우.
@@ -14,6 +15,8 @@ export default function useFollow({
   onSuccess,
   onError,
 } = {}) {
+  const queryClient = useQueryClient();
+
   // 같은 렌더 안의 연타도 막을 수 있게 ref 로 확인하고, 버튼 표시는 state 로 한다
   const pendingIdsRef = useRef(new Set());
   const [pendingTargetUserIds, setPendingTargetUserIds] = useState(() => new Set());
@@ -49,6 +52,9 @@ export default function useFollow({
     onMutate: variables => onMutate?.(variables),
 
     onSuccess: (data, variables) => {
+      // 수신인 기본 목록(나 + 팔로잉)이 바뀌므로 지워서, 편지 작성에서 열 때 지난 목록이 잠깐 보이지 않게 한다
+      queryClient.removeQueries({ queryKey: recipientKeys.all });
+
       onSuccess?.(data, variables);
     },
 

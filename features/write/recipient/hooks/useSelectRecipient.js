@@ -7,6 +7,8 @@ import apiClient from '../../../../shared/api/client';
 
 import useInfiniteSearchQuery from '../../hooks/useInfiniteSearchQuery';
 
+import { recipientKeys } from '../api/recipientKeys';
+
 import {
   useLetterFormStore,
 } from '../../store/useLetterFormStore';
@@ -86,11 +88,8 @@ export default function useSelectRecipient(
 
   const userQuery =
     useInfiniteSearchQuery({
-      queryKey: [
-        'users',
-        'search',
-        currentUserId,
-      ],
+      queryKey:
+        recipientKeys.search(currentUserId),
 
       keyword,
 
