@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   patternSlot: {
-    aspectRatio: 1, 
+    aspectRatio: 1,
+    borderRadius: radius.XS, // 예외: 면이 꽉 찬 봉투 썸네일은 XL 이면 너무 둥글어 앨범 커버처럼 XS
   },
   stampSlot: {
     aspectRatio: STAMP_ASPECT_RATIO, 
