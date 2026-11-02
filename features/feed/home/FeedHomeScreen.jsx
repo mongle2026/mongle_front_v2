@@ -1,14 +1,21 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/action/WriteFab';
+import Empty from '../../../shared/components/content/Empty';
 import PullToRefresh from '../../../shared/components/layout/PullToRefresh';
 import TopNavigation from '../../../shared/components/navigation/topnavigation/TopNavigation';
 import { FEED_TAB, FEED_TOP_NAVIGATION_TABS } from '../constants';
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import { useIsSignedIn } from '../../../shared/auth/useAuthStore';
 import usePullRefresh from '../../../shared/hooks/usePullRefresh';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding } from '../../../shared/styles/token';
@@ -28,9 +35,15 @@ const VIEWABILITY_CONFIG = {
 
 const keyExtractor = item => String(item.feedId);
 
+// 추천 ↔ 팔로잉을 바꾸면 피드가 탭 방향에서 살짝 밀려 들어오며 나타난다
+const TAB_SWITCH_OFFSET = 24;
+const TAB_SWITCH_TIMING = { duration: 280, easing: Easing.out(Easing.cubic) };
+const getTabIndex = tab => FEED_TOP_NAVIGATION_TABS.findIndex(item => item.key === tab);
+
 const FeedHomeScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState(FEED_TAB.RECOMMENDED);
   const { userId } = useCurrentUser();
+  const isSignedIn = useIsSignedIn();
   const isFollowing = activeTab === FEED_TAB.FOLLOWING;
 
   const [fabHeight, setFabHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
@@ -110,6 +123,33 @@ const FeedHomeScreen = ({ navigation }) => {
     clearCreatedFeedId();
   }, [activeTab, clearCreatedFeedId, createdFeedId, firstFeedId, resetPlayback, scrollToTop]);
 
+  /*
+   * 탭 전환: 목록이 그 탭의 스크롤 위치로 돌아가는 순간(다음 프레임)이 보이지 않게
+   * 투명한 상태에서 시작해, 오른쪽 탭(팔로잉)이면 오른쪽에서 · 왼쪽 탭(추천)이면 왼쪽에서 들어온다
+   */
+  const tabSwitchProgress = useSharedValue(1);
+  const tabSwitchDirection = useSharedValue(0);
+  const prevTabRef = useRef(activeTab);
+
+  useEffect(() => {
+    const prevTab = prevTabRef.current;
+    if (prevTab === activeTab) return;
+    prevTabRef.current = activeTab;
+
+    tabSwitchDirection.value = Math.sign(getTabIndex(activeTab) - getTabIndex(prevTab));
+    tabSwitchProgress.value = 0;
+    tabSwitchProgress.value = withTiming(1, TAB_SWITCH_TIMING);
+  }, [activeTab, tabSwitchDirection, tabSwitchProgress]);
+
+  const tabSwitchStyle = useAnimatedStyle(() => ({
+    opacity: tabSwitchProgress.value,
+    transform: [
+      {
+        translateX: (1 - tabSwitchProgress.value) * TAB_SWITCH_OFFSET * tabSwitchDirection.value,
+      },
+    ],
+  }));
+
   const feedExtraData = useMemo(
     () => ({ playingFeedId, pendingTargetUserIds }),
     [pendingTargetUserIds, playingFeedId]
@@ -156,6 +196,16 @@ const FeedHomeScreen = ({ navigation }) => {
     [navigation]
   );
 
+  const handlePressProfile = useCallback(
+    item => {
+      const targetUserId = item?.user?.userId;
+      if (!hasId(targetUserId)) return;
+
+      navigation.navigate('UserProfile', { userId: targetUserId });
+    },
+    [navigation]
+  );
+
   const handlePressComment = useCallback(
     item => {
       const feedId = item?.feedId;
@@ -180,6 +230,7 @@ const FeedHomeScreen = ({ navigation }) => {
           followDisabled={pendingTargetUserIds.has(targetUserId)}
           isMusicPlaying={isMusicPlaying}
           onPressPost={handlePressPost}
+          onPressProfile={handlePressProfile}
           onPressComment={handlePressComment}
           onPressLike={handlePressLike}
           onPressBookmark={handlePressBookmark}
@@ -196,6 +247,7 @@ const FeedHomeScreen = ({ navigation }) => {
       handlePressLike,
       handlePressMusicPlayback,
       handlePressPost,
+      handlePressProfile,
       pendingTargetUserIds,
       playingFeedId,
       userId,
@@ -226,6 +278,10 @@ const FeedHomeScreen = ({ navigation }) => {
     navigation.navigate('Notification');
   }, [navigation]);
 
+  const handlePressLogin = useCallback(() => {
+    navigation.navigate('Welcome');
+  }, [navigation]);
+
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
@@ -233,41 +289,55 @@ const FeedHomeScreen = ({ navigation }) => {
           tabs={FEED_TOP_NAVIGATION_TABS}
           activeTab={activeTab}
           onChangeTab={handleChangeTab}
-          onPressBell={handlePressBell}
+          onPressButton={handlePressBell}
         />
       </SafeAreaView>
 
-      <PullToRefresh refreshing={isPullRefreshing} onRefresh={handleRefresh}>
-        <Animated.FlatList
-          ref={listRef}
-          data={posts}
-          extraData={feedExtraData}
-          keyExtractor={keyExtractor}
-          getItemLayout={getItemLayout}
-          renderItem={renderPost}
-          ItemSeparatorComponent={renderPostSeparator}
-          contentContainerStyle={contentContainerStyle}
-          onLayout={handleListLayout}
-          onViewableItemsChanged={handleViewableItemsChanged}
-          viewabilityConfig={VIEWABILITY_CONFIG}
-          snapToInterval={snapToInterval}
-          snapToOffsets={snapToOffsets}
-          decelerationRate="fast"
-          disableIntervalMomentum
-          showsVerticalScrollIndicator={false}
-          removeClippedSubviews={Platform.OS === 'android'}
-          initialNumToRender={3}
-          maxToRenderPerBatch={3}
-          windowSize={5}
-          updateCellsBatchingPeriod={50}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.4}
-          onScrollEndDrag={handleListScrollEnd}
-          onMomentumScrollEnd={handleListScrollEnd}
-          ListEmptyComponent={renderListEmpty}
-          ListFooterComponent={renderListFooter}
-        />
-      </PullToRefresh>
+      <Animated.View style={[styles.listTransition, tabSwitchStyle]}>
+        <PullToRefresh refreshing={isPullRefreshing} onRefresh={handleRefresh}>
+          <Animated.FlatList
+            ref={listRef}
+            data={posts}
+            extraData={feedExtraData}
+            keyExtractor={keyExtractor}
+            getItemLayout={getItemLayout}
+            renderItem={renderPost}
+            ItemSeparatorComponent={renderPostSeparator}
+            contentContainerStyle={contentContainerStyle}
+            onLayout={handleListLayout}
+            onViewableItemsChanged={handleViewableItemsChanged}
+            viewabilityConfig={VIEWABILITY_CONFIG}
+            snapToInterval={snapToInterval}
+            snapToOffsets={snapToOffsets}
+            decelerationRate="fast"
+            disableIntervalMomentum
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={Platform.OS === 'android'}
+            initialNumToRender={3}
+            maxToRenderPerBatch={3}
+            windowSize={5}
+            updateCellsBatchingPeriod={50}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.4}
+            onScrollEndDrag={handleListScrollEnd}
+            onMomentumScrollEnd={handleListScrollEnd}
+            ListEmptyComponent={renderListEmpty}
+            ListFooterComponent={renderListFooter}
+          />
+        </PullToRefresh>
+
+        {/* 로그인하지 않았으면 팔로잉 목록 대신 엠티뷰로 덮는다 (목록은 탭별 스크롤 위치 때문에 그대로 둔다) */}
+        {isFollowing && !isSignedIn && (
+          <View style={[styles.loginEmpty, { paddingBottom: fabHeight }]}>
+            <Empty
+              type="login"
+              title="로그인이 필요해요"
+              buttonLabel="로그인하러 가기"
+              onButtonPress={handlePressLogin}
+            />
+          </View>
+        )}
+      </Animated.View>
 
       <WriteFab navigation={navigation} expandedLabel="피드 더 둘러보기" onHeightChange={setFabHeight} />
     </View>
@@ -283,6 +353,15 @@ const styles = StyleSheet.create({
   topSafeArea: {
     width: '100%',
     zIndex: 10,
+    backgroundColor: colors.bgBase,
+  },
+  listTransition: {
+    flex: 1,
+  },
+  // FAB 에 가려지는 높이(paddingBottom)를 빼고 가운데에 둔다
+  loginEmpty: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
     backgroundColor: colors.bgBase,
   },
   postList: {

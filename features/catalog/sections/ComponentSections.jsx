@@ -28,7 +28,7 @@ import Menu from '../../../shared/components/action/menu/Menu';
 import MenuItem from '../../../shared/components/action/menu/Item';
 
 import CdCover from '../../../shared/components/atomic/CdCover';
-import { DividerLine } from '../../../shared/components/atomic/DividerLine';
+import { DIVIDER_TYPE, Divider } from '../../../shared/components/atomic/Divider';
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
 import MusicCoverImg from '../../../shared/components/atomic/MusicCoverImg';
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
@@ -41,6 +41,7 @@ import ListHeader from '../../../shared/components/content/ListHeader';
 import MusicCard from '../../../shared/components/content/MusicCard';
 import Stamp from '../../../shared/components/content/Stamp';
 import Profile from '../../../shared/components/content/profile/Profile';
+import { USERNAME_TAG_VARIANT } from '../../../shared/components/content/profile/UsernameTag';
 
 import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import RefreshSpinner from '../../../shared/components/feedback/RefreshSpinner';
@@ -78,27 +79,27 @@ const hasKyobo = (variant, size) =>
 
 // 카드 설명용 type 별 색 토큰 (Button.jsx VARIANT_STYLES)
 const BUTTON_COLOR_NOTES = {
-  [BUTTON_VARIANT.SOLID]: 'fillNeutral · fgNeutralInverted',
+  [BUTTON_VARIANT.SOLID]: 'fillNeutralStrong · fgNeutralInverted',
   [BUTTON_VARIANT.GHOST]: 'stroke strokeNeutralPrimary · fgNeutralPrimary',
   [BUTTON_VARIANT.WEAK]: 'fillNeutralWeak · fgNeutralSecondary',
-  [BUTTON_VARIANT.CRITICAL]: 'fillCritical · fgNeutralInverted',
+  [BUTTON_VARIANT.CRITICAL]: 'fillCriticalStrong · fgNeutralInverted',
   [BUTTON_VARIANT.INFO_WEAK]: 'fillInfoWeak · fgInfo',
   [BUTTON_VARIANT.DISABLED]: 'fillNeutralWeak · fgDisabled',
 };
 
 // 사이즈 스펙 표 (Button.jsx SIZE_STYLES / TYPOGRAPHY_STYLES 와 같은 값)
 const BUTTON_SIZE_SPECS = [
-  { size: 'S', padding: 'XXS / S', radius: 'XS', typo: 'labelLarge', kyobo: 'kyoboLabelLarge' },
-  { size: 'M', padding: 'M / L', radius: 'S', typo: 'labelLargeStrong' },
-  { size: 'L', padding: 'L / XL', radius: 'M', typo: 'labelXLargeStrong' },
-  { size: 'XL', padding: 'XL / XXL', radius: 'M', typo: 'labelXLargeStrong' },
+  { size: 'S', height: 28, padding: 'M', radius: 'S', typo: 'labelLarge', kyobo: 'kyoboLabelLarge' },
+  { size: 'M', height: 36, padding: 'L', radius: 'S', typo: 'labelLargeStrong' },
+  { size: 'L', height: 44, padding: 'XL', radius: 'M', typo: 'labelXLargeStrong' },
+  { size: 'XL', height: 52, padding: 'XXL', radius: 'XL', typo: 'labelXLargeStrong' },
 ];
 
 // IconButton 사이즈 스펙 (IconButton.jsx SIZE_STYLES 와 같은 값). button = icon + padding × 2
 const ICON_BUTTON_SIZE_SPECS = [
-  { size: 'S', icon: 14, padding: 'XS (4)', radius: 'XS (4)', button: 22, hitSlop: 11 },
+  { size: 'S', icon: 14, padding: 'XS (4)', radius: 'XS (5)', button: 22, hitSlop: 11 },
   { size: 'M', icon: 18, padding: 'S (6)', radius: 'S (8)', button: 30, hitSlop: 7 },
-  { size: 'L', icon: 20, padding: 'M (8)', radius: 'M (10)', button: 36, hitSlop: 4 },
+  { size: 'L', icon: 20, padding: 'M (8)', radius: 'S (8)', button: 36, hitSlop: 4 },
   { size: 'XL', icon: 22, padding: 'M (8)', radius: 'M (10)', button: 38, hitSlop: 3 },
   { size: 'XXL', icon: 28, padding: 'M (8)', radius: 'M (10)', button: 44, hitSlop: 0 },
 ];
@@ -120,7 +121,7 @@ const ActionSection = () => {
 
   return (
     <CatalogSection title="Action">
-      <Specimen name="Button · Size" note="padding 은 세로 / 가로" contentStyle={stretch} showSpec={false}>
+      <Specimen name="Button · Size" note="height 는 minHeight, padding 은 가로" contentStyle={stretch} showSpec={false}>
         {BUTTON_SIZE_SPECS.map((spec, index) => (
           <View key={spec.size} style={[styles.sizeRow, index > 0 && styles.sizeRowDivider]}>
             <Text style={styles.sizeName}>{spec.size}</Text>
@@ -130,6 +131,7 @@ const ActionSection = () => {
               </Button>
             </View>
             <View style={styles.sizeSpecCell}>
+              <SpecLine label="height" value={String(spec.height)} />
               <SpecLine label="padding" value={spec.padding} />
               <SpecLine label="radius" value={spec.radius} />
               <SpecLine label="font" value={spec.kyobo ? `${spec.typo} · 교보 ${spec.kyobo}` : spec.typo} />
@@ -295,8 +297,12 @@ const AtomicSection = () => (
       </View>
     </Specimen>
 
-    <Specimen name="DividerLine" contentStyle={stretch}>
-      <DividerLine />
+    <Specimen name="Divider · Line" note="텍스처 웨이브 선 · strokeNeutralPrimary" contentStyle={stretch}>
+      <Divider type={DIVIDER_TYPE.LINE} />
+    </Specimen>
+
+    <Specimen name="Divider · Fill" note="높이 6 · fillNeutralWeak" contentStyle={stretch}>
+      <Divider type={DIVIDER_TYPE.FILL} />
     </Specimen>
 
     <Specimen name="FontFallbackText" note="교보체에 없는 한자는 Kiwi Maru 로 대체">
@@ -318,7 +324,7 @@ const ContentSection = () => {
 
       <Specimen name="Profile · Feed" note="variant: Ghost / Solid">
         <Profile username="mongle" onPress={noop} />
-        <Profile username="mongle" variant={BUTTON_VARIANT.SOLID} onPress={noop} />
+        <Profile username="mongle" variant={USERNAME_TAG_VARIANT.SOLID} onPress={noop} />
       </Specimen>
 
       <Specimen name="Profile · Letter" note="nameSuffix: 에게 / 이가">
@@ -409,7 +415,7 @@ const NavigationSection = () => {
   return (
     <CatalogSection title="Navigation">
       <Specimen name="TopNavigation" contentStyle={stretch}>
-        <TopNavigation tabs={SAMPLE_TOP_TABS} activeTab={topTab} onChangeTab={setTopTab} onPressBell={noop} />
+        <TopNavigation tabs={SAMPLE_TOP_TABS} activeTab={topTab} onChangeTab={setTopTab} onPressButton={noop} />
       </Specimen>
 
       <Specimen name="TopSubNavigation" note="type: icon / text" contentStyle={stretch}>

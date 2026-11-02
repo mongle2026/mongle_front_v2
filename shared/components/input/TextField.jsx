@@ -12,11 +12,11 @@ import { typo } from '../../styles/typo';
 
 const BORDER_WIDTH = 1;
 
-// 상태별 입력창 테두리 색. 테두리가 없는 상태도 같은 두께의 투명 테두리를 둬서 크기가 바뀌지 않게 한다
+// 상태별 입력창 테두리 색
 const getBorderColor = ({ status, isFocused }) => {
   if (status === 'error') return colors.strokeCritical;
   if (isFocused) return colors.strokeInfo;
-  return 'transparent';
+  return colors.strokeNeutralSecondary;
 };
 
 const getDescriptionColor = status => {
@@ -30,7 +30,8 @@ const getDescriptionColor = status => {
  * @param {boolean} [required] true면 제목 옆에 필수 표시(*)를 붙입니다
  * @param {string} [prefix] 입력값 앞에 고정으로 붙는 글자
  * @param {string} [description] 입력창 아래 설명
- * @param {number} maxLength 최대 글자 수. 입력창 아래 오른쪽에 n/maxLength 로 항상 보여줍니다
+ * @param {number} maxLength 최대 글자 수. 입력창 아래 오른쪽에 n/maxLength 로 보여줍니다
+ * @param {boolean} [showCounter] false면 n/maxLength 글자 수를 숨깁니다
  * @param {'positive' | 'error'} [status] positive면 설명이 초록색,
  *   error면 테두리·설명·글자 수가 빨간색이 됩니다
  * @param {React.Ref} [containerRef] 제목부터 설명까지 감싼 바깥 View의 ref (위치 측정용)
@@ -45,6 +46,7 @@ const TextField = ({
   placeholder,
   description,
   maxLength,
+  showCounter = true,
   status,
   onFocus,
   onBlur,
@@ -107,9 +109,11 @@ const TextField = ({
           {description}
         </Text>
 
-        <Text style={[styles.descriptionText, { color: counterColor }]}>
-          {`${value?.length ?? 0}/${maxLength}`}
-        </Text>
+        {showCounter && (
+          <Text style={[styles.descriptionText, { color: counterColor }]}>
+            {`${value?.length ?? 0}/${maxLength}`}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -142,7 +146,7 @@ const styles = StyleSheet.create({
     ...typo.suitTitleSmallStrong,
   },
 
-  // 테두리 두께만큼 패딩을 줄여 테두리 유무와 상관없이 Figma 크기(안쪽 테두리)를 유지한다
+  // 테두리 두께만큼 패딩을 줄여 Figma 크기(안쪽 테두리)를 유지한다
   textField: {
     paddingVertical: padding.L - BORDER_WIDTH,
     paddingHorizontal: padding.XL - BORDER_WIDTH,
@@ -152,7 +156,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     borderRadius: radius.M,
     borderWidth: BORDER_WIDTH,
-    backgroundColor: colors.fillNeutralWeak,
   },
 
   inputText: {

@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     gap: padding.S,
     paddingVertical: padding.M, 
     paddingHorizontal: padding.L, 
-    borderRadius: radius.S,
+    borderRadius: radius.XL,
     borderWidth: 1.6,
     borderColor: 'transparent', 
     backgroundColor: colors.bgSurface, 
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   },
   slot: {
     height: PREVIEW_HEIGHT,
-    borderRadius: radius.XS, 
+    borderRadius: radius.XL, 
     backgroundColor: colors.strokeNeutralTertiary, // 이미지 로딩 전 lightgray 대체
     overflow: 'hidden',
   },

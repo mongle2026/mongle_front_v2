@@ -65,7 +65,7 @@ export const shadow = {
 };
 
 // ── colors: Color System의 시맨틱 토큰, palette 참조를 실제 값으로 resolve ──
-// 투명도가 있는 토큰은 '#rrggbb' + 알파 hex로 표현 (8% → 14, 13% → 21, 25% → 40, 50% → 80, 75% → bf)
+// 투명도가 있는 토큰은 '#rrggbb' + 알파 hex로 표현 (8% → 14, 11% → 1c, 13% → 21, 20% → 33, 25% → 40, 28% → 47, 50% → 80, 75% → bf)
 export const colors = {
   // ── bg ──
   bgBase: palette.neutral[100],
@@ -78,26 +78,29 @@ export const colors = {
   bgDimmedWeak: '#00000040',
 
   // ── fill ──
-  fillNeutral: palette.neutral[1000],
-  fillNeutralPress: palette.neutral.black,
+  fillNeutralStrong: palette.neutral[1000],
+  fillNeutralStrongPress: palette.neutral.black,
   fillNeutralWeak: `${palette.neutral.alpha}14`,
   fillNeutralWeakPress: `${palette.neutral.alpha}21`,
+  fillNeutralMedium: `${palette.neutral.alpha}33`,
+  fillNeutralMediumPress: `${palette.neutral.alpha}47`,
+  fillNeutralDisabled: `${palette.neutral.alpha}1c`,
   fillSurface: palette.neutral[0],
   fillSurfacePress: palette.neutral[50],
-  fillInfo: palette.blue[700],
-  fillInfoPress: palette.blue[800],
+  fillInfoStrong: palette.blue[700],
+  fillInfoStrongPress: palette.blue[800],
   fillInfoWeak: palette.blue[100],
   fillInfoWeakPress: palette.blue[200],
-  fillPositive: palette.green[600],
-  fillPositivePress: palette.green[700],
+  fillPositiveStrong: palette.green[600],
+  fillPositiveStrongPress: palette.green[700],
   fillPositiveWeak: palette.green[100],
   fillPositiveWeakPress: palette.green[200],
-  fillCritical: palette.red[600],
-  fillCriticalPress: palette.red[700],
+  fillCriticalStrong: palette.red[600],
+  fillCriticalStrongPress: palette.red[700],
   fillCriticalWeak: palette.red[100],
   fillCriticalWeakPress: palette.red[200],
-  fillWarning: palette.yellow[700],
-  fillWarningPress: palette.yellow[800],
+  fillWarningStrong: palette.yellow[700],
+  fillWarningStrongPress: palette.yellow[800],
   fillWarningWeak: palette.yellow[100],
   fillWarningWeakPress: palette.yellow[200],
 

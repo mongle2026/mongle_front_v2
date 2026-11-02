@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useState } from 'react';
-import { StyleSheet, Text, View, } from 'react-native';
+import { Pressable, StyleSheet, Text, View, } from 'react-native';
 
 import ProfileImg from '../../atomic/ProfileImg';
-import { Button, BUTTON_VARIANT } from '../../action/Button';
 import FontFallbackText from '../../atomic/FontFallbackText';
+import UsernameTag, { USERNAME_TAG_VARIANT } from './UsernameTag';
 
 import { colors } from '../../../styles/color';
 import { typo } from '../../../styles/typo';
@@ -20,7 +20,7 @@ const USERNAME_ROTATION_RADIAN =
   (Math.abs(USERNAME_ROTATION_DEGREE) * Math.PI) / 180;
 
 /**
- * Feed Profile의 username 버튼은 중심 기준 -4도 회전합니다.
+ * Feed Profile의 username 태그는 중심 기준 -4도 회전합니다.
  * 회전 후 왼쪽 아래 끝점이 기존 하단보다 내려오는 만큼 계산합니다.
  */
 const getRotatedEndpointOffset = (width, height) => {
@@ -41,13 +41,16 @@ const Profile = ({
   type = PROFILE_TYPE.FEED,
 
   imageUri,
+  // 탈퇴한 회원이면 사진 대신 탈퇴 회원 이미지로 고정한다
+  isWithdrawn = false,
+
+  // 누르면 프로필로 이동. Feed 는 이미지 · username 태그, Letter 는 전체 영역
+  onPress,
 
   // Feed
-  imageSize = 'M',
   username,
-  onPress,
-  // username 버튼 Button variant. 보관함 북마크에서 팔로우한 사람은 Solid
-  variant = BUTTON_VARIANT.GHOST,
+  // username 태그 variant. 팔로우한 사람은 Solid
+  variant = USERNAME_TAG_VARIANT.GHOST,
 
   // Letter
   recipientName,
@@ -58,7 +61,6 @@ const Profile = ({
   font,
   style,
   imageStyle,
-  buttonStyle,
   textStyle,
 }) => {
   const [endpointOffset, setEndpointOffset] = useState(0);
@@ -93,8 +95,18 @@ const Profile = ({
         ? typo.suitLabelLarge
         : typo.kyoboLabelLarge;
 
+    const LetterContainer = onPress ? Pressable : View;
+    const letterContainerProps = onPress
+      ? {
+        onPress,
+        accessibilityRole: 'button',
+        accessibilityLabel: `${recipientText} 프로필 보기`,
+      }
+      : null;
+
     return (
-      <View
+      <LetterContainer
+        {...letterContainerProps}
         style={[
           styles.letterContainer,
           style,
@@ -108,6 +120,7 @@ const Profile = ({
         >
           <ProfileImg
             imageUri={imageUri}
+            isWithdrawn={isWithdrawn}
             size="S"
           />
         </View>
@@ -117,6 +130,7 @@ const Profile = ({
             style={[
               letterTextStyle,
               styles.letterText,
+              isWithdrawn && styles.withdrawnLetterText,
               textStyle,
             ]}
           >
@@ -133,13 +147,19 @@ const Profile = ({
             {nameSuffix}
           </Text>
         </View>
-      </View>
+      </LetterContainer>
     );
   }
 
   /**
    * Feed
    */
+  // 이미지는 username 태그와 같은 프로필로 이동한다. 스크린 리더는 username 태그만 읽는다
+  const FeedImageArea = onPress ? Pressable : View;
+  const feedImageAreaProps = onPress
+    ? { onPress, accessible: false }
+    : null;
+
   return (
     <View
       style={[
@@ -150,7 +170,8 @@ const Profile = ({
         style,
       ]}
     >
-      <View
+      <FeedImageArea
+        {...feedImageAreaProps}
         style={[
           styles.feedImageArea,
           {
@@ -165,27 +186,25 @@ const Profile = ({
       >
         <ProfileImg
           imageUri={imageUri}
-          size={imageSize}
+          isWithdrawn={isWithdrawn}
+          size="S"
         />
-      </View>
+      </FeedImageArea>
 
       <View
         onLayout={handleUsernameLayout}
-        style={styles.usernameButtonArea}
+        style={styles.usernameTagArea}
       >
-        <Button
+        <UsernameTag
           variant={variant}
           font={font}
           onPress={onPress}
           accessibilityLabel={`${profileId} 프로필 보기`}
-          style={[
-            styles.usernameButton,
-            buttonStyle,
-          ]}
+          style={styles.usernameTag}
           textStyle={textStyle}
         >
           {profileId}
-        </Button>
+        </UsernameTag>
       </View>
     </View>
   );
@@ -206,18 +225,13 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
 
-  usernameButtonArea: {
+  usernameTagArea: {
     alignSelf: 'flex-end',
     flexShrink: 0,
   },
 
-  // 회전은 border를 가진 Button 자신에게 걸어야 합니다.
-  usernameButton: {
-    // Button의 기본 width: '100%'를 덮어씁니다.
-    width: 'auto',
-
-    overflow: 'hidden',
-
+  // 회전은 border를 가진 태그 자신에게 걸어야 합니다.
+  usernameTag: {
     transform: [
       {
         rotate: `${USERNAME_ROTATION_DEGREE}deg`,
@@ -250,6 +264,11 @@ const styles = StyleSheet.create({
 
   letterText: {
     color: colors.fgNeutralPrimary,
+  },
+
+  // 탈퇴한 회원 이름 '(탈퇴한 회원)'. 뒤에 붙는 말('이가')은 색을 바꾸지 않는다
+  withdrawnLetterText: {
+    color: colors.fgDisabled,
   },
 });
 

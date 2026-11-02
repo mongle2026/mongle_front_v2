@@ -46,6 +46,13 @@ const StampDetailScreen = ({ navigation, route }) => {
     [navigation],
   );
 
+  const handlePressSender = useCallback(
+    sender => {
+      navigation.navigate('UserProfile', { userId: sender.userId });
+    },
+    [navigation],
+  );
+
   return (
     <View style={styles.screen}>
       <Dim onPress={handleClose} accessibilityLabel="우표 상세 닫기" />
@@ -55,6 +62,7 @@ const StampDetailScreen = ({ navigation, route }) => {
           stampCode={stamp.id}
           detail={detail}
           onPressLetter={handlePressLetter}
+          onPressSender={handlePressSender}
           onClose={handleClose}
         />
       )}

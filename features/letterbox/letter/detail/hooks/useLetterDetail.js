@@ -32,11 +32,13 @@ function normalizeLetterDetail(data, userId) {
       userId: record?.userId,
       nickname: record?.user?.nickname ?? '',
       profileImageUri: resolveMediaUri(record?.user?.profileImageUrl),
+      isWithdrawn: Boolean(record?.user?.isWithdrawn),
     },
     receiver: {
       userId: letter.receiverId,
       nickname: letter.receiver?.nickname ?? '',
       profileImageUri: resolveMediaUri(letter.receiver?.profileImageUrl),
+      isWithdrawn: Boolean(letter.receiver?.isWithdrawn),
     },
     // 보낸이가 선택한 폰트
     font: normalizeFont(record?.font),

@@ -25,6 +25,7 @@ const SIZE_CONFIG = {
     typography: typo.suitLabelLarge,
     containerStyle: {
       padding: padding.M,
+      borderRadius: radius.M,
     },
   },
 };

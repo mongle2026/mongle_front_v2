@@ -10,19 +10,16 @@ import { formatMonthLabel } from '../../utils/formatMonthLabel';
 
 const COLUMNS = 2;
 
-// 첫 칸은 항상 '전체'(커버 = 가장 최신 글의 앨범 커버), 나머지는 글을 쓴 달 (yy년 m월)
-// allImageSource: 전체 카드 커버 / months: useMyFeedMonths 결과
-// onPressCard(month): 월 카드면 'YYYY-MM', 전체 카드면 undefined
-const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
-  const cards = [
-    { key: 'all', title: '전체', imageSource: allImageSource, month: undefined },
-    ...months.map(item => ({
-      key: item.month,
-      month: item.month,
-      title: formatMonthLabel(item.month),
-      imageSource: item.imageSource,
-    })),
-  ];
+// 글을 쓴 달 카드 (yy년 m월)
+// months: useMyFeedMonths 결과
+// onPressCard(month): 월 카드면 'YYYY-MM', 헤더 버튼(전체 보기)이면 undefined
+const AllFeedPreview = ({ months, onPressCard }) => {
+  const cards = months.map(item => ({
+    key: item.month,
+    month: item.month,
+    title: formatMonthLabel(item.month),
+    imageSource: item.imageSource,
+  }));
 
   // 한 줄에 COLUMNS개씩 배치 (마지막 줄이 모자라면 빈 칸으로 채워 너비 유지)
   const rows = [];
@@ -31,7 +28,7 @@ const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
   }
 
   return (
-    <>
+    <View style={styles.wrapper}>
       <ListHeader
         size="M"
         title="모든 기록"
@@ -39,6 +36,7 @@ const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
         onIconButtonPress={() => onPressCard?.()}
         iconButtonAccessibilityLabel="모든 기록 전체 보기"
         style={styles.listHeader}
+        textStyle={styles.listHeaderText}
       />
       <View style={styles.grid}>
         {rows.map((row, rowIndex) => (
@@ -57,13 +55,20 @@ const AllFeedPreview = ({ allImageSource, months, onPressCard }) => {
           </View>
         ))}
       </View>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // ListHeader + 목록을 한 묶음으로 (MyFeedSection 의 섹션 간격이 이 사이에만 들어가도록)
+  wrapper: {
+    alignSelf: 'stretch',
+  },
   listHeader: {
     backgroundColor: colors.bgBase,
+  },
+  listHeaderText: {
+    color: colors.fgNeutralPrimary,
   },
   grid: {
     alignSelf: 'stretch',

@@ -9,11 +9,14 @@ import * as Notifications from 'expo-notifications';
  * 바꿔야 하면 새 id 로 채널을 만들고 백엔드 channelId 도 함께 바꿔야 한다.
  */
 const NOTIFICATION_CHANNELS = [
+  { id: 'follow', name: '팔로우 알림' },
   { id: 'comment', name: '댓글 알림' },
   { id: 'letter_sent', name: '편지 전송 알림' },
   { id: 'letter_received', name: '편지 도착 알림' },
   { id: 'system', name: '시스템 알림' },
   { id: 'event', name: '이벤트 알림' },
+  // 야간 알림을 끈 사람에게 밤사이 쌓인 알림을 아침에 묶어서 보내는 푸시 (백엔드 NIGHT_SUMMARY_CHANNEL_ID)
+  { id: 'night_summary', name: '야간 알림 모음' },
 ];
 
 export const setupNotificationChannels = async () => {

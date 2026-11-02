@@ -7,7 +7,7 @@ import IcProfile from '../../../assets/icons/ic_profile.svg';
 import IcCalendar from '../../../assets/icons/ic_calendar.svg';
 
 // Shared Components & Providers
-import { DividerLine } from '../../../shared/components/atomic/DividerLine';
+import { Divider } from '../../../shared/components/atomic/Divider';
 import Profile from '../../../shared/components/content/profile/Profile';
 import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
@@ -110,7 +110,7 @@ const RecordScreen = ({ navigation, route }) => {
   const hasRecipient = !isLetter || Boolean(receiver);
   const hasDeliveryDate = !isLetter || Boolean(deliveryAt);
   const isNextReady = hasMusic && hasContent && hasRecipient && hasDeliveryDate;
-  const nextTextColor = isNextReady ? colors.fgNeutralSecondary : colors.fgDisabled;
+  const nextTextColor = isNextReady ? colors.fgNeutralPrimary : colors.fgDisabled;
 
   /* 작성 중인 값이 하나라도 있는지 (뒤로가기 시 확인 Dialog 노출 여부) */
   const hasWrittenAnything =
@@ -310,7 +310,7 @@ const RecordScreen = ({ navigation, route }) => {
       </View>
 
       <View style={styles.dividerContainer}>
-        <DividerLine />
+        <Divider />
       </View>
     </>
   );

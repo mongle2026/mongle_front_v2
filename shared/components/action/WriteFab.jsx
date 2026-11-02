@@ -9,6 +9,7 @@ import {
   useBottomNavigationWindowTop,
 } from '../navigation/bottomnavigation/BottomNavigation';
 import { useGlobalOverlay } from '../../providers/GlobalOverlayProvider';
+import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../hooks/useLoginDialog';
 import { colors } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
 
@@ -108,6 +109,7 @@ const WriteFab = ({ navigation, expandedLabel, onHeightChange }) => {
   const bottomNavigationWindowTop = useBottomNavigationWindowTop();
   const frame = useSafeAreaFrame();
   const { openOverlay, closeOverlay } = useGlobalOverlay();
+  const { requireLogin } = useLoginDialog();
 
   /*
    * 닫힌 FAB 는 화면(탭 네비게이터의 scene) 안에서 bottom: 0,
@@ -143,11 +145,18 @@ const WriteFab = ({ navigation, expandedLabel, onHeightChange }) => {
     setIsOpen(false);
   }, [closeOverlay, overlayId]);
 
+  // 로그인하지 않았으면 메뉴를 닫고 작성 화면 대신 로그인 안내 Dialog 를 띄운다
   const navigateToRecord = useCallback(type => {
     closeOverlay(overlayId);
     setIsOpen(false);
+
+    const description = type === 'letter'
+      ? LOGIN_DIALOG_DESCRIPTION.WRITE_LETTER
+      : LOGIN_DIALOG_DESCRIPTION.WRITE_FEED;
+    if (!requireLogin(description)) return;
+
     navigation.navigate('Record', { type });
-  }, [closeOverlay, navigation, overlayId]);
+  }, [closeOverlay, navigation, overlayId, requireLogin]);
 
   const handleFeedPress = useCallback(() => navigateToRecord('feed'), [navigateToRecord]);
   const handleLetterPress = useCallback(() => navigateToRecord('letter'), [navigateToRecord]);

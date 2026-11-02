@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Easing } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -22,9 +23,18 @@ import FeedDetailScreen from './features/feed/detail/FeedDetailScreen';
 import RecordScreen from './features/write/record/RecordScreen';
 import RecordEditScreen from './features/write/record/RecordEditScreen';
 import EnvelopeScreen from './features/write/envelope/EnvelopeScreen';
+import LetterSendScreen from './features/write/send/LetterSendScreen';
 import LetterBoxScreen from './features/letterbox/LetterBoxScreen';
 import ArchiveScreen from './features/archive/ArchiveScreen';
 import ProfileScreen from './features/profile/ProfileScreen';
+import ProfileInfoEditScreen from './features/profile/infoedit/ProfileInfoEditScreen';
+import ProfileFeedEditScreen from './features/profile/feededit/ProfileFeedEditScreen';
+import ProfileFollowScreen from './features/profile/follow/ProfileFollowScreen';
+import UserProfileScreen from './features/profile/user/UserProfileScreen';
+import SettingScreen from './features/setting/SettingScreen';
+import SettingNotificationScreen from './features/setting/notification/SettingNotificationScreen';
+import SettingAccountScreen from './features/setting/account/SettingAccountScreen';
+import SettingAccountWithdrawScreen from './features/setting/account/withdraw/SettingAccountWithdrawScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
@@ -89,6 +99,14 @@ const queryClient = new QueryClient({
   },
 });
 
+const TAB_FADE_TRANSITION_SPEC = {
+  animation: 'timing',
+  config: {
+    duration: 220,
+    easing: Easing.inOut(Easing.ease),
+  },
+};
+
 const MainTabNavigator = () => (
   <Tab.Navigator
     initialRouteName={MAIN_TAB_ROUTES.FEED}
@@ -97,6 +115,9 @@ const MainTabNavigator = () => (
       sceneStyle: {
         backgroundColor: colors.bgBase,
       },
+      // 탭을 옮길 때(하단 탭바 · 보관함 엠티뷰의 '피드 둘러보기' 등) 화면이 툭 바뀌지 않고 크로스페이드된다
+      animation: 'fade',
+      transitionSpec: TAB_FADE_TRANSITION_SPEC,
     }}
     tabBar={props => <BottomNavigation {...props} />}
   >
@@ -139,27 +160,43 @@ const StampDetailRoute = props => (
   </GestureHandlerRootView>
 );
 
-// 로그인 여부에 따라 화면 묶음을 바꾼다. 로그인 · 가입하거나 refresh 가 실패해 로그아웃되면
-// 바뀐 묶음의 첫 화면(MainTabs / Welcome)으로 자동으로 넘어간다
+/*
+ * MainTabs · FeedDetail · Notification · Setting 은 로그인하지 않아도 볼 수 있다
+ * (피드 추천 · 상세만 내용이 보이고 나머지 탭과 알림은 로그인 엠티뷰, 설정은 약관 및 정책부터).
+ * 나머지는 로그인 여부에 따라 묶음을 바꾼다. 로그인하지 않았을 때 Welcome 은 로그인 버튼 · Dialog 로 위에 띄운다.
+ * 로그인 · 가입하면 Welcome · 약관 · 가입 화면이 빠지면서 보던 화면(MainTabs / FeedDetail)으로 돌아오고,
+ * refresh 가 실패해 로그아웃되면 로그인 전용 화면이 빠지면서 남은 화면을 로그인 전 상태로 보여준다
+ */
 const RootNavigator = ({ isSignedIn }) => (
   <Stack.Navigator
     screenOptions={{
       headerShown: false,
     }}
   >
+    <Stack.Screen
+      name="MainTabs"
+      component={MainTabNavigator}
+    />
+    <Stack.Screen
+      name="FeedDetail"
+      component={FeedDetailRoute}
+      options={{
+        animation: 'ios_from_right',
+      }}
+    />
+    <Stack.Screen
+      name="Notification"
+      component={NotificationScreen}
+    />
+    <Stack.Screen
+      name="Setting"
+      component={SettingScreen}
+      options={{
+        animation: 'ios_from_right',
+      }}
+    />
     {isSignedIn ? (
       <Stack.Group>
-        <Stack.Screen
-          name="MainTabs"
-          component={MainTabNavigator}
-        />
-        <Stack.Screen
-          name="FeedDetail"
-          component={FeedDetailRoute}
-          options={{
-            animation: 'ios_from_right',
-          }}
-        />
         <Stack.Screen
           name="LetterDetail"
           component={LetterDetailScreen}
@@ -188,8 +225,13 @@ const RootNavigator = ({ isSignedIn }) => (
           component={EnvelopeScreen}
         />
         <Stack.Screen
-          name="Notification"
-          component={NotificationScreen}
+          name="LetterSend"
+          component={LetterSendScreen}
+          options={{
+            // 보내는 중에는 뒤로가기 제스처를 막는다 (완료 화면에서 닫기로 나간다)
+            gestureEnabled: false,
+            animation: 'fade',
+          }}
         />
         <Stack.Screen
           name="MyFeedGenre"
@@ -212,7 +254,57 @@ const RootNavigator = ({ isSignedIn }) => (
             animation: 'ios_from_right',
           }}
         />
-        {/* 개발 빌드에서만 등록하는 컴포넌트 카탈로그 (프로필 탭에서 진입) */}
+        <Stack.Screen
+          name="ProfileInfoEdit"
+          component={ProfileInfoEditScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="ProfileFeedEdit"
+          component={ProfileFeedEditScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="ProfileFollow"
+          component={ProfileFollowScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        {/* 다른 사람 프로필. params: { userId } (publicId) */}
+        <Stack.Screen
+          name="UserProfile"
+          component={UserProfileScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="SettingNotification"
+          component={SettingNotificationScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="SettingAccount"
+          component={SettingAccountScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="SettingAccountWithdraw"
+          component={SettingAccountWithdrawScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        {/* 개발 빌드에서만 등록하는 컴포넌트 카탈로그 (프로필의 설정 버튼을 길게 눌러 진입) */}
         {__DEV__ && (
           <Stack.Screen
             name="Catalog"
@@ -254,10 +346,12 @@ export default function App() {
     void restoreSession();
   }, [restoreSession]);
 
-  // 로그아웃하면 이전 계정으로 받아 둔 데이터를 지운다
+  // 로그아웃하면 이전 계정으로 받아 둔 데이터를 지운다.
+  // 피드는 로그인하지 않아도 떠 있으므로, 지금 화면이 쓰는(로그인 전 상태로 새로 받는) 조회는 남긴다
   useEffect(() => {
     if (authStatus === AUTH_STATUS.SIGNED_OUT) {
-      queryClient.clear();
+      queryClient.removeQueries({ type: 'inactive' });
+      queryClient.getMutationCache().clear();
     }
   }, [authStatus]);
 
@@ -281,7 +375,7 @@ export default function App() {
       console.warn('폰트를 불러오지 못했습니다.', error);
     }
 
-    // 저장된 로그인 정보를 읽을 때까지 스플래시를 유지해서 Welcome 이 잠깐 보이지 않게 한다
+    // 저장된 로그인 정보를 읽을 때까지 스플래시를 유지해서 로그인 전 화면이 잠깐 보이지 않게 한다
     if ((loaded || error) && isAuthRestored) {
       SplashScreen.hideAsync();
     }

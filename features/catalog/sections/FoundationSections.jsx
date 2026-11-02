@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   bar: {
     height: 12,
     borderRadius: radius.XS,
-    backgroundColor: colors.fillInfo,
+    backgroundColor: colors.fillInfoStrong,
   },
 
   radiusBox: {

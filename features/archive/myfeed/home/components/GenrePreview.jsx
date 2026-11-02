@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import ListHeader from '../../../../../shared/components/content/ListHeader';
 import { colors } from '../../../../../shared/styles/color';
@@ -10,7 +10,7 @@ import GenreCard from '../../../components/GenreCard';
 // genres: useMyFeedGenres 결과 (장르 + 앱 실행 동안 고정된 랜덤 커버)
 const GenrePreview = ({ genres, onPressMore, onPressGenre }) => {
   return (
-    <>
+    <View style={styles.wrapper}>
       <ListHeader
         size="M"
         title="장르별 기록"
@@ -18,6 +18,7 @@ const GenrePreview = ({ genres, onPressMore, onPressGenre }) => {
         onIconButtonPress={onPressMore}
         iconButtonAccessibilityLabel="장르별 기록 전체 보기"
         style={styles.listHeader}
+        textStyle={styles.listHeaderText}
       />
       <ScrollView
         horizontal
@@ -35,13 +36,20 @@ const GenrePreview = ({ genres, onPressMore, onPressGenre }) => {
           />
         ))}
       </ScrollView>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // ListHeader + 목록을 한 묶음으로 (MyFeedSection 의 섹션 간격이 이 사이에만 들어가도록)
+  wrapper: {
+    alignSelf: 'stretch',
+  },
   listHeader: {
     backgroundColor: colors.bgBase,
+  },
+  listHeaderText: {
+    color: colors.fgNeutralPrimary,
   },
   horizontalScroll: {
     alignSelf: 'stretch',

@@ -52,7 +52,7 @@ export const WriteImg = memo(
     style,
     pointerEvents,
     ratio = WRITE_IMG_RATIO.FOUR_THREE,
-    borderRadius = radius.M,
+    borderRadius = radius.XL,
     effect = WRITE_IMG_EFFECT.PRINT,
   }) => {
     const aspectRatio =

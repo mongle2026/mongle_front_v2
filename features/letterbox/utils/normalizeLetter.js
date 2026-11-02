@@ -17,9 +17,11 @@ export function normalizeLetterboxItem(item) {
     letterId: item.letterId,
     profileImageUri: resolveMediaUri(counterpart?.profileImageUrl),
     nickname: counterpart?.nickname ?? '',
+    isWithdrawn: Boolean(counterpart?.isWithdrawn),
     // 편지 뒷면(Letter type="back")에 쓰는 받는 사람/보낸 사람 이름
     recipientName: item.receiver?.nickname ?? '',
     senderName: item.sender?.nickname ?? '',
+    isSenderWithdrawn: Boolean(item.sender?.isWithdrawn),
     receivedAt: item.deliveryAt,
     createdAt: item.createdAt,
     isRead: Boolean(item.isRead),

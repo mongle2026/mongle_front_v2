@@ -69,3 +69,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 }));
+
+// 로그인하지 않아도 피드(추천)와 피드 상세는 볼 수 있다. 로그인이 필요한 화면 · 동작을 가를 때 쓴다
+export const useIsSignedIn = () =>
+  useAuthStore(state => state.status === AUTH_STATUS.SIGNED_IN);

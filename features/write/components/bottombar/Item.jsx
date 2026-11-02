@@ -7,11 +7,10 @@ import {
 
 import { colors } from '../../../../shared/styles/color';
 import { typo } from '../../../../shared/styles/typo';
-import {
-  padding,
-  radius,
-} from '../../../../shared/styles/token';
+import { padding } from '../../../../shared/styles/token';
 import { FONT } from '../../../../shared/styles/fontType';
+
+const HIT_SLOP = { top: 3, bottom: 3 };
 
 const Item = ({
   text,
@@ -27,7 +26,9 @@ const Item = ({
   return (
     <Pressable
       onPress={onPress}
+      hitSlop={HIT_SLOP}
       accessibilityRole="button"
+      accessibilityState={{ selected }}
       style={styles.container}
     >
       <Text
@@ -46,7 +47,8 @@ export default memo(Item);
 
 const styles = StyleSheet.create({
   container: {
-    height: 44,
+    // BottomBar 높이(38)에 맞춘다. 터치 영역은 hitSlop으로 44를 채운다
+    height: 38,
 
     paddingVertical: padding.XS,
     paddingHorizontal: padding.M,
@@ -54,8 +56,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-start',
-
-    borderRadius: radius.M,
   },
   text: {
     color: colors.fgNeutralSecondary,

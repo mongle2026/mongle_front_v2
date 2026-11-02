@@ -1,5 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import Animated, {
+  useAnimatedKeyboard,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import MusicCard from '../../../shared/components/content/MusicCard';
 import ImageViewer from '../../../shared/components/content/ImageViewer';
@@ -13,11 +18,9 @@ import { useDialog } from '../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
-import {
-  useFloatingBarPlacement,
-  useKeyboardHeight,
-} from '../../../shared/hooks/useFloatingBottomOffset';
+import { useKeyboardHeight } from '../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
 import useDeletedContentDialog, { isDeletedContentError } from '../../../shared/hooks/useDeletedContentDialog';
 
 import { colors } from '../../../shared/styles/color';
@@ -37,6 +40,7 @@ import useDoubleTapLike from '../hooks/useDoubleTapLike';
 import FeedDetailContent from './components/FeedDetailContent';
 import CommentSection from './components/CommentSection';
 import CommentComposer from './components/CommentComposer';
+import KeyboardGapFill from '../../../shared/components/layout/KeyboardGapFill';
 import FeedDetailHeader from './components/FeedDetailHeader';
 import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import CommentMenuOverlay from './components/CommentMenuOverlay';
@@ -48,12 +52,13 @@ import useCommentComposer from './hooks/useCommentComposer';
 import useScrollToComment from './hooks/useScrollToComment';
 import useScrollToReplyTarget from './hooks/useScrollToReplyTarget';
 import useDeletedCommentToast from './hooks/useDeletedCommentToast';
-import { isSameId } from '../../../shared/utils/id';
+import { hasId, isSameId } from '../../../shared/utils/id';
 
 const FeedDetailScreen = ({ navigation, route }) => {
   const { openDialog } = useDialog();
   const { openOverlay, showToast, hideToast } = useGlobalOverlay();
   const { currentUser, userId } = useCurrentUser();
+  const { requireLogin } = useLoginDialog();
 
   const commentBarRef = useRef(null);
 
@@ -70,16 +75,28 @@ const FeedDetailScreen = ({ navigation, route }) => {
   } = useScrollToComment({ shouldScrollToComment });
 
   /*
-   * commentBarBottom  : 댓글 입력바를 화면 아래에서 띄우는 값(키보드 높이)
-   * commentBarPadding : 입력바 안쪽 SafeArea 여백(홈 인디케이터)
-   * floatingBottomOffset : Toast 처럼 바 없이 떠야 하는 요소용 총 여백
+   * 댓글 입력바 위치.
+   * 바는 키보드 높이를 프레임마다 따라가며(useAnimatedKeyboard) 키보드와 한 몸처럼 아래에서 올라온다.
+   * 안쪽 아래 여백은 항상 홈 인디케이터만큼 두고, 키보드가 올라오면 그 여백만큼은 키보드 뒤로 겹쳐서
+   * 여백이 툭 사라지는 순간 없이 이어지게 한다.
+   *
+   * keyboardHeight    : 키보드 이벤트로 받은 최종 키보드 높이 (내려가 있으면 0)
+   * commentBarBottom  : 키보드가 다 올라왔을 때 바를 화면 아래에서 띄우는 값 (스크롤 여백 · 위치 계산용)
+   * commentBarPadding : 바 안쪽 아래 여백 (홈 인디케이터)
    */
-  const {
-    bottom: commentBarBottom,
-    paddingBottom: commentBarPadding,
-    total: floatingBottomOffset,
-  } = useFloatingBarPlacement();
-  const keyboardHeight = useKeyboardHeight();
+  const insets = useSafeAreaInsets();
+  // iOS 레이아웃 애니메이션은 끄고, 바 움직임은 아래 keyboard 값으로 직접 그린다
+  const keyboardHeight = useKeyboardHeight({ animateLayout: false });
+  const keyboard = useAnimatedKeyboard();
+
+  const commentBarPadding = insets.bottom;
+  const commentBarBottom = Math.max(keyboardHeight - insets.bottom, 0);
+
+  const commentBarAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: -Math.max(keyboard.height.value - insets.bottom, 0) },
+    ],
+  }));
 
   const [isFeedMenuOpen, setIsFeedMenuOpen] = useState(false);
   const [commentBarHeight, setCommentBarHeight] = useState(0);
@@ -168,12 +185,13 @@ const FeedDetailScreen = ({ navigation, route }) => {
     handleScrollViewLayout,
     setReplyScrollTarget,
     clearReplyScrollTarget,
+    revealComment,
   } = useScrollToReplyTarget({
     scrollViewRef,
-    commentBarRef,
     requestKey: replyFocusRequestKey,
     isKeyboardVisible: keyboardHeight > 0,
     commentBarHeight,
+    commentBarBottom,
   });
 
   const {
@@ -185,7 +203,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
     handlePressDeleteComment,
     refreshCommentMenuPosition,
   } = useCommentMenu({
-    commentBarRef,
     commentBarHeight,
     commentBarBottom,
     isKeyboardVisible: keyboardHeight > 0,
@@ -215,6 +232,17 @@ const FeedDetailScreen = ({ navigation, route }) => {
     // 내 글·요청 중 확인은 useFollow 가 한다
     toggleFollow(feed.user?.userId, Boolean(feed.user?.isFollowing));
   }, [feed, toggleFollow]);
+
+  // 글 작성자 · 댓글 작성자 프로필로 이동 (내 프로필은 넘기지 않는다)
+  const handlePressUserProfile = useCallback(targetUserId => {
+    if (!hasId(targetUserId)) return;
+
+    navigation.navigate('UserProfile', { userId: targetUserId });
+  }, [navigation]);
+
+  const handlePressAuthorProfile = useCallback(() => {
+    handlePressUserProfile(feed?.user?.userId);
+  }, [feed, handlePressUserProfile]);
 
   const handlePressLike = useCallback(() => {
     if (!feed) return;
@@ -319,6 +347,12 @@ const FeedDetailScreen = ({ navigation, route }) => {
       ),
     });
   }, [deleteFeed, isDeletingFeed, openDialog]);
+
+  // 로그인하지 않았으면 댓글을 보내지 않고 로그인 안내 Dialog 를 띄운다
+  const canSubmitComment = useCallback(
+    () => requireLogin(LOGIN_DIALOG_DESCRIPTION.COMMENT),
+    [requireLogin],
+  );
 
   const handleCommentBarLayout = useCallback(event => {
     const height = event.nativeEvent.layout.height;
@@ -459,6 +493,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
           isFollowing={isFollowing}
           showFollowButton={!isMine}
           followDisabled={isTargetPending(user.userId)}
+          onPressProfile={isMine ? undefined : handlePressAuthorProfile}
           onPressFollow={handlePressFollow}
         />
 
@@ -500,24 +535,25 @@ const FeedDetailScreen = ({ navigation, route }) => {
             openCommentMenuId={commentMenu?.comment?.commentId ?? null}
             onPressMenu={handleOpenCommentMenu}
             onPressReply={handlePressReply}
+            onPressProfile={handlePressUserProfile}
+            onNewCommentLayout={revealComment}
           />
         </View>
       </ScrollView>
 
-      <View
+      <Animated.View
         ref={commentBarRef}
         collapsable={false}
         onLayout={handleCommentBarLayout}
         style={[
           styles.commentBarContainer,
-          {
-            bottom: commentBarBottom,
-            paddingBottom: commentBarPadding,
-          },
+          { paddingBottom: commentBarPadding },
+          commentBarAnimatedStyle,
         ]}
       >
         <CommentComposer
           onSubmit={handleSubmitComment}
+          canSubmit={canSubmitComment}
           onClose={handleCloseComposer}
           disabled={isCreatingComment}
           profileImageUri={currentUser?.profileImageUri}
@@ -525,7 +561,10 @@ const FeedDetailScreen = ({ navigation, route }) => {
           isReply={!!replyTarget}
           focusRequestKey={replyFocusRequestKey}
         />
-      </View>
+
+        {/* iOS 키보드 둥근 모서리 틈으로 댓글 목록이 비치지 않게 바 배경을 키보드 뒤까지 늘린다 */}
+        <KeyboardGapFill height={keyboardHeight} />
+      </Animated.View>
 
       {commentMenu && (
         <CommentMenuOverlay
@@ -567,6 +606,7 @@ const styles = StyleSheet.create({
 
   commentBarContainer: {
     position: 'absolute',
+    bottom: 0,
     left: 0,
     right: 0,
     width: '100%',

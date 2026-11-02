@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors } from '../../styles/color';
+import { radius } from '../../styles/token';
 
 const PETAL_COUNT = 8;
 export const REFRESH_SPINNER_SIZE = 24;
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
   petal: {
     width: PETAL_WIDTH,
     height: PETAL_LENGTH,
-    borderRadius: PETAL_WIDTH / 2,
+    borderRadius: radius[999],
     backgroundColor: colors.fgNeutralTertiary,
   },
 });

@@ -1,5 +1,13 @@
-import { StyleSheet } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { colors } from '../../styles/color';
 import { padding, radius } from '../../styles/token';
@@ -37,33 +45,34 @@ const { S, M, L, XL } = BUTTON_SIZE;
 
 /**
  * 버튼 크기. 모든 variant가 S / M / L / XL 을 가진다.
+ * 높이는 폰트와 상관없이 minHeight 로 정한다. height 로 고정하면 시스템 글자 크기를 키웠을 때 글자가 잘린다.
  *
  * inline-flex는 React Native에 없으므로
  * alignSelf: 'flex-start'로 content width를 사용합니다.
  */
 const SIZE_STYLES = {
   [S]: {
-    paddingVertical: padding.XXS,
-    paddingHorizontal: padding.S,
-    borderRadius: radius.XS,
+    minHeight: 28,
+    paddingHorizontal: padding.M,
+    borderRadius: radius.S,
   },
 
   [M]: {
-    paddingVertical: padding.M,
+    minHeight: 36,
     paddingHorizontal: padding.L,
     borderRadius: radius.S,
   },
 
   [L]: {
-    paddingVertical: padding.L,
+    minHeight: 44,
     paddingHorizontal: padding.XL,
     borderRadius: radius.M,
   },
 
   [XL]: {
-    paddingVertical: padding.XL,
+    minHeight: 52,
     paddingHorizontal: padding.XXL,
-    borderRadius: radius.M,
+    borderRadius: radius.XL,
   },
 };
 
@@ -113,7 +122,7 @@ const TYPOGRAPHY_STYLES = {
 const VARIANT_STYLES = {
   [SOLID]: {
     container: {
-      backgroundColor: colors.fillNeutral,
+      backgroundColor: colors.fillNeutralStrong,
       borderWidth: 0,
     },
 
@@ -147,7 +156,7 @@ const VARIANT_STYLES = {
 
   [CRITICAL]: {
     container: {
-      backgroundColor: colors.fillCritical,
+      backgroundColor: colors.fillCriticalStrong,
       borderWidth: 0,
     },
 
@@ -184,11 +193,14 @@ const VARIANT_STYLES = {
  * Ghost 는 press 배경이 없고, Disabled 는 눌리지 않는다.
  */
 const PRESSED_CONTAINER_STYLES = {
-  [SOLID]: { backgroundColor: colors.fillNeutralPress },
+  [SOLID]: { backgroundColor: colors.fillNeutralStrongPress },
   [WEAK]: { backgroundColor: colors.fillNeutralWeakPress },
-  [CRITICAL]: { backgroundColor: colors.fillCriticalPress },
+  [CRITICAL]: { backgroundColor: colors.fillCriticalStrongPress },
   [INFO_WEAK]: { backgroundColor: colors.fillInfoWeakPress },
 };
+
+// variant 가 바뀔 때(예: 팔로우 Solid → 팔로잉 Ghost) 이전 모습이 이 시간 동안 흐려지며 새 모습으로 넘어간다
+const VARIANT_TRANSITION_TIMING = { duration: 380, easing: Easing.inOut(Easing.cubic) };
 
 const resolveVariant = variant => {
   if (VARIANT_STYLES[variant]) {
@@ -206,11 +218,16 @@ export const Button = ({
   font = FONT.KYOBO,
 
   disabled = false,
+  // 요청을 기다리는 동안 글자 대신 로딩 모양을 보이고 누를 수 없게 한다
+  loading = false,
 
   onPress,
 
   style,
   textStyle,
+
+  // variant 가 바뀌는 순간 투명 배경(Ghost) 쪽 모습을 그릴 때 깔 색. 버튼이 놓인 화면 배경색과 같게 둔다
+  transitionBackdropColor = colors.bgSurface,
 
   ...props
 }) => {
@@ -233,6 +250,47 @@ export const Button = ({
     disabled ||
     currentVariant === DISABLED;
 
+  // 로딩 중에는 모습은 그대로 두고 누르는 것만 막는다
+  const isPressable = !isDisabled && !loading;
+
+  /*
+   * variant 전환 크로스페이드.
+   * 새 variant 는 바로 그리고, 그 위에 직전 모습(배경 · 테두리 · 글자)을 한 겹 덮어 두었다가 흐리게 걷어낸다.
+   * 글자도 바뀌는 경우(팔로우 → 팔로잉)가 있어서 직전 children 도 같이 기억한다.
+   *
+   * 바뀐 것을 렌더 중에 알아채 같은 커밋에 덮개를 붙인다.
+   * (effect 에서 붙이면 새 모습이 한 프레임 먼저 보여 전환이 아니라 깜빡임처럼 보인다)
+   */
+  const [renderedVariant, setRenderedVariant] = useState(currentVariant);
+  const [transition, setTransition] = useState(null);
+  // 마지막으로 화면에 그려진 글자 (variant 가 바뀌는 순간의 '직전 글자')
+  const committedChildrenRef = useRef(children);
+
+  if (renderedVariant !== currentVariant) {
+    setTransition({
+      id: (transition?.id ?? 0) + 1,
+      from: { variant: renderedVariant, children: committedChildrenRef.current },
+    });
+    setRenderedVariant(currentVariant);
+  }
+
+  useEffect(() => {
+    committedChildrenRef.current = children;
+  });
+
+  const handleTransitionEnd = useCallback(id => {
+    setTransition(current => (current?.id === id ? null : current));
+  }, []);
+
+  // 테두리가 있는 variant(Ghost)도 Figma 처럼 테두리를 안쪽에 그려, 다른 variant 와 크기를 같게 맞춘다
+  const borderWidth = variantStyle.container.borderWidth ?? 0;
+  const sizeWithBorderStyle = borderWidth > 0
+    ? {
+      ...sizeStyle,
+      paddingHorizontal: sizeStyle.paddingHorizontal - borderWidth,
+    }
+    : sizeStyle;
+
   return (
     <Pressable
       {...props}
@@ -240,36 +298,129 @@ export const Button = ({
       accessibilityState={{
         ...props.accessibilityState,
         disabled: isDisabled,
+        busy: loading,
       }}
-      disabled={isDisabled}
-      onPress={isDisabled ? undefined : onPress}
+      disabled={!isPressable}
+      onPress={isPressable ? onPress : undefined}
       style={state => [
         styles.container,
-        sizeStyle,
+        sizeWithBorderStyle,
         variantStyle.container,
-        state.pressed && !isDisabled && PRESSED_CONTAINER_STYLES[currentVariant],
+        state.pressed && isPressable && PRESSED_CONTAINER_STYLES[currentVariant],
         typeof style === 'function'
           ? style(state)
           : style,
       ]}
     >
+      {/* 로딩 중에도 글자 자리를 그대로 두어 버튼 크기가 바뀌지 않게 한다 */}
       <FontFallbackText
         numberOfLines={1}
         style={[
           typographyStyle,
           variantStyle.text,
           textStyle,
+          loading && styles.hidden,
         ]}
       >
         {children}
       </FontFallbackText>
+
+      {loading && (
+        <View style={styles.loadingLayer} pointerEvents="none">
+          <ActivityIndicator color={variantStyle.text.color} />
+        </View>
+      )}
+
+      {transition && (
+        <VariantFadeOutLayer
+          key={transition.id}
+          id={transition.id}
+          fromVariantStyle={VARIANT_STYLES[transition.from.variant]}
+          borderRadius={sizeStyle.borderRadius}
+          // 덮개는 새 variant 의 테두리 바깥까지 버튼 전체를 덮는다
+          inset={-borderWidth}
+          backdropColor={transitionBackdropColor}
+          typographyStyle={typographyStyle}
+          textStyle={textStyle}
+          onEnd={handleTransitionEnd}
+        >
+          {transition.from.children}
+        </VariantFadeOutLayer>
+      )}
     </Pressable>
+  );
+};
+
+/* 직전 variant 모습. 처음 그려질 때 완전히 보였다가 서서히 사라진다 */
+const VariantFadeOutLayer = ({
+  id,
+  fromVariantStyle,
+  borderRadius,
+  inset,
+  backdropColor,
+  typographyStyle,
+  textStyle,
+  onEnd,
+  children,
+}) => {
+  const opacity = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withTiming(0, VARIANT_TRANSITION_TIMING, finished => {
+      if (finished) scheduleOnRN(onEnd, id);
+    });
+  }, [id, onEnd, opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        styles.transitionLayer,
+        { top: inset, right: inset, bottom: inset, left: inset, borderRadius },
+        fromVariantStyle.container,
+        // 투명 배경이었다면 화면 배경색을 깔아, 새 배경이 순간 드러나지 않고 서서히 비치게 한다
+        fromVariantStyle.container.backgroundColor === 'transparent' && {
+          backgroundColor: backdropColor,
+        },
+        animatedStyle,
+      ]}
+    >
+      <FontFallbackText
+        numberOfLines={1}
+        style={[typographyStyle, fromVariantStyle.text, textStyle]}
+      >
+        {children}
+      </FontFallbackText>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'flex-start',
+
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // 버튼 전체를 덮는 직전 모습. 가운데 정렬이라 글자가 새 글자와 같은 자리에 겹친다
+  transitionLayer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  hidden: {
+    opacity: 0,
+  },
+
+  // 글자 자리 위 가운데에 로딩 모양을 겹친다
+  loadingLayer: {
+    ...StyleSheet.absoluteFill,
 
     justifyContent: 'center',
     alignItems: 'center',

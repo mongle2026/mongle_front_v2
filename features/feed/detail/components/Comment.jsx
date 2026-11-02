@@ -20,12 +20,17 @@ import { typo } from '../../../../shared/styles/typo';
 
 const Comment = ({
   userCode,
+  // 탈퇴한 회원의 댓글이면 아이디 대신 닉네임(서버가 '(탈퇴한 회원)'으로 보낸다), 프로필 사진은 탈퇴 회원 이미지로 고정한다
+  isWithdrawn = false,
+  nickname,
   comment,
   createdAt,
   profileImageUrl,
   depth = 0,
   onPressMenu,
   onPressReply,
+  // 프로필 이미지를 누르면 작성자 프로필로 이동. 없으면 본문과 같이 답글 달기로 이어진다
+  onPressProfile,
   showMenu = true,
   isMenuOpen = false,
   style,
@@ -35,6 +40,7 @@ const Comment = ({
   const menuButtonRef = useRef(null);
 
   const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
+  const authorName = isWithdrawn ? nickname : `@${normalizedUserCode}`;
 
   // 키보드가 올라온 뒤 이 댓글이 가려졌는지 다시 재야 해서
   // 좌표 대신 View ref를 넘긴다.
@@ -83,19 +89,34 @@ const Comment = ({
             (isMenuOpen || pressed) && styles.activeContent,
           ]}
         >
-          <ProfileImg
-            imageUri={profileImageUrl}
-            size="M"
-          />
+          {onPressProfile ? (
+            <Pressable
+              onPress={onPressProfile}
+              accessibilityRole="button"
+              accessibilityLabel={`${authorName} 프로필 보기`}
+            >
+              <ProfileImg
+                imageUri={profileImageUrl}
+                isWithdrawn={isWithdrawn}
+                size="M"
+              />
+            </Pressable>
+          ) : (
+            <ProfileImg
+              imageUri={profileImageUrl}
+              isWithdrawn={isWithdrawn}
+              size="M"
+            />
+          )}
 
           <View style={styles.body}>
             <View style={styles.header}>
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={styles.userId}
+                style={[styles.userId, isWithdrawn && styles.withdrawnUserId]}
               >
-                @{normalizedUserCode}
+                {authorName}
               </Text>
 
               <Text style={styles.date}>
@@ -169,7 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: gap.M,
-    borderRadius: radius.M,
+    borderRadius: radius.XL,
     backgroundColor: colors.fillSurface,
   },
 
@@ -197,6 +218,11 @@ const styles = StyleSheet.create({
     ...typo.suitLabelMediumStrong,
     flexShrink: 1,
     color: colors.fgNeutralTertiary,
+  },
+
+  // 탈퇴한 회원 이름 '(탈퇴한 회원)'
+  withdrawnUserId: {
+    color: colors.fgDisabled,
   },
 
   date: {

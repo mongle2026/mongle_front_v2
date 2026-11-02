@@ -1,5 +1,6 @@
 import { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -20,6 +21,7 @@ import { NOTIFICATION_TYPE } from './constants';
 import useNotifications from './hooks/useNotifications';
 import { getNotificationRoute } from './utils/getNotificationRoute';
 import useCurrentUser from '../../shared/hooks/useCurrentUser';
+import { useIsSignedIn } from '../../shared/auth/useAuthStore';
 
 // type이 null이면 전체
 const NOTIFICATION_FILTERS = [
@@ -39,12 +41,20 @@ const renderNotificationSeparator = () => (
   <View style={styles.notificationSeparator} />
 );
 
+// 필터를 바꾸면 목록이 툭 바뀌지 않고 살짝 위로 떠오르며 나타난다
+const LIST_ENTERING = FadeInUp.duration(220).withInitialValues({
+  opacity: 0,
+  transform: [{ translateY: 8 }],
+});
+
 const EMPTY_NOTIFICATION_BODY = '아직 알림이 없어요.\n새로운 소식이 생기면 알려드릴게요!';
 
 const NotificationScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [activeFilterIndex, setActiveFilterIndex] = useState(0);
-  const { userId } = useCurrentUser();
+  const { userId, currentUser } = useCurrentUser();
+  const isSignedIn = useIsSignedIn();
+  const myNickname = currentUser?.nickname;
 
   // 페이지 단위로 받아서 탭마다 서버에서 걸러 받는다
   const { type } = NOTIFICATION_FILTERS[activeFilterIndex];
@@ -69,11 +79,12 @@ const NotificationScreen = ({ navigation }) => {
       return (
         <NotificationListItem
           {...item}
+          myNickname={myNickname}
           onPress={route ? () => navigation.navigate(route.name, route.params) : undefined}
         />
       );
     },
-    [navigation]
+    [navigation, myNickname]
   );
 
   // 로딩 중에는 엠티뷰가 깜빡이지 않게 띄우지 않는다
@@ -100,6 +111,10 @@ const NotificationScreen = ({ navigation }) => {
 
   const handlePressBack = useCallback(() => navigation?.goBack(), [navigation]);
 
+  const handlePressLogin = useCallback(() => {
+    navigation.navigate('Welcome');
+  }, [navigation]);
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <TopSubNavigation
@@ -120,20 +135,36 @@ const NotificationScreen = ({ navigation }) => {
         backgroundColor={colors.bgSurface}
       />
 
-      {/* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */}
-      <View style={styles.listContainer}>
-        <FlatList
-          data={notifications}
-          keyExtractor={notificationKeyExtractor}
-          renderItem={renderNotification}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.5}
-          ItemSeparatorComponent={renderNotificationSeparator}
-          ListEmptyComponent={renderListEmpty}
-          contentContainerStyle={listContentStyle}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+      {/* 로그인하지 않았으면 필터 탭 아래에 엠티뷰만 보여준다 */}
+      {isSignedIn ? (
+        /* 목록을 Tabs 하단 그라데이션 밑으로 올려 스크롤 시 흐려지며 사라지게 한다 */
+        <Animated.View
+          key={activeFilterIndex}
+          entering={LIST_ENTERING}
+          style={styles.listContainer}
+        >
+          <FlatList
+            data={notifications}
+            keyExtractor={notificationKeyExtractor}
+            renderItem={renderNotification}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            ItemSeparatorComponent={renderNotificationSeparator}
+            ListEmptyComponent={renderListEmpty}
+            contentContainerStyle={listContentStyle}
+            showsVerticalScrollIndicator={false}
+          />
+        </Animated.View>
+      ) : (
+        <View style={[styles.loginEmpty, { paddingBottom: insets.bottom }]}>
+          <Empty
+            type="login"
+            title="로그인이 필요해요"
+            buttonLabel="로그인하러 가기"
+            onButtonPress={handlePressLogin}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -159,6 +190,10 @@ const styles = StyleSheet.create({
   },
   notificationSeparator: {
     height: gap.S,
+  },
+  loginEmpty: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });
 

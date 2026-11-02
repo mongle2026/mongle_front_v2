@@ -8,6 +8,7 @@ import IlEmptyLetter from '../../../assets/illustrations/il_empty_letter.svg';
 import IlEmptyArchive from '../../../assets/illustrations/il_empty_archive.svg';
 import IlEmptyNotification from '../../../assets/illustrations/il_empty_notification.svg';
 import IlEmptyBookmark from '../../../assets/illustrations/il_empty_bookmark.svg';
+import IlEmptyLogin from '../../../assets/illustrations/il_empty_login.svg';
 
 import {
   Button,
@@ -54,6 +55,9 @@ const Empty = ({
 
       case 'bookmark':
         return IlEmptyBookmark;
+
+      case 'login':
+        return IlEmptyLogin;
 
       default:
         return null;

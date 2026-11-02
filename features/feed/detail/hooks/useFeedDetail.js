@@ -33,7 +33,8 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess, onDelet
       return normalizeFeedItem(response.data);
     },
 
-    enabled: isConfigured && hasId(feedId) && hasId(userId),
+    // 로그인하지 않아도(userId 없음) 볼 수 있다
+    enabled: isConfigured && hasId(feedId),
 
     placeholderData: () => findFeedItemInHomeCache(
       queryClient,

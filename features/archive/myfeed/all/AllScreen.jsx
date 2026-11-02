@@ -269,7 +269,6 @@ const AllScreen = ({ navigation, route }) => {
         onChangeText={setKeyword}
         placeholder={SEARCH_PLACEHOLDER}
         backgroundColor={colors.bgBase}
-        fieldBackgroundColor={colors.fillNeutralWeakPress}
         collapsed={isSearchFieldCollapsed}
         returnKeyType="search"
         autoCorrect={false}

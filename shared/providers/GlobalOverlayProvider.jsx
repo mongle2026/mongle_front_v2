@@ -280,13 +280,17 @@ const OverlayDim = memo(({
       opacity: opacity.value,
     }));
 
+  // opacity가 1이 되면 레이아웃 속성만 남아 flatten될 수 있어서,
+  // 그때 Dim이 다시 삽입되며 시트보다 위로 올라가지 않도록 막는다 (iOS)
   return (
     <Animated.View
+      collapsable={false}
       pointerEvents={
         visible ? 'box-none' : 'none'
       }
       style={[
         StyleSheet.absoluteFill,
+        styles.dimLayer,
         animatedStyle,
       ]}
     >
@@ -681,8 +685,10 @@ const GlobalOverlayProvider = ({
                   styles.overlay
                 }
               >
+                {/* 빈 View는 flatten되면 터치를 막지 못해서 collapsable={false}로 남긴다 */}
                 {isOverlayClosing && (
                   <View
+                    collapsable={false}
                     style={
                       StyleSheet.absoluteFill
                     }
@@ -783,12 +789,20 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
+  // Dim과 overlay(시트)는 형제라서, 삽입 순서와 상관없이
+  // 시트가 항상 Dim 위에 오도록 zIndex로 순서를 고정한다
+  dimLayer: {
+    zIndex: 0,
+    elevation: 0,
+  },
   overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     width: '100%',
     height: '100%',
+    zIndex: 1,
+    elevation: 1,
   },
   contentLayer: {
     position: 'absolute',

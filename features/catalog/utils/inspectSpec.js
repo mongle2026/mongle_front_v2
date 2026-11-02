@@ -80,7 +80,7 @@ const STYLE_KEYS = [
   ['color', 'color'],
 ];
 
-// 같은 hex 를 여러 토큰이 쓰므로(fillNeutral = fgNeutralPrimary 등), 속성 종류에 맞는 접두어를 먼저 고른다
+// 같은 hex 를 여러 토큰이 쓰므로(fillNeutralStrong = fgNeutralPrimary 등), 속성 종류에 맞는 접두어를 먼저 고른다
 const COLOR_PREFIXES_BY_KEY = {
   color: ['fg'],
   backgroundColor: ['bg', 'fill'],

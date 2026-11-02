@@ -4,7 +4,7 @@ import ListHeader from '../../../../shared/components/content/ListHeader';
 
 import ListRow, {
   LIST_ROW_TYPE,
-} from '../../components/ListRow';
+} from '../../../../shared/components/content/ListRow';
 import SearchSelectBottomSheet from '../../components/SearchSelectBottomSheet';
 
 import useSelectMusic from '../../music/hooks/useSelectMusic';

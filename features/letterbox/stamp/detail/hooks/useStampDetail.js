@@ -23,6 +23,7 @@ function normalizeStampDetail(data) {
         userId: sender.userId,
         nickname: sender.nickname ?? '',
         imageUri: resolveMediaUri(sender.profileImageUrl),
+        isWithdrawn: Boolean(sender.isWithdrawn),
         isMe: Boolean(sender.isMe),
       })),
     // 이 우표가 붙은 수집한 편지 (최근 도착 순). 날짜는 도착 시각으로 보여준다.

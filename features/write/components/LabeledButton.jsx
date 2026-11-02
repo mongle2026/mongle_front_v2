@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: padding.M,
     gap: padding.S,
 
-    borderRadius: radius.XS,
+    borderRadius: radius.S,
   },
 
   icon: {

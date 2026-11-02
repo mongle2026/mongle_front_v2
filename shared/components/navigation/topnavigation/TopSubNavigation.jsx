@@ -110,7 +110,7 @@ const TopSubNavigation = ({
 
               {isNextLoading && (
                 <View style={styles.nextLoading}>
-                  <ActivityIndicator color={colors.fgNeutralSecondary} />
+                  <ActivityIndicator color={colors.fgNeutralPrimary} />
                 </View>
               )}
             </View>
