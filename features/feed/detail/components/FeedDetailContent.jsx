@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
 
   imgContainer: {
     width: '100%',
-    paddingTop: 0,
+    paddingTop: padding.M,
     paddingBottom: padding.M,
     paddingHorizontal: padding.L,
     flexDirection: 'column',

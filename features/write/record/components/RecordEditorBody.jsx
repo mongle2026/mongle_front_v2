@@ -12,7 +12,7 @@ import IcMusic from '../../../../assets/icons/ic_music.svg';
 import MusicCard from '../../../../shared/components/content/MusicCard';
 
 import { colors } from '../../../../shared/styles/color';
-import { gap, padding } from '../../../../shared/styles/token';
+import { padding } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
 
 import LabeledButton from '../../components/LabeledButton';
@@ -280,7 +280,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: padding.L,
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: gap.M,
   },
   textPressable: {
     width: '100%',
