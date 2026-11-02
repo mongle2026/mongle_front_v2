@@ -18,7 +18,7 @@ import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 import { PATTERNS, STAMPS, findStamp } from '../../../shared/data/envelopeData';
-import { resolvePatternColor } from '../../../shared/utils/envelopeUtils';
+import { resolvePatternColor, toSvgComponent } from '../../../shared/utils/envelopeUtils';
 import { chunk } from '../../../shared/utils/arrayUtils';
 
 import { useLetterFormStore } from '../store/useLetterFormStore';
@@ -174,7 +174,11 @@ const EnvelopeScreen = ({ navigation }) => {
                     <Templete
                       key={template.id}
                       label={template.label}
-                      PatternSvg={resolved?.pattern.thumbnail}
+                      // 템플릿 색에 맞는 썸네일. 없으면 패턴 대표 썸네일
+                      PatternSvg={
+                        toSvgComponent(resolved?.color.thumbnailImg) ??
+                        resolved?.pattern.thumbnail
+                      }
                       StampSvg={stamp?.SvgComponent}
                       isActive={selectedItems.template === template.id}
                       onPress={() => handleSelectItem(template.id)}
