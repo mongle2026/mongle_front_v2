@@ -11,9 +11,9 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { colors, toTransparent } from '../../../styles/color';
-import { padding, radius } from '../../../styles/token';
+import { gap, padding, radius } from '../../../styles/token';
 
-import Items from './Items';
+import Items, { TAB_HIT_SLOP } from './Items';
 
 const DEFAULT_TABS = ['탭1', '탭2', '탭3', '탭4', '탭5', '탭6'];
 // 하단 그라데이션 높이. 아래 목록이 이 높이만큼 Tabs 밑으로 들어와야 그라데이션이 보인다
@@ -62,8 +62,7 @@ const Tabs = ({
   useEffect(() => {
     if (!isMeasured) return;
     layoutXs.value = itemLayouts.map(layout => layout.x);
-    // 탭 wrapper 의 padding(XXS)을 뺀 안쪽 칩 너비
-    layoutWidths.value = itemLayouts.map(layout => layout.width - padding.XXS * 2);
+    layoutWidths.value = itemLayouts.map(layout => layout.width);
   }, [isMeasured, itemLayouts, layoutXs, layoutWidths]);
 
   // 넘치는 탭 목록에서 활성 탭이 화면 밖에 있으면 보이는 곳까지 스크롤한다
@@ -199,18 +198,22 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     zIndex: 1,
-    paddingTop: padding.M,
+    paddingTop: padding.L,
     paddingBottom: TABS_BOTTOM_FADE_HEIGHT,
   },
 
+  // ScrollView 밖의 터치는 받지 못하므로, 레이아웃은 그대로 두고 hitSlop 만큼 영역을 넓힌다
   scroll: {
     flexGrow: 0,
+    marginVertical: -TAB_HIT_SLOP,
   },
 
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    gap: gap.S,
     paddingHorizontal: padding.M,
+    paddingVertical: TAB_HIT_SLOP,
   },
 
   background: {
@@ -229,12 +232,11 @@ const styles = StyleSheet.create({
     width: 100,
   },
 
-  // Items 의 wrapper(padding XXS) 안쪽 칩 크기에 맞춘다
   activeChip: {
     position: 'absolute',
-    top: padding.XXS,
-    bottom: padding.XXS,
-    left: padding.XXS,
+    top: TAB_HIT_SLOP,
+    bottom: TAB_HIT_SLOP,
+    left: 0,
     borderRadius: radius[999],
     backgroundColor: colors.fillNeutralStrong,
   },
