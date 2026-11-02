@@ -3,7 +3,6 @@ import { Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useGlobalOverlay } from '../../../../shared/providers/GlobalOverlayProvider';
-import { useFloatingBottomOffset } from '../../../../shared/hooks/useFloatingBottomOffset';
 import useCurrentUser from '../../../../shared/hooks/useCurrentUser';
 import { useRecordFormStore } from '../../store/useRecordFormStore';
 import { startRecordFileUploads } from '../../utils/uploadRecordFiles';
@@ -53,7 +52,7 @@ const pickImagesFromLibrary = async remainingCount => {
  * RecordScreen / RecordEditScreen에서 공통으로 사용하는
  * 이미지 선택, 삭제 및 되돌리기 로직입니다.
  */
-export const useRecordImageManager = () => {
+export const useRecordImageManager = ({ bottomOffset }) => {
   const files = useRecordFormStore(state => state.files);
   const setFiles = useRecordFormStore(state => state.setFiles);
   const removeFile = useRecordFormStore(state => state.removeFile);
@@ -67,7 +66,6 @@ export const useRecordImageManager = () => {
   const isImageLimitReached = imageFiles.length >= MAX_IMAGES;
 
   const { userId } = useCurrentUser();
-  const bottomOffset = useFloatingBottomOffset();
   const { showToast } = useGlobalOverlay();
 
   const handlePressImage = useCallback(async () => {

@@ -4,12 +4,14 @@
 // Android는 fontWeight로 굵기 구분이 안 돼서 fontFamily로 직접 지정
 // 폰트가 SUITX(SUIT 확장판) / Kyobo Handwriting 2025 두 종류라 key에 접두어(suit/kyobo)를 붙임
 // SUITX는 Regular(400) / SemiBold(600) / Bold(700) 세 굵기 (Medium 없음)
-// ⚠️ 실제 렌더링에는 폰트 로딩(expo-font)이 별도로 필요 (shared/styles/fonts.js)
+// 폰트는 빌드할 때 앱에 넣는다 (app.json 의 expo-font 플러그인).
+// 앱에 넣은 폰트는 안드로이드는 파일 이름, iOS는 폰트 안의 이름(PostScript)으로 찾아서
+// 아래 이름 = 파일 이름(확장자 제외) = 폰트 안의 이름 이어야 한다
 const fontFamily = {
   suitRegular:  'SUITX-Regular',  // 400
   suitSemiBold: 'SUITX-SemiBold', // 600
   suitBold:     'SUITX-Bold',     // 700
-  kyobo:        'KyoboHandwriting2025', // 손글씨체, 단일 스타일("lyb")
+  kyobo:        'KyoboHandwriting2025lyb', // 손글씨체, 단일 스타일("lyb")
   kiwiMaru:     'KiwiMaru-Light',       // Kyobo에 없는 한자 대체용 (typo 토큰으로는 쓰지 않음)
 };
 

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Keyboard, StyleSheet } from 'react-native';
 import {
   SafeAreaView,
@@ -34,8 +34,13 @@ const ProfileInfoEditForm = ({ currentUser }) => {
     initialNickname: currentUser.nickname,
   });
 
+  // 기본 이미지로 변경하면 쓸 사진. 가입할 때 정해진 내 기본 사진이라, 처음 기본 사진으로 돌아간다
+  const [defaultProfileImg] = useState(() =>
+    currentUser.defaultProfileImageUri ? { uri: currentUser.defaultProfileImageUri } : null,
+  );
   const profileImgPicker = useProfileImgPicker({
     initialProfileImgUri: currentUser.profileImageUri,
+    defaultProfileImg,
   });
 
   const insets = useSafeAreaInsets();

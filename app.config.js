@@ -50,6 +50,14 @@ module.exports = ({ config }) => ({
       '@react-native-kakao/core',
       {
         nativeAppKey: kakaoNativeAppKey,
+        // 카카오계정 로그인이 끝나면 kakao{앱키}://oauth 로 앱에 돌아오는데,
+        // 이걸 받아 줄 액티비티(안드로이드)와 URL 처리(iOS)를 등록한다.
+        android: {
+          authCodeHandlerActivity: true,
+        },
+        ios: {
+          handleKakaoOpenUrl: true,
+        },
       },
     ],
   ],

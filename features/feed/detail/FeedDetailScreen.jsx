@@ -1,10 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Animated, {
-  useAnimatedKeyboard,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated from 'react-native-reanimated';
 
 import MusicCard from '../../../shared/components/content/MusicCard';
 import ImageViewer from '../../../shared/components/content/ImageViewer';
@@ -18,7 +14,7 @@ import { useDialog } from '../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
-import { useKeyboardHeight } from '../../../shared/hooks/useFloatingBottomOffset';
+import useKeyboardAttachedBar from '../../../shared/hooks/useKeyboardAttachedBar';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
 import useDeletedContentDialog, { isDeletedContentError } from '../../../shared/hooks/useDeletedContentDialog';
@@ -52,6 +48,7 @@ import useCommentComposer from './hooks/useCommentComposer';
 import useScrollToComment from './hooks/useScrollToComment';
 import useScrollToReplyTarget from './hooks/useScrollToReplyTarget';
 import useDeletedCommentToast from './hooks/useDeletedCommentToast';
+import { useSignupCompleteToast } from '../../signup/signupCompleteToast';
 import { hasId, isSameId } from '../../../shared/utils/id';
 
 const FeedDetailScreen = ({ navigation, route }) => {
@@ -75,28 +72,17 @@ const FeedDetailScreen = ({ navigation, route }) => {
   } = useScrollToComment({ shouldScrollToComment });
 
   /*
-   * 댓글 입력바 위치.
-   * 바는 키보드 높이를 프레임마다 따라가며(useAnimatedKeyboard) 키보드와 한 몸처럼 아래에서 올라온다.
-   * 안쪽 아래 여백은 항상 홈 인디케이터만큼 두고, 키보드가 올라오면 그 여백만큼은 키보드 뒤로 겹쳐서
-   * 여백이 툭 사라지는 순간 없이 이어지게 한다.
-   *
-   * keyboardHeight    : 키보드 이벤트로 받은 최종 키보드 높이 (내려가 있으면 0)
+   * 댓글 입력바 위치 (키보드에 붙어 움직인다).
    * commentBarBottom  : 키보드가 다 올라왔을 때 바를 화면 아래에서 띄우는 값 (스크롤 여백 · 위치 계산용)
    * commentBarPadding : 바 안쪽 아래 여백 (홈 인디케이터)
    */
-  const insets = useSafeAreaInsets();
-  // iOS 레이아웃 애니메이션은 끄고, 바 움직임은 아래 keyboard 값으로 직접 그린다
-  const keyboardHeight = useKeyboardHeight({ animateLayout: false });
-  const keyboard = useAnimatedKeyboard();
-
-  const commentBarPadding = insets.bottom;
-  const commentBarBottom = Math.max(keyboardHeight - insets.bottom, 0);
-
-  const commentBarAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: -Math.max(keyboard.height.value - insets.bottom, 0) },
-    ],
-  }));
+  const {
+    keyboardHeight,
+    isKeyboardVisible,
+    barBottom: commentBarBottom,
+    barPadding: commentBarPadding,
+    barAnimatedStyle: commentBarAnimatedStyle,
+  } = useKeyboardAttachedBar();
 
   const [isFeedMenuOpen, setIsFeedMenuOpen] = useState(false);
   const [commentBarHeight, setCommentBarHeight] = useState(0);
@@ -172,6 +158,12 @@ const FeedDetailScreen = ({ navigation, route }) => {
     isCommentBarMeasured: commentBarHeight > 0,
   });
 
+  // 여기서 로그인해 가입하고 돌아왔으면 다른 Toast 처럼 CommentBar 위에 가입 완료 Toast 를 띄운다
+  useSignupCompleteToast({
+    bottomOffset: commentBarBottom + commentBarHeight,
+    enabled: commentBarHeight > 0,
+  });
+
   const {
     replyTarget,
     replyFocusRequestKey,
@@ -189,7 +181,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
   } = useScrollToReplyTarget({
     scrollViewRef,
     requestKey: replyFocusRequestKey,
-    isKeyboardVisible: keyboardHeight > 0,
+    isKeyboardVisible,
     commentBarHeight,
     commentBarBottom,
   });
@@ -205,7 +197,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
   } = useCommentMenu({
     commentBarHeight,
     commentBarBottom,
-    isKeyboardVisible: keyboardHeight > 0,
+    isKeyboardVisible,
     deleteComment,
     isDeletingComment,
   });

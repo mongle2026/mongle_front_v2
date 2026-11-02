@@ -17,7 +17,8 @@ export class ProfileImgUploadError extends Error {
 }
 
 // 서버는 jpg만 받으므로 png · heic도 jpg로 바꾼다
-const compressProfileImg = async ({ uri, width, height }) => {
+const compressProfileImg = async profileImg => {
+  const { uri, width, height } = profileImg;
   const actions = [];
 
   if (Math.min(width ?? 0, height ?? 0) > PROFILE_IMG_MAX_DIMENSION) {

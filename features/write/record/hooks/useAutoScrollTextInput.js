@@ -4,13 +4,20 @@ import {
   useState,
 } from 'react';
 
+/*
+ * 본문을 쓰는 동안 커서가 화면(스크롤 영역 위 ~ 하단 바 위)에 보이도록 스크롤한다.
+ *
+ * TextInput 은 커서 좌표를 알려주지 않으므로, 커서 앞까지의 글을 같은 글꼴로
+ * 보이지 않게 그린 Text(caretMirrorRef)의 아래 끝을 커서 줄의 아래 끝으로 본다.
+ */
 const useAutoScrollTextInput = ({
   bottomBarHeight,
-  bottomOffset,
+  bottomBarBottom,
   lineHeight,
 }) => {
   const scrollViewRef = useRef(null);
   const textInputRef = useRef(null);
+  const caretMirrorRef = useRef(null);
   const scrollOffsetRef = useRef(0);
   const scrollViewportHeightRef = useRef(0);
 
@@ -24,29 +31,33 @@ const useAutoScrollTextInput = ({
     scrollViewportHeightRef.current = event.nativeEvent.layout.height;
   }, []);
 
-  const scrollToKeepTextInputVisible = useCallback(() => {
-    const textInputNode = textInputRef.current;
+  const scrollToCaret = useCallback(() => {
+    const caretMirrorNode = caretMirrorRef.current;
     const scrollNode = scrollViewRef.current;
-    if (!textInputNode || !scrollNode) return;
+    if (!caretMirrorNode || !scrollNode) return;
 
-    textInputNode.measureLayout(
+    caretMirrorNode.measureLayout(
       scrollNode,
       (x, y, width, height) => {
         const frameHeight = scrollViewportHeightRef.current;
         if (!frameHeight) return;
 
-        const visibleViewportHeight = Math.max(0, frameHeight - bottomBarHeight - bottomOffset);
+        const visibleViewportHeight = Math.max(0, frameHeight - bottomBarHeight - bottomBarBottom);
 
-        const bottomEdge = y + height;
-        const visibleBottom = scrollOffsetRef.current + visibleViewportHeight;
+        const caretBottom = y + height;
+        const caretTop = caretBottom - lineHeight;
+        const visibleTop = scrollOffsetRef.current;
+        const visibleBottom = visibleTop + visibleViewportHeight;
 
-        if (bottomEdge > visibleBottom) {
-          scrollNode.scrollTo({ y: bottomEdge - visibleViewportHeight, animated: true });
+        if (caretBottom > visibleBottom) {
+          scrollNode.scrollTo({ y: caretBottom - visibleViewportHeight, animated: true });
+        } else if (caretTop < visibleTop) {
+          scrollNode.scrollTo({ y: Math.max(0, caretTop), animated: true });
         }
       },
       () => {},
     );
-  }, [bottomBarHeight, bottomOffset]);
+  }, [bottomBarHeight, bottomBarBottom, lineHeight]);
 
   const handleTextContentSizeChange = useCallback(event => {
     const measuredHeight = event.nativeEvent.contentSize.height;
@@ -59,23 +70,21 @@ const useAutoScrollTextInput = ({
        */
       if (measuredHeight <= prevHeight + 1) return prevHeight;
 
-      const nextHeight = Math.ceil(measuredHeight + lineHeight);
-
-      requestAnimationFrame(scrollToKeepTextInputVisible);
-
-      return nextHeight;
+      return Math.ceil(measuredHeight + lineHeight);
     });
-  }, [lineHeight, scrollToKeepTextInputVisible]);
+  }, [lineHeight]);
 
   return {
     scrollViewRef,
     textInputRef,
+    caretMirrorRef,
 
     textInputHeight,
 
     handleScroll,
     handleScrollViewLayout,
     handleTextContentSizeChange,
+    scrollToCaret,
   };
 };
 

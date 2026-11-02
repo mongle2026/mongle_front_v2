@@ -34,7 +34,8 @@ const withdraw = async ({ provider }) => {
 };
 
 /**
- * 회원 탈퇴. 서버가 푸시 토큰 · refresh token 까지 지우므로 성공하면 앱의 로그인 정보만 지운다.
+ * 회원 탈퇴. 서버가 푸시 토큰을 계정에서 떼고 refresh token 까지 지우므로 성공하면 앱의 로그인 정보만 지운다.
+ * 푸시 토큰은 계정 없는 기기로 남아서 공지 푸시는 계속 받는다.
  * withdraw({ provider }): useCurrentUser 의 provider ('KAKAO' | 'APPLE')
  * onSuccess: 로그아웃되기 전에 할 일 (화면 이동 등)
  * 애플 로그인 창을 닫으면 탈퇴하지 않고 onError 도 부르지 않는다

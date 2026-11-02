@@ -3,10 +3,15 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import useFollow from './useFollow';
 import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
-import { applyFollowState, refreshFollowingFeeds, revertFollowState } from '../api/feedCache';
+import {
+  applyFollowState,
+  refreshFollowingFeeds,
+  refreshUserCovers,
+  revertFollowState,
+} from '../api/feedCache';
 
 /**
- * 피드 화면용 팔로우. 탭하는 즉시 피드 홈/상세/보관함 캐시의 팔로우 상태를 바꾸고, 실패하면 되돌린다.
+ * 피드 화면용 팔로우. 탭하는 즉시 피드 홈/상세/보관함/프로필 캐시의 팔로우 상태를 바꾸고, 실패하면 되돌린다.
  * 로그인하지 않았으면 팔로우하지 않고 로그인 안내 Dialog 를 띄운다.
  *
  * @param {object} params
@@ -28,6 +33,8 @@ export default function useFeedFollow({ userId, onFollowed }) {
       if (nextFollowing) {
         refreshFollowingFeeds(queryClient, { userId });
       }
+
+      refreshUserCovers(queryClient, { userId, targetUserId });
 
       onFollowed?.({ targetUserId, nextFollowing });
     },

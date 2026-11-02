@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mongle_front_v2",
+    "name": "몽글",
     "slug": "mongle_front_v2",
     "scheme": "mongle",
     "version": "1.0.0",
@@ -8,7 +8,7 @@
     "icon": "./assets/logo/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.dongle.mongle",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -19,12 +19,45 @@
       "package": "com.dongle.mongle"
     },
     "plugins": [
-      "expo-audio",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
       "expo-asset",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash/splash_blank.png",
+          "imageWidth": 1,
+          "backgroundColor": "#ffffff"
+        }
+      ],
       "expo-status-bar",
       "expo-notifications",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "기록에 첨부하거나 프로필 사진으로 쓸 사진을 선택하기 위해 사진 보관함에 접근합니다.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/SUITX/SUITX-Regular.ttf",
+            "./assets/fonts/SUITX/SUITX-SemiBold.ttf",
+            "./assets/fonts/SUITX/SUITX-Bold.ttf",
+            "./assets/fonts/Kyobo/KyoboHandwriting2025lyb.ttf",
+            "./assets/fonts/KiwiMaru/KiwiMaru-Light.ttf"
+          ]
+        }
+      ]
     ],
     "extra": {
       "eas": {

@@ -7,6 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useIsFocused } from '@react-navigation/native';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/action/WriteFab';
 import Empty from '../../../shared/components/content/Empty';
@@ -25,7 +26,9 @@ import FeedPostItem from './components/FeedPostItem';
 import useFeedActions from '../hooks/useFeedActions';
 import useFeedHome from './hooks/useFeedHome';
 import useFeedHomeListController from './hooks/useFeedHomeListController';
+import useNotificationDeniedToast from './hooks/useNotificationDeniedToast';
 import { useCreatedFeedStore } from '../store/useCreatedFeedStore';
+import { useFeedCoachmarkStore } from '../store/useFeedCoachmarkStore';
 import { hasId } from '../../../shared/utils/id';
 
 const VIEWABILITY_CONFIG = {
@@ -39,6 +42,20 @@ const keyExtractor = item => String(item.feedId);
 const TAB_SWITCH_OFFSET = 24;
 const TAB_SWITCH_TIMING = { duration: 280, easing: Easing.out(Easing.cubic) };
 const getTabIndex = tab => FEED_TOP_NAVIGATION_TABS.findIndex(item => item.key === tab);
+
+// 앱을 처음 깔고 들어왔을 때 작성 FAB 위에 띄우는 안내. 두 번째 단계는 FAB 를 펼쳐서 보여 준다
+const FEED_COACHMARKS = [
+  {
+    title: '기록은 여기서 시작해요',
+    body: '음악과 함께 피드를 남기거나\n원하는 날 도착할 편지를 쓸 수 있어요.',
+    open: false,
+  },
+  {
+    title: '무엇을 남겨 볼까요?',
+    body: '피드는 모두와 나누는 오늘의 기록,\n편지는 정한 날 도착하는 마음이에요.',
+    open: true,
+  },
+];
 
 const FeedHomeScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState(FEED_TAB.RECOMMENDED);
@@ -72,6 +89,20 @@ const FeedHomeScreen = ({ navigation }) => {
     handlePressLike,
     handlePressBookmark,
   } = useFeedActions({ userId });
+
+  const isFocused = useIsFocused();
+  const isCoachmarkRestored = useFeedCoachmarkStore(state => state.isRestored);
+  const isCoachmarkCompleted = useFeedCoachmarkStore(state => state.isCompleted);
+  const restoreCoachmark = useFeedCoachmarkStore(state => state.restore);
+  const completeCoachmark = useFeedCoachmarkStore(state => state.complete);
+  const isCoachmarkPending = isCoachmarkRestored && !isCoachmarkCompleted;
+
+  useEffect(() => {
+    void restoreCoachmark();
+  }, [restoreCoachmark]);
+
+  // 알림 거절 안내 Toast 는 코치마크가 끝난 뒤에 띄운다
+  useNotificationDeniedToast({ enabled: isCoachmarkRestored && isCoachmarkCompleted });
 
   const {
     listRef,
@@ -339,7 +370,13 @@ const FeedHomeScreen = ({ navigation }) => {
         )}
       </Animated.View>
 
-      <WriteFab navigation={navigation} expandedLabel="피드 더 둘러보기" onHeightChange={setFabHeight} />
+      <WriteFab
+        navigation={navigation}
+        expandedLabel="피드 더 둘러보기"
+        onHeightChange={setFabHeight}
+        coachmarks={isFocused && isCoachmarkPending ? FEED_COACHMARKS : undefined}
+        onCoachmarkEnd={completeCoachmark}
+      />
     </View>
   );
 };

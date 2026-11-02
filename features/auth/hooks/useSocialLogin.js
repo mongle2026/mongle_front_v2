@@ -9,10 +9,11 @@ import { useAuthStore } from '../../../shared/auth/useAuthStore';
  *        { isNewUser: false, accessToken, refreshToken, user } | { isNewUser: true, signupToken, suggestedNickname }
  * isCancelled: 사용자가 로그인을 취소한 에러인지. 취소는 onError 를 부르지 않는다
  *
- * - 가입된 계정이면 로그인 상태를 저장한다. 화면은 App 의 RootNavigator 가 메인으로 바꾼다
+ * - 가입된 계정이면 onBeforeSignIn() 을 기다린 뒤 로그인 상태를 저장한다. 화면은 App 의 RootNavigator 가 메인으로 바꾼다.
+ *   로그인되면 Welcome 이 빠지므로, 그 다음에 볼 화면(알림 권한)은 onBeforeSignIn 에서 미리 띄운다
  * - 처음이면 onNewUser({ signupToken, suggestedNickname }) 로 가입 화면에 넘길 값을 준다
  */
-const useSocialLogin = ({ login, isCancelled, providerLabel, onNewUser, onError }) => {
+const useSocialLogin = ({ login, isCancelled, providerLabel, onNewUser, onBeforeSignIn, onError }) => {
   const signIn = useAuthStore(state => state.signIn);
 
   const mutation = useMutation({
@@ -27,6 +28,7 @@ const useSocialLogin = ({ login, isCancelled, providerLabel, onNewUser, onError 
         return;
       }
 
+      await onBeforeSignIn?.();
       await signIn(data);
     },
 

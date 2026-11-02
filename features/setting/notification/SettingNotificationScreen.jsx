@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
-import { Linking, Platform, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import Constants from 'expo-constants';
 
 import IcArrowLeft from '../../../assets/icons/ic_arrow_left.svg';
 import IcArrowUpRight from '../../../assets/icons/ic_arrow_up_right.svg';
@@ -11,6 +10,7 @@ import TopSubNavigation from '../../../shared/components/navigation/topnavigatio
 
 import { colors } from '../../../shared/styles/color';
 
+import { turnOnNotifications } from '../../notification/push/registerPushToken';
 import ListRow from '../components/ListRow';
 import useNotificationPermission from '../hooks/useNotificationPermission';
 import useNotificationSettings, { NOTIFICATION_SETTING_KEY } from '../hooks/useNotificationSettings';
@@ -26,24 +26,6 @@ const NOTIFICATION_ITEMS = [
   { key: NOTIFICATION_SETTING_KEY.SYSTEM, text: '업데이트 알림', caption: '새로운 기능이나 업데이트 소식을 알려드려요' },
   { key: NOTIFICATION_SETTING_KEY.EVENT, text: '이벤트 알림', caption: '이벤트 소식을 알려드려요' },
 ];
-
-// 안드로이드는 앱 알림 설정 화면으로 바로 보내고, 안 되면(iOS 포함) 앱 설정 화면으로 보낸다
-const openNotificationSettings = async () => {
-  const packageName = Constants.expoConfig?.android?.package;
-
-  if (Platform.OS === 'android' && packageName) {
-    try {
-      await Linking.sendIntent('android.settings.APP_NOTIFICATION_SETTINGS', [
-        { key: 'android.provider.extra.APP_PACKAGE', value: packageName },
-      ]);
-      return;
-    } catch {
-      // 알림 설정 인텐트를 지원하지 않는 기기는 앱 설정 화면으로 보낸다
-    }
-  }
-
-  await Linking.openSettings();
-};
 
 // 설정 화면의 알림 설정 행으로 들어오는 알림 설정 화면
 const SettingNotificationScreen = () => {
@@ -81,7 +63,7 @@ const SettingNotificationScreen = () => {
             text="푸시 알림 사용"
             showArrow
             arrowIcon={IcArrowUpRight}
-            onPress={openNotificationSettings}
+            onPress={turnOnNotifications}
           />
         ) : null}
 

@@ -1,10 +1,11 @@
+import { useRef } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 
 import logoSignitureMotion from '../../assets/logo/logo_signiture_motion.json';
@@ -16,6 +17,7 @@ import { useGlobalOverlay } from '../../shared/providers/GlobalOverlayProvider';
 import { getApiErrorMessage } from '../../shared/api/client';
 import useKakaoLogin from './hooks/useKakaoLogin';
 import useAppleLogin from './hooks/useAppleLogin';
+import { shouldAskNotificationPermission } from '../notification/push/registerPushToken';
 
 import { colors } from '../../shared/styles/color';
 import { typo } from '../../shared/styles/typo';
@@ -59,9 +61,34 @@ const WelcomeScreen = () => {
   const insets = useSafeAreaInsets();
   const { showToast } = useGlobalOverlay();
 
+  // 온보딩의 로그인하기로 들어왔는지. 가입 완료 화면까지 넘겨서 가입 완료 Toast 를 띄울지 정한다
+  const { isFromOnboarding = false } = useRoute().params ?? {};
+
   // 신규 유저만 약관 화면으로 보낸다. 기존 유저는 로그인되면 RootNavigator가 MainTabs로 바꾼다
   const handleNewUser = ({ signupToken, suggestedNickname }) => {
-    navigation.navigate('Terms', { signupToken, suggestedNickname });
+    navigation.navigate('Terms', { signupToken, suggestedNickname, isFromOnboarding });
+  };
+
+  // 닫기(X)는 알림 권한을 아직 묻지 않았으면 Welcome 을 알림 권한 화면으로 바꾸고, 그 화면을 닫을 때 보던 화면으로 돌아간다
+  const isClosingRef = useRef(false);
+
+  const handlePressClose = async () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+
+    if (await shouldAskNotificationPermission()) {
+      navigation.replace('NotificationPermission');
+      return;
+    }
+
+    navigation.goBack();
+  };
+
+  // 기존 유저는 로그인되기 전에 알림 권한 화면을 띄워 둔다. 로그인되면 그 아래의 Welcome 만 빠진다
+  const handleBeforeSignIn = async () => {
+    if (await shouldAskNotificationPermission()) {
+      navigation.navigate('NotificationPermission');
+    }
   };
 
   const showLoginErrorToast = (error, fallbackMessage) => {
@@ -75,11 +102,13 @@ const WelcomeScreen = () => {
 
   const { loginWithKakao, isLoggingIn: isKakaoLoggingIn } = useKakaoLogin({
     onNewUser: handleNewUser,
+    onBeforeSignIn: handleBeforeSignIn,
     onError: error => showLoginErrorToast(error, '카카오로 로그인하지 못했습니다.'),
   });
 
   const { loginWithApple, isLoggingIn: isAppleLoggingIn } = useAppleLogin({
     onNewUser: handleNewUser,
+    onBeforeSignIn: handleBeforeSignIn,
     onError: error => showLoginErrorToast(error, 'Apple로 로그인하지 못했습니다.'),
   });
 
@@ -101,7 +130,7 @@ const WelcomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <TopSubNavigation
-        onPressClose={navigation.goBack}
+        onPressClose={handlePressClose}
         showShare={false}
         showMore={false}
       />

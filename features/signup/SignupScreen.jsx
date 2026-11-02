@@ -21,6 +21,7 @@ import ProfileForm from '../profile/components/ProfileForm';
 import useProfileForm, { isValidNickname } from '../profile/hooks/useProfileForm';
 import useProfileImgPicker from '../profile/hooks/useProfileImgPicker';
 import { ProfileImgUploadError } from '../profile/utils/uploadProfileImg';
+import useDefaultProfileImg from './hooks/useDefaultProfileImg';
 import useSignup from './hooks/useSignup';
 
 import { colors } from '../../shared/styles/color';
@@ -31,20 +32,36 @@ const SignupScreen = () => {
   const navigation = useNavigation();
 
   // 카카오/애플 로그인에서 받아 약관 화면을 거쳐 넘어온 값
-  const { signupToken, suggestedNickname } = useRoute().params ?? {};
+  const {
+    signupToken,
+    suggestedNickname,
+    isMarketingAgreed,
+    isFromOnboarding,
+  } = useRoute().params ?? {};
 
   // 소셜 계정의 닉네임은 닉네임 규칙에 맞을 때만 처음 값으로 채운다
   const form = useProfileForm({
     initialNickname: isValidNickname(suggestedNickname) ? suggestedNickname : '',
   });
 
-  const profileImgPicker = useProfileImgPicker({ signupToken });
+  const { defaultProfileImg } = useDefaultProfileImg();
+  const profileImgPicker = useProfileImgPicker({ signupToken, defaultProfileImg });
 
   const insets = useSafeAreaInsets();
   const { showToast } = useGlobalOverlay();
 
   const { signup, isSigningUp } = useSignup({
     signupToken,
+    isMarketingAgreed,
+
+    onSuccess: (data, { userCode, nickname: signedUpNickname }) => {
+      navigation.navigate('SignupComplete', {
+        nickname: signedUpNickname,
+        userCode,
+        profileImgUri: profileImgPicker.profileImg?.uri,
+        isFromOnboarding,
+      });
+    },
 
     onError: error => {
       showToast({
@@ -63,8 +80,13 @@ const SignupScreen = () => {
 
   const handlePressSubmit = useCallback(() => {
     Keyboard.dismiss();
-    signup({ userCode: id, nickname, getProfileImgKey });
-  }, [signup, id, nickname, getProfileImgKey]);
+    signup({
+      userCode: id,
+      nickname,
+      defaultProfileImgNo: defaultProfileImg?.defaultProfileImgNo,
+      getProfileImgKey,
+    });
+  }, [signup, id, nickname, defaultProfileImg, getProfileImgKey]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -86,7 +108,7 @@ const SignupScreen = () => {
               size={BUTTON_SIZE.XL}
               font={FONT.SUIT}
               style={styles.submitButton}
-              disabled={isSigningUp}
+              loading={isSigningUp}
               onPress={handlePressSubmit}
             >
               가입하기

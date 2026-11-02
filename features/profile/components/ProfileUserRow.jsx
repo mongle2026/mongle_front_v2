@@ -21,9 +21,16 @@ const getRotatedCornerOffset = (width, height) => {
   return Math.max(0, Math.ceil(widthOffset + heightOffset));
 };
 
-// 프로필 사진 + 기울어진 @userCode 버튼 (내 프로필, 다른 사람 프로필 공용)
+// 프로필 사진 + 기울어진 @userCode 버튼 (내 프로필, 다른 사람 프로필, 가입 완료 공용)
 // 팔로우한 사람이면 userCode 버튼은 Solid, 아니면 Ghost (피드 ProfileBar 와 같다)
-const ProfileUserRow = ({ imageUri, userCode, isFollowing = false }) => {
+// style: 행 정렬 등 (위·아래 여백은 꼭짓점 계산으로 정한다), profileImgStyle: 사진 모서리 등
+const ProfileUserRow = ({
+  imageUri,
+  userCode,
+  isFollowing = false,
+  style,
+  profileImgStyle,
+}) => {
   const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
   const userCodeVariant = isFollowing ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.GHOST;
 
@@ -38,6 +45,7 @@ const ProfileUserRow = ({ imageUri, userCode, isFollowing = false }) => {
     <View
       style={[
         styles.userRow,
+        style,
         {
           paddingTop: userCodeCornerOffset,
           paddingBottom: padding.M + userCodeCornerOffset,
@@ -48,7 +56,11 @@ const ProfileUserRow = ({ imageUri, userCode, isFollowing = false }) => {
       <ProfileImg
         imageUri={imageUri}
         size="M"
-        style={[styles.profileImg, { transform: [{ translateY: userCodeCornerOffset }] }]}
+        style={[
+          styles.profileImg,
+          profileImgStyle,
+          { transform: [{ translateY: userCodeCornerOffset }] },
+        ]}
       />
 
       {/* onLayout 은 회전 전 크기를 주므로 감싼 View 에서 측정한다 */}
