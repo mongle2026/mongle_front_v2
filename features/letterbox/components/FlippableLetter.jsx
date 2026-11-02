@@ -34,7 +34,7 @@ const FlippableLetter = ({ letter, isFlipping, onPress, style }) => {
     onFlipEnd: () => onPress?.(letter),
   });
 
-  const { FrontSvg, FlapSvg, StampSvg } = useResolvedEnvelope(letter.envelope);
+  const { color, FrontSvg, FlapSvg, StampSvg } = useResolvedEnvelope(letter.envelope);
 
   // 상세에서 돌아왔는데 아직 목록에 남아 있으면 다시 뒷면으로 되돌린다
   useEffect(() => {
@@ -51,7 +51,7 @@ const FlippableLetter = ({ letter, isFlipping, onPress, style }) => {
             StampSvg={StampSvg}
             recipient={letter.recipientName}
             sender={letter.senderName}
-            isSenderWithdrawn={letter.isSenderWithdrawn}
+            isDark={Boolean(color?.isDark)}
           />
         ) : (
           <Letter type="front" BackgroundSvg={FrontSvg} FlapSvg={FlapSvg} />

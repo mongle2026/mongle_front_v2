@@ -46,11 +46,13 @@ function Letter({
   StampSvg,
   recipient = '',
   sender = '',
-  isSenderWithdrawn = false,
+  // 어두운 봉투(envelopeData 의 isDark)면 이름을 밝은 색으로
+  isDark = false,
   style,
   flapStyle,
 }) {
   const isBack = type === 'back';
+  const nameStyle = isDark ? [styles.name, styles.nameOnDark] : styles.name;
 
   const [wrapperSize, setWrapperSize] = useState(null);
   const [flapSize, setFlapSize] = useState(null);
@@ -94,7 +96,7 @@ function Letter({
         <View style={styles.card}>
           <View style={styles.section}>
             <View style={styles.container}>
-              <FontFallbackText style={styles.name} numberOfLines={1}>
+              <FontFallbackText style={nameStyle} numberOfLines={1}>
                 {recipient ? `${recipient}에게` : ''}
               </FontFallbackText>
               <FontFallbackText style={styles.name} numberOfLines={1}>
@@ -230,6 +232,9 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     color: colors.fgNeutralPrimary,
     ...typo.kyoboTitleSmall,
+  },
+  nameOnDark: {
+    color: colors.fgNeutralInverted,
   },
   // width 72px 고정, 높이는 원본 비율.
   stamp: {
