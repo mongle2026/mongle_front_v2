@@ -143,6 +143,7 @@ const EnvelopeScreen = ({ navigation }) => {
               StampSvg={envelope.StampSvg}
               recipient={recipientName}
               sender={senderName}
+              isDark={Boolean(envelope.color?.isDark)}
               style={letterPreviewSize}
               flapStyle={flapStyle}
             />

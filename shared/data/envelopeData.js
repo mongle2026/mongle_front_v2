@@ -50,8 +50,8 @@ export const PATTERNS = [
     id: 'p2',
     thumbnail: P2Thumbnail,
     colors: [
-      { id: 'p2_c1', color: '#1d3557', frontImg: require('../../assets/envelope/patterns/p2_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c1_flap.svg') },
-      { id: 'p2_c3', color: '#2d6a4f', frontImg: require('../../assets/envelope/patterns/p2_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c3_flap.svg') },
+      { id: 'p2_c1', color: '#1d3557', isDark: true, frontImg: require('../../assets/envelope/patterns/p2_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c1_flap.svg') },
+      { id: 'p2_c3', color: '#2d6a4f', isDark: true, frontImg: require('../../assets/envelope/patterns/p2_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c3_flap.svg') },
       { id: 'p2_c4', color: '#d97757', frontImg: require('../../assets/envelope/patterns/p2_c4_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c4_flap.svg') },
       { id: 'p2_c5', color: '#8ecae6', frontImg: require('../../assets/envelope/patterns/p2_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c5_flap.svg') },
       { id: 'p2_c6', color: '#b8a4d9', frontImg: require('../../assets/envelope/patterns/p2_c6_front.svg'), flapImg: require('../../assets/envelope/patterns/p2_c6_flap.svg') },
@@ -83,11 +83,11 @@ export const PATTERNS = [
     thumbnail: P5Thumbnail,
     colors: [
       { id: 'p5_c1', color: '#fafaf5', frontImg: require('../../assets/envelope/patterns/p5_c1_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c1_flap.svg') },
-      { id: 'p5_c2', color: '#282854', frontImg: require('../../assets/envelope/patterns/p5_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c2_flap.svg') },
-      { id: 'p5_c3', color: '#7d3248', frontImg: require('../../assets/envelope/patterns/p5_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c3_flap.svg') },
+      { id: 'p5_c2', color: '#282854', isDark: true, frontImg: require('../../assets/envelope/patterns/p5_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c2_flap.svg') },
+      { id: 'p5_c3', color: '#7d3248', isDark: true, frontImg: require('../../assets/envelope/patterns/p5_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c3_flap.svg') },
       { id: 'p5_c4', color: '#7a9d8a', frontImg: require('../../assets/envelope/patterns/p5_c4_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c4_flap.svg') },
-      { id: 'p5_c5', color: '#4c83ff', frontImg: require('../../assets/envelope/patterns/p5_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c5_flap.svg') },
-      { id: 'p5_c6', color: '#38414f', frontImg: require('../../assets/envelope/patterns/p5_c6_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c6_flap.svg') },
+      { id: 'p5_c5', color: '#4c83ff', isDark: true, frontImg: require('../../assets/envelope/patterns/p5_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c5_flap.svg') },
+      { id: 'p5_c6', color: '#38414f', isDark: true, frontImg: require('../../assets/envelope/patterns/p5_c6_front.svg'), flapImg: require('../../assets/envelope/patterns/p5_c6_flap.svg') },
     ],
   },
   {
@@ -109,7 +109,7 @@ export const PATTERNS = [
       { id: 'p7_c2', color: '#ff5555', frontImg: require('../../assets/envelope/patterns/p7_c2_front.svg'), flapImg: require('../../assets/envelope/patterns/p7_c2_flap.svg') },
       { id: 'p7_c3', color: '#b5e099', frontImg: require('../../assets/envelope/patterns/p7_c3_front.svg'), flapImg: require('../../assets/envelope/patterns/p7_c3_flap.svg') },
       { id: 'p7_c4', color: '#aec1ff', frontImg: require('../../assets/envelope/patterns/p7_c4_front.svg'), flapImg: require('../../assets/envelope/patterns/p7_c4_flap.svg') },
-      { id: 'p7_c5', color: '#757575', frontImg: require('../../assets/envelope/patterns/p7_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p7_c5_flap.svg') },
+      { id: 'p7_c5', color: '#757575', isDark: true, frontImg: require('../../assets/envelope/patterns/p7_c5_front.svg'), flapImg: require('../../assets/envelope/patterns/p7_c5_flap.svg') },
     ],
   },
 ];
