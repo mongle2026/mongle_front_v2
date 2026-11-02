@@ -1,4 +1,10 @@
-// 편지함 상단 탭. 화면 안의 탭 구분은 TabBar 에서 하므로 편지함 탭 하나만 노출
+// 편지함 화면 상단 탭
+export const LETTER_BOX_TAB = {
+  LETTER: 'letter',
+  STAMP: 'stamp',
+};
+
 export const LETTER_TOP_NAVIGATION_TABS = [
-  { key: 'letterBox', label: '편지함' },
+  { key: LETTER_BOX_TAB.LETTER, label: '편지함', accessibilityLabel: '편지함 보기' },
+  { key: LETTER_BOX_TAB.STAMP, label: '우표함', accessibilityLabel: '우표함 보기' },
 ];

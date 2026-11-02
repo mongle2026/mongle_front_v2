@@ -22,7 +22,7 @@ const LETTER_FILTER = {
 
 const LETTER_FILTERS_UNREAD_FIRST = [
   { key: LETTER_FILTER.UNREAD, label: '안 읽음' },
-  { key: LETTER_FILTER.ALL, label: '전체 편지' },
+  { key: LETTER_FILTER.ALL, label: '전체' },
   { key: LETTER_FILTER.RECEIVED, label: '받은 편지' },
   { key: LETTER_FILTER.SENT, label: '보낸 편지' },
   { key: LETTER_FILTER.SELF, label: '나에게 쓴 편지' },
@@ -59,7 +59,7 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
   // 편지 탭에 들어올 때 안 읽은 편지가 있었는지 (탭 순서를 정한다). 정해지기 전에는 null
   const [enteredWithUnread, setEnteredWithUnread] = useState(null);
 
-  // 안 읽은 편지가 있으면 '안 읽음', 모두 읽었으면 '전체 편지'가 기본 화면이다
+  // 안 읽은 편지가 있으면 '안 읽음', 모두 읽었으면 '전체'가 기본 화면이다
   const { letters: unreadQueryLetters, isLoading: isUnreadLoading } = useLetterBox({
     userId,
     filter: LETTER_FILTER.UNREAD,
@@ -67,7 +67,7 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
   const hasUnread = unreadQueryLetters.some(letter => !letter.isRead);
 
   // 기본 필터는 편지 탭에 들어올 때 한 번만 정한다.
-  // 상세에서 마지막 안 읽은 편지를 읽고 돌아와도 '전체 편지'로 넘어가지 않고 엠티뷰를 보여준다
+  // 상세에서 마지막 안 읽은 편지를 읽고 돌아와도 '전체'로 넘어가지 않고 엠티뷰를 보여준다
   if (activeFilter === null && !isUnreadLoading) {
     setActiveFilter(hasUnread ? LETTER_FILTER.UNREAD : LETTER_FILTER.ALL);
     setEnteredWithUnread(hasUnread);
@@ -131,6 +131,7 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
         tabs={filterLabels}
         activeIndex={activeFilterIndex}
         onChange={handleChangeFilter}
+        style={styles.tabs}
       />
 
       {!isSignedIn && (
@@ -203,6 +204,10 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
 };
 
 const styles = StyleSheet.create({
+  // 상단 내비게이션 바로 아래라 Tabs 위 여백을 줄여 위아래 간격을 16으로 맞춘다
+  tabs: {
+    paddingTop: padding.XS,
+  },
   container: {
     flex: 1,
     width: '100%',
