@@ -36,6 +36,7 @@ const GenreCard = ({ genre, imageSource, onPress, style }) => {
           <MusicCoverImg
             imageSource={imageSource}
             size={cardSize}
+            borderRadius={radius.M}
             accessibilityLabel={`${genre} 장르 커버`}
             style={styles.cover}
           />
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    borderRadius: radius.S,
+    borderRadius: radius.M,
     overflow: 'hidden',
   },
   cover: {

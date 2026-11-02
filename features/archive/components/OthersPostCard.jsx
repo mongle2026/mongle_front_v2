@@ -101,7 +101,7 @@ const OthersPostCard = ({
                   imageSource={imageSource}
                   ratio={WRITE_IMG_RATIO.FOUR_THREE}
                   effect={WRITE_IMG_EFFECT.FILM}
-                  borderRadius={radius.XS}
+                  borderRadius={radius.M}
                   pointerEvents="none"
                   style={styles.image}
                 />
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     padding: padding.L,
     alignItems: 'flex-end',
     gap: gap.XS,
-    borderRadius: radius.S,
+    borderRadius: radius.M,
     backgroundColor: colors.bgSurface,
   },
 

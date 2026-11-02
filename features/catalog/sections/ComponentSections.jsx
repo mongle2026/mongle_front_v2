@@ -88,17 +88,17 @@ const BUTTON_COLOR_NOTES = {
 
 // 사이즈 스펙 표 (Button.jsx SIZE_STYLES / TYPOGRAPHY_STYLES 와 같은 값)
 const BUTTON_SIZE_SPECS = [
-  { size: 'S', padding: 'XXS / S', radius: 'XS', typo: 'labelLarge', kyobo: 'kyoboLabelLarge' },
-  { size: 'M', padding: 'M / L', radius: 'S', typo: 'labelLargeStrong' },
-  { size: 'L', padding: 'L / XL', radius: 'M', typo: 'labelXLargeStrong' },
-  { size: 'XL', padding: 'XL / XXL', radius: 'M', typo: 'labelXLargeStrong' },
+  { size: 'S', height: 28, padding: 'M', radius: 'S', typo: 'labelLarge', kyobo: 'kyoboLabelLarge' },
+  { size: 'M', height: 36, padding: 'L', radius: 'S', typo: 'labelLargeStrong' },
+  { size: 'L', height: 44, padding: 'XL', radius: 'M', typo: 'labelXLargeStrong' },
+  { size: 'XL', height: 52, padding: 'XXL', radius: 'XL', typo: 'labelXLargeStrong' },
 ];
 
 // IconButton 사이즈 스펙 (IconButton.jsx SIZE_STYLES 와 같은 값). button = icon + padding × 2
 const ICON_BUTTON_SIZE_SPECS = [
-  { size: 'S', icon: 14, padding: 'XS (4)', radius: 'XS (4)', button: 22, hitSlop: 11 },
+  { size: 'S', icon: 14, padding: 'XS (4)', radius: 'XS (5)', button: 22, hitSlop: 11 },
   { size: 'M', icon: 18, padding: 'S (6)', radius: 'S (8)', button: 30, hitSlop: 7 },
-  { size: 'L', icon: 20, padding: 'M (8)', radius: 'M (10)', button: 36, hitSlop: 4 },
+  { size: 'L', icon: 20, padding: 'M (8)', radius: 'S (8)', button: 36, hitSlop: 4 },
   { size: 'XL', icon: 22, padding: 'M (8)', radius: 'M (10)', button: 38, hitSlop: 3 },
   { size: 'XXL', icon: 28, padding: 'M (8)', radius: 'M (10)', button: 44, hitSlop: 0 },
 ];
@@ -120,7 +120,7 @@ const ActionSection = () => {
 
   return (
     <CatalogSection title="Action">
-      <Specimen name="Button · Size" note="padding 은 세로 / 가로" contentStyle={stretch} showSpec={false}>
+      <Specimen name="Button · Size" note="height 는 minHeight, padding 은 가로" contentStyle={stretch} showSpec={false}>
         {BUTTON_SIZE_SPECS.map((spec, index) => (
           <View key={spec.size} style={[styles.sizeRow, index > 0 && styles.sizeRowDivider]}>
             <Text style={styles.sizeName}>{spec.size}</Text>
@@ -130,6 +130,7 @@ const ActionSection = () => {
               </Button>
             </View>
             <View style={styles.sizeSpecCell}>
+              <SpecLine label="height" value={String(spec.height)} />
               <SpecLine label="padding" value={spec.padding} />
               <SpecLine label="radius" value={spec.radius} />
               <SpecLine label="font" value={spec.kyobo ? `${spec.typo} · 교보 ${spec.kyobo}` : spec.typo} />

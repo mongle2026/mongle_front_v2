@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
 
   sizeL: {
     padding: padding.M,
-    borderRadius: radius.M,
+    borderRadius: radius.S,
   },
 
   sizeXL: {

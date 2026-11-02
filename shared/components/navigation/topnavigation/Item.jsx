@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: radius.XS,
+    borderRadius: radius.S,
   },
 
   label: {

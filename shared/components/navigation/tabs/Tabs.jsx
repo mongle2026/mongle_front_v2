@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     top: padding.XXS,
     bottom: padding.XXS,
     left: padding.XXS,
-    borderRadius: radius.XS,
+    borderRadius: radius[999],
     backgroundColor: colors.fillNeutralStrong,
   },
 

@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: gap.M,
-    borderRadius: radius.M,
+    borderRadius: radius.XL,
     backgroundColor: colors.fillSurface,
   },
 

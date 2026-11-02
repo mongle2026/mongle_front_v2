@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   image: {
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
-    borderRadius: radius.S,
+    borderRadius: radius.M,
     backgroundColor: colors.fillNeutralWeak,
   },
 
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-    borderRadius: radius.XL,
+    borderRadius: radius[999],
     backgroundColor: colors.bgDimmedStrong,
   },
 

@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: gap.M,
 
-    borderRadius: radius.M,
+    borderRadius: radius.XL,
     backgroundColor: colors.fillSurface,
   },
 

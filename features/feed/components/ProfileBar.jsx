@@ -125,15 +125,15 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'stretch',
     flexShrink: 0,
-    paddingTop: padding.M,
+    paddingTop: padding.L,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
 
   followButton: {
     width: 'auto',
-    alignSelf: 'flex-end',
+    alignSelf: 'center',
     flexShrink: 0,
   },
 

@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     paddingVertical: padding.XS,
     paddingHorizontal: padding.M,
     textAlign: 'center',
-    borderRadius: radius.XS,
+    borderRadius: radius[999],
     overflow: 'hidden',
     ...typo.suitLabelLarge,
   },

@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
 
-    borderRadius: radius.S,
+    borderRadius: radius.M,
     overflow: 'hidden',
 
     backgroundColor: colors.bgSurface,

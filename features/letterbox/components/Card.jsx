@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   captionDot: {
     width: 2,
     height: 2,
-    borderRadius: 1,
+    borderRadius: radius[999],
     backgroundColor: colors.fgNeutralTertiary,
   },
 

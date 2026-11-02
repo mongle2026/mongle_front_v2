@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     paddingTop: padding.M,
     paddingBottom: padding.XXL,
     flexDirection: 'column',
-    borderRadius: radius.S,
+    borderRadius: radius.XL,
   },
 
   coverRow: {

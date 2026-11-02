@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: padding.L,
     // 커버 그리드 아래 여백(padding.XXL + 하단 inset)은 contentContainerStyle 에서 준다
     flexDirection: 'column',
-    borderRadius: radius.S,
+    borderRadius: radius.XL,
   },
 
   header: {

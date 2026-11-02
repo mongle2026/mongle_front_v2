@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   listControlBar: {
     position: 'absolute',
     zIndex: 2,
-    top: 6,
+    top: padding.L,
     right: 0,
   },
   // ListControlBar 기본 width 100%·배경색을 풀어 Tabs 위에 글자만 보이게 한다

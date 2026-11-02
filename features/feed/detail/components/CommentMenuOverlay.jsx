@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
 
   commentDeleteItem: {
-    borderRadius: radius.M,
+    borderRadius: radius.XL,
     ...shadow.middleDown,
   },
 });
