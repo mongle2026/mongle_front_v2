@@ -81,8 +81,13 @@ const SignupScreen = () => {
 
   const handlePressSubmit = useCallback(() => {
     Keyboard.dismiss();
-    signup({ userCode: id, nickname, getProfileImgKey });
-  }, [signup, id, nickname, getProfileImgKey]);
+    signup({
+      userCode: id,
+      nickname,
+      defaultProfileImgNo: defaultProfileImg.defaultProfileImgNo,
+      getProfileImgKey,
+    });
+  }, [signup, id, nickname, defaultProfileImg, getProfileImgKey]);
 
   return (
     <SafeAreaView style={styles.container}>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Image } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -25,20 +25,20 @@ const getImgSize = uri => new Promise(resolve => {
 /**
  * 프로필 사진. 사진 보관함이나 파일 앱에서 한 장을 골라 저장한다. 회원가입과 프로필 정보 편집에서 함께 쓴다.
  *
- * 고르자마자 업로드를 시작해서, 아이디 · 닉네임을 입력하는 동안 끝나게 한다. 기본 사진은 화면에 들어오자마자 올린다.
+ * 고르자마자 업로드를 시작해서, 아이디 · 닉네임을 입력하는 동안 끝나게 한다.
+ * 기본 사진은 서버에 회원마다 번호로 정해져 있고 파일은 모두 함께 써서, 올리지 않는다.
  * 가입 전에는 로그인 토큰이 없어서 signupToken 으로 업로드 URL 을 받는다. 없으면 로그인 토큰으로 받는다.
  *
- * initialProfileImgUri: 지금 쓰고 있는 사진 주소. 없으면 defaultProfileImg 에서 시작한다
- * defaultProfileImg: 사진이 없을 때 쓸 사진 (pickDefaultProfileImg 반환값). 바뀌지 않게 한 번만 골라서 넘긴다.
- *                    없으면 사진 없이(null) 둔다
+ * initialProfileImgUri: 지금 쓰고 있는 사진 주소(기본 사진이면 기본 사진 주소). 없으면 defaultProfileImg 에서 시작한다
+ * defaultProfileImg: 기본 사진 ({ uri }). 가입은 pickDefaultProfileImg 반환값, 편집은 내 기본 사진 주소.
+ *                    바뀌지 않게 한 번만 정해서 넘긴다. 없으면 사진 없이(null) 둔다
  *
- * profileImg: 보여줄 사진 ({ uri, name, type, width, height }). 처음 사진은 { uri } 만 있고, 사진이 없으면 null
- * isProfileImgChanged: 새 사진을 골랐거나, 처음 사진을 지웠으면 true
+ * profileImg: 보여줄 사진 ({ uri, name, type, width, height }). 처음 사진 · 기본 사진은 { uri } 만 있고, 사진이 없으면 null
+ * isProfileImgChanged: 처음과 다른 사진이면 true. 다른 사진을 골랐다가 처음 사진(기본 사진)으로 돌아오면 false
  * pickProfileImgFromLibrary: 권한을 받은 뒤 사진 보관함을 연다. 권한이 없거나 취소하면 그대로 둔다
  * pickProfileImgFromFile: 파일 앱을 연다. 시스템 파일 선택기라 권한은 받지 않는다. 취소하면 그대로 둔다
  * deleteProfileImg: 사진을 지워서 defaultProfileImg 로 되돌린다
- * getProfileImgKey: 새로 고른 사진의 업로드가 끝나기를 기다려 key를 돌려준다. 새로 고른 사진이 없으면 null.
- *                   defaultProfileImg 를 쓰고 있으면 기본 사진의 key를 돌려준다.
+ * getProfileImgKey: 새로 고른 사진의 업로드가 끝나기를 기다려 key를 돌려준다. 기본 사진을 쓰고 있으면 null.
  *                   미리 올리다 실패했으면 한 번 더 올려 보고, 그래도 실패하면 ProfileImgUploadError
  */
 const useProfileImgPicker = ({ signupToken, initialProfileImgUri, defaultProfileImg } = {}) => {
@@ -46,25 +46,8 @@ const useProfileImgPicker = ({ signupToken, initialProfileImgUri, defaultProfile
     initialProfileImgUri ? { uri: initialProfileImgUri } : defaultProfileImg ?? null,
   );
   const uploadTaskRef = useRef(null);
-  const defaultUploadTaskRef = useRef(null);
 
   const isProfileImgChanged = (profileImg?.uri ?? null) !== (initialProfileImgUri ?? null);
-
-  // 기본 사진은 한 번만 올려 두고, 사진을 지워서 기본 사진으로 돌아갈 때 다시 쓴다
-  const getDefaultUploadTask = useCallback(() => {
-    if (!defaultUploadTaskRef.current) {
-      defaultUploadTaskRef.current = startUpload(defaultProfileImg, signupToken);
-    }
-
-    return defaultUploadTaskRef.current;
-  }, [defaultProfileImg, signupToken]);
-
-  // 기본 사진으로 시작하면 화면에 들어오자마자 올려서, 저장할 때 기다리지 않게 한다
-  useEffect(() => {
-    if (initialProfileImgUri || !defaultProfileImg || uploadTaskRef.current) return;
-
-    uploadTaskRef.current = getDefaultUploadTask();
-  }, [initialProfileImgUri, defaultProfileImg, getDefaultUploadTask]);
 
   const selectProfileImg = useCallback(nextProfileImg => {
     setProfileImg(nextProfileImg);
@@ -121,8 +104,8 @@ const useProfileImgPicker = ({ signupToken, initialProfileImgUri, defaultProfile
   // 이미 올라간 사진은 서버 크론이 지운다
   const deleteProfileImg = useCallback(() => {
     setProfileImg(defaultProfileImg ?? null);
-    uploadTaskRef.current = defaultProfileImg ? getDefaultUploadTask() : null;
-  }, [defaultProfileImg, getDefaultUploadTask]);
+    uploadTaskRef.current = null;
+  }, [defaultProfileImg]);
 
   const getProfileImgKey = useCallback(async () => {
     const uploadTask = uploadTaskRef.current;

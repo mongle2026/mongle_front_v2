@@ -6,7 +6,7 @@ import apiClient, { getApiErrorDetail } from '../../../../shared/api/client';
  * 프로필 정보 수정 요청. 넘긴 항목만 보낸다.
  *
  * userCode / nickname: 바꾼 값. 바꾸지 않았으면 넘기지 않는다
- * getProfileImgKey: 사진을 바꿨을 때만 넘긴다. 새 사진의 key를 돌려주면 그 사진으로, null 이면 사진을 지운다
+ * getProfileImgKey: 사진을 바꿨을 때만 넘긴다. 새 사진의 key를 돌려주면 그 사진으로, null 이면 사진을 지워서 기본 사진으로
  *
  * 성공하면 내 정보(current-user)를 다시 불러온 뒤 onSuccess 를 부른다.
  * 다시 불러오기를 기다려서, 돌아간 프로필 화면에 바뀐 정보가 바로 보이게 한다

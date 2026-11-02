@@ -45,6 +45,12 @@ export default function useCurrentUser() {
             user.profileImageUrl,
           ),
 
+        // 가입할 때 정해진 내 기본 사진. 사진을 지우면 이 사진으로 돌아간다
+        defaultProfileImageUri:
+          resolveMediaUri(
+            user.defaultProfileImageUrl,
+          ),
+
         // 가입한 소셜 계정. 'KAKAO' | 'APPLE'
         provider:
           user.provider ??
