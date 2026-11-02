@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Image } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -30,8 +30,8 @@ const getImgSize = uri => new Promise(resolve => {
  * 가입 전에는 로그인 토큰이 없어서 signupToken 으로 업로드 URL 을 받는다. 없으면 로그인 토큰으로 받는다.
  *
  * initialProfileImgUri: 지금 쓰고 있는 사진 주소(기본 사진이면 기본 사진 주소). 없으면 defaultProfileImg 에서 시작한다
- * defaultProfileImg: 기본 사진 ({ uri }). 가입은 pickDefaultProfileImg 반환값, 편집은 내 기본 사진 주소.
- *                    바뀌지 않게 한 번만 정해서 넘긴다. 없으면 사진 없이(null) 둔다
+ * defaultProfileImg: 기본 사진 ({ uri }). 가입은 서버 목록에서 고른 사진, 편집은 내 기본 사진 주소.
+ *                    한 번 정하면 바꾸지 않는다. 없으면 사진 없이(null) 두고, 나중에 받으면 그때 채운다
  *
  * profileImg: 보여줄 사진 ({ uri, name, type, width, height }). 처음 사진 · 기본 사진은 { uri } 만 있고, 사진이 없으면 null
  * isProfileImgChanged: 처음과 다른 사진이면 true. 다른 사진을 골랐다가 처음 사진(기본 사진)으로 돌아오면 false
@@ -48,6 +48,13 @@ const useProfileImgPicker = ({ signupToken, initialProfileImgUri, defaultProfile
   const uploadTaskRef = useRef(null);
 
   const isProfileImgChanged = (profileImg?.uri ?? null) !== (initialProfileImgUri ?? null);
+
+  // 가입 화면은 기본 사진 목록을 서버에서 받아서 늦게 올 수 있다. 그 사이 사진을 골랐으면 그대로 둔다
+  useEffect(() => {
+    if (!defaultProfileImg) return;
+
+    setProfileImg(prev => prev ?? defaultProfileImg);
+  }, [defaultProfileImg]);
 
   const selectProfileImg = useCallback(nextProfileImg => {
     setProfileImg(nextProfileImg);

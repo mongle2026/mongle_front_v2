@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import {
   SafeAreaView,
@@ -20,8 +20,8 @@ import { getApiErrorMessage } from '../../shared/api/client';
 import ProfileForm from '../profile/components/ProfileForm';
 import useProfileForm, { isValidNickname } from '../profile/hooks/useProfileForm';
 import useProfileImgPicker from '../profile/hooks/useProfileImgPicker';
-import pickDefaultProfileImg from '../profile/utils/pickDefaultProfileImg';
 import { ProfileImgUploadError } from '../profile/utils/uploadProfileImg';
+import useDefaultProfileImg from './hooks/useDefaultProfileImg';
 import useSignup from './hooks/useSignup';
 
 import { colors } from '../../shared/styles/color';
@@ -44,8 +44,7 @@ const SignupScreen = () => {
     initialNickname: isValidNickname(suggestedNickname) ? suggestedNickname : '',
   });
 
-  // 기본 프로필 사진은 화면에 들어올 때 한 번만 랜덤으로 골라 고정한다
-  const [defaultProfileImg] = useState(pickDefaultProfileImg);
+  const { defaultProfileImg } = useDefaultProfileImg();
   const profileImgPicker = useProfileImgPicker({ signupToken, defaultProfileImg });
 
   const insets = useSafeAreaInsets();
@@ -84,7 +83,7 @@ const SignupScreen = () => {
     signup({
       userCode: id,
       nickname,
-      defaultProfileImgNo: defaultProfileImg.defaultProfileImgNo,
+      defaultProfileImgNo: defaultProfileImg?.defaultProfileImgNo,
       getProfileImgKey,
     });
   }, [signup, id, nickname, defaultProfileImg, getProfileImgKey]);

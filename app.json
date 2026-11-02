@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mongle_front_v2",
+    "name": "몽글",
     "slug": "mongle_front_v2",
     "scheme": "mongle",
     "version": "1.0.0",
@@ -8,7 +8,7 @@
     "icon": "./assets/logo/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.dongle.mongle",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -19,7 +19,13 @@
       "package": "com.dongle.mongle"
     },
     "plugins": [
-      "expo-audio",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
       "expo-asset",
       [
         "expo-splash-screen",
@@ -33,6 +39,13 @@
       "expo-notifications",
       "expo-apple-authentication",
       "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "기록에 첨부하거나 프로필 사진으로 쓸 사진을 선택하기 위해 사진 보관함에 접근합니다.",
+          "microphonePermission": false
+        }
+      ],
       [
         "expo-font",
         {

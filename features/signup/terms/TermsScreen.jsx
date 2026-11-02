@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import * as WebBrowser from 'expo-web-browser';
 
 import IcX from '../../../assets/icons/ic_x.svg';
@@ -15,6 +16,7 @@ import {
   BUTTON_VARIANT,
 } from '../../../shared/components/action/Button';
 import CheckContainer from '../../setting/components/CheckContainer';
+import { defaultProfileImgQuery } from '../hooks/useDefaultProfileImg';
 
 import { colors } from '../../../shared/styles/color';
 import { typo } from '../../../shared/styles/typo';
@@ -51,6 +53,12 @@ const TermsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [agreements, setAgreements] = useState(INITIAL_AGREEMENTS);
+  const queryClient = useQueryClient();
+
+  // 가입 화면에 들어가자마자 기본 프로필 사진이 보이도록 약관을 읽는 동안 미리 받아 둔다
+  useEffect(() => {
+    queryClient.prefetchQuery(defaultProfileImgQuery);
+  }, [queryClient]);
 
   const isAllAgreed = TERMS.every(({ key }) => agreements[key]);
   const isRequiredAgreed = TERMS.every(({ key, required }) => !required || agreements[key]);
