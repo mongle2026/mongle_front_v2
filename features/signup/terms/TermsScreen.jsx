@@ -29,6 +29,11 @@ const WELCOME_TEXT = '당신의 추억이 음악을 남는 곳,\n몽글에 오�
 // url이 있는 항목만 오른쪽에 전문 보기 버튼을 둔다
 const TERMS = [
   {
+    key: 'age',
+    label: '(필수) 만 14세 이상입니다',
+    required: true,
+  },
+  {
     key: 'service',
     label: '(필수) 이용 약관 동의',
     required: true,
