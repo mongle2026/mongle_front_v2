@@ -2,8 +2,8 @@ import React, { memo, useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, } from 'react-native';
 
 import ProfileImg from '../../atomic/ProfileImg';
-import { Button, BUTTON_VARIANT } from '../../action/Button';
 import FontFallbackText from '../../atomic/FontFallbackText';
+import UsernameTag, { USERNAME_TAG_VARIANT } from './UsernameTag';
 
 import { colors } from '../../../styles/color';
 import { typo } from '../../../styles/typo';
@@ -20,7 +20,7 @@ const USERNAME_ROTATION_RADIAN =
   (Math.abs(USERNAME_ROTATION_DEGREE) * Math.PI) / 180;
 
 /**
- * Feed Profile의 username 버튼은 중심 기준 -4도 회전합니다.
+ * Feed Profile의 username 태그는 중심 기준 -4도 회전합니다.
  * 회전 후 왼쪽 아래 끝점이 기존 하단보다 내려오는 만큼 계산합니다.
  */
 const getRotatedEndpointOffset = (width, height) => {
@@ -44,13 +44,13 @@ const Profile = ({
   // 탈퇴한 회원이면 사진 대신 탈퇴 회원 이미지로 고정한다
   isWithdrawn = false,
 
-  // 누르면 프로필로 이동. Feed 는 이미지 · username 버튼, Letter 는 전체 영역
+  // 누르면 프로필로 이동. Feed 는 이미지 · username 태그, Letter 는 전체 영역
   onPress,
 
   // Feed
   username,
-  // username 버튼 Button variant. 보관함 북마크에서 팔로우한 사람은 Solid
-  variant = BUTTON_VARIANT.GHOST,
+  // username 태그 variant. 팔로우한 사람은 Solid
+  variant = USERNAME_TAG_VARIANT.GHOST,
 
   // Letter
   recipientName,
@@ -61,11 +61,9 @@ const Profile = ({
   font,
   style,
   imageStyle,
-  buttonStyle,
   textStyle,
 }) => {
   const [endpointOffset, setEndpointOffset] = useState(0);
-  const [usernameHeight, setUsernameHeight] = useState(0);
 
   const normalizedFont = normalizeFont(font);
 
@@ -84,17 +82,7 @@ const Profile = ({
 
       return nextOffset;
     });
-
-    setUsernameHeight(height);
   }, []);
-
-  /**
-   * 폰트마다 username 버튼(S) 높이가 달라서(SUIT 24.75 / 교보 25~27)
-   * 프로필 이미지를 버튼 높이에 맞춥니다. 측정 전에는 S(24) 크기를 씁니다.
-   */
-  const feedImageSizeStyle = usernameHeight > 0
-    ? { width: usernameHeight, height: usernameHeight }
-    : null;
 
   /**
    * Letter
@@ -166,7 +154,7 @@ const Profile = ({
   /**
    * Feed
    */
-  // 이미지는 username 버튼과 같은 프로필로 이동한다. 스크린 리더는 username 버튼만 읽는다
+  // 이미지는 username 태그와 같은 프로필로 이동한다. 스크린 리더는 username 태그만 읽는다
   const FeedImageArea = onPress ? Pressable : View;
   const feedImageAreaProps = onPress
     ? { onPress, accessible: false }
@@ -200,27 +188,23 @@ const Profile = ({
           imageUri={imageUri}
           isWithdrawn={isWithdrawn}
           size="S"
-          style={feedImageSizeStyle}
         />
       </FeedImageArea>
 
       <View
         onLayout={handleUsernameLayout}
-        style={styles.usernameButtonArea}
+        style={styles.usernameTagArea}
       >
-        <Button
+        <UsernameTag
           variant={variant}
           font={font}
           onPress={onPress}
           accessibilityLabel={`${profileId} 프로필 보기`}
-          style={[
-            styles.usernameButton,
-            buttonStyle,
-          ]}
+          style={styles.usernameTag}
           textStyle={textStyle}
         >
           {profileId}
-        </Button>
+        </UsernameTag>
       </View>
     </View>
   );
@@ -241,18 +225,13 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
 
-  usernameButtonArea: {
+  usernameTagArea: {
     alignSelf: 'flex-end',
     flexShrink: 0,
   },
 
-  // 회전은 border를 가진 Button 자신에게 걸어야 합니다.
-  usernameButton: {
-    // Button의 기본 width: '100%'를 덮어씁니다.
-    width: 'auto',
-
-    overflow: 'hidden',
-
+  // 회전은 border를 가진 태그 자신에게 걸어야 합니다.
+  usernameTag: {
     transform: [
       {
         rotate: `${USERNAME_ROTATION_DEGREE}deg`,

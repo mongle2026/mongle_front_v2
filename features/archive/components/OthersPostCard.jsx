@@ -3,11 +3,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import usePressAnimation from '../../../shared/hooks/usePressAnimation';
 
-import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import CdCover from '../../../shared/components/atomic/CdCover';
 import FontFallbackText from '../../../shared/components/atomic/FontFallbackText';
 import { WriteImg, WRITE_IMG_EFFECT, WRITE_IMG_RATIO } from '../../../shared/components/atomic/WriteImg';
 import Profile from '../../../shared/components/content/profile/Profile';
+import { USERNAME_TAG_VARIANT } from '../../../shared/components/content/profile/UsernameTag';
 
 import { colors } from '../../../shared/styles/color';
 import { FONT, normalizeFont } from '../../../shared/styles/fontType';
@@ -65,7 +65,7 @@ const OthersPostCard = ({
         <Profile
           imageUri={profile.imageUri}
           username={profile.username}
-          variant={profile.isFollowing ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.GHOST}
+          variant={profile.isFollowing ? USERNAME_TAG_VARIANT.SOLID : USERNAME_TAG_VARIANT.GHOST}
           onPress={onPressProfile}
           font={normalizedFont}
         />

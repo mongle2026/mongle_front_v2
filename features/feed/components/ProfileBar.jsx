@@ -9,6 +9,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import Profile from '../../../shared/components/content/profile/Profile';
+import { USERNAME_TAG_VARIANT } from '../../../shared/components/content/profile/UsernameTag';
 import { BUTTON_VARIANT, Button } from '../../../shared/components/action/Button';
 import { Divider } from '../../../shared/components/atomic/Divider';
 
@@ -39,7 +40,7 @@ const ProfileBar = ({
   imageUri,
   username,
   font = 'kyobo',
-  // 팔로우한 사람이면 username 버튼은 Solid, 팔로우 버튼은 '팔로잉'(Ghost)
+  // 팔로우한 사람이면 username 태그는 Solid, 팔로우 버튼은 '팔로잉'(Ghost)
   isFollowing = false,
 
   showFollowButton = true,
@@ -48,7 +49,7 @@ const ProfileBar = ({
   onPressProfile,
   onPressFollow,
 }) => {
-  const profileVariant = isFollowing ? BUTTON_VARIANT.SOLID : BUTTON_VARIANT.GHOST;
+  const profileVariant = isFollowing ? USERNAME_TAG_VARIANT.SOLID : USERNAME_TAG_VARIANT.GHOST;
   const followVariant = isFollowing ? BUTTON_VARIANT.GHOST : BUTTON_VARIANT.SOLID;
   const followLabel = isFollowing ? '팔로잉' : '팔로우';
 

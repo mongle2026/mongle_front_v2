@@ -41,6 +41,7 @@ import ListHeader from '../../../shared/components/content/ListHeader';
 import MusicCard from '../../../shared/components/content/MusicCard';
 import Stamp from '../../../shared/components/content/Stamp';
 import Profile from '../../../shared/components/content/profile/Profile';
+import { USERNAME_TAG_VARIANT } from '../../../shared/components/content/profile/UsernameTag';
 
 import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import RefreshSpinner from '../../../shared/components/feedback/RefreshSpinner';
@@ -323,7 +324,7 @@ const ContentSection = () => {
 
       <Specimen name="Profile · Feed" note="variant: Ghost / Solid">
         <Profile username="mongle" onPress={noop} />
-        <Profile username="mongle" variant={BUTTON_VARIANT.SOLID} onPress={noop} />
+        <Profile username="mongle" variant={USERNAME_TAG_VARIANT.SOLID} onPress={noop} />
       </Specimen>
 
       <Specimen name="Profile · Letter" note="nameSuffix: 에게 / 이가">
