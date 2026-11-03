@@ -17,7 +17,8 @@ const PROFILE_IMG_SIZE = {
 const PROFILE_IMG_RADIUS = {
   S: radius.XS,
   M: radius.S,
-  L: radius.M,
+  // 짧은 변 40이라 기준대로면 M이지만, ListRow 배경(XL) 안에서 덜 둥글게 보이도록 S
+  L: radius.S,
 };
 
 const ProfileImg = ({
