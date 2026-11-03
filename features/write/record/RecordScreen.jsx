@@ -14,6 +14,7 @@ import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvide
 
 // Shared Hooks & Utils
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import useLeaveConfirm from '../../../shared/hooks/useLeaveConfirm';
 import { resolveMediaUri } from '../../../shared/utils/media';
 import { getApiErrorMessage } from '../../../shared/api/client';
 
@@ -35,7 +36,6 @@ import { deliveryAtToDate, formatDeliveryDateLabel, toDeliveryAt } from '../date
 import useRecordEditor from './hooks/useRecordEditor';
 import useCreateFeed from './hooks/useCreateFeed';
 import { useFullScreenSheet } from './hooks/useFullScreenSheet';
-import { useLeaveRecordConfirm } from './hooks/useLeaveRecordConfirm';
 
 const RECORD_TYPE = {
   FEED: 'feed',
@@ -140,7 +140,7 @@ const RecordScreen = ({ navigation, route }) => {
     },
   });
 
-  const handlePressClose = useLeaveRecordConfirm({
+  const handlePressClose = useLeaveConfirm({
     navigation,
     hasChanges: hasWrittenAnything,
     title: '작성을 그만둘까요?',

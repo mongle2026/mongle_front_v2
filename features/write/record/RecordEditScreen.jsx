@@ -9,6 +9,7 @@ import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvide
 
 // Shared Hooks & Utils
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import useLeaveConfirm from '../../../shared/hooks/useLeaveConfirm';
 import { getApiErrorMessage } from '../../../shared/api/client';
 
 // Shared Styles
@@ -22,7 +23,6 @@ import { useRecordFormStore } from '../store/useRecordFormStore';
 import useRecordEditor from './hooks/useRecordEditor';
 import { useFeedEditForm } from './hooks/useFeedEditForm';
 import useUpdateFeed from './hooks/useUpdateFeed';
-import { useLeaveRecordConfirm } from './hooks/useLeaveRecordConfirm';
 
 const MUSIC_SELECT_OVERLAY_ID = 'record-edit-music-select';
 
@@ -82,7 +82,7 @@ const RecordEditScreen = ({ navigation, route }) => {
     },
   });
 
-  const handlePressClose = useLeaveRecordConfirm({
+  const handlePressClose = useLeaveConfirm({
     navigation,
     hasChanges: isDirty,
     title: '수정을 그만둘까요?',

@@ -11,6 +11,7 @@ import IcArrowLeft from '../../../assets/icons/ic_arrow_left.svg';
 import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
+import useLeaveConfirm from '../../../shared/hooks/useLeaveConfirm';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 import { getApiErrorMessage } from '../../../shared/api/client';
 
@@ -64,8 +65,22 @@ const ProfileInfoEditForm = ({ currentUser }) => {
   const { id, nickname, isIdChanged, isNicknameChanged, isValid } = form;
   const { isProfileImgChanged, getProfileImgKey } = profileImgPicker;
 
+  const hasChanges = isIdChanged || isNicknameChanged || isProfileImgChanged;
+
   // 하나라도 바꿨고, 바꾼 값이 규칙을 만족할 때만 확인을 누를 수 있다
-  const canSubmit = isValid && (isIdChanged || isNicknameChanged || isProfileImgChanged);
+  const canSubmit = isValid && hasChanges;
+
+  // 바꾼 게 있으면 뒤로가기(헤더 · 안드로이드 하드웨어) 때 그만둘지 묻는다
+  const handlePressClose = useLeaveConfirm({
+    navigation,
+    hasChanges,
+    title: '수정을 그만둘까요?',
+    description: '수정된 내용은 저장되지 않습니다.',
+    cancelText: '계속 수정하기',
+    illustration: null,
+    // 저장 중에 닫으면 성공 시 goBack()이 한 번 더 불리므로 막는다
+    isLeaveBlocked: isUpdatingProfile,
+  });
 
   const handlePressNext = useCallback(() => {
     if (!canSubmit || isUpdatingProfile) return;
@@ -97,7 +112,7 @@ const ProfileInfoEditForm = ({ currentUser }) => {
         leftAccessibilityLabel="뒤로가기"
         headerText={HEADER_TEXT}
         nextText={NEXT_TEXT}
-        onPressClose={navigation.goBack}
+        onPressClose={handlePressClose}
         onPressNext={handlePressNext}
         isNextLoading={isUpdatingProfile}
         nextTextStyle={{
