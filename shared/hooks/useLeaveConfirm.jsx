@@ -2,15 +2,15 @@ import { useCallback, useEffect } from 'react';
 import { BackHandler } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 
-import { useDialog } from '../../../../shared/providers/DialogProvider';
-import { Dialog } from '../../../../shared/components/feedback/Dialog';
-import IlDialogStopwrite from '../../../../assets/illustrations/il_dialog_stopwrite.svg';
+import { useDialog } from '../providers/DialogProvider';
+import { Dialog } from '../components/feedback/Dialog';
+import IlDialogStopwrite from '../../assets/illustrations/il_dialog_stopwrite.svg';
 
-const LEAVE_RECORD_DIALOG_ID = 'record-leave-confirm';
+const LEAVE_CONFIRM_DIALOG_ID = 'leave-confirm';
 
 /*
- * RecordScreen / RecordEditScreen에서 X 버튼 또는
- * 안드로이드 하드웨어 뒤로가기를 눌렀을 때
+ * 작성/수정 화면(RecordScreen, RecordEditScreen, ProfileInfoEditScreen 등)에서
+ * X · 뒤로가기 버튼 또는 안드로이드 하드웨어 뒤로가기를 눌렀을 때
  * 작성/수정 중인 내용이 있으면 확인 Dialog를 띄우고,
  * 없으면 바로 이전 화면으로 돌아갑니다.
  *
@@ -18,12 +18,14 @@ const LEAVE_RECORD_DIALOG_ID = 'record-leave-confirm';
  * DialogProvider의 자체 BackHandler가 Dialog를 닫아
  * "계속 작성하기"와 동일하게 동작합니다.
  */
-export function useLeaveRecordConfirm({
+export default function useLeaveConfirm({
   navigation,
   hasChanges,
   title,
   description,
   cancelText,
+  // null을 넘기면 일러스트 없이 보여줍니다.
+  illustration = IlDialogStopwrite,
   onDiscard,
   // 저장 요청 중처럼 화면을 닫으면 안 될 때 X / 뒤로가기를 무시합니다.
   isLeaveBlocked = false,
@@ -46,11 +48,11 @@ export function useLeaveRecordConfirm({
     }
 
     openDialog({
-      id: LEAVE_RECORD_DIALOG_ID,
+      id: LEAVE_CONFIRM_DIALOG_ID,
       accessibilityLabel: '작성 종료 확인 닫기',
       renderContent: ({ close }) => (
         <Dialog
-          illustration={IlDialogStopwrite}
+          illustration={illustration}
           title={title}
           description={description}
           cancelText={cancelText}
@@ -63,7 +65,16 @@ export function useLeaveRecordConfirm({
         />
       ),
     });
-  }, [cancelText, description, handleLeave, hasChanges, isLeaveBlocked, openDialog, title]);
+  }, [
+    cancelText,
+    description,
+    handleLeave,
+    hasChanges,
+    illustration,
+    isLeaveBlocked,
+    openDialog,
+    title,
+  ]);
 
   /*
    * iOS 스와이프 뒤로가기는 BackHandler로 막히지 않으므로
