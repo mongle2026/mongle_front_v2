@@ -68,7 +68,7 @@ const MusicSelectBottomSheet = ({
       header={
         <ListHeader
           size="S"
-          title="Apple Music 인기곡 Top 10"
+          title="Apple Music 인기 곡"
         />
       }
       data={musicList}
