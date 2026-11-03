@@ -12,6 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
+import IcCamera from '../../../../assets/icons/ic_camera.svg';
 import IcImage from '../../../../assets/icons/ic_image.svg';
 import IcFont from '../../../../assets/icons/ic_font.svg';
 import IcArrowLeft from '../../../../assets/icons/ic_arrow_left.svg';
@@ -53,6 +54,7 @@ const playSelectionHaptic = () => {
 };
 
 const BottomBarActions = ({
+  onPressCamera,
   onPressImage,
   onPressFont,
   onPressHideKeyboard,
@@ -66,6 +68,15 @@ const BottomBarActions = ({
       <View style={styles.container}>
         {showLeftActions && (
           <>
+            <IconButton
+              size="XL"
+              icon={IcCamera}
+              color={colors.fgNeutralSecondary}
+              onPress={onPressCamera}
+              disabled={imageDisabled}
+              accessibilityLabel="사진 촬영"
+            />
+
             <IconButton
               size="XL"
               icon={IcImage}
@@ -150,9 +161,10 @@ const BottomBar = ({
 
   imageDisabled = false,
   keyboardVisible = false,
-  // false면 왼쪽 이미지 · 폰트 아이콘을 숨긴다 (mode = actions)
+  // false면 왼쪽 카메라 · 이미지 · 폰트 아이콘을 숨긴다 (mode = actions)
   showLeftActions = true,
 
+  onPressCamera,
   onPressImage,
   onPressFont,
   onPressHideKeyboard,
@@ -175,6 +187,7 @@ const BottomBar = ({
             exiting={ACTIONS_MODE_EXITING}
           >
             <BottomBarActions
+              onPressCamera={onPressCamera}
               onPressImage={onPressImage}
               onPressFont={onPressFont}
               onPressHideKeyboard={onPressHideKeyboard}
