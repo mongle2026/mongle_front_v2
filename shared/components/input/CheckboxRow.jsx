@@ -4,14 +4,14 @@ import { Pressable } from 'react-native-gesture-handler';
 
 import IcFilledCheck from '../../../assets/icons/ic_filledcheck.svg';
 
-import { colors } from '../../../shared/styles/color';
-import { gap, padding, radius } from '../../../shared/styles/token';
-import { typo } from '../../../shared/styles/typo';
+import { colors } from '../../styles/color';
+import { gap, padding, radius } from '../../styles/token';
+import { typo } from '../../styles/typo';
 
 const CHECK_ICON_SIZE = 14;
 
-// 설정 화면용 체크 행. 왼쪽 원형 체크 아이콘 + 텍스트, selected면 채워진 체크 아이콘으로 바뀐다
-const CheckContainer = ({ text, selected = false, onPress, style }) => (
+// 체크 행. 왼쪽 원형 체크 아이콘 + 텍스트, selected면 채워진 체크 아이콘으로 바뀐다
+const CheckboxRow = ({ text, selected = false, onPress, style }) => (
   <Pressable
     onPress={onPress}
     accessibilityRole="checkbox"
@@ -60,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(CheckContainer);
+export default memo(CheckboxRow);
