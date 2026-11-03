@@ -43,6 +43,8 @@ import Stamp from '../../../shared/components/content/Stamp';
 import Profile from '../../../shared/components/content/profile/Profile';
 import { USERNAME_TAG_VARIANT } from '../../../shared/components/content/profile/UsernameTag';
 
+import CheckboxRow, { CHECK_POSITION } from '../../../shared/components/input/CheckboxRow';
+
 import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import RefreshSpinner from '../../../shared/components/feedback/RefreshSpinner';
 import Toast from '../../../shared/components/feedback/Toast';
@@ -118,6 +120,8 @@ const ActionSection = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(true);
   const [search, setSearch] = useState('');
+  const [isHeadChecked, setIsHeadChecked] = useState(false);
+  const [isTailChecked, setIsTailChecked] = useState(true);
 
   return (
     <CatalogSection title="Action">
@@ -224,6 +228,20 @@ const ActionSection = () => {
 
       <Specimen name="SearchField" contentStyle={stretch}>
         <SearchField value={search} onChangeText={setSearch} placeholder="노래, 아티스트 검색" />
+      </Specimen>
+
+      <Specimen name="CheckboxRow" note="checkPosition: head / tail · 눌러서 선택 토글" contentStyle={stretch}>
+        <CheckboxRow
+          text="text"
+          selected={isHeadChecked}
+          onPress={() => setIsHeadChecked(checked => !checked)}
+        />
+        <CheckboxRow
+          text="text"
+          checkPosition={CHECK_POSITION.TAIL}
+          selected={isTailChecked}
+          onPress={() => setIsTailChecked(checked => !checked)}
+        />
       </Specimen>
 
       <Specimen name="Menu" note="기본(수정/삭제) · items · disabled" dark>
