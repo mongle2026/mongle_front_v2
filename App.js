@@ -45,6 +45,7 @@ import OnboardingScreen from './features/onboarding/OnboardingScreen';
 import { useOnboardingStore } from './features/onboarding/useOnboardingStore';
 import WelcomeScreen from './features/auth/WelcomeScreen';
 import AccountRestrictedScreen from './features/auth/restricted/AccountRestrictedScreen';
+import AppealScreen from './features/auth/restricted/appeal/AppealScreen';
 import TermsScreen from './features/signup/terms/TermsScreen';
 import SignupScreen from './features/signup/SignupScreen';
 import SignupCompleteScreen from './features/signup/complete/SignupCompleteScreen';
@@ -376,8 +377,9 @@ const RootNavigator = ({ isSignedIn, showOnboarding }) => (
   </Stack.Navigator>
 );
 
-// 신고로 이용 제한된 계정. 제재 화면만 두어서 다른 화면으로 갈 수 없게 한다
-const RestrictedNavigator = ({ restriction }) => (
+// 신고로 이용 제한된 계정. 제재 화면과 이의 신청 화면만 두어서 다른 화면으로 갈 수 없게 한다
+// 제한 내용은 화면이 useAuthStore 에서 직접 읽는다 (이의 신청하면 바뀐다)
+const RestrictedNavigator = () => (
   <Stack.Navigator
     screenOptions={{
       headerShown: false,
@@ -387,8 +389,8 @@ const RestrictedNavigator = ({ restriction }) => (
     <Stack.Screen
       name="AccountRestricted"
       component={AccountRestrictedScreen}
-      initialParams={restriction}
     />
+    <Stack.Screen name="Appeal" component={AppealScreen} />
   </Stack.Navigator>
 );
 
@@ -475,7 +477,7 @@ export default function App() {
                 onReady={() => setIsNavigationReady(true)}
               >
                 {isSignedIn && restriction ? (
-                  <RestrictedNavigator restriction={restriction} />
+                  <RestrictedNavigator />
                 ) : (
                   <RootNavigator
                     isSignedIn={isSignedIn}

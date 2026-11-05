@@ -17,8 +17,9 @@ const saveSession = session =>
 
 /**
  * session: { accessToken, refreshToken, userId } | null
- * restriction: 신고로 이용 제한된 계정이면 { reason, restrictedUntil }, 아니면 null.
- *   API 가 403 ACCOUNT_RESTRICTED 를 주면 채운다(shared/api/client.js). 앱을 다시 켜면 다시 확인한다
+ * restriction: 신고로 이용 제한된 계정이면 { reason, restrictedUntil, appealStatus }, 아니면 null.
+ *   API 가 403 ACCOUNT_RESTRICTED 를 주면 채운다(shared/api/client.js). 앱을 다시 켜면 다시 확인한다.
+ *   appealStatus: 이 제한에 낸 이의 신청 상태(APPEAL_STATUS). 안 냈으면 null. 이의 신청하면 PENDING 으로 바꾼다
  */
 export const useAuthStore = create((set, get) => ({
   status: AUTH_STATUS.RESTORING,
