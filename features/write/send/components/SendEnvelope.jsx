@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { clamp, useAnimatedStyle } from 'react-native-reanimated';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 import FlapShadow from '../../../../assets/envelope/patterns/flap_shadow.png';
@@ -19,6 +19,8 @@ const { width: VB_W, bodyHeight: VB_BODY_H, flapHeight: VB_FLAP_H } =
 // 반쯤 접힌 뒤 숨는 면은 scaleY 를 이 값으로 눌러 보이지 않게 한다.
 // 0 이면 뷰가 사라졌다 다시 그려지며 깜빡일 수 있어 아주 얇게만 남긴다
 const MIN_FLAP_SCALE = 0.001;
+// 면이 이 비율보다 납작해지면 opacity 를 낮추기 시작해 다 접히면 0 이 된다
+const FLAP_FADE_SCALE = 0.05;
 
 /*
  * 레이어마다 zIndex 를 고정하고 collapsable={false} 로 뷰 평탄화를 막는다.
@@ -70,18 +72,24 @@ const SendEnvelope = ({
     height: flapHeight * 2,
   };
 
-  // 보이는 면은 opacity 를 바꾸지 않고 scaleY 만으로 숨긴다 (opacity 토글 시 깜빡임 방지)
-  const flapBackStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scaleY: Math.max(Math.cos(Math.PI * flapProgress.value), MIN_FLAP_SCALE) },
-    ],
-  }));
+  // 접혀 숨은 면은 scaleY 를 아주 얇게만 남기므로, 그대로 두면 덮개 · 그림자가 눌린 채
+  // 봉투 윗변에 가로 실선으로 보인다. 거의 납작해진 구간에서만 opacity 를 0 까지 함께 내린다.
+  // 값이 연속으로 바뀌어 0 ↔ 1 토글처럼 깜빡이지 않고, 펴진 동안의 모습은 그대로다
+  const flapBackStyle = useAnimatedStyle(() => {
+    const scale = Math.cos(Math.PI * flapProgress.value);
+    return {
+      opacity: clamp(scale / FLAP_FADE_SCALE, 0, 1),
+      transform: [{ scaleY: Math.max(scale, MIN_FLAP_SCALE) }],
+    };
+  });
 
-  const flapStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scaleY: Math.max(-Math.cos(Math.PI * flapProgress.value), MIN_FLAP_SCALE) },
-    ],
-  }));
+  const flapStyle = useAnimatedStyle(() => {
+    const scale = -Math.cos(Math.PI * flapProgress.value);
+    return {
+      opacity: clamp(scale / FLAP_FADE_SCALE, 0, 1),
+      transform: [{ scaleY: Math.max(scale, MIN_FLAP_SCALE) }],
+    };
+  });
 
   return (
     <View style={{ width, height }}>
