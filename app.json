@@ -17,7 +17,12 @@
       }
     },
     "android": {
-      "package": "com.dongle.mongle"
+      "package": "com.dongle.mongle",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo/android_icon_foreground.png",
+        "monochromeImage": "./assets/logo/android_icon_monochrome.png",
+        "backgroundColor": "#FFFFFF"
+      }
     },
     "plugins": [
       [
@@ -37,7 +42,13 @@
         }
       ],
       "expo-status-bar",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/logo/notification_icon.png",
+          "color": "#17191C"
+        }
+      ],
       "expo-apple-authentication",
       "expo-web-browser",
       [
