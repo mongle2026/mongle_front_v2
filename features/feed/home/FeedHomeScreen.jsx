@@ -302,8 +302,18 @@ const FeedHomeScreen = ({ navigation }) => {
     if (isLoading) return <FeedListState loading />;
     if (error) return <FeedListState message="피드를 불러오지 못했습니다." />;
 
+    if (isFollowing) {
+      return (
+        <Empty
+          type="followingFeed"
+          title="아직 아무도 팔로우하지 않았어요."
+          body="팔로우하고 음악과 기록을 만나보세요."
+        />
+      );
+    }
+
     return <FeedListState message="아직 표시할 게시물이 없습니다." />;
-  }, [error, isConfigured, isLoading]);
+  }, [error, isConfigured, isFollowing, isLoading]);
 
   const handlePressBell = useCallback(() => {
     navigation.navigate('Notification');

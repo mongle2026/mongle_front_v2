@@ -70,7 +70,7 @@ const SAMPLE_TOP_TABS = [
   { key: 'following', label: '팔로잉' },
 ];
 
-const EMPTY_TYPES = ['comment', 'recipient', 'music', 'letter', 'archive', 'notification', 'bookmark'];
+const EMPTY_TYPES = ['comment', 'recipient', 'music', 'letter', 'archive', 'notification', 'bookmark', 'followingFeed'];
 
 // Figma action/Button: 모든 type 이 S / M / L / XL 을 가진다
 const BUTTON_SIZES = ['S', 'M', 'L', 'XL'];
