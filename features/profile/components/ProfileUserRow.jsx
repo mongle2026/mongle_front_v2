@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../../../shared/components/action/Button';
+import { colors } from '../../../shared/styles/color';
 import { FONT } from '../../../shared/styles/fontType';
 import { gap, padding } from '../../../shared/styles/token';
 
@@ -24,10 +25,12 @@ const getRotatedCornerOffset = (width, height) => {
 // 프로필 사진 + 기울어진 @userCode 버튼 (내 프로필, 다른 사람 프로필, 가입 완료 공용)
 // 팔로우한 사람이면 userCode 버튼은 Solid, 아니면 Ghost (피드 ProfileBar 와 같다)
 // style: 행 정렬 등 (위·아래 여백은 꼭짓점 계산으로 정한다), profileImgStyle: 사진 모서리 등
+// isRestricted: 이용 제한된 회원. 사진 대신 제한 이미지, 아이디는 fgDisabled
 const ProfileUserRow = ({
   imageUri,
   userCode,
   isFollowing = false,
+  isRestricted = false,
   style,
   profileImgStyle,
 }) => {
@@ -55,6 +58,7 @@ const ProfileUserRow = ({
       {/* 회전한 버튼의 가장 아래 꼭짓점과 같은 줄에 오도록 내린다 */}
       <ProfileImg
         imageUri={imageUri}
+        isRestricted={isRestricted}
         size="M"
         style={[
           styles.profileImg,
@@ -69,7 +73,8 @@ const ProfileUserRow = ({
           variant={userCodeVariant}
           size={BUTTON_SIZE.M}
           font={FONT.SUIT}
-          style={styles.userCodeButton}
+          style={[styles.userCodeButton, isRestricted && styles.restrictedUserCodeButton]}
+          textStyle={isRestricted && styles.restrictedUserCode}
         >
           {`@${normalizedUserCode}`}
         </Button>
@@ -97,6 +102,15 @@ const styles = StyleSheet.create({
   userCodeButton: {
     overflow: 'hidden',
     transform: [{ rotate: `${USER_CODE_ROTATION_DEGREE}deg` }],
+  },
+
+  // 이용 제한된 회원: Ghost 테두리(1px)의 색만 바꾼다
+  restrictedUserCodeButton: {
+    borderColor: colors.strokeNeutralTertiary,
+  },
+
+  restrictedUserCode: {
+    color: colors.fgDisabled,
   },
 });
 
