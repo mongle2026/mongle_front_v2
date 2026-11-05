@@ -51,6 +51,7 @@ const FlippableLetter = ({ letter, isFlipping, onPress, style }) => {
             StampSvg={StampSvg}
             recipient={letter.recipientName}
             sender={letter.senderName}
+            isSenderWithdrawn={letter.isSenderWithdrawn}
             isDark={Boolean(color?.isDark)}
           />
         ) : (

@@ -46,6 +46,7 @@ function Letter({
   StampSvg,
   recipient = '',
   sender = '',
+  isSenderWithdrawn = false,
   // 어두운 봉투(envelopeData 의 isDark)면 이름을 밝은 색으로
   isDark = false,
   style,
@@ -99,7 +100,7 @@ function Letter({
               <FontFallbackText style={nameStyle} numberOfLines={1}>
                 {recipient ? `${recipient}에게` : ''}
               </FontFallbackText>
-              <FontFallbackText style={styles.name} numberOfLines={1}>
+              <FontFallbackText style={nameStyle} numberOfLines={1}>
                 {/* 탈퇴한 회원 이름은 '(탈퇴한 회원)'이라 받침으로 정하지 않고 '이가'로 고정한다 */}
                 {sender ? `${sender}${isSenderWithdrawn ? '이가' : getSenderSuffix(sender)}` : ''}
               </FontFallbackText>
