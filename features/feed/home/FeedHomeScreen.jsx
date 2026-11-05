@@ -27,6 +27,7 @@ import useFeedActions from '../hooks/useFeedActions';
 import useFeedHome from './hooks/useFeedHome';
 import useFeedHomeListController from './hooks/useFeedHomeListController';
 import useNotificationDeniedToast from './hooks/useNotificationDeniedToast';
+import useBrowseNotificationPermission from './hooks/useBrowseNotificationPermission';
 import useHasUnreadNotification from '../../notification/hooks/useHasUnreadNotification';
 import { useCreatedFeedStore } from '../store/useCreatedFeedStore';
 import { useFeedCoachmarkStore } from '../store/useFeedCoachmarkStore';
@@ -58,7 +59,7 @@ const FEED_COACHMARKS = [
   },
 ];
 
-const FeedHomeScreen = ({ navigation }) => {
+const FeedHomeScreen = ({ navigation, route }) => {
   const [activeTab, setActiveTab] = useState(FEED_TAB.RECOMMENDED);
   const { userId } = useCurrentUser();
   const isSignedIn = useIsSignedIn();
@@ -97,14 +98,19 @@ const FeedHomeScreen = ({ navigation }) => {
   const isCoachmarkCompleted = useFeedCoachmarkStore(state => state.isCompleted);
   const restoreCoachmark = useFeedCoachmarkStore(state => state.restore);
   const completeCoachmark = useFeedCoachmarkStore(state => state.complete);
-  const isCoachmarkPending = isCoachmarkRestored && !isCoachmarkCompleted;
+  // 온보딩에서 로그인 없이 들어왔으면 알림 권한 창 → 코치마크 → 알림 거절 안내 Toast 순으로 띄운다
+  const isRequestingNotificationPermission = useBrowseNotificationPermission({ navigation, route });
+  const isCoachmarkPending =
+    isCoachmarkRestored && !isCoachmarkCompleted && !isRequestingNotificationPermission;
 
   useEffect(() => {
     void restoreCoachmark();
   }, [restoreCoachmark]);
 
   // 알림 거절 안내 Toast 는 코치마크가 끝난 뒤에 띄운다
-  useNotificationDeniedToast({ enabled: isCoachmarkRestored && isCoachmarkCompleted });
+  useNotificationDeniedToast({
+    enabled: isCoachmarkRestored && isCoachmarkCompleted && !isRequestingNotificationPermission,
+  });
 
   const {
     listRef,

@@ -27,8 +27,8 @@ import { gap, padding } from '../../../shared/styles/token';
 const ILLUSTRATION_SIZE = 200;
 
 /**
- * 알림 권한 화면. 가입하면 가입 완료 화면 다음에, 이미 가입한 회원은 로그인한 다음에,
- * 온보딩에서 로그인 없이 이용하기를 누르면 피드 홈 위에 뜬다.
+ * 알림 권한 화면. 가입하면 가입 완료 화면 다음에, 이미 가입한 회원은 로그인한 다음에 뜬다.
+ * (온보딩에서 로그인 없이 이용하기를 누르면 이 화면 없이 피드 홈에서 OS 권한 창을 띄운다)
  * 이 기기에서 이미 답했거나 허용돼 있으면 뜨지 않는다 (shouldAskNotificationPermission)
  * - 알림 받기: OS 권한 창을 띄우고, 허용하면 푸시 토큰을 등록한다
  * - 다음에 할게요(안드로이드 뒤로가기 포함): OS 권한 창 없이 거절로 남긴다
@@ -100,6 +100,12 @@ const NotificationPermissionScreen = () => {
       </View>
 
       <View style={styles.footer}>
+        <ButtonText
+          text="다음에 할게요"
+          style={styles.laterButton}
+          onPress={handlePressLater}
+        />
+
         <Button
           variant={BUTTON_VARIANT.SOLID}
           size={BUTTON_SIZE.XL}
@@ -109,12 +115,6 @@ const NotificationPermissionScreen = () => {
         >
           알림 받기
         </Button>
-
-        <ButtonText
-          text="다음에 할게요"
-          style={styles.laterButton}
-          onPress={handlePressLater}
-        />
       </View>
     </SafeAreaView>
   );
@@ -171,9 +171,11 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
 
-  // ButtonText도 기본이 alignSelf: 'flex-start'라서 가운데에 둔다
+  // ButtonText도 기본이 alignSelf: 'flex-start'라서 가운데에 둔다. 기본 padding.S 대신 위아래를 넓힌다
   laterButton: {
     alignSelf: 'center',
+    paddingVertical: padding.L,
+    paddingHorizontal: padding.S,
   },
 });
 
