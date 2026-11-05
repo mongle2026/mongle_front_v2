@@ -15,7 +15,7 @@ import {
   BUTTON_SIZE,
   BUTTON_VARIANT,
 } from '../../../shared/components/action/Button';
-import CheckContainer from '../../setting/components/CheckContainer';
+import CheckboxRow from '../../../shared/components/input/CheckboxRow';
 import { defaultProfileImgQuery } from '../hooks/useDefaultProfileImg';
 
 import { colors } from '../../../shared/styles/color';
@@ -104,7 +104,7 @@ const TermsScreen = () => {
         <View style={styles.termList}>
           {TERMS.map(({ key, label, url }) => (
             <View key={key} style={styles.termRow}>
-              <CheckContainer
+              <CheckboxRow
                 text={label}
                 selected={agreements[key]}
                 onPress={() => handlePressTerm(key)}
@@ -124,7 +124,7 @@ const TermsScreen = () => {
           ))}
         </View>
 
-        <CheckContainer
+        <CheckboxRow
           text="전체 동의"
           selected={isAllAgreed}
           onPress={handlePressAll}
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // CheckContainer는 기본이 width 100%라서 IconButton 자리를 남기도록 늘어나게만 둔다
+  // CheckboxRow는 기본이 width 100%라서 IconButton 자리를 남기도록 늘어나게만 둔다
   termCheck: {
     flex: 1,
   },

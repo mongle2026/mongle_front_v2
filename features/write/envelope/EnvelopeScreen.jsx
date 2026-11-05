@@ -115,7 +115,7 @@ const EnvelopeScreen = ({ navigation }) => {
           <Animated.View style={flipStyle}>
             <Letter
               type={previewFace}
-              BackgroundSvg={envelope.FrontSvg}
+              BackgroundSvg={previewFace === 'back' ? envelope.BackSvg : envelope.FrontSvg}
               FlapSvg={envelope.FlapSvg}
               StampSvg={envelope.StampSvg}
               recipient={recipientName}

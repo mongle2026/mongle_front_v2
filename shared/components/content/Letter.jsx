@@ -30,13 +30,10 @@ const FLAP_RIGHT_INSET_RATIO = FLAP_INSET_RATIO + FLAP_SHIFT_RATIO;
 const FLAP_ROTATE_DEG = -0.33;
 const FLAP_ROTATE_TRANSFORM = [{ rotate: `${FLAP_ROTATE_DEG}deg` }];
 
-const FRONT_BLEED = { x: 0.0508, y: 0.0617 }; // front: 여백 4.61%/5.49%, 도형 90.78%/89.01%
-const FLAP_BLEED = { x: 0.0262, y: 0.0492 }; // flap : 여백 2.49%/4.48%, 도형 95.02%/91.04%
-
 // 우표 원본 비율(59 : 88) — 너비만 72px 로 고정하고 높이는 비율로
 export const STAMP_ASPECT_RATIO = 59 / 88;
 
-const FLAP_SHADOW_PAD = { left: 0.15, right: 0.15, top: 0.22, bottom: 0.28 };
+export const FLAP_SHADOW_PAD = { left: 0.15, right: 0.15, top: 0.22, bottom: 0.28 };
 const LETTER_SHADOW_PAD = { left: 0.12, right: 0.12, top: 0.12, bottom: 0.16 };
 
 function Letter({
@@ -81,9 +78,7 @@ function Letter({
         pointerEvents="none"
       >
         {BackgroundSvg ? (
-          <View style={bleedStyle(FRONT_BLEED)}>
-            <BackgroundSvg width="100%" height="100%" preserveAspectRatio="none" />
-          </View>
+          <BackgroundSvg width="100%" height="100%" preserveAspectRatio="none" />
         ) : (
           <Image
             source={LetterBackground}
@@ -147,9 +142,7 @@ function Letter({
             }}
           >
             {FlapSvg ? (
-              <View style={bleedStyle(FLAP_BLEED)}>
-                <FlapSvg width="100%" height="100%" preserveAspectRatio="none" />
-              </View>
+              <FlapSvg width="100%" height="100%" preserveAspectRatio="none" />
             ) : (
               <Image source={LetterFlap} style={StyleSheet.absoluteFill} resizeMode="stretch" />
             )}
@@ -158,19 +151,6 @@ function Letter({
       ) : null}
     </View>
   );
-}
-
-/* 부모 박스보다 좌우/상하로 pad(x, y) 비율만큼 더 크게 그리는 절대 위치 스타일.
- * BackgroundSvg / FlapSvg 의 여백만큼 SVG를 오버사이즈로 그린 뒤, 부모의
- * overflow:hidden 이 넘치는 여백을 잘라내 실제 도형만 박스에 꽉 차게 한다. */
-function bleedStyle(pad) {
-  return {
-    position: 'absolute',
-    left: `${-pad.x * 100}%`,
-    top: `${-pad.y * 100}%`,
-    width: `${(1 + 2 * pad.x) * 100}%`,
-    height: `${(1 + 2 * pad.y) * 100}%`,
-  };
 }
 
 /* box(실측 width/height) 기준으로 pad 비율만큼 바깥으로 번진 절대 위치 스타일을 만든다.

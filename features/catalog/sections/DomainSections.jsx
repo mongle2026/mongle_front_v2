@@ -400,7 +400,7 @@ const WriteSection = () => {
       </Specimen>
 
       <Specimen name="BottomBar" note="mode: actions / font · 키보드 열림" contentStyle={stretch}>
-        <BottomBar onPressImage={noop} onPressFont={noop} />
+        <BottomBar onPressCamera={noop} onPressImage={noop} onPressFont={noop} />
         <BottomBar keyboardVisible imageDisabled onPressFont={noop} onPressHideKeyboard={noop} />
         <BottomBar mode="font" selectedFont={font} onSelectFont={setFont} onPressBack={noop} />
       </Specimen>

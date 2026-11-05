@@ -9,6 +9,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 import { colors } from '../../../styles/color';
+import { radius } from '../../../styles/token';
 import Items from './Items';
 
 const DEFAULT_TABS = ['탭1', '탭2'];
@@ -93,6 +94,7 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     height: INDICATOR_HEIGHT,
+    borderRadius: radius.XS,
     backgroundColor: colors.strokeNeutralPrimary,
   },
 });

@@ -8,7 +8,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 
-import logoSignitureMotion from '../../assets/logo/logo_signiture_motion.json';
+import logoSymbolMotion from '../../assets/logo/logo_symbol_motion.json';
 import IcKakao from '../../assets/icons/ic_kakao.svg';
 import IcApple from '../../assets/icons/ic_apple.svg';
 
@@ -23,9 +23,8 @@ import { colors } from '../../shared/styles/color';
 import { typo } from '../../shared/styles/typo';
 import { gap, padding, radius } from '../../shared/styles/token';
 
-// 로고 원본 비율(120 × 64)을 유지한 채 너비만 키운다
-const LOGO_WIDTH = 160;
-const LOGO_HEIGHT = (LOGO_WIDTH * 64) / 120;
+// 로고 모션은 정사각형(120 × 120) 원본을 키워서 보여 준다
+const LOGO_SIZE = 160;
 
 // 카카오 · Apple 버튼 높이를 맞춘다. 모서리는 둘 다 radius.XL (카카오 가이드 12)
 const SOCIAL_BUTTON_HEIGHT = 54;
@@ -136,9 +135,9 @@ const WelcomeScreen = () => {
       />
 
       <View style={styles.hero}>
-        {/* 화면에 들어올 때 서명 모션을 한 번 재생하고 마지막 프레임에 멈춘다 */}
+        {/* 화면에 들어올 때 심볼 모션을 한 번 재생하고 마지막 프레임에 멈춘다 */}
         <LottieView
-          source={logoSignitureMotion}
+          source={logoSymbolMotion}
           autoPlay
           loop={false}
           style={styles.logo}
@@ -196,8 +195,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: LOGO_WIDTH,
-    height: LOGO_HEIGHT,
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
   },
 
   tagline: {

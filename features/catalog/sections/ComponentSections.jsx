@@ -43,6 +43,8 @@ import Stamp from '../../../shared/components/content/Stamp';
 import Profile from '../../../shared/components/content/profile/Profile';
 import { USERNAME_TAG_VARIANT } from '../../../shared/components/content/profile/UsernameTag';
 
+import CheckboxRow, { CHECK_POSITION } from '../../../shared/components/input/CheckboxRow';
+
 import LoadStateView from '../../../shared/components/feedback/LoadStateView';
 import RefreshSpinner from '../../../shared/components/feedback/RefreshSpinner';
 import Toast from '../../../shared/components/feedback/Toast';
@@ -68,7 +70,7 @@ const SAMPLE_TOP_TABS = [
   { key: 'following', label: '팔로잉' },
 ];
 
-const EMPTY_TYPES = ['comment', 'recipient', 'music', 'letter', 'archive', 'notification', 'bookmark'];
+const EMPTY_TYPES = ['comment', 'recipient', 'music', 'letter', 'archive', 'notification', 'bookmark', 'followingFeed'];
 
 // Figma action/Button: 모든 type 이 S / M / L / XL 을 가진다
 const BUTTON_SIZES = ['S', 'M', 'L', 'XL'];
@@ -118,6 +120,8 @@ const ActionSection = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(true);
   const [search, setSearch] = useState('');
+  const [isHeadChecked, setIsHeadChecked] = useState(false);
+  const [isTailChecked, setIsTailChecked] = useState(true);
 
   return (
     <CatalogSection title="Action">
@@ -226,6 +230,20 @@ const ActionSection = () => {
         <SearchField value={search} onChangeText={setSearch} placeholder="노래, 아티스트 검색" />
       </Specimen>
 
+      <Specimen name="CheckboxRow" note="checkPosition: head / tail · 눌러서 선택 토글" contentStyle={stretch}>
+        <CheckboxRow
+          text="text"
+          selected={isHeadChecked}
+          onPress={() => setIsHeadChecked(checked => !checked)}
+        />
+        <CheckboxRow
+          text="text"
+          checkPosition={CHECK_POSITION.TAIL}
+          selected={isTailChecked}
+          onPress={() => setIsTailChecked(checked => !checked)}
+        />
+      </Specimen>
+
       <Specimen name="Menu" note="기본(수정/삭제) · items · disabled" dark>
         <View style={styles.rowTop}>
           <Menu onPressEdit={noop} onPressDelete={noop} />
@@ -279,7 +297,7 @@ const AtomicSection = () => (
       </View>
     </Specimen>
 
-    <Specimen name="MusicCoverImg" note="size M (72) · Skia 하프톤 효과">
+    <Specimen name="MusicCoverImg" note="size M (72) · 효과 없음">
       <MusicCoverImg imageSource={SampleCover} />
     </Specimen>
 

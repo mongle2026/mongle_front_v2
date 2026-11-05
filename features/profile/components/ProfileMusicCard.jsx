@@ -6,7 +6,7 @@ import MusicCoverImg from '../../../shared/components/atomic/MusicCoverImg';
 import { padding, radius } from '../../../shared/styles/token';
 
 // 프로필 그리드의 노래 커버 카드. 1:1 비율로 부모 행의 폭을 나눠 쓴다.
-// MusicCoverImg(Skia)는 숫자 size가 필요해서 레이아웃 후 측정한 폭을 넘긴다.
+// MusicCoverImg는 숫자 size가 필요해서 레이아웃 후 측정한 폭을 넘긴다.
 // children 은 커버 위에 올라간다 (게시글 편집의 체크 · 이동 버튼)
 const ProfileMusicCard = ({ imageSource, title, style, children }) => {
   const [cardSize, setCardSize] = useState(0);

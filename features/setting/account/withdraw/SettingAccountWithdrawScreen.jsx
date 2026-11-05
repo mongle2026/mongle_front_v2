@@ -28,7 +28,7 @@ import { FONT } from '../../../../shared/styles/fontType';
 import { gap, padding } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
 
-import CheckContainer from '../../components/CheckContainer';
+import CheckboxRow from '../../../../shared/components/input/CheckboxRow';
 import { ID_MAX_LENGTH } from '../../../profile/hooks/useProfileForm';
 import useWithdraw from '../../../auth/hooks/useWithdraw';
 
@@ -139,7 +139,7 @@ const SettingAccountWithdrawScreen = () => {
               </Text>
             </View>
 
-            <CheckContainer
+            <CheckboxRow
               text="안내 사항을 모두 확인했으며, 이에 동의합니다."
               selected={isChecked}
               onPress={() => setIsChecked(checked => !checked)}

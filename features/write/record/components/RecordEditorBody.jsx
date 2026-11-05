@@ -166,6 +166,7 @@ const RecordEditorBody = ({
     imageFiles,
     isImageLimitReached,
     handlePressImage,
+    handlePressCamera,
     handleRemoveImage,
     normalizedFont,
     bodyTypography,
@@ -311,6 +312,7 @@ const RecordEditorBody = ({
           selectedFont={normalizedFont}
           imageDisabled={isImageLimitReached}
           keyboardVisible={isKeyboardVisible}
+          onPressCamera={handlePressCamera}
           onPressImage={handlePressImage}
           onPressFont={handleShowFontMode}
           onPressHideKeyboard={handlePressHideKeyboard}

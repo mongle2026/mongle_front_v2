@@ -47,6 +47,7 @@ export default function useRecordEditor({
     imageFiles,
     isImageLimitReached,
     handlePressImage,
+    handlePressCamera,
     handleRemoveImage,
   } = useRecordImageManager({ bottomOffset });
 
@@ -135,6 +136,7 @@ export default function useRecordEditor({
     imageFiles,
     isImageLimitReached,
     handlePressImage,
+    handlePressCamera,
     handleRemoveImage,
 
     normalizedFont,

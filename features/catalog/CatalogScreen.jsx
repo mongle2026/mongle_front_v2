@@ -9,11 +9,13 @@ import Tabs from '../../shared/components/navigation/tabs/Tabs';
 import { FOUNDATION_SECTIONS } from './sections/FoundationSections';
 import { COMPONENT_SECTIONS } from './sections/ComponentSections';
 import { DOMAIN_SECTIONS } from './sections/DomainSections';
+import { ENVELOPE_SECTIONS } from './sections/EnvelopeSections';
 
 const GROUPS = [
   { label: 'Foundation', sections: FOUNDATION_SECTIONS },
   { label: 'Components', sections: COMPONENT_SECTIONS },
   { label: 'Domain', sections: DOMAIN_SECTIONS },
+  { label: 'Envelope', sections: ENVELOPE_SECTIONS },
 ];
 
 // 개발 빌드(__DEV__)에서만 열리는 디자인 시스템 카탈로그.

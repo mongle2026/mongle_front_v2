@@ -10,6 +10,19 @@ import { startRecordFileUploads } from '../../utils/uploadRecordFiles';
 // 기록 / 편지 한 건에 첨부할 수 있는 최대 이미지 수
 export const MAX_IMAGES = 2;
 
+const toImageFile = (asset, index) => ({
+  uri: asset.uri,
+
+  name: asset.fileName ?? `image-${Date.now()}-${index}.jpg`,
+
+  type: asset.mimeType ?? 'image/jpeg',
+
+  fileType: 'IMAGE',
+
+  width: asset.width,
+  height: asset.height,
+});
+
 /*
  * 사진 라이브러리에서 remainingCount 장까지 고른 뒤
  * store에 저장할 파일 구조로 변환합니다.
@@ -34,18 +47,29 @@ const pickImagesFromLibrary = async remainingCount => {
 
   if (result.canceled) return [];
 
-  return result.assets.map((asset, index) => ({
-    uri: asset.uri,
+  return result.assets.map(toImageFile);
+};
 
-    name: asset.fileName ?? `image-${Date.now()}-${index}.jpg`,
+/*
+ * 카메라로 한 장을 찍은 뒤 store에 저장할 파일 구조로 변환합니다.
+ * 권한이 없거나 사용자가 취소하면 빈 배열을 돌려줍니다.
+ */
+const takePhotoWithCamera = async () => {
+  const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
-    type: asset.mimeType ?? 'image/jpeg',
+  if (!permissionResult.granted) {
+    alert('카메라 접근 권한이 필요합니다.');
+    return [];
+  }
 
-    fileType: 'IMAGE',
+  const result = await ImagePicker.launchCameraAsync({
+    mediaTypes: 'images',
+    quality: 0.8,
+  });
 
-    width: asset.width,
-    height: asset.height,
-  }));
+  if (result.canceled) return [];
+
+  return result.assets.map(toImageFile);
 };
 
 /*
@@ -68,30 +92,44 @@ export const useRecordImageManager = ({ bottomOffset }) => {
   const { userId } = useCurrentUser();
   const { showToast } = useGlobalOverlay();
 
-  const handlePressImage = useCallback(async () => {
-    Keyboard.dismiss();
+  // 라이브러리 · 카메라 모두 남은 장수를 확인한 뒤 골라온 사진을 붙이고 업로드를 시작한다
+  const attachImages = useCallback(
+    async pickImages => {
+      Keyboard.dismiss();
 
-    const remainingCount = MAX_IMAGES - imageFiles.length;
+      const remainingCount = MAX_IMAGES - imageFiles.length;
 
-    if (remainingCount <= 0) {
-      alert('이미지는 최대 2장까지 첨부할 수 있습니다.');
-      return;
-    }
+      if (remainingCount <= 0) {
+        alert('이미지는 최대 2장까지 첨부할 수 있습니다.');
+        return;
+      }
 
-    try {
-      const selectedImages = await pickImagesFromLibrary(remainingCount);
-      if (!selectedImages.length) return;
+      try {
+        const selectedImages = await pickImages(remainingCount);
+        if (!selectedImages.length) return;
 
-      const otherFiles = files.filter(file => file.fileType !== 'IMAGE');
+        const otherFiles = files.filter(file => file.fileType !== 'IMAGE');
 
-      setFiles([...otherFiles, ...imageFiles, ...selectedImages]);
+        setFiles([...otherFiles, ...imageFiles, ...selectedImages]);
 
-      // 글을 쓰는 동안 업로드를 끝내 두면 저장할 때 기다리지 않는다
-      startRecordFileUploads({ userId, files: selectedImages });
-    } catch (error) {
-      console.log('pickImages error:', error);
-    }
-  }, [files, imageFiles, setFiles, userId]);
+        // 글을 쓰는 동안 업로드를 끝내 두면 저장할 때 기다리지 않는다
+        startRecordFileUploads({ userId, files: selectedImages });
+      } catch (error) {
+        console.log('pickImages error:', error);
+      }
+    },
+    [files, imageFiles, setFiles, userId],
+  );
+
+  const handlePressImage = useCallback(
+    () => attachImages(pickImagesFromLibrary),
+    [attachImages],
+  );
+
+  const handlePressCamera = useCallback(
+    () => attachImages(takePhotoWithCamera),
+    [attachImages],
+  );
 
   const handleRemoveImage = useCallback(
     image => {
@@ -116,6 +154,7 @@ export const useRecordImageManager = ({ bottomOffset }) => {
     imageFiles,
     isImageLimitReached,
     handlePressImage,
+    handlePressCamera,
     handleRemoveImage,
   };
 };
