@@ -297,7 +297,7 @@ const AtomicSection = () => (
       </View>
     </Specimen>
 
-    <Specimen name="MusicCoverImg" note="size M (72) · Skia 하프톤 효과">
+    <Specimen name="MusicCoverImg" note="size M (72) · 효과 없음">
       <MusicCoverImg imageSource={SampleCover} />
     </Specimen>
 
