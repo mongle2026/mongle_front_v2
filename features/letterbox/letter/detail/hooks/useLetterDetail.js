@@ -18,6 +18,8 @@ function normalizeLetterDetail(data, userId) {
 
   return {
     letterId: letter.id,
+    // 운영자가 가린 편지. 서버가 글 · 음악 · 사진을 비워서 보낸다
+    isBlinded: Boolean(data?.isBlinded),
     isSender: isSameId(record?.userId, userId),
     isReceiver: isSameId(letter.receiverId, userId),
     isRead: Boolean(letter.isRead),
@@ -30,6 +32,7 @@ function normalizeLetterDetail(data, userId) {
     },
     sender: {
       userId: record?.userId,
+      userCode: record?.user?.userCode ?? '',
       nickname: record?.user?.nickname ?? '',
       profileImageUri: resolveMediaUri(record?.user?.profileImageUrl),
       isWithdrawn: Boolean(record?.user?.isWithdrawn),

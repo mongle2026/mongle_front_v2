@@ -34,7 +34,7 @@ import StampBoxItem from '../../letterbox/stamp/home/components/StampBoxItem';
 // notification
 import InfoBanner from '../../notification/components/InfoBanner';
 import NotificationListItem from '../../notification/components/NotificationListItem';
-import { NOTIFICATION_STATUS, NOTIFICATION_TYPE } from '../../notification/constants';
+import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, REPORT_TARGET_TYPE } from '../../notification/constants';
 
 // write
 import WriteLabeledButton from '../../write/components/LabeledButton';
@@ -91,6 +91,9 @@ const NOTIFICATION_SAMPLES = [
   { type: NOTIFICATION_TYPE.FEED, status: NOTIFICATION_STATUS.REPLY, name: 'user_002', content: '그쵸 ㅎㅎ' },
   { type: NOTIFICATION_TYPE.NEWS, status: NOTIFICATION_STATUS.SYSTEM },
   { type: NOTIFICATION_TYPE.NEWS, status: NOTIFICATION_STATUS.EVENT, eventTitle: '가을 우표' },
+  { type: NOTIFICATION_TYPE.NEWS, status: NOTIFICATION_STATUS.REPORT_RESOLVED, targetType: REPORT_TARGET_TYPE.FEED },
+  { type: NOTIFICATION_TYPE.NEWS, status: NOTIFICATION_STATUS.REPORT_REJECTED, targetType: REPORT_TARGET_TYPE.COMMENT },
+  { type: NOTIFICATION_TYPE.NEWS, status: NOTIFICATION_STATUS.POLICY_NOTICE, targetType: REPORT_TARGET_TYPE.LETTER },
 ];
 
 const SAMPLE_SELECTED_IMAGES = [

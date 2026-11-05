@@ -3,6 +3,7 @@ import { Image, StyleSheet, View } from 'react-native';
 import { radius } from '../../../shared/styles/token'
 
 import IlProfileWithdrawn from '../../../assets/illustrations/il_profile_withdrawn.svg';
+import IlProfileRestricted from '../../../assets/illustrations/il_profile_restricted.svg';
 
 const DEFAULT_PROFILE_IMAGE = require(
   '../../../assets/write/profile_img.png'
@@ -26,6 +27,10 @@ const ProfileImg = ({
   size = 'M',
   // 탈퇴한 회원은 사진 대신 탈퇴 회원 이미지로 고정한다
   isWithdrawn = false,
+  // 운영정책에 따라 가려진 댓글은 사진 대신 가림 이미지로 고정한다
+  isRestricted = false,
+  // 사진 대신 이 색으로 채운다 (신고 처리 알림)
+  color,
   style,
 }) => {
   const [hasError, setHasError] = useState(false);
@@ -39,7 +44,9 @@ const ProfileImg = ({
     setHasError(false);
   }, [imageUri]);
 
-  if (isWithdrawn) {
+  if (isWithdrawn || isRestricted) {
+    const Illustration = isRestricted ? IlProfileRestricted : IlProfileWithdrawn;
+
     return (
       <View
         style={[
@@ -53,8 +60,25 @@ const ProfileImg = ({
           style,
         ]}
       >
-        <IlProfileWithdrawn width="100%" height="100%" />
+        <Illustration width="100%" height="100%" />
       </View>
+    );
+  }
+
+  if (color) {
+    return (
+      <View
+        style={[
+          styles.image,
+          {
+            width: imageSize,
+            height: imageSize,
+            borderRadius: imageRadius,
+            backgroundColor: color,
+          },
+          style,
+        ]}
+      />
     );
   }
 

@@ -5,7 +5,7 @@ import Animated from 'react-native-reanimated';
 import IcTrash from '../../../../assets/icons/ic_trash.svg';
 
 import Item from '../../../../shared/components/action/menu/Item';
-import {
+import Menu, {
   MENU_ENTERING,
   MENU_EXITING,
   MENU_TRANSFORM_ORIGIN,
@@ -15,7 +15,7 @@ import { colors, shadow } from '../../../../shared/styles/color';
 import { radius } from '../../../../shared/styles/token';
 
 /**
- * 댓글 케밥 메뉴 (삭제).
+ * 댓글 케밥 메뉴 (내 댓글: 삭제 / 남의 댓글: 신고 · 차단).
  * 위치 계산과 열고 닫기는 useCommentMenu가 맡고, 여기서는 그리기만 합니다.
  *
  * ref: useCommentMenu의 commentMenuOverlayRef.
@@ -29,6 +29,8 @@ const CommentMenuOverlay = ({
   onMenuLayout,
   onPressDelete,
   deleteDisabled,
+  onPressReport,
+  onPressBlock,
 }) => (
   <View
     ref={ref}
@@ -58,15 +60,26 @@ const CommentMenuOverlay = ({
         exiting={menu.isMeasured ? MENU_EXITING : undefined}
         style={styles.commentMenuMotion}
       >
-        <Item
-          icon={IcTrash}
-          label="삭제"
-          color={colors.fgCritical}
-          onPress={onPressDelete}
-          disabled={deleteDisabled}
-          accessibilityLabel="댓글 삭제"
-          style={styles.commentDeleteItem}
-        />
+        {menu.comment.isMine ? (
+          <Item
+            icon={IcTrash}
+            label="삭제"
+            color={colors.fgCritical}
+            onPress={onPressDelete}
+            disabled={deleteDisabled}
+            accessibilityLabel="댓글 삭제"
+            style={styles.commentDeleteItem}
+          />
+        ) : (
+          <Menu
+            animated={false}
+            showReport
+            showEdit={false}
+            showDelete={false}
+            onPressReport={onPressReport}
+            onPressBlock={onPressBlock}
+          />
+        )}
       </Animated.View>
     </View>
   </View>

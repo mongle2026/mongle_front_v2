@@ -100,7 +100,6 @@ const CommentSection = ({
       ) : (
         comments.map(comment => {
           const isMenuOpen =
-            comment.isMine &&
             openCommentMenuId != null &&
             String(openCommentMenuId) === String(comment.commentId);
 
@@ -124,31 +123,31 @@ const CommentSection = ({
               <Comment
                 userCode={comment.userCode}
                 isWithdrawn={comment.isWithdrawn}
+                isBlinded={comment.isBlinded}
                 nickname={comment.nickname}
                 comment={comment.comment}
                 createdAt={comment.createdAt}
                 profileImageUrl={comment.profileImageUrl}
                 depth={comment.depth}
-                showMenu
+                // 가린 댓글은 신고 · 차단 · 삭제 메뉴를 보여주지 않는다
+                showMenu={!comment.isBlinded}
                 isMenuOpen={isMenuOpen}
                 onPressMenu={measureAnchor => {
-                  // 남의 댓글에도 케밥 버튼은 의도적으로 노출함
-                  // TODO: 남의 댓글이면 신고하기 메뉴 열기
-                  if (!comment.isMine) return;
+                  // 내 댓글은 삭제, 남의 댓글은 신고/차단 메뉴가 열린다
                   // 아직 저장 중인 댓글은 id 가 없어 삭제할 수 없다
                   if (comment.isPending) return;
                   onPressMenu?.(comment, measureAnchor);
                 }}
                 onPressProfile={
-                  comment.isMine || comment.isWithdrawn
+                  comment.isMine || comment.isWithdrawn || comment.isBlinded
                     ? undefined
                     : () => onPressProfile?.(comment.userId)
                 }
                 onPressReply={commentRef => {
                   // 저장 중인 댓글은 답글을 묶을 원댓글 id 가 아직 없다
                   if (comment.isPending) return;
-                  // 탈퇴한 회원의 댓글에는 답글을 달 수 없다
-                  if (comment.isWithdrawn) return;
+                  // 탈퇴한 회원의 댓글, 가린 댓글에는 답글을 달 수 없다
+                  if (comment.isWithdrawn || comment.isBlinded) return;
                   onPressReply?.(resolveReplyTarget(comment), commentRef);
                 }}
               />

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 
 import { colors } from '../../../shared/styles/color';
-import { gap, padding } from '../../../shared/styles/token';
+import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 import { REPORT_TARGET_TYPE } from '../constants';
 
@@ -64,6 +64,8 @@ const styles = StyleSheet.create({
     paddingVertical: padding.M,
     paddingHorizontal: padding.L,
     gap: gap.M,
+    borderRadius: radius.S,
+    backgroundColor: colors.fillNeutralWeak,
   },
   textContainer: {
     flex: 1,

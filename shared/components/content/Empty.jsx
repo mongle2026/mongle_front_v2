@@ -10,6 +10,7 @@ import IlEmptyNotification from '../../../assets/illustrations/il_empty_notifica
 import IlEmptyBookmark from '../../../assets/illustrations/il_empty_bookmark.svg';
 import IlEmptyLogin from '../../../assets/illustrations/il_empty_login.svg';
 import IlEmptyFollowingFeed from '../../../assets/illustrations/il_empty_followingfeed.svg';
+import IlEmptyRestricted from '../../../assets/illustrations/il_empty_restricted.svg';
 
 import {
   Button,
@@ -62,6 +63,10 @@ const Empty = ({
 
       case 'followingFeed':
         return IlEmptyFollowingFeed;
+
+      // 운영정책에 따라 가려진 피드 · 편지
+      case 'restricted':
+        return IlEmptyRestricted;
 
       default:
         return null;

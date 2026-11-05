@@ -3,6 +3,7 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { getImageSources, resolveMediaUri, toImageSource } from '../../../../shared/utils/media';
 import useDoubleTapLike from '../../hooks/useDoubleTapLike';
 
+import BlindedPostCard from './BlindedPostCard';
 import PostCard from './PostCard';
 import { isSameId } from '../../../../shared/utils/id';
 
@@ -78,6 +79,11 @@ const FeedPostItem = ({
     onLike: handleLike,
     onSingleTap: handlePressPost,
   });
+
+  // 운영자가 가린 피드는 내용 없이 가림 카드만 보여준다
+  if (item?.isBlinded) {
+    return <BlindedPostCard style={cardStyle} />;
+  }
 
   return (
     <PostCard

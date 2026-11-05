@@ -9,7 +9,7 @@ import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 import { formatDate, formatRelativeDate } from '../../../shared/utils/dateUtils';
 import { getFromSuffix } from '../../../shared/utils/koreanUtils';
-import { NOTIFICATION_STATUS, NOTIFICATION_TYPE } from '../constants';
+import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, REPORT_TARGET_TYPE } from '../constants';
 
 
 const APP_LOGO_IMAGE = require('../../../assets/logo/icon.png');
@@ -28,7 +28,40 @@ const truncate = (text, maxLength) => {
 const toUserCode = userCode =>
   `@${String(userCode ?? '').replace(/^@+/, '')}`;
 
-// 알림 종류별 문구. showLogo면 프로필 대신 앱 로고를 단다.
+const NO_VIOLATION_SUFFIX = '\n운영정책 위반 사항은 확인되지 않았어요.';
+
+// 신고 처리 알림 본문. 대상 종류(targetType)마다 다르다. 푸시 문구(백엔드 notification-message.util)와 같다
+const REPORT_NOTICE_BODIES = {
+  [NOTIFICATION_STATUS.REPORT_RESOLVED]: {
+    [REPORT_TARGET_TYPE.COMMENT]: '신고하신 댓글이 운영정책에 따라 처리되었어요.',
+    [REPORT_TARGET_TYPE.FEED]: '신고하신 피드가 운영정책에 따라 가려졌어요.',
+    [REPORT_TARGET_TYPE.LETTER]: '신고하신 편지가 운영정책에 따라 처리되었어요.',
+    [REPORT_TARGET_TYPE.USER]: '신고하신 사용자에 대한 조치가 완료되었어요.',
+  },
+  [NOTIFICATION_STATUS.REPORT_REJECTED]: {
+    [REPORT_TARGET_TYPE.COMMENT]: `신고하신 댓글을 검토했어요.${NO_VIOLATION_SUFFIX}`,
+    [REPORT_TARGET_TYPE.FEED]: `신고하신 피드를 검토했어요.${NO_VIOLATION_SUFFIX}`,
+    [REPORT_TARGET_TYPE.LETTER]: `신고하신 편지를 검토했어요.${NO_VIOLATION_SUFFIX}`,
+    [REPORT_TARGET_TYPE.USER]: `신고하신 계정을 검토했어요.${NO_VIOLATION_SUFFIX}`,
+  },
+  [NOTIFICATION_STATUS.POLICY_NOTICE]: {
+    [REPORT_TARGET_TYPE.COMMENT]: '작성하신 댓글이 운영정책에 따라 삭제되었어요.',
+    [REPORT_TARGET_TYPE.FEED]: '작성하신 피드가 운영정책에 따라 가려졌어요.',
+    [REPORT_TARGET_TYPE.LETTER]: '보내신 편지가 운영정책에 따라 삭제되었어요.',
+    [REPORT_TARGET_TYPE.USER]: '운영정책에 따라 계정 이용이 제한되었어요.',
+  },
+};
+
+// 신고 처리 알림. 프로필 자리는 fgNeutralTertiary 색으로 채운다. 대상 종류를 모르면 그리지 않는다
+const getReportNoticeContent = (title, status, targetType) => {
+  const body = REPORT_NOTICE_BODIES[status]?.[targetType];
+  if (!body) return null;
+
+  return { title, body, profileColor: colors.fgNeutralTertiary };
+};
+
+// 알림 종류별 문구. showLogo면 프로필 대신 앱 로고를, profileColor면 프로필 대신 그 색으로 채운 사각형을 단다.
+// null을 돌려주면 그리지 않는다
 // nameNode / userCodeNode: 문구에 들어가는 이름 · 아이디. 탈퇴한 회원이면 흐린 색 Text 다
 const NOTIFICATION_CONTENT = {
   [NOTIFICATION_TYPE.LETTER]: {
@@ -71,6 +104,14 @@ const NOTIFICATION_CONTENT = {
       body: `${eventTitle} 이벤트가 시작됐습니다.\n지금 바로 참여해 보세요.`,
       showLogo: true,
     }),
+    // targetType: 신고한 대상 종류
+    [NOTIFICATION_STATUS.REPORT_RESOLVED]: ({ targetType }) =>
+      getReportNoticeContent('신고 처리 안내', NOTIFICATION_STATUS.REPORT_RESOLVED, targetType),
+    [NOTIFICATION_STATUS.REPORT_REJECTED]: ({ targetType }) =>
+      getReportNoticeContent('신고 처리 안내', NOTIFICATION_STATUS.REPORT_REJECTED, targetType),
+    // targetType: 운영정책에 따라 처리된 내 글(또는 계정) 종류
+    [NOTIFICATION_STATUS.POLICY_NOTICE]: ({ targetType }) =>
+      getReportNoticeContent('운영정책 안내', NOTIFICATION_STATUS.POLICY_NOTICE, targetType),
   },
 };
 
@@ -91,6 +132,8 @@ const NotificationListItem = ({
   content,
   // news/event: 이벤트 제목
   eventTitle,
+  // news/report_resolved · report_rejected · policy_notice: 신고 대상 종류
+  targetType,
   // letter/receive: 나에게 보낸 편지인지
   isToSelf = false,
   // 알림이 뜬 시각
@@ -105,22 +148,31 @@ const NotificationListItem = ({
   const nameNode = isActorWithdrawn ? <Text style={styles.withdrawnName}>{name}</Text> : name;
   const userCodeNode = isActorWithdrawn ? nameNode : toUserCode(name);
 
-  const { title, body, showLogo = false } = getContent({
+  const notificationContent = getContent({
     name,
     nameNode,
     userCodeNode,
     content,
     eventTitle,
+    targetType,
     isToSelf,
     myNickname,
   });
+  if (!notificationContent) return null;
+
+  const { title, body, showLogo = false, profileColor } = notificationContent;
 
   return (
     <Pressable style={[styles.container, style]} onPress={onPress} disabled={!onPress}>
       {showLogo ? (
         <Image source={APP_LOGO_IMAGE} style={styles.logo} />
       ) : (
-        <ProfileImg imageUri={profileImageUrl} isWithdrawn={isActorWithdrawn} size="S" />
+        <ProfileImg
+          imageUri={profileImageUrl}
+          isWithdrawn={isActorWithdrawn}
+          color={profileColor}
+          size="S"
+        />
       )}
 
       <View style={styles.textContainer}>

@@ -17,7 +17,7 @@ import useResolvedEnvelope from '../hooks/useResolvedEnvelope';
 const CARD_LETTER_WIDTH = 120;
 const CARD_LETTER_HEIGHT = Math.round(CARD_LETTER_WIDTH / LETTER_ASPECT_RATIO); // 원본 비율 유지
 
-// 카드 높이: 디자인 기준 padding 포함 143px. read/unread 모두 동일하게 고정.
+// 카드 높이: 디자인 기준 padding 포함 143px. read/unread 모두 동일하게 고정 (가린 편지는 제외).
 const CARD_HEIGHT = 143;
 // read 카드에서 우표 자리에 들어가는 CD 지름 (디자인 80x80)
 const CD_SIZE = 80;
@@ -38,6 +38,8 @@ const SINGER_DOT = { dotSize: 2, colGap: 2, rowPitch: 4 }; // 3줄 12px + paddin
  * @param {string}   [letter.profileImageUri] 상대 프로필 이미지 (받은 편지: 보낸 사람, 보낸 편지: 받는 사람)
  * @param {string}   [letter.nickname]        상대 이름 (받은 편지: 보낸 사람, 보낸 편지: 받는 사람)
  * @param {boolean}  [letter.isWithdrawn]     상대가 탈퇴한 회원인지 (프로필 사진을 탈퇴 회원 이미지로 고정)
+ * @param {boolean}  [letter.isRestricted]    상대가 이용 제한된 회원인지 (탈퇴한 회원과 같은 모양으로 보여준다)
+ * @param {boolean}  [letter.isBlinded]       운영자가 가린 편지인지 (음악 · 봉투 · 우표 대신 안내 문구만 보여준다)
  * @param {string|number|Date} [letter.receivedAt] 받은 날짜 (= deliveryAt)
  * @param {string|number|Date} [letter.createdAt]  작성 날짜 (보낸 편지에서 receivedAt 앞에 함께 표기)
  * @param {boolean}  [letter.isSent]          보낸 편지 여부 (보낸 편지는 읽음 여부와 관계없이 점으로 가리지 않음)
@@ -53,6 +55,8 @@ function Card({ letter = {}, type, onPress, style }) {
     profileImageUri,
     nickname = '',
     isWithdrawn,
+    isRestricted,
+    isBlinded,
     receivedAt,
     createdAt,
     isSent,
@@ -69,52 +73,64 @@ function Card({ letter = {}, type, onPress, style }) {
 
   const Container = onPress ? Pressable : View;
 
+  // 이용 제한된 회원은 탈퇴한 회원처럼 탈퇴 회원 이미지 · 흐린 이름으로 보여준다
+  const isInactiveUser = Boolean(isWithdrawn || isRestricted);
+
   return (
-    <Container style={[styles.card, style]} {...(onPress ? { onPress } : null)}>
+    <Container
+      style={[styles.card, !isBlinded && styles.cardFixedHeight, style]}
+      {...(onPress ? { onPress } : null)}
+    >
       {/* 첫 번째 컨테이너 */}
       <View style={styles.firstContainer}>
         {/* profile container */}
         <View style={styles.profileContainer}>
-          <ProfileImg imageUri={profileImageUri} isWithdrawn={isWithdrawn} size="S" />
-          <Text style={[styles.nickname, isWithdrawn && styles.withdrawnNickname]} numberOfLines={1}>
+          <ProfileImg imageUri={profileImageUri} isWithdrawn={isInactiveUser} size="S" />
+          <Text style={[styles.nickname, isInactiveUser && styles.withdrawnNickname]} numberOfLines={1}>
             {nickname}
           </Text>
         </View>
 
-        {/* music container */}
-        <View style={styles.musicContainer}>
-          {/* title */}
-          <View style={[styles.title, isReadType && styles.textBoxRead]}>
-            {isReadType ? (
-              <Text style={styles.titleText} numberOfLines={1}>
-                {title}
-              </Text>
-            ) : (
-              <DotMatrixText
-                text={title}
-                {...TITLE_DOT}
-                baseColor={colors.fgDisabled}
-                fillColor={colors.fgNeutralQuaternary}
-              />
-            )}
-          </View>
+        {/* music container. 가린 편지는 음악 대신 안내 문구 */}
+        {isBlinded ? (
+          <Text style={styles.blindedText} numberOfLines={1}>
+            운영정책에 따라 삭제된 편지예요.
+          </Text>
+        ) : (
+          <View style={styles.musicContainer}>
+            {/* title */}
+            <View style={[styles.title, isReadType && styles.textBoxRead]}>
+              {isReadType ? (
+                <Text style={styles.titleText} numberOfLines={1}>
+                  {title}
+                </Text>
+              ) : (
+                <DotMatrixText
+                  text={title}
+                  {...TITLE_DOT}
+                  baseColor={colors.fgDisabled}
+                  fillColor={colors.fgNeutralQuaternary}
+                />
+              )}
+            </View>
 
-          {/* singer */}
-          <View style={[styles.singer, isReadType && styles.textBoxRead]}>
-            {isReadType ? (
-              <Text style={styles.singerText} numberOfLines={1}>
-                {singer}
-              </Text>
-            ) : (
-              <DotMatrixText
-                text={singer}
-                {...SINGER_DOT}
-                baseColor={colors.fgDisabled}
-                fillColor={colors.fgNeutralQuaternary}
-              />
-            )}
+            {/* singer */}
+            <View style={[styles.singer, isReadType && styles.textBoxRead]}>
+              {isReadType ? (
+                <Text style={styles.singerText} numberOfLines={1}>
+                  {singer}
+                </Text>
+              ) : (
+                <DotMatrixText
+                  text={singer}
+                  {...SINGER_DOT}
+                  baseColor={colors.fgDisabled}
+                  fillColor={colors.fgNeutralQuaternary}
+                />
+              )}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* caption container */}
         <View style={styles.captionContainer}>
@@ -131,21 +147,23 @@ function Card({ letter = {}, type, onPress, style }) {
         </View>
       </View>
 
-      {/* 두 번째 컨테이너 */}
-      <View style={styles.secondContainer}>
-        <Letter
-          type="front"
-          BackgroundSvg={FrontSvg}
-          FlapSvg={FlapSvg}
-          style={styles.letter}
-        />
-        {/* 보낸 편지 / 읽은 편지는 우표 자리에 앨범 커버를 씌운 CD */}
-        {isReadType ? (
-          <CdCover imageUri={music.artworkUri} size={CD_SIZE} style={styles.cd} />
-        ) : (
-          <StampImage StampSvg={StampSvg} style={styles.stamp} />
-        )}
-      </View>
+      {/* 두 번째 컨테이너. 가린 편지는 봉투 · 우표 · CD 를 보여주지 않는다 */}
+      {!isBlinded && (
+        <View style={styles.secondContainer}>
+          <Letter
+            type="front"
+            BackgroundSvg={FrontSvg}
+            FlapSvg={FlapSvg}
+            style={styles.letter}
+          />
+          {/* 보낸 편지 / 읽은 편지는 우표 자리에 앨범 커버를 씌운 CD */}
+          {isReadType ? (
+            <CdCover imageUri={music.artworkUri} size={CD_SIZE} style={styles.cd} />
+          ) : (
+            <StampImage StampSvg={StampSvg} style={styles.stamp} />
+          )}
+        </View>
+      )}
     </Container>
   );
 }
@@ -155,12 +173,15 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     width: '100%',
-    height: CARD_HEIGHT,
     padding: padding.L,
     alignItems: 'center',
     gap: padding.XS,
     borderRadius: radius.M,
     backgroundColor: colors.bgSurface,
+  },
+  // 봉투가 있는 카드만 높이 고정. 가린 편지는 봉투가 없으므로 내용 높이에 맞춘다.
+  cardFixedHeight: {
+    height: CARD_HEIGHT,
   },
 
   // 첫 번째 container: column, align flex-start, gap XL, flex 1
@@ -229,6 +250,12 @@ const styles = StyleSheet.create({
   },
   titleText: {
     color: colors.fgNeutralSecondary,
+    ...typo.suitLabelLarge,
+  },
+  // 가린 편지 안내 '운영정책에 따라 삭제된 편지예요.'
+  blindedText: {
+    alignSelf: 'stretch',
+    color: colors.fgDisabled,
     ...typo.suitLabelLarge,
   },
 

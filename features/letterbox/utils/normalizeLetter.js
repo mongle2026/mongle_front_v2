@@ -18,6 +18,10 @@ export function normalizeLetterboxItem(item) {
     profileImageUri: resolveMediaUri(counterpart?.profileImageUrl),
     nickname: counterpart?.nickname ?? '',
     isWithdrawn: Boolean(counterpart?.isWithdrawn),
+    // 운영자가 이용을 제한한 회원. 서버가 이름을 '(이용 제한된 회원)'으로 보낸다
+    isRestricted: Boolean(counterpart?.isRestricted),
+    // 운영자가 가린 편지. 서버가 음악을 비워서 보낸다
+    isBlinded: Boolean(item.isBlinded),
     // 편지 뒷면(Letter type="back")에 쓰는 받는 사람/보낸 사람 이름
     recipientName: item.receiver?.nickname ?? '',
     senderName: item.sender?.nickname ?? '',

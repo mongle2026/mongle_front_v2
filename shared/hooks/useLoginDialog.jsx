@@ -14,6 +14,7 @@ export const LOGIN_DIALOG_DESCRIPTION = Object.freeze({
   WRITE_FEED: '로그인해서 피드에 새로운 기록을 남겨 보세요.',
   WRITE_LETTER: '로그인해서 음악을 담은 편지를 보내 보세요.',
   FOLLOW: '로그인해서 팔로우하고 새 기록을 받아 보세요.',
+  REPORT: '로그인하면 불편한 게시물이나\n사용자를 신고할 수 있어요.',
 });
 
 const LOGIN_DIALOG_ID = 'login-required-dialog';

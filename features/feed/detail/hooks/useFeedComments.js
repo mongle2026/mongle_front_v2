@@ -31,6 +31,9 @@ const normalizeComment = ({
       comment.user?.userCode ??
       `user_${comment.userId}`,
 
+    // 운영자가 가린 댓글. 서버가 내용 · 작성자를 비워서 보낸다
+    isBlinded: Boolean(comment.isBlinded),
+
     // 탈퇴한 회원은 아이디가 없어 서버가 닉네임에 넣어 준 '(탈퇴한 회원)'을 보여주고 프로필로 이동하지 않는다
     isWithdrawn: Boolean(comment.user?.isWithdrawn),
     nickname: comment.user?.nickname ?? '',

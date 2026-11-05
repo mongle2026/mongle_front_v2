@@ -18,10 +18,15 @@ import { colors } from '../../../../shared/styles/color';
 import { gap, padding, radius } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
 
+const BLINDED_AUTHOR_NAME = '(삭제된 댓글)';
+const BLINDED_COMMENT = '운영정책에 따라 삭제된 댓글이에요.';
+
 const Comment = ({
   userCode,
   // 탈퇴한 회원의 댓글이면 아이디 대신 닉네임(서버가 '(탈퇴한 회원)'으로 보낸다), 프로필 사진은 탈퇴 회원 이미지로 고정한다
   isWithdrawn = false,
+  // 운영자가 가린 댓글이면 아이디 · 내용 · 프로필 사진을 가림 안내로 바꾸고 답글 달기를 막는다
+  isBlinded = false,
   nickname,
   comment,
   createdAt,
@@ -40,7 +45,10 @@ const Comment = ({
   const menuButtonRef = useRef(null);
 
   const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
-  const authorName = isWithdrawn ? nickname : `@${normalizedUserCode}`;
+  const authorName = isBlinded
+    ? BLINDED_AUTHOR_NAME
+    : isWithdrawn ? nickname : `@${normalizedUserCode}`;
+  const displayComment = isBlinded ? BLINDED_COMMENT : comment;
 
   // 키보드가 올라온 뒤 이 댓글이 가려졌는지 다시 재야 해서
   // 좌표 대신 View ref를 넘긴다.
@@ -82,8 +90,9 @@ const Comment = ({
             답댓글에는 '답글 달기' 버튼이 없어서, 터치가 유일한 진입점이다. */}
         <Pressable
           onPress={handlePressReply}
+          disabled={isBlinded}
           accessibilityRole="button"
-          accessibilityLabel="답글 달기"
+          accessibilityLabel={isBlinded ? undefined : '답글 달기'}
           style={({ pressed }) => [
             styles.content,
             (isMenuOpen || pressed) && styles.activeContent,
@@ -98,6 +107,7 @@ const Comment = ({
               <ProfileImg
                 imageUri={profileImageUrl}
                 isWithdrawn={isWithdrawn}
+                isRestricted={isBlinded}
                 size="M"
               />
             </Pressable>
@@ -105,6 +115,7 @@ const Comment = ({
             <ProfileImg
               imageUri={profileImageUrl}
               isWithdrawn={isWithdrawn}
+              isRestricted={isBlinded}
               size="M"
             />
           )}
@@ -114,7 +125,7 @@ const Comment = ({
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={[styles.userId, isWithdrawn && styles.withdrawnUserId]}
+                style={[styles.userId, isWithdrawn && !isBlinded && styles.withdrawnUserId]}
               >
                 {authorName}
               </Text>
@@ -127,11 +138,11 @@ const Comment = ({
               {showMenu && <View style={styles.menuPlaceholder} />}
             </View>
 
-            <FontFallbackText style={styles.comment}>
-              {comment}
+            <FontFallbackText style={[styles.comment, isBlinded && styles.blindedComment]}>
+              {displayComment}
             </FontFallbackText>
 
-            {!isReply && (
+            {!isReply && !isBlinded && (
               <LabeledButton
                 label="답글 달기"
                 icon={IcComment}
@@ -255,6 +266,11 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'stretch',
     color: colors.fgNeutralSecondary,
+  },
+
+  // 가린 댓글 안내 '운영정책에 따라 삭제된 댓글이에요.'
+  blindedComment: {
+    color: colors.fgNeutralQuaternary,
   },
 });
 

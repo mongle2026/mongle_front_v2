@@ -5,6 +5,8 @@ export function normalizeFeedItem(item) {
 
   return {
     ...item,
+    // 운영자가 가린 피드. 서버가 글 · 음악 · 사진을 비워서 보낸다
+    isBlinded: Boolean(item.isBlinded),
     user: {
       ...(item.user ?? {}),
       isFollowing: Boolean(item?.user?.isFollowing),

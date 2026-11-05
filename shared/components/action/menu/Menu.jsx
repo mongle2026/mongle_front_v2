@@ -2,7 +2,9 @@ import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, Keyframe } from 'react-native-reanimated';
 
+import IcBlock from '../../../../assets/icons/ic_block.svg';
 import IcPencil from '../../../../assets/icons/ic_pencil.svg';
+import IcReport from '../../../../assets/icons/ic_report.svg';
 import IcTrash from '../../../../assets/icons/ic_trash.svg';
 
 import { colors, shadow } from '../../../styles/color';
@@ -48,17 +50,28 @@ const Menu = ({
   deleteDisabled = false,
   // 삭제만 필요한 화면(편지 상세 등)은 showEdit={false}
   showEdit = true,
+  // 남의 피드·댓글처럼 삭제할 수 없으면 showDelete={false}
+  showDelete = true,
   deleteLabel = '삭제',
   deleteAccessibilityLabel = deleteLabel,
+  // 남의 피드·편지·댓글이면 신고 / 차단를 맨 위에 보여준다
+  showReport = false,
+  onPressReport,
+  onPressBlock,
   // [{ key, label, onPress }] 를 넘기면 수정/삭제 대신 이 항목들을 보여준다 (정렬 선택 등)
   items,
+  // 위치를 잰 뒤 직접 펼치는 곳(댓글 메뉴)은 animated={false}
+  animated = true,
   style,
 }) => {
+  const entering = animated ? MENU_ENTERING : undefined;
+  const exiting = animated ? MENU_EXITING : undefined;
+
   if (items) {
     return (
       <Animated.View
-        entering={MENU_ENTERING}
-        exiting={MENU_EXITING}
+        entering={entering}
+        exiting={exiting}
         style={[styles.shadowContainer, style]}
       >
         <View style={styles.container}>
@@ -76,11 +89,27 @@ const Menu = ({
 
   return (
     <Animated.View
-      entering={MENU_ENTERING}
-      exiting={MENU_EXITING}
+      entering={entering}
+      exiting={exiting}
       style={[styles.shadowContainer, style]}
     >
       <View style={styles.container}>
+        {showReport && (
+          <>
+            <Item
+              icon={IcReport}
+              label="신고"
+              color={colors.fgNeutralPrimary}
+              onPress={onPressReport}
+            />
+            <Item
+              icon={IcBlock}
+              label="차단"
+              color={colors.fgNeutralPrimary}
+              onPress={onPressBlock}
+            />
+          </>
+        )}
         {showEdit && (
           <Item
             icon={IcPencil}
@@ -91,14 +120,16 @@ const Menu = ({
             accessibilityLabel="게시물 수정"
           />
         )}
-        <Item
-          icon={IcTrash}
-          label={deleteLabel}
-          color={colors.fgCritical}
-          onPress={onPressDelete}
-          disabled={deleteDisabled}
-          accessibilityLabel={deleteAccessibilityLabel}
-        />
+        {showDelete && (
+          <Item
+            icon={IcTrash}
+            label={deleteLabel}
+            color={colors.fgCritical}
+            onPress={onPressDelete}
+            disabled={deleteDisabled}
+            accessibilityLabel={deleteAccessibilityLabel}
+          />
+        )}
       </View>
     </Animated.View>
   );

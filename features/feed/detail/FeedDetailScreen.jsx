@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import MusicCard from '../../../shared/components/content/MusicCard';
+import Empty from '../../../shared/components/content/Empty';
 import ImageViewer from '../../../shared/components/content/ImageViewer';
 import { Dialog } from '../../../shared/components/feedback/Dialog';
 import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
@@ -50,6 +51,7 @@ import useScrollToReplyTarget from './hooks/useScrollToReplyTarget';
 import useDeletedCommentToast from './hooks/useDeletedCommentToast';
 import { useSignupCompleteToast } from '../../signup/signupCompleteToast';
 import { hasId, isSameId } from '../../../shared/utils/id';
+import { REPORT_TARGET_TYPE } from '../../report/constants';
 
 const FeedDetailScreen = ({ navigation, route }) => {
   const { openDialog } = useDialog();
@@ -297,14 +299,14 @@ const FeedDetailScreen = ({ navigation, route }) => {
   const handlePressMore = useCallback(() => {
     closeCommentMenu();
 
-    if (!isMine) {
+    if (!feed) {
       setIsFeedMenuOpen(false);
 
       return;
     }
 
     setIsFeedMenuOpen(previous => !previous);
-  }, [closeCommentMenu, isMine]);
+  }, [closeCommentMenu, feed]);
 
   const handlePressEdit = useCallback(() => {
     setIsFeedMenuOpen(false);
@@ -340,6 +342,30 @@ const FeedDetailScreen = ({ navigation, route }) => {
     });
   }, [deleteFeed, isDeletingFeed, openDialog]);
 
+  const handlePressReport = useCallback(() => {
+    setIsFeedMenuOpen(false);
+
+    if (!feed) return;
+
+    // 신고 화면은 로그인해야 들어갈 수 있다
+    if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.REPORT)) return;
+
+    navigation.navigate('Report', {
+      type: REPORT_TARGET_TYPE.FEED,
+      targetId: feed.feedId,
+      userCode: feed.user?.userCode,
+      profileImageUrl: resolveMediaUri(feed.user?.profileImageUrl),
+      preview: feed.record?.text,
+      // 돌아와서 뜨는 신고 결과 Toast 도 다른 Toast 처럼 CommentBar 위에 띄운다
+      toastBottomOffset: commentBarBottom + commentBarHeight,
+    });
+  }, [commentBarBottom, commentBarHeight, feed, navigation, requireLogin]);
+
+  // TODO: 피드 작성자 차단
+  const handlePressBlock = useCallback(() => {
+    setIsFeedMenuOpen(false);
+  }, []);
+
   // 로그인하지 않았으면 댓글을 보내지 않고 로그인 안내 Dialog 를 띄운다
   const canSubmitComment = useCallback(
     () => requireLogin(LOGIN_DIALOG_DESCRIPTION.COMMENT),
@@ -362,6 +388,31 @@ const FeedDetailScreen = ({ navigation, route }) => {
     },
     [handlePressCommentMenu],
   );
+
+  const handlePressReportComment = useCallback(() => {
+    const comment = commentMenu?.comment;
+
+    closeCommentMenu();
+
+    if (!comment) return;
+
+    if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.REPORT)) return;
+
+    // 댓글의 profileImageUrl은 useFeedComments에서 이미 resolveMediaUri를 거친 값이다
+    navigation.navigate('Report', {
+      type: REPORT_TARGET_TYPE.COMMENT,
+      targetId: comment.commentId,
+      userCode: comment.userCode,
+      profileImageUrl: comment.profileImageUrl,
+      preview: comment.comment,
+      toastBottomOffset: commentBarBottom + commentBarHeight,
+    });
+  }, [closeCommentMenu, commentBarBottom, commentBarHeight, commentMenu, navigation, requireLogin]);
+
+  // TODO: 댓글 작성자 차단
+  const handlePressBlockCommentAuthor = useCallback(() => {
+    closeCommentMenu();
+  }, [closeCommentMenu]);
 
   const handlePressReply = useCallback(
     (replyTarget, commentRef) => {
@@ -426,6 +477,26 @@ const FeedDetailScreen = ({ navigation, route }) => {
     );
   }
 
+  // 운영자가 가린 피드는 닫기 버튼과 가림 안내만 보여준다 (작성자 본인에게도 같다)
+  if (feed.isBlinded) {
+    return (
+      <View style={styles.screen}>
+        <FeedDetailHeader
+          isBlinded
+          onPressClose={handlePressClose}
+        />
+
+        <View style={styles.blindedBody}>
+          <Empty
+            type="restricted"
+            title="이 피드는 볼 수 없어요"
+            body="운영정책에 따라 가려졌어요"
+          />
+        </View>
+      </View>
+    );
+  }
+
   const user = feed.user ?? {};
   const music = feed.music ?? {};
   const record = feed.record ?? {};
@@ -457,10 +528,13 @@ const FeedDetailScreen = ({ navigation, route }) => {
         onPressClose={handlePressClose}
         onPressShare={handlePressShare}
         onPressMore={handlePressMore}
-        isMenuOpen={isMine && isFeedMenuOpen}
+        isMenuOpen={isFeedMenuOpen}
+        isMine={isMine}
         onPressEdit={handlePressEdit}
         onPressDelete={handlePressDelete}
         deleteDisabled={isDeletingFeed}
+        onPressReport={handlePressReport}
+        onPressBlock={handlePressBlock}
       />
 
       <ScrollView
@@ -566,6 +640,8 @@ const FeedDetailScreen = ({ navigation, route }) => {
           onMenuLayout={handleCommentMenuLayout}
           onPressDelete={handlePressDeleteComment}
           deleteDisabled={isDeletingComment}
+          onPressReport={handlePressReportComment}
+          onPressBlock={handlePressBlockCommentAuthor}
         />
       )}
     </View>
@@ -576,6 +652,12 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bgSurface,
+  },
+
+  // 가려진 피드 안내를 화면 가운데에 둔다
+  blindedBody: {
+    flex: 1,
+    justifyContent: 'center',
   },
 
   scroll: {

@@ -10,6 +10,7 @@ import { Dialog } from '../../../../shared/components/feedback/Dialog';
 import Menu from '../../../../shared/components/action/menu/Menu';
 import { Button, BUTTON_VARIANT } from '../../../../shared/components/action/Button';
 import MusicCard from '../../../../shared/components/content/MusicCard';
+import Empty from '../../../../shared/components/content/Empty';
 import LoadStateView from '../../../../shared/components/feedback/LoadStateView';
 import Profile from '../../../../shared/components/content/profile/Profile';
 import TopSubNavigation from '../../../../shared/components/navigation/topnavigation/TopSubNavigation';
@@ -32,6 +33,7 @@ import { useLetterFormStore } from '../../../write/store/useLetterFormStore';
 import LetterDetailContent from './components/LetterDetailContent';
 import useLetterDetail from './hooks/useLetterDetail';
 import { toImageSource } from '../../../../shared/utils/media';
+import { REPORT_TARGET_TYPE } from '../../../report/constants';
 
 // route.params: { letterId }
 const LetterDetailScreen = ({ navigation, route }) => {
@@ -88,6 +90,8 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
   // 나에게 쓴 편지는 받은 편지로 취급한다 (편지함 목록과 동일)
   const isSent = Boolean(letter?.isSender && !letter?.isReceiver);
+  // 남이 나에게 보낸 편지면 메뉴에 신고/차단를 함께 보여준다
+  const isFromOthers = Boolean(letter?.isReceiver && !letter?.isSender);
 
   // 예약 발송해서 아직 도착 시각이 지나지 않은 편지는 상대방이 아직 받지 못했다.
   // 화면을 열어둔 사이에 도착 시각이 지나도 버튼은 그대로 남아서, 누를 때 다시 확인한다.
@@ -138,6 +142,27 @@ const LetterDetailScreen = ({ navigation, route }) => {
       ),
     });
   }, [deleteLetter, isDeletingLetter, openDialog]);
+
+  const handlePressReport = useCallback(() => {
+    setIsMenuOpen(false);
+
+    if (!letter) return;
+
+    navigation.navigate('Report', {
+      type: REPORT_TARGET_TYPE.LETTER,
+      targetId: letter.letterId,
+      userCode: letter.sender.userCode,
+      profileImageUrl: letter.sender.profileImageUri,
+      preview: letter.text,
+      // 돌아와서 뜨는 신고 결과 Toast 도 다른 Toast 처럼 하단 안전영역 위에 띄운다
+      toastBottomOffset: insets.bottom,
+    });
+  }, [insets.bottom, letter, navigation]);
+
+  // TODO: 보낸 사람 차단
+  const handlePressBlock = useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
 
   // 버튼을 누른 시점에 이미 도착한 편지면 취소를 막고 상세를 다시 불러온다.
   // 상세를 다시 받으면 isDelivered가 바뀌면서 취소 버튼이 케밥 메뉴로 전환된다.
@@ -217,6 +242,8 @@ const LetterDetailScreen = ({ navigation, route }) => {
     handlePressPlayback({ feedId: playbackId, previewUrl: previewUri });
   }, [handlePressPlayback, playbackId, previewUri]);
 
+  const isBlinded = Boolean(letter?.isBlinded);
+
   // 보낸 편지는 받는 사람, 받은 편지는 보낸 사람을 보여준다
   const counterpart = isSent ? letter?.receiver : letter?.sender;
   // 나에게 쓴 편지면 상대가 나라서, 탈퇴한 회원은 프로필이 없어서 프로필로 이동하지 않는다
@@ -236,17 +263,21 @@ const LetterDetailScreen = ({ navigation, route }) => {
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.topSafeArea}>
         <View style={styles.topNavigationContainer}>
+          {/* 가린 편지는 닫기(ic_x)만 보여준다 */}
           <TopSubNavigation
             showShare={false}
-            showMore={!canCancelSend}
+            showMore={!canCancelSend && !isBlinded}
             onPressClose={handlePressClose}
             onPressMore={handlePressMore}
           />
 
-          {letter && isMenuOpen && !canCancelSend && (
+          {letter && isMenuOpen && !canCancelSend && !isBlinded && (
             <Menu
+              showReport={isFromOthers}
+              onPressReport={handlePressReport}
+              onPressBlock={handlePressBlock}
               showEdit={false}
-              deleteLabel="편지 삭제"
+              deleteLabel="삭제"
               deleteAccessibilityLabel="편지 삭제"
               onPressDelete={handlePressDelete}
               deleteDisabled={isDeletingLetter}
@@ -263,6 +294,15 @@ const LetterDetailScreen = ({ navigation, route }) => {
           isConfigured={isConfigured}
           errorMessage={error && !isDeleted ? '편지를 불러오지 못했습니다.' : null}
         />
+      ) : isBlinded ? (
+        // 운영자가 가린 편지는 보낸 사람 · 받는 사람 모두 내용 없이 안내만 본다
+        <View style={styles.blindedBody}>
+          <Empty
+            type="restricted"
+            title="이 편지는 볼 수 없어요"
+            body="운영정책에 따라 삭제되었어요."
+          />
+        </View>
       ) : (
         <View style={styles.container}>
           <ScrollView
@@ -391,6 +431,11 @@ const styles = StyleSheet.create({
     marginTop: -padding.XS,
     right: padding.L,
     zIndex: 30,
+  },
+  // 가린 편지 안내를 화면 가운데에 둔다
+  blindedBody: {
+    flex: 1,
+    justifyContent: 'center',
   },
   container: {
     flex: 1,

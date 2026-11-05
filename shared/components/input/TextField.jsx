@@ -11,6 +11,7 @@ import { padding, gap, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
 const BORDER_WIDTH = 1;
+const INPUT_LINE_HEIGHT = typo.suitBodyLarge.lineHeight;
 
 // 상태별 입력창 테두리 색
 const getBorderColor = ({ status, isFocused }) => {
@@ -35,6 +36,8 @@ const getDescriptionColor = status => {
  * @param {'positive' | 'error'} [status] positive면 설명이 초록색,
  *   error면 테두리·설명·글자 수가 빨간색이 됩니다
  * @param {React.Ref} [containerRef] 제목부터 설명까지 감싼 바깥 View의 ref (위치 측정용)
+ * @param {number} [maxLines] 주면 여러 줄 입력창이 됩니다. 이 줄 수까지 늘어나고,
+ *   넘치면 입력창 안에서 스크롤합니다
  */
 const TextField = ({
   containerRef,
@@ -50,6 +53,7 @@ const TextField = ({
   status,
   onFocus,
   onBlur,
+  maxLines,
   ...textInputProps
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -99,7 +103,13 @@ const TextField = ({
             setIsFocused(false);
             onBlur?.(event);
           }}
-          style={[styles.inputText, styles.input]}
+          multiline={maxLines > 0}
+          textAlignVertical={maxLines > 0 ? 'top' : undefined}
+          style={[
+            styles.inputText,
+            styles.input,
+            maxLines > 0 && { maxHeight: INPUT_LINE_HEIGHT * maxLines },
+          ]}
           {...textInputProps}
         />
       </View>
