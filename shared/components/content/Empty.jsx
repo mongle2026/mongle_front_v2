@@ -11,6 +11,7 @@ import IlEmptyBookmark from '../../../assets/illustrations/il_empty_bookmark.svg
 import IlEmptyLogin from '../../../assets/illustrations/il_empty_login.svg';
 import IlEmptyFollowingFeed from '../../../assets/illustrations/il_empty_followingfeed.svg';
 import IlEmptyRestricted from '../../../assets/illustrations/il_empty_restricted.svg';
+import IcFilledAlert from '../../../assets/icons/ic_filledalert.svg';
 
 import {
   Button,
@@ -22,6 +23,8 @@ import { colors } from '../../styles/color';
 import { gap, padding } from '../../styles/token';
 import { typo } from '../../styles/typo';
 import { FONT } from '../../styles/fontType';
+
+const ALERT_ICON_SIZE = 24;
 
 const Empty = ({
   type,
@@ -75,8 +78,19 @@ const Empty = ({
 
   const Illustration = getIllustration();
 
+  // 계정 이용 제한처럼 경고로 알릴 때. 일러스트 대신 경고 아이콘을 쓰고 제목을 강조색으로 쓴다
+  const isAlert = type === 'alert';
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isAlert && styles.alertContainer]}>
+      {isAlert ? (
+        <IcFilledAlert
+          width={ALERT_ICON_SIZE}
+          height={ALERT_ICON_SIZE}
+          color={colors.fgCritical}
+        />
+      ) : null}
+
       {Illustration ? (
         <View style={styles.illustration}>
           <Illustration
@@ -89,7 +103,7 @@ const Empty = ({
       <View style={styles.textContainer}>
         {title ? (
           <Text
-            style={styles.title}
+            style={[styles.title, isAlert && styles.alertTitle]}
           >
             {title}
           </Text>
@@ -97,7 +111,7 @@ const Empty = ({
 
         {body ? (
           <Text
-            style={styles.body}
+            style={[styles.body, isAlert && styles.alertBody]}
           >
             {body}
           </Text>
@@ -157,6 +171,18 @@ const styles = StyleSheet.create({
 
     color: colors.fgNeutralQuaternary,
     textAlign: 'center',
+  },
+
+  alertContainer: {
+    gap: gap.M,
+  },
+
+  alertTitle: {
+    color: colors.fgCritical,
+  },
+
+  alertBody: {
+    color: colors.fgNeutralTertiary,
   },
 
   // Button 기본 alignSelf(flex-start)를 덮어써 가운데 정렬

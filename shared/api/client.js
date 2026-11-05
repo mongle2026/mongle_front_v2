@@ -63,11 +63,25 @@ const refreshTokens = refreshToken => {
   return refreshPromise;
 };
 
+// 신고로 이용 제한된 계정이면 서버가 모든 API 를 403 으로 막는다. 이 code 를 받으면 제재 화면을 띄운다
+const ACCOUNT_RESTRICTED_ERROR_CODE = 'ACCOUNT_RESTRICTED';
+
 // accessToken 이 만료되어 401 을 받으면 새로 받아서 한 번만 다시 보낸다.
 // signupToken 처럼 로그인 토큰이 아닌 것으로 보낸 요청은 config.skipAuthRefresh 로 뺀다
 apiClient.interceptors.response.use(undefined, async error => {
   const { config, response } = error;
   const session = useAuthStore.getState().session;
+
+  if (
+    response?.status === 403 &&
+    response.data?.code === ACCOUNT_RESTRICTED_ERROR_CODE &&
+    session
+  ) {
+    useAuthStore.getState().setRestriction({
+      reason: response.data.reason ?? null,
+      restrictedUntil: response.data.restrictedUntil ?? null,
+    });
+  }
 
   if (
     response?.status !== 401 ||

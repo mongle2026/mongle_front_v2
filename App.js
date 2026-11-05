@@ -44,6 +44,7 @@ import CatalogScreen from './features/catalog/CatalogScreen';
 import OnboardingScreen from './features/onboarding/OnboardingScreen';
 import { useOnboardingStore } from './features/onboarding/useOnboardingStore';
 import WelcomeScreen from './features/auth/WelcomeScreen';
+import AccountRestrictedScreen from './features/auth/restricted/AccountRestrictedScreen';
 import TermsScreen from './features/signup/terms/TermsScreen';
 import SignupScreen from './features/signup/SignupScreen';
 import SignupCompleteScreen from './features/signup/complete/SignupCompleteScreen';
@@ -375,11 +376,28 @@ const RootNavigator = ({ isSignedIn, showOnboarding }) => (
   </Stack.Navigator>
 );
 
+// 신고로 이용 제한된 계정. 제재 화면만 두어서 다른 화면으로 갈 수 없게 한다
+const RestrictedNavigator = ({ restriction }) => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      gestureEnabled: false,
+    }}
+  >
+    <Stack.Screen
+      name="AccountRestricted"
+      component={AccountRestrictedScreen}
+      initialParams={restriction}
+    />
+  </Stack.Navigator>
+);
+
 export default function App() {
   const [isNavigationReady, setIsNavigationReady] = useState(false);
   const [isSplashMinElapsed, setIsSplashMinElapsed] = useState(false);
 
   const authStatus = useAuthStore(state => state.status);
+  const restriction = useAuthStore(state => state.restriction);
   const restoreSession = useAuthStore(state => state.restoreSession);
   const isAuthRestored = authStatus !== AUTH_STATUS.RESTORING;
 
@@ -456,10 +474,14 @@ export default function App() {
                 linking={linking}
                 onReady={() => setIsNavigationReady(true)}
               >
-                <RootNavigator
-                  isSignedIn={isSignedIn}
-                  showOnboarding={!isSignedIn && !isOnboardingCompleted}
-                />
+                {isSignedIn && restriction ? (
+                  <RestrictedNavigator restriction={restriction} />
+                ) : (
+                  <RootNavigator
+                    isSignedIn={isSignedIn}
+                    showOnboarding={!isSignedIn && !isOnboardingCompleted}
+                  />
+                )}
               </NavigationContainer>
               <PushNotificationHandler
                 navigationRef={navigationRef}

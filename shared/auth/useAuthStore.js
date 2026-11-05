@@ -17,10 +17,15 @@ const saveSession = session =>
 
 /**
  * session: { accessToken, refreshToken, userId } | null
+ * restriction: 신고로 이용 제한된 계정이면 { reason, restrictedUntil }, 아니면 null.
+ *   API 가 403 ACCOUNT_RESTRICTED 를 주면 채운다(shared/api/client.js). 앱을 다시 켜면 다시 확인한다
  */
 export const useAuthStore = create((set, get) => ({
   status: AUTH_STATUS.RESTORING,
   session: null,
+  restriction: null,
+
+  setRestriction: restriction => set({ restriction }),
 
   restoreSession: async () => {
     let session = null;
@@ -45,7 +50,7 @@ export const useAuthStore = create((set, get) => ({
     const session = { accessToken, refreshToken, userId: user.userId };
 
     await saveSession(session);
-    set({ status: AUTH_STATUS.SIGNED_IN, session });
+    set({ status: AUTH_STATUS.SIGNED_IN, session, restriction: null });
   },
 
   // refresh 로 새로 받은 토큰. 그 사이 로그아웃했으면 저장하지 않는다
@@ -60,7 +65,7 @@ export const useAuthStore = create((set, get) => ({
   },
 
   signOut: async () => {
-    set({ status: AUTH_STATUS.SIGNED_OUT, session: null });
+    set({ status: AUTH_STATUS.SIGNED_OUT, session: null, restriction: null });
 
     try {
       await SecureStore.deleteItemAsync(SESSION_STORAGE_KEY);
