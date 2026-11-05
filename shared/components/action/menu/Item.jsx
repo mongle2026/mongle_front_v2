@@ -32,7 +32,7 @@ const playPressHaptic = () => {
 const Item = ({
   icon: Icon,
   label,
-  color = colors.fgNeutralSecondary,
+  color = colors.fgNeutralPrimary,
   onPress,
   disabled = false,
   iconProps,
