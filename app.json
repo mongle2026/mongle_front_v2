@@ -8,6 +8,7 @@
     "icon": "./assets/logo/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
+      "icon": "./assets/logo/ios_icon.icon",
       "supportsTablet": false,
       "bundleIdentifier": "com.dongle.mongle",
       "infoPlist": {
