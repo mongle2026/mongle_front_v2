@@ -9,8 +9,10 @@ export const profileKeys = {
   covers: userId => [...archiveKeys.myFeed(userId), 'profile'],
   // 게시글 편집 목록 (내 글 전체 + 프로필에서 뺐는지)
   editCovers: userId => [...archiveKeys.myFeed(userId), 'profile', 'edit'],
+  // 팔로우 / 팔로워 목록 두 탭 모두
+  followsAll: userId => ['profile', 'follow', toIdKey(userId)],
   // 팔로우 / 팔로워 목록 (커서 페이지네이션). type: followings / followers
-  follows: (userId, type) => ['profile', 'follow', toIdKey(userId), type],
+  follows: (userId, type) => [...profileKeys.followsAll(userId), type],
 
   // 다른 사람 프로필. viewerId: 나, ownerId: 프로필 주인
   // 사용자 정보 (닉네임 · 아이디 · 프로필 사진)

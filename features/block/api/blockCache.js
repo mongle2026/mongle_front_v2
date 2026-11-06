@@ -4,7 +4,7 @@ import { letterDetailKeys } from '../../letterbox/api/letterboxKeys';
 import { profileKeys } from '../../profile/api/profileKeys';
 import { recipientKeys } from '../../write/recipient/api/recipientKeys';
 import { removeInfiniteItems } from '../../../shared/api/infiniteCache';
-import { isSameId, toIdKey } from '../../../shared/utils/id';
+import { isSameId } from '../../../shared/utils/id';
 
 import { blockKeys } from './blockKeys';
 
@@ -52,6 +52,6 @@ export function applyBlockState(queryClient, { userId, targetUserId, nextBlocked
   queryClient.invalidateQueries({ queryKey: feedDetailKeys.user(userId), refetchType: 'none' });
 
   // 팔로우가 끊겼으니 팔로우 / 팔로워 목록과 수신인 기본 목록(나 + 팔로잉)도 새로 받는다
-  queryClient.invalidateQueries({ queryKey: ['profile', 'follow', toIdKey(userId)] });
+  queryClient.invalidateQueries({ queryKey: profileKeys.followsAll(userId) });
   queryClient.removeQueries({ queryKey: recipientKeys.all });
 }

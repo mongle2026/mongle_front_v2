@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient, { getApiErrorDetail } from '../../../shared/api/client';
 import { isSameId, toIdKey } from '../../../shared/utils/id';
+import { profileKeys } from '../../profile/api/profileKeys';
 import { recipientKeys } from '../../write/recipient/api/recipientKeys';
 
 /*
@@ -54,6 +55,9 @@ export default function useFollow({
     onSuccess: (data, variables) => {
       // 수신인 기본 목록(나 + 팔로잉)이 바뀌므로 지워서, 편지 작성에서 열 때 지난 목록이 잠깐 보이지 않게 한다
       queryClient.removeQueries({ queryKey: recipientKeys.all });
+
+      // 내 팔로우 목록이 바뀌고, 팔로워 목록의 맞팔 여부(isFollowing)도 바뀌므로 두 탭 모두 새로 받게 한다
+      queryClient.invalidateQueries({ queryKey: profileKeys.followsAll(currentUserId) });
 
       onSuccess?.(data, variables);
     },
