@@ -11,6 +11,7 @@ import IlEmptyBookmark from '../../../assets/illustrations/il_empty_bookmark.svg
 import IlEmptyLogin from '../../../assets/illustrations/il_empty_login.svg';
 import IlEmptyFollowingFeed from '../../../assets/illustrations/il_empty_followingfeed.svg';
 import IlEmptyRestricted from '../../../assets/illustrations/il_empty_restricted.svg';
+import IlEmptyBlock from '../../../assets/illustrations/il_empty_block.svg';
 import IcFilledAlert from '../../../assets/icons/ic_filledalert.svg';
 
 import {
@@ -70,6 +71,10 @@ const Empty = ({
       // 운영정책에 따라 가려진 피드 · 편지
       case 'restricted':
         return IlEmptyRestricted;
+
+      // 내가 차단한 사용자의 프로필
+      case 'block':
+        return IlEmptyBlock;
 
       default:
         return null;

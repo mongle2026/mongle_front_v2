@@ -24,7 +24,7 @@ export const Dialog = ({
   style,
 }) => {
   return (
-    <View style={[styles.container, Illustration && styles.withIllustration, style]}>
+    <View style={[styles.container, style]}>
       {Illustration && (
         <View style={styles.illustrationContainer}>
           <Illustration width={200} height={144} />
@@ -77,9 +77,6 @@ const styles = StyleSheet.create({
     gap: gap.L,
     borderRadius: radius.XL,
     backgroundColor: colors.bgSurface,
-  },
-  withIllustration: {
-    height: 301,
   },
   illustrationContainer: {
     width: 200,

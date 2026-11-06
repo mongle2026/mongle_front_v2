@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import IlDialogBlock from '../../../../assets/illustrations/il_dialog_block.svg';
 import IlDialogCancelletter from '../../../../assets/illustrations/il_dialog_cancelletter.svg';
 import IlDialogDeleteletter from '../../../../assets/illustrations/il_dialog_deleteletter.svg';
 import IlDialogDeletedletter from '../../../../assets/illustrations/il_dialog_deletedletter.svg';
@@ -34,6 +35,8 @@ import LetterDetailContent from './components/LetterDetailContent';
 import useLetterDetail from './hooks/useLetterDetail';
 import { toImageSource } from '../../../../shared/utils/media';
 import { REPORT_TARGET_TYPE } from '../../../report/constants';
+import useBlockDialog from '../../../block/hooks/useBlockDialog';
+import useUserBlock from '../../../block/hooks/useUserBlock';
 
 // route.params: { letterId }
 const LetterDetailScreen = ({ navigation, route }) => {
@@ -42,6 +45,8 @@ const LetterDetailScreen = ({ navigation, route }) => {
   const letterId = route?.params?.letterId;
   const { userId } = useCurrentUser();
   const { openDialog } = useDialog();
+  const { openBlockDialog } = useBlockDialog();
+  const { unblockUser } = useUserBlock();
   const { showToast } = useGlobalOverlay();
 
   // 답장은 편지 작성 화면과 수신인 상태를 공유한다
@@ -159,10 +164,18 @@ const LetterDetailScreen = ({ navigation, route }) => {
     });
   }, [insets.bottom, letter, navigation]);
 
-  // TODO: 보낸 사람 차단
+  // 차단 메뉴는 받은 편지에서만 보이므로 보낸 사람을 차단한다
   const handlePressBlock = useCallback(() => {
     setIsMenuOpen(false);
-  }, []);
+
+    if (!letter) return;
+
+    openBlockDialog({
+      targetUserId: letter.sender.userId,
+      userCode: letter.sender.userCode,
+      toastBottomOffset: insets.bottom,
+    });
+  }, [insets.bottom, letter, openBlockDialog]);
 
   // 버튼을 누른 시점에 이미 도착한 편지면 취소를 막고 상세를 다시 불러온다.
   // 상세를 다시 받으면 isDelivered가 바뀌면서 취소 버튼이 케밥 메뉴로 전환된다.
@@ -221,6 +234,35 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
     setIsMenuOpen(false);
 
+    // 내가 차단한 사람에게는 답장할 수 없어서, 작성 화면 대신 차단 해제 안내를 띄운다
+    if (letter.isSenderBlocked) {
+      openDialog({
+        id: 'letter-reply-blocked-dialog',
+        accessibilityLabel: '차단 해제 안내 닫기',
+        renderContent: ({ close }) => (
+          <Dialog
+            illustration={IlDialogBlock}
+            title={'차단한 사용자에게는\n답장할 수 없어요'}
+            description={`${letter.sender.nickname}님의 차단을 해제하면\n다시 편지를 주고받을 수 있어요`}
+            cancelText="닫기"
+            confirmText="차단 해제"
+            confirmVariant={BUTTON_VARIANT.CRITICAL}
+            onCancel={close}
+            onConfirm={() => {
+              close();
+              unblockUser({
+                targetUserId: letter.sender.userId,
+                userCode: letter.sender.userCode,
+                toastBottomOffset: insets.bottom,
+              });
+            }}
+          />
+        ),
+      });
+
+      return;
+    }
+
     /*
      * 수신인 선택 BottomSheet가 저장하는 값과 같은 형태로 맞춘다.
      * (편지 상세의 profileImageUri는 이미 resolveMediaUri를 거친 값이다)
@@ -234,7 +276,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
     });
 
     navigation.navigate('Record', { type: 'letter' });
-  }, [canReply, letter, navigation, setReceiver]);
+  }, [canReply, insets.bottom, letter, navigation, openDialog, setReceiver, unblockUser]);
 
   const handleMusicPlayback = useCallback(() => {
     if (!playbackId || !previewUri) return;

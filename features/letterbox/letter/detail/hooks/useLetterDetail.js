@@ -20,6 +20,8 @@ function normalizeLetterDetail(data, userId) {
     letterId: letter.id,
     // 운영자가 가린 편지. 서버가 글 · 음악 · 사진을 비워서 보낸다
     isBlinded: Boolean(data?.isBlinded),
+    // 받은 편지에서 내가 보낸 사람을 차단했는지. 답장 대신 차단 해제 안내 Dialog를 띄운다
+    isSenderBlocked: Boolean(data?.isSenderBlocked),
     isSender: isSameId(record?.userId, userId),
     isReceiver: isSameId(letter.receiverId, userId),
     isRead: Boolean(letter.isRead),

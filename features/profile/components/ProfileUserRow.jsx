@@ -26,11 +26,13 @@ const getRotatedCornerOffset = (width, height) => {
 // 팔로우한 사람이면 userCode 버튼은 Solid, 아니면 Ghost (피드 ProfileBar 와 같다)
 // style: 행 정렬 등 (위·아래 여백은 꼭짓점 계산으로 정한다), profileImgStyle: 사진 모서리 등
 // isRestricted: 이용 제한된 회원. 사진 대신 제한 이미지, 아이디는 fgDisabled
+// isUnknown: 나를 차단한 회원. 사진 대신 탈퇴 회원 이미지, 아이디는 fgDisabled (제한 회원과 같은 모양)
 const ProfileUserRow = ({
   imageUri,
   userCode,
   isFollowing = false,
   isRestricted = false,
+  isUnknown = false,
   style,
   profileImgStyle,
 }) => {
@@ -59,6 +61,7 @@ const ProfileUserRow = ({
       <ProfileImg
         imageUri={imageUri}
         isRestricted={isRestricted}
+        isWithdrawn={isUnknown}
         size="M"
         style={[
           styles.profileImg,
@@ -73,8 +76,11 @@ const ProfileUserRow = ({
           variant={userCodeVariant}
           size={BUTTON_SIZE.M}
           font={FONT.SUIT}
-          style={[styles.userCodeButton, isRestricted && styles.restrictedUserCodeButton]}
-          textStyle={isRestricted && styles.restrictedUserCode}
+          style={[
+            styles.userCodeButton,
+            (isRestricted || isUnknown) && styles.restrictedUserCodeButton,
+          ]}
+          textStyle={(isRestricted || isUnknown) && styles.restrictedUserCode}
         >
           {`@${normalizedUserCode}`}
         </Button>
@@ -104,7 +110,7 @@ const styles = StyleSheet.create({
     transform: [{ rotate: `${USER_CODE_ROTATION_DEGREE}deg` }],
   },
 
-  // 이용 제한된 회원: Ghost 테두리(1px)의 색만 바꾼다
+  // 이용 제한된 회원 · 나를 차단한 회원: Ghost 테두리(1px)의 색만 바꾼다
   restrictedUserCodeButton: {
     borderColor: colors.strokeNeutralTertiary,
   },

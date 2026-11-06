@@ -17,6 +17,8 @@ import { gap, padding } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 
 import { REPORT_TARGET_TYPE } from '../../report/constants';
+import useBlockDialog from '../../block/hooks/useBlockDialog';
+import useUserBlock from '../../block/hooks/useUserBlock';
 
 import { profileKeys } from '../api/profileKeys';
 import ProfileCoverList from '../components/ProfileCoverList';
@@ -30,9 +32,16 @@ import useUserProfile from './hooks/useUserProfile';
 
 const USER_PROFILE_MORE_OVERLAY_ID = 'user-profile-more';
 
+// 나를 차단한 회원의 프로필에 고정으로 보여주는 닉네임 · 아이디
+const UNKNOWN_USER_NICKNAME = '알 수 없는 사용자';
+const UNKNOWN_USER_CODE = 'unknown';
+
 // 다른 사람 프로필. 이름 + 사용자 정보 + 팔로우 버튼 + 그 사람이 프로필에 올린 노래 커버.
 // 이용 제한된 회원이면 닉네임·아이디를 fgDisabled 로, 사진을 제한 이미지로, 팔로우 버튼을 Disabled 로 바꾸고
 // 게시물 대신 Empty 를 보여준다 (서버도 게시물을 빈 목록으로 준다)
+// 내가 차단한 회원이면 팔로우 버튼 자리에 '차단 해제'(Weak)를 두고 게시물 대신 Empty 를 보여준다
+// 나를 차단한 회원이면 '알 수 없는 사용자' · '@unknown' · 탈퇴 회원 이미지로 고정하고
+// 팔로우 버튼을 Disabled 로, 게시물 대신 Empty 를 보여준다 (이용 제한 · 내 차단보다 먼저)
 // route params: { userId } (프로필 주인의 publicId)
 const UserProfileScreen = () => {
   const navigation = useNavigation();
@@ -42,6 +51,8 @@ const UserProfileScreen = () => {
   const { userId } = useCurrentUser();
   const insets = useSafeAreaInsets();
   const { openOverlay } = useGlobalOverlay();
+  const { openBlockDialog } = useBlockDialog();
+  const { unblockUser, isTargetPending: isBlockPending } = useUserBlock();
   const { requireLogin } = useLoginDialog();
   const { user } = useUserProfile({ ownerId });
   const { followStatus } = useFollowStatus({ userId, ownerId });
@@ -52,8 +63,17 @@ const UserProfileScreen = () => {
 
   const { toggleFollow, isTargetPending } = useUserFollow({ userId });
 
-  const isRestricted = Boolean(user?.isRestricted);
+  // 나를 차단한 회원. 누구인지 알 수 없게 보여준다 (서버도 닉네임 · 아이디 · 사진을 비워서 준다)
+  const isUnknown = Boolean(user?.hasBlockedMe);
+  const isRestricted = !isUnknown && Boolean(user?.isRestricted);
+  const isBlocked = !isUnknown && Boolean(followStatus?.isBlocked);
   const isFollowing = Boolean(followStatus?.isFollowing);
+  // 나를 차단 · 이용 제한 · 내가 차단이면 게시물 대신 Empty 를 보여준다 (이 순서로 먼저)
+  const hidesPosts = isUnknown || isRestricted || isBlocked;
+  // 닉네임 · 아이디를 흐리게, 팔로우 버튼을 Disabled 로 보여준다
+  const isUnavailable = isUnknown || isRestricted;
+  const nickname = isUnknown ? UNKNOWN_USER_NICKNAME : (user?.nickname ?? '');
+  const userCode = isUnknown ? UNKNOWN_USER_CODE : user?.userCode;
   // 팔로우해야 하면 '팔로우'(Solid), 팔로우 중이면 '팔로잉'(Ghost). 피드 ProfileBar 와 같다
   const followVariant = isFollowing ? BUTTON_VARIANT.GHOST : BUTTON_VARIANT.SOLID;
   const followLabel = isFollowing ? '팔로잉' : '팔로우';
@@ -63,6 +83,23 @@ const UserProfileScreen = () => {
   const handlePressFollow = useCallback(() => {
     toggleFollow(ownerId, isFollowing);
   }, [toggleFollow, ownerId, isFollowing]);
+
+  const handlePressBlock = useCallback(() => {
+    openBlockDialog({
+      targetUserId: ownerId,
+      userCode: user?.userCode,
+      // 차단 완료 토스트를 안드로이드 하단 네비게이션 바 위에 둔다
+      toastBottomOffset: insets.bottom,
+    });
+  }, [openBlockDialog, ownerId, user?.userCode, insets.bottom]);
+
+  const handlePressUnblock = useCallback(() => {
+    unblockUser({
+      targetUserId: ownerId,
+      userCode: user?.userCode,
+      toastBottomOffset: insets.bottom,
+    });
+  }, [unblockUser, ownerId, user?.userCode, insets.bottom]);
 
   const handlePressMore = useCallback(() => {
     openOverlay({
@@ -87,13 +124,15 @@ const UserProfileScreen = () => {
               toastBottomOffset: insets.bottom,
             });
           }}
-          // TODO: 사용자 차단
-          onPressBlock={close}
+          onPressBlock={() => {
+            close();
+            handlePressBlock();
+          }}
           onClose={close}
         />
       ),
     });
-  }, [openOverlay, navigation, ownerId, requireLogin, user, insets.bottom]);
+  }, [openOverlay, navigation, ownerId, requireLogin, user, insets.bottom, handlePressBlock]);
 
   const header = (
     <>
@@ -101,22 +140,23 @@ const UserProfileScreen = () => {
         <Text
           numberOfLines={1}
           accessibilityRole="header"
-          style={[styles.nickname, isRestricted && styles.restrictedText]}
+          style={[styles.nickname, isUnavailable && styles.restrictedText]}
         >
-          {user?.nickname ?? ''}
+          {nickname}
         </Text>
       </View>
 
       <ProfileUserRow
         imageUri={user?.profileImageUri}
-        userCode={user?.userCode}
-        // 제한된 계정은 팔로우 여부와 상관없이 아이디를 Ghost + fgDisabled 로 보여준다
-        isFollowing={!isRestricted && isFollowing}
+        userCode={userCode}
+        // 제한된 계정 · 나를 차단한 계정은 팔로우 여부와 상관없이 아이디를 Ghost 로 보여준다
+        isFollowing={!isUnavailable && isFollowing}
         isRestricted={isRestricted}
+        isUnknown={isUnknown}
       />
 
-      {/* 이용 제한된 계정은 팔로우할 수 없어 Disabled 버튼으로 알린다 */}
-      {isRestricted && (
+      {/* 이용 제한된 계정 · 나를 차단한 계정은 팔로우할 수 없어 Disabled 버튼으로 알린다 */}
+      {isUnavailable && (
         <View style={styles.actionRow}>
           <View style={styles.followButton}>
             <Button
@@ -131,8 +171,28 @@ const UserProfileScreen = () => {
         </View>
       )}
 
+      {/* 내가 차단한 회원이면 팔로우 버튼 대신 차단 해제 버튼을 둔다 */}
+      {!isUnavailable && isBlocked && (
+        <View style={styles.actionRow}>
+          <View style={styles.followButton}>
+            <Button
+              variant={BUTTON_VARIANT.WEAK}
+              size={BUTTON_SIZE.L}
+              font={FONT.SUIT}
+              disabled={isBlockPending(ownerId)}
+              showDisabledStyle={false}
+              onPress={handlePressUnblock}
+              accessibilityLabel={`${user?.nickname ?? '사용자'} 차단 해제`}
+              style={styles.followButtonInner}
+            >
+              차단 해제
+            </Button>
+          </View>
+        </View>
+      )}
+
       {/* 내 프로필이면 팔로우 버튼이 없다 */}
-      {!isRestricted && !followStatus?.isMe && (
+      {!isUnavailable && !isBlocked && !followStatus?.isMe && (
         <View
           style={styles.actionRow}
           pointerEvents={isFollowStatusLoaded ? 'auto' : 'none'}
@@ -168,16 +228,30 @@ const UserProfileScreen = () => {
         onPressMore={handlePressMore}
       />
 
-      {isRestricted ? (
+      {hidesPosts ? (
         // 게시물은 모두 숨기고 남은 자리 가운데에 Empty 를 둔다
         <View style={styles.restrictedBody}>
           {header}
           <View style={styles.emptyContainer}>
-            <Empty
-              type="restricted"
-              title="게시물을 볼 수 없어요"
-              body="운영정책에 따라 이 계정의 게시물이 가려졌어요."
-            />
+            {isUnknown ? (
+              <Empty
+                type="recipient"
+                title="프로필을 볼 수 없어요"
+                body="현재 접근할 수 없는 프로필이에요."
+              />
+            ) : isRestricted ? (
+              <Empty
+                type="restricted"
+                title="게시물을 볼 수 없어요"
+                body="운영정책에 따라 이 계정의 게시물이 가려졌어요."
+              />
+            ) : (
+              <Empty
+                type="block"
+                title="차단한 사용자예요"
+                body="차단을 해제하면 게시물을 볼 수 있어요."
+              />
+            )}
           </View>
         </View>
       ) : (

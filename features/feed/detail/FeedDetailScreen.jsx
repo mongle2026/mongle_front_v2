@@ -52,9 +52,11 @@ import useDeletedCommentToast from './hooks/useDeletedCommentToast';
 import { useSignupCompleteToast } from '../../signup/signupCompleteToast';
 import { hasId, isSameId } from '../../../shared/utils/id';
 import { REPORT_TARGET_TYPE } from '../../report/constants';
+import useBlockDialog from '../../block/hooks/useBlockDialog';
 
 const FeedDetailScreen = ({ navigation, route }) => {
   const { openDialog } = useDialog();
+  const { openBlockDialog } = useBlockDialog();
   const { openOverlay, showToast, hideToast } = useGlobalOverlay();
   const { currentUser, userId } = useCurrentUser();
   const { requireLogin } = useLoginDialog();
@@ -361,10 +363,18 @@ const FeedDetailScreen = ({ navigation, route }) => {
     });
   }, [commentBarBottom, commentBarHeight, feed, navigation, requireLogin]);
 
-  // TODO: 피드 작성자 차단
   const handlePressBlock = useCallback(() => {
     setIsFeedMenuOpen(false);
-  }, []);
+
+    if (!feed) return;
+
+    openBlockDialog({
+      targetUserId: feed.user?.userId,
+      userCode: feed.user?.userCode,
+      // 차단 완료 Toast 도 다른 Toast 처럼 CommentBar 위에 띄운다
+      toastBottomOffset: commentBarBottom + commentBarHeight,
+    });
+  }, [commentBarBottom, commentBarHeight, feed, openBlockDialog]);
 
   // 로그인하지 않았으면 댓글을 보내지 않고 로그인 안내 Dialog 를 띄운다
   const canSubmitComment = useCallback(
@@ -409,10 +419,19 @@ const FeedDetailScreen = ({ navigation, route }) => {
     });
   }, [closeCommentMenu, commentBarBottom, commentBarHeight, commentMenu, navigation, requireLogin]);
 
-  // TODO: 댓글 작성자 차단
   const handlePressBlockCommentAuthor = useCallback(() => {
+    const comment = commentMenu?.comment;
+
     closeCommentMenu();
-  }, [closeCommentMenu]);
+
+    if (!comment) return;
+
+    openBlockDialog({
+      targetUserId: comment.userId,
+      userCode: comment.userCode,
+      toastBottomOffset: commentBarBottom + commentBarHeight,
+    });
+  }, [closeCommentMenu, commentBarBottom, commentBarHeight, commentMenu, openBlockDialog]);
 
   const handlePressReply = useCallback(
     (replyTarget, commentRef) => {
