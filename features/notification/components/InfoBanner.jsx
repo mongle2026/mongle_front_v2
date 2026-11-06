@@ -7,7 +7,10 @@ import { colors } from '../../../shared/styles/color';
 import { padding, gap } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
 
-const InfoBanner = () => {
+const DEFAULT_LABEL = '최근 30일 동안의 알림만 확인할 수 있어요.';
+
+// label: 안내 문구. 없으면 알림 화면 문구
+const InfoBanner = ({ label = DEFAULT_LABEL }) => {
   return (
     <View style={styles.container}>
       <IcFilledAlert
@@ -18,7 +21,7 @@ const InfoBanner = () => {
       />
 
       <Text style={styles.text}>
-        최근 30일 동안의 알림만 확인할 수 있어요.
+        {label}
       </Text>
     </View>
   );

@@ -3,7 +3,10 @@ import { feedCommentKeys, feedDetailKeys, feedHomeKeys } from '../../feed/api/fe
 import { letterDetailKeys } from '../../letterbox/api/letterboxKeys';
 import { profileKeys } from '../../profile/api/profileKeys';
 import { recipientKeys } from '../../write/recipient/api/recipientKeys';
+import { removeInfiniteItems } from '../../../shared/api/infiniteCache';
 import { isSameId, toIdKey } from '../../../shared/utils/id';
+
+import { blockKeys } from './blockKeys';
 
 /*
  * 차단 / 차단 해제가 서버에 반영된 뒤 캐시를 맞춘다.
@@ -21,6 +24,16 @@ export function applyBlockState(queryClient, { userId, targetUserId, nextBlocked
       }
       : status),
   );
+
+  // 차단 목록: 해제하면 그 사람을 바로 빼고, 차단하면 다음에 들어갈 때 맨 위에 오도록 새로 받는다
+  if (nextBlocked) {
+    queryClient.invalidateQueries({ queryKey: blockKeys.list(userId) });
+  } else {
+    queryClient.setQueryData(
+      blockKeys.list(userId),
+      list => removeInfiniteItems(list, user => isSameId(user.id, targetUserId)),
+    );
+  }
 
   // 그 사람에게 받은 편지 상세의 답장 버튼이 차단 해제 안내를 띄울지 바로 바꾼다
   queryClient.setQueriesData({ queryKey: letterDetailKeys.all }, letter => (

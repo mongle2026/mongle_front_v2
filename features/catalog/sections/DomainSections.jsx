@@ -340,10 +340,11 @@ const WriteSection = () => {
         </View>
       </Specimen>
 
-      <Specimen name="ListRow" note="recipient / recipient(나) / music · pressed" contentStyle={stretch}>
+      <Specimen name="ListRow" note="recipient / recipient(나) / music · pressed / button" contentStyle={stretch}>
         <ListRow imageUri={SAMPLE_IMAGE_URI} nickname="동글" userId="dongle" onPress={noop} />
         <ListRow imageUri={SAMPLE_IMAGE_URI} nickname="몽글" userId="mongle" isMe isPressed onPress={noop} />
         <ListRow type={LIST_ROW_TYPE.MUSIC} imageUri={SAMPLE_IMAGE_URI} title="노래 제목" artist="아티스트" onPress={noop} />
+        <ListRow type={LIST_ROW_TYPE.BUTTON} imageUri={SAMPLE_IMAGE_URI} nickname="닉네임" userId="userCode" onPress={noop} onPressButton={noop} />
       </Specimen>
 
       <Specimen name="ColorItem" note="isActive">

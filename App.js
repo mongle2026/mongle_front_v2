@@ -33,6 +33,7 @@ import SettingScreen from './features/setting/SettingScreen';
 import SettingNotificationScreen from './features/setting/notification/SettingNotificationScreen';
 import SettingAccountScreen from './features/setting/account/SettingAccountScreen';
 import SettingAccountWithdrawScreen from './features/setting/account/withdraw/SettingAccountWithdrawScreen';
+import SettingBlockScreen from './features/setting/block/SettingBlockScreen';
 import ReportScreen from './features/report/ReportScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
@@ -331,6 +332,13 @@ const RootNavigator = ({ isSignedIn, showOnboarding }) => (
         <Stack.Screen
           name="SettingAccountWithdraw"
           component={SettingAccountWithdrawScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="SettingBlock"
+          component={SettingBlockScreen}
           options={{
             animation: 'ios_from_right',
           }}

@@ -66,6 +66,11 @@ const SettingScreen = () => {
                 showArrow
                 onPress={() => navigation.navigate('ProfileInfoEdit')}
               />
+              <ListRow
+                text="차단한 사용자 관리"
+                showArrow
+                onPress={() => navigation.navigate('SettingBlock')}
+              />
             </View>
 
             <View style={styles.section}>
