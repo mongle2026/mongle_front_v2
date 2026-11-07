@@ -58,7 +58,7 @@ import { CatalogSection, Specimen } from '../components/Specimen';
 
 const noop = () => {};
 
-// 하프톤 효과가 보이도록 실제 사진을 쓴다 (assets 의 cover_img.png 는 체크무늬 placeholder)
+// 카탈로그 이미지 샘플 (프로필 사진, 음악 커버, 편지 사진 등에 같이 쓴다)
 const SAMPLE_IMAGE_URI = 'https://picsum.photos/seed/mongle/400/400';
 const SampleCover = { uri: SAMPLE_IMAGE_URI };
 

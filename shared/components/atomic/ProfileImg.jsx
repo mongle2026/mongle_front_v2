@@ -1,12 +1,9 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { radius } from '../../../shared/styles/token'
+import { colors } from '../../styles/color';
 
 import IlProfileWithdrawn from '../../../assets/illustrations/il_profile_withdrawn.svg';
-
-const DEFAULT_PROFILE_IMAGE = require(
-  '../../../assets/write/profile_img.png'
-);
 
 const PROFILE_IMG_SIZE = {
   S: 24,
@@ -58,25 +55,27 @@ const ProfileImg = ({
     );
   }
 
-  const currentImageSource =
-    imageUri && !hasError
-      ? { uri: imageUri }
-      : DEFAULT_PROFILE_IMAGE;
+  const imageStyle = [
+    styles.image,
+    {
+      width: imageSize,
+      height: imageSize,
+      borderRadius: imageRadius,
+    },
+    style,
+  ];
+
+  // 사진이 없거나(로딩 중 포함) 못 불러오면 단색으로 채운다
+  if (!imageUri || hasError) {
+    return <View style={[styles.empty, imageStyle]} />;
+  }
 
   return (
     <Image
-      source={currentImageSource}
+      source={{ uri: imageUri }}
       resizeMode="cover"
       onError={() => setHasError(true)}
-      style={[
-        styles.image,
-        {
-          width: imageSize,
-          height: imageSize,
-          borderRadius: imageRadius,
-        },
-        style,
-      ]}
+      style={imageStyle}
     />
   );
 };
@@ -84,6 +83,9 @@ const ProfileImg = ({
 const styles = StyleSheet.create({
   image: {
     flexShrink: 0,
+  },
+  empty: {
+    backgroundColor: colors.fillNeutralWeak,
   },
   // SVG 는 borderRadius 로 잘리지 않아 감싼 View 에서 자른다
   withdrawn: {
