@@ -114,7 +114,7 @@ const Menu = ({
           <Item
             icon={IcPencil}
             label="수정"
-            color={colors.fgNeutralSecondary}
+            color={colors.fgNeutralPrimary}
             onPress={onPressEdit}
             disabled={editDisabled}
             accessibilityLabel="게시물 수정"

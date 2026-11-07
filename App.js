@@ -61,9 +61,6 @@ import { AUTH_STATUS, useAuthStore } from './shared/auth/useAuthStore';
 
 SplashScreen.preventAutoHideAsync();
 
-// 시작 준비가 빨리 끝나도 스플래시(AppSplash)를 이 시간만큼은 보여 준다
-const SPLASH_MIN_DURATION_MS = 1000;
-
 // 푸시 알림을 눌렀을 때처럼 화면 밖에서 이동해야 할 때 쓴다
 const navigationRef = createNavigationContainerRef();
 
@@ -404,7 +401,7 @@ const RestrictedNavigator = () => (
 
 export default function App() {
   const [isNavigationReady, setIsNavigationReady] = useState(false);
-  const [isSplashMinElapsed, setIsSplashMinElapsed] = useState(false);
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
 
   const authStatus = useAuthStore(state => state.status);
   const restriction = useAuthStore(state => state.restriction);
@@ -454,54 +451,52 @@ export default function App() {
   // AppSplash가 그려지면 바로 네이티브 스플래시를 내리고 같은 배경의 AppSplash로 넘긴다
   useEffect(() => {
     SplashScreen.hideAsync();
-
-    const timer = setTimeout(() => setIsSplashMinElapsed(true), SPLASH_MIN_DURATION_MS);
-    return () => clearTimeout(timer);
   }, []);
 
-  // 저장된 로그인 정보 · 온보딩 완료 여부를 읽을 때까지 스플래시를 유지해서 엉뚱한 첫 화면이 잠깐 보이지 않게 한다
-  if (!isStartupRestored || !isSplashMinElapsed) {
-    return (
-      <>
-        <AppSplash />
-        <StatusBar style="dark" />
-      </>
-    );
-  }
-
+  /*
+   * AppSplash 는 앱 화면 위에 덮여서 인트로 모션을 보여 준다.
+   * 저장된 로그인 정보 · 온보딩 완료 여부를 읽기 전에는 앱 화면을 그리지 않아서 엉뚱한 첫 화면이 보이지 않고,
+   * 읽고 나면 스플래시 아래에서 첫 화면을 미리 그려 두었다가 인트로가 끝나면 스플래시가 걷히며 드러난다.
+   * 스플래시 자리가 바뀌면 모션이 처음부터 다시 시작되므로 항상 루트의 마지막 자식으로 둔다
+   */
   return (
     <GestureHandlerRootView
       style={{ flex: 1 }}
     >
-      <SafeAreaProvider
-        initialMetrics={initialWindowMetrics}
-      >
-        <QueryClientProvider client={queryClient}>
-          <DialogProvider>
-            <GlobalOverlayProvider>
-              <NavigationContainer
-                ref={navigationRef}
-                linking={linking}
-                onReady={() => setIsNavigationReady(true)}
-              >
-                {isSignedIn && restriction ? (
-                  <RestrictedNavigator />
-                ) : (
+      {isStartupRestored && (
+        <SafeAreaProvider
+          initialMetrics={initialWindowMetrics}
+        >
+          <QueryClientProvider client={queryClient}>
+            <DialogProvider>
+              <GlobalOverlayProvider>
+                <NavigationContainer
+                  ref={navigationRef}
+                  linking={linking}
+                  onReady={() => setIsNavigationReady(true)}
+                >
                   <RootNavigator
                     isSignedIn={isSignedIn}
                     showOnboarding={!isSignedIn && !isOnboardingCompleted}
                   />
-                )}
-              </NavigationContainer>
-              <PushNotificationHandler
-                navigationRef={navigationRef}
-                isNavigationReady={isNavigationReady}
-              />
-              <StatusBar style="dark" />
-            </GlobalOverlayProvider>
-          </DialogProvider>
-        </QueryClientProvider>
-      </SafeAreaProvider>
+                </NavigationContainer>
+                <PushNotificationHandler
+                  navigationRef={navigationRef}
+                  isNavigationReady={isNavigationReady}
+                />
+                {/* 스플래시가 떠 있는 동안은 스플래시가 상태바 색을 정한다 */}
+                {!isSplashVisible && <StatusBar style="dark" />}
+              </GlobalOverlayProvider>
+            </DialogProvider>
+          </QueryClientProvider>
+        </SafeAreaProvider>
+      )}
+      {isSplashVisible && (
+        <AppSplash
+          isReady={isStartupRestored}
+          onFinish={() => setIsSplashVisible(false)}
+        />
+      )}
     </GestureHandlerRootView>
   );
 }
