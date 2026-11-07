@@ -23,8 +23,9 @@ import { colors } from '../../shared/styles/color';
 import { typo } from '../../shared/styles/typo';
 import { gap, padding, radius } from '../../shared/styles/token';
 
-// 로고 모션은 정사각형(120 × 120) 원본을 키워서 보여 준다
-const LOGO_SIZE = 160;
+// 로고 모션은 원본(120 × 50)을 비율대로 줄여서 보여 준다
+const LOGO_WIDTH = 104;
+const LOGO_HEIGHT = (LOGO_WIDTH * 50) / 120;
 
 // 카카오 · Apple 버튼 높이를 맞춘다. 모서리는 둘 다 radius.XL (카카오 가이드 12)
 const SOCIAL_BUTTON_HEIGHT = 54;
@@ -135,11 +136,11 @@ const WelcomeScreen = () => {
       />
 
       <View style={styles.hero}>
-        {/* 화면에 들어올 때 심볼 모션을 한 번 재생하고 마지막 프레임에 멈춘다 */}
+        {/* 화면에 있는 동안 심볼 모션을 계속 반복 재생한다 */}
         <LottieView
           source={logoSymbolMotion}
           autoPlay
-          loop={false}
+          loop
           style={styles.logo}
         />
         <Text style={styles.tagline}>당신의 추억이 음악으로 남는 곳</Text>
@@ -195,13 +196,13 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
+    width: LOGO_WIDTH,
+    height: LOGO_HEIGHT,
   },
 
   tagline: {
     ...typo.suitLabelXLargeStrong,
-    color: colors.fgNeutralSecondary,
+    color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },
 

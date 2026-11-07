@@ -34,33 +34,24 @@ export const palette = {
   },
 };
 
-// ── shadow: elevation effect style → RN 호환 props로 변환 ─────────
-// elevation/middleDown: Drop shadow, X0 Y4, Blur 15, Spread 0,
-// color=overlay/weak (neutral/1000 #17191c @ 20% → shadowColor + shadowOpacity로 분리)
+// ── shadow: Figma elevation effect → boxShadow ─────────
+// boxShadow 는 CSS 와 같은 규칙이라 Figma 값(X Y Blur Spread)을 그대로 옮기면 iOS · Android 가 같은 모양으로 그린다.
+// (shadowOffset/Opacity/Radius 는 iOS 전용이고 Android 는 elevation 만 읽어 두 플랫폼 모양이 달랐다)
+// color=overlay (neutral/1000 #17191c)에 투명도를 rgba 로 넣는다
 export const shadow = {
   // elevation/weakDown: Drop shadow, X0 Y4, Blur 15, Spread 0, color=overlay @ 10%
   weakDown: {
-    shadowColor: '#17191c',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 15,
-    elevation: 3, // Android
+    boxShadow: '0px 4px 15px 0px rgba(23, 25, 28, 0.1)',
   },
 
+  // elevation/middleDown: Drop shadow, X0 Y4, Blur 15, Spread 0, color=overlay @ 20%
   middleDown: {
-    shadowColor: '#17191c',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    elevation: 4, // Android
+    boxShadow: '0px 4px 15px 0px rgba(23, 25, 28, 0.2)',
   },
 
+  // elevation/middleUp: Drop shadow, X0 Y-4, Blur 15, Spread 0, color=overlay @ 20%
   middleUp: {
-    shadowColor: palette.neutral[1000],
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    elevation: 4,
+    boxShadow: '0px -4px 15px 0px rgba(23, 25, 28, 0.2)',
   },
 };
 
