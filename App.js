@@ -475,10 +475,14 @@ export default function App() {
                   linking={linking}
                   onReady={() => setIsNavigationReady(true)}
                 >
-                  <RootNavigator
-                    isSignedIn={isSignedIn}
-                    showOnboarding={!isSignedIn && !isOnboardingCompleted}
-                  />
+                  {isSignedIn && restriction ? (
+                    <RestrictedNavigator />
+                  ) : (
+                    <RootNavigator
+                      isSignedIn={isSignedIn}
+                      showOnboarding={!isSignedIn && !isOnboardingCompleted}
+                    />
+                  )}
                 </NavigationContainer>
                 <PushNotificationHandler
                   navigationRef={navigationRef}
