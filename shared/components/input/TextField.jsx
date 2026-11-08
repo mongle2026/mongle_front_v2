@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -12,6 +13,15 @@ import { typo } from '../../styles/typo';
 
 const BORDER_WIDTH = 1;
 const INPUT_LINE_HEIGHT = typo.suitBodyLarge.lineHeight;
+
+// iOS 한 줄 입력창(UITextField)은 lineHeight가 fontSize보다 크면 글자를 줄 아래쪽에 붙여 그려서
+// 글자가 아래로 밀리고 아랫부분이 잘린다. 그래서 lineHeight를 빼고 같은 값을 height로 준다.
+const { lineHeight: _lineHeight, ...inputTextWithoutLineHeight } =
+  typo.suitBodyLarge;
+const IOS_SINGLE_LINE_INPUT_STYLE = {
+  ...inputTextWithoutLineHeight,
+  height: INPUT_LINE_HEIGHT,
+};
 
 // 상태별 입력창 테두리 색
 const getBorderColor = ({ status, isFocused }) => {
@@ -59,6 +69,8 @@ const TextField = ({
   const [isFocused, setIsFocused] = useState(false);
 
   const hasValue = value?.length > 0;
+  const isMultiline = maxLines > 0;
+  const isIosSingleLine = Platform.OS === 'ios' && !isMultiline;
 
   const foregroundColor = hasValue
     ? colors.fgNeutralPrimary
@@ -103,12 +115,12 @@ const TextField = ({
             setIsFocused(false);
             onBlur?.(event);
           }}
-          multiline={maxLines > 0}
-          textAlignVertical={maxLines > 0 ? 'top' : undefined}
+          multiline={isMultiline}
+          textAlignVertical={isMultiline ? 'top' : undefined}
           style={[
-            styles.inputText,
+            isIosSingleLine ? IOS_SINGLE_LINE_INPUT_STYLE : styles.inputText,
             styles.input,
-            maxLines > 0 && { maxHeight: INPUT_LINE_HEIGHT * maxLines },
+            isMultiline && { maxHeight: INPUT_LINE_HEIGHT * maxLines },
           ]}
           {...textInputProps}
         />
