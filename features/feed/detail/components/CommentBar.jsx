@@ -334,7 +334,6 @@ const CommentBar = ({
                   inputHeight >= INPUT_MAX_HEIGHT
                 }
                 textAlignVertical="top"
-                selectionColor={colors.fgNeutralPrimary}
                 style={[
                   styles.input,
                   {
