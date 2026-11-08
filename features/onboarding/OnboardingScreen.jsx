@@ -114,7 +114,11 @@ const OnboardingScreen = () => {
         >
           {PAGES.map(({ Illustration, title, body }) => (
             <View key={title} style={[styles.page, { width: pageWidth }]}>
-              <Illustration width={ILLUSTRATION_SIZE} height={ILLUSTRATION_SIZE} />
+              <Illustration
+                width={ILLUSTRATION_SIZE}
+                height={ILLUSTRATION_SIZE}
+                color={colors.fgNeutralSecondary}
+              />
 
               <View style={styles.textContainer}>
                 <Text style={styles.title}>{title}</Text>
