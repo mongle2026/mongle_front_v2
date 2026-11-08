@@ -291,8 +291,10 @@ const FeedDetailScreen = ({ navigation, route }) => {
     onLike: handlePressLike,
   });
 
+  // 피드 홈에서 이 피드를 재생하다 바로 들어왔으면 노래를 이어서 튼다
   const { playingFeedId, handlePressPlayback } = useFeedMusicPlayback({
     navigation,
+    handoffFeedId: feedId,
   });
 
   const handlePressClose = useCallback(() => {

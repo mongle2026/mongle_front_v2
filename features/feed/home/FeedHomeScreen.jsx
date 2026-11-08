@@ -72,6 +72,7 @@ const FeedHomeScreen = ({ navigation, route }) => {
     playingFeedId,
     handlePressPlayback: handlePressMusicPlayback,
     handleVisibleFeedChange,
+    handOffPlayback,
     resetPlayback,
   } = useFeedMusicPlayback({ navigation });
 
@@ -230,9 +231,11 @@ const FeedHomeScreen = ({ navigation, route }) => {
       const feedId = item?.feedId;
       if (!hasId(feedId)) return;
 
+      // 이 피드를 재생 중이었으면 상세에서 노래가 이어서 나온다
+      handOffPlayback(feedId);
       navigation.navigate('FeedDetail', { feedId });
     },
-    [navigation]
+    [handOffPlayback, navigation]
   );
 
   const handlePressProfile = useCallback(
@@ -250,9 +253,10 @@ const FeedHomeScreen = ({ navigation, route }) => {
       const feedId = item?.feedId;
       if (!hasId(feedId)) return;
 
+      handOffPlayback(feedId);
       navigation.navigate('FeedDetail', { feedId, scrollToComment: true });
     },
-    [navigation]
+    [handOffPlayback, navigation]
   );
 
   const renderPost = useCallback(

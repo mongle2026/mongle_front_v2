@@ -2,6 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from 'expo-audio';
 
 import { toIdKey } from '../utils/id';
+import {
+  clearPlaybackHandoff,
+  findPlaybackHandoff,
+  offerPlaybackHandoff,
+} from './feedPlaybackHandoff';
 
 const PLAYBACK_END_TOLERANCE = 0.1;
 
@@ -23,16 +28,37 @@ const normalizePreviewUrl = previewUrl => {
   return previewUrl.trim() || null;
 };
 
-const useFeedMusicPlayback = ({ navigation }) => {
-  const player = useAudioPlayer(null);
+/**
+ * @param {object} params
+ * @param {object} params.navigation
+ * @param {string|number} [params.handoffFeedId]
+ *   피드 상세처럼 한 피드만 보여 주는 화면에서 넘긴다.
+ *   피드 홈에서 이 피드를 재생하다 바로 들어왔으면 홈의 재생을 이어받는다.
+ */
+const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
+  const ownPlayer = useAudioPlayer(null);
 
-  const loadedFeedIdRef = useRef(null);
-  const pendingPlayFeedIdRef = useRef(null);
-  const waitingForLoadTransitionRef = useRef(false);
-  const playbackStatusRef = useRef(null);
-  const playingFeedIdRef = useRef(null);
+  // 홈에서 넘겨받은 재생. 화면이 열릴 때 한 번만 정한다
+  const [handoff] = useState(() => findPlaybackHandoff(toIdKey(handoffFeedId)));
+  const player = handoff?.player ?? ownPlayer;
 
-  const [playingFeedId, setPlayingFeedId] = useState(null);
+  const loadedFeedIdRef = useRef(handoff?.feedId ?? null);
+  const pendingPlayFeedIdRef = useRef(handoff?.pendingPlay ? handoff.feedId : null);
+  const waitingForLoadTransitionRef = useRef(handoff?.waitingForLoadTransition ?? false);
+  const playbackStatusRef = useRef(handoff ? handoff.player.currentStatus ?? null : null);
+
+  const initialPlayingFeedId = handoff && !handoff.pendingPlay ? handoff.feedId : null;
+  const playingFeedIdRef = useRef(initialPlayingFeedId);
+  const [playingFeedId, setPlayingFeedId] = useState(initialPlayingFeedId);
+
+  // 내 플레이어를 상세 화면에 넘겨 둔 상태 (홈 쪽). 다시 가져올 때까지 플레이어를 건드리지 않는다
+  const handedOffRef = useRef(null);
+
+  /** 지금 이 화면이 플레이어를 다뤄도 되는지 */
+  const canControlPlayer = useCallback(
+    () => !handedOffRef.current && !handoff?.revoked,
+    [handoff]
+  );
 
   // 진행 중인 볼륨 페이드. 새 동작이 시작되면 이전 페이드는 취소한다
   const fadeRef = useRef({ timer: null, resolve: null });
@@ -126,16 +152,105 @@ const useFeedMusicPlayback = ({ navigation }) => {
   const stopAndReset = useCallback(() => {
     pendingPlayFeedIdRef.current = null;
     waitingForLoadTransitionRef.current = false;
-    void pauseWithFadeOut();
+    if (canControlPlayer()) void pauseWithFadeOut();
     playbackStatusRef.current = null;
 
     loadedFeedIdRef.current = null;
 
     updatePlayingFeedId(null);
-  }, [pauseWithFadeOut, updatePlayingFeedId]);
+  }, [canControlPlayer, pauseWithFadeOut, updatePlayingFeedId]);
+
+  /*
+   * (상세 쪽) 홈에서 넘겨받았으면 올려 둔 handoff 를 치우고,
+   * 홈에서 키우던 볼륨을 마저 키운다.
+   * 화면이 닫힐 때는 플레이어가 홈에 남아 계속 나오지 않도록 멈춘다.
+   */
+  useEffect(() => {
+    if (!handoff) return undefined;
+
+    clearPlaybackHandoff(handoff);
+    handoff.onRevoke = cancelFade;
+
+    if (!handoff.pendingPlay && Number.isFinite(player.volume) && player.volume < 1) {
+      void fadeVolume(1, FADE_IN_DURATION, easeOutQuad);
+    }
+
+    return () => {
+      if (handoff.revoked) return;
+
+      handoff.revoked = true;
+      cancelFade();
+
+      try {
+        player.pause();
+      } catch {
+        // 플레이어가 이미 정리됐으면 그냥 둔다
+      }
+    };
+  }, [cancelFade, fadeVolume, handoff, player]);
+
+  /*
+   * (홈 쪽) 상세에 넘겨 둔 플레이어를 다시 가져온다.
+   * 상세에서 하던 페이드는 멈추고, 이어 나오던 노래는 여기서 서서히 끈다.
+   */
+  const reclaimHandoff = useCallback(() => {
+    const handedOff = handedOffRef.current;
+    if (!handedOff) return;
+
+    handedOffRef.current = null;
+    clearPlaybackHandoff(handedOff);
+
+    if (!handedOff.revoked) {
+      handedOff.revoked = true;
+      handedOff.onRevoke?.();
+    }
+
+    playbackStatusRef.current = player.currentStatus ?? null;
+    stopAndReset();
+  }, [player, stopAndReset]);
+
+  /**
+   * (홈 쪽) 지금 재생 중인 피드의 상세로 바로 들어갈 때 이동 직전에 부른다.
+   * 그 피드를 재생(또는 불러오는) 중이 아니면 아무것도 넘기지 않는다.
+   */
+  const handOffPlayback = useCallback(
+    feedId => {
+      const nextFeedId = toIdKey(feedId);
+      if (!nextFeedId || handedOffRef.current || loadedFeedIdRef.current !== nextFeedId) return;
+
+      const isPlaying = playingFeedIdRef.current === nextFeedId;
+      const isPending = pendingPlayFeedIdRef.current === nextFeedId;
+      if (!isPlaying && !isPending) return;
+
+      // 키우던 볼륨은 상세에서 이어서 키운다
+      cancelFade();
+
+      const nextHandoff = {
+        feedId: nextFeedId,
+        player,
+        pendingPlay: isPending,
+        waitingForLoadTransition: waitingForLoadTransitionRef.current,
+        revoked: false,
+        onRevoke: null,
+      };
+
+      handedOffRef.current = nextHandoff;
+      offerPlaybackHandoff(nextHandoff);
+
+      // 이제 상세가 이 플레이어를 맡는다. 재생 버튼 모양은 돌아왔을 때 정리한다
+      pendingPlayFeedIdRef.current = null;
+      waitingForLoadTransitionRef.current = false;
+      loadedFeedIdRef.current = null;
+      playbackStatusRef.current = null;
+    },
+    [cancelFade, player]
+  );
 
   useEffect(() => {
     const subscription = player.addListener('playbackStatusUpdate', status => {
+      // 다른 화면이 플레이어를 맡고 있는 동안에는 상태를 따라가지 않는다
+      if (!canControlPlayer()) return;
+
       playbackStatusRef.current = status;
 
       if (status.error) {
@@ -174,11 +289,21 @@ const useFeedMusicPlayback = ({ navigation }) => {
     return () => {
       subscription.remove();
     };
-  }, [cancelFade, player, playWithFadeIn, stopAndReset, updatePlayingFeedId]);
+  }, [canControlPlayer, cancelFade, player, playWithFadeIn, stopAndReset, updatePlayingFeedId]);
 
   useEffect(() => {
-    return navigation.addListener('blur', stopAndReset);
+    return navigation.addListener('blur', () => {
+      // 상세로 넘겨 준 재생은 멈추지 않는다
+      if (handedOffRef.current) return;
+
+      stopAndReset();
+    });
   }, [navigation, stopAndReset]);
+
+  // 상세에서 돌아오면 넘겨 둔 플레이어를 다시 가져온다
+  useEffect(() => {
+    return navigation.addListener('focus', reclaimHandoff);
+  }, [navigation, reclaimHandoff]);
 
   const handleVisibleFeedChange = useCallback(
     feedId => {
@@ -194,6 +319,11 @@ const useFeedMusicPlayback = ({ navigation }) => {
 
   const handlePressPlayback = useCallback(
     async ({ feedId, previewUrl }) => {
+      // 홈이 다시 가져간 플레이어는 닫히는 상세에서 건드리지 않는다
+      if (handoff?.revoked) return;
+
+      reclaimHandoff();
+
       const nextFeedId = toIdKey(feedId);
       const nextPreviewUrl = normalizePreviewUrl(previewUrl);
 
@@ -247,13 +377,14 @@ const useFeedMusicPlayback = ({ navigation }) => {
         stopAndReset();
       }
     },
-    [pauseWithFadeOut, playWithFadeIn, player, stopAndReset, updatePlayingFeedId]
+    [handoff, pauseWithFadeOut, playWithFadeIn, player, reclaimHandoff, stopAndReset, updatePlayingFeedId]
   );
 
   return {
     playingFeedId,
     handlePressPlayback,
     handleVisibleFeedChange,
+    handOffPlayback,
     resetPlayback: stopAndReset,
   };
 };
