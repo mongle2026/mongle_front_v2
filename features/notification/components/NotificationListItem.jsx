@@ -87,10 +87,10 @@ const NOTIFICATION_CONTENT = {
       title: <>{userCodeNode}의 답글</>,
       body: truncate(content, MAX_FEED_CONTENT_LENGTH),
     }),
-    // name: 나를 팔로우한 사람 아이디, myNickname: 내 닉네임
-    [NOTIFICATION_STATUS.FOLLOW]: ({ userCodeNode, myNickname }) => ({
+    // name: 나를 팔로우한 사람 아이디
+    [NOTIFICATION_STATUS.FOLLOW]: ({ userCodeNode }) => ({
       title: <>{userCodeNode}님의 새로운 팔로우</>,
-      body: <>{userCodeNode}님이 {myNickname ?? ''}님을 팔로우하기 시작했습니다.</>,
+      body: <>{userCodeNode}님이 팔로우하기 시작했습니다.</>,
     }),
   },
   [NOTIFICATION_TYPE.NEWS]: {
@@ -123,8 +123,6 @@ const NotificationListItem = ({
   status,
   // letter: 받는/보낸 사람 닉네임, feed: 작성자/팔로우한 사람 아이디
   name,
-  // feed/follow: 본문에 들어가는 내 닉네임
-  myNickname,
   profileImageUrl,
   // 알림을 일으킨 사람이 탈퇴한 회원이면 프로필 사진을 탈퇴 회원 이미지로 고정한다
   isActorWithdrawn = false,
@@ -156,7 +154,6 @@ const NotificationListItem = ({
     eventTitle,
     targetType,
     isToSelf,
-    myNickname,
   });
   if (!notificationContent) return null;
 

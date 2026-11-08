@@ -53,9 +53,8 @@ const EMPTY_NOTIFICATION_BODY = '아직 알림이 없어요.\n새로운 소식�
 const NotificationScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [activeFilterIndex, setActiveFilterIndex] = useState(0);
-  const { userId, currentUser } = useCurrentUser();
+  const { userId } = useCurrentUser();
   const isSignedIn = useIsSignedIn();
-  const myNickname = currentUser?.nickname;
 
   // 들어왔다 나가기만 해도 종 아이콘 레드닷을 끈다
   useCheckNotificationsOnLeave();
@@ -83,12 +82,11 @@ const NotificationScreen = ({ navigation }) => {
       return (
         <NotificationListItem
           {...item}
-          myNickname={myNickname}
           onPress={route ? () => navigation.navigate(route.name, route.params) : undefined}
         />
       );
     },
-    [navigation, myNickname]
+    [navigation]
   );
 
   // 로딩 중에는 엠티뷰가 깜빡이지 않게 띄우지 않는다
