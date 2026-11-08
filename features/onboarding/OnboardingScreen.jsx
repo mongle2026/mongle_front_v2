@@ -49,7 +49,7 @@ const PAGES = [
   {
     Illustration: IlEmptyArchive,
     title: '주고받은 마음은 차곡차곡 모여요',
-    body: '받은 편지와 남긴 기록을\n편지함과 보관함에서 언제든 다시 꺼내봐요',
+    body: '받은 편지와 남긴 기록을\n편지함과 보관함에서 언제든 다시 꺼내 봐요.',
   },
 ];
 
