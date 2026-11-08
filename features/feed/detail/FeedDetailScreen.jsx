@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import MusicCard from '../../../shared/components/content/MusicCard';
 import Empty from '../../../shared/components/content/Empty';
@@ -59,7 +60,8 @@ const FeedDetailScreen = ({ navigation, route }) => {
   const { openBlockDialog } = useBlockDialog();
   const { openOverlay, showToast, hideToast } = useGlobalOverlay();
   const { currentUser, userId } = useCurrentUser();
-  const { requireLogin } = useLoginDialog();
+  const { isSignedIn, requireLogin } = useLoginDialog();
+  const insets = useSafeAreaInsets();
 
   const commentBarRef = useRef(null);
 
@@ -89,7 +91,16 @@ const FeedDetailScreen = ({ navigation, route }) => {
   } = useKeyboardAttachedBar();
 
   const [isFeedMenuOpen, setIsFeedMenuOpen] = useState(false);
-  const [commentBarHeight, setCommentBarHeight] = useState(0);
+  const [measuredCommentBarHeight, setCommentBarHeight] = useState(0);
+
+  /*
+   * 비로그인 사용자에게는 댓글 입력바를 보여주지 않는다.
+   * 바가 없으면 Toast · 스크롤 여백 · 메뉴 위치는 바 대신 하단 안전영역을 기준으로 잡는다.
+   * (재어 둔 바 높이에 SafeArea 여백이 포함돼 있으므로 같은 자리를 차지하는 값이다)
+   */
+  const showCommentBar = isSignedIn;
+  const commentBarHeight = showCommentBar ? measuredCommentBarHeight : insets.bottom;
+  const isCommentBarMeasured = !showCommentBar || measuredCommentBarHeight > 0;
 
   const {
     feed,
@@ -159,13 +170,13 @@ const FeedDetailScreen = ({ navigation, route }) => {
     isCommentsSettled,
     isFeedVisible: Boolean(feed) && !isDeleted,
     bottomOffset: commentBarBottom + commentBarHeight,
-    isCommentBarMeasured: commentBarHeight > 0,
+    isCommentBarMeasured,
   });
 
   // 여기서 로그인해 가입하고 돌아왔으면 다른 Toast 처럼 CommentBar 위에 가입 완료 Toast 를 띄운다
   useSignupCompleteToast({
     bottomOffset: commentBarBottom + commentBarHeight,
-    enabled: commentBarHeight > 0,
+    enabled: isCommentBarMeasured,
   });
 
   const {
@@ -376,12 +387,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
     });
   }, [commentBarBottom, commentBarHeight, feed, openBlockDialog]);
 
-  // 로그인하지 않았으면 댓글을 보내지 않고 로그인 안내 Dialog 를 띄운다
-  const canSubmitComment = useCallback(
-    () => requireLogin(LOGIN_DIALOG_DESCRIPTION.COMMENT),
-    [requireLogin],
-  );
-
   const handleCommentBarLayout = useCallback(event => {
     const height = event.nativeEvent.layout.height;
 
@@ -437,6 +442,9 @@ const FeedDetailScreen = ({ navigation, route }) => {
     (replyTarget, commentRef) => {
       closeCommentMenu();
 
+      // 비로그인이면 입력바가 없으므로 답글 대신 로그인 안내 Dialog 를 띄운다
+      if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.COMMENT)) return;
+
       // 알림으로 들어왔을 때의 자동 스크롤이 뒤늦게 끼어들지 않게 막는다.
       lockAutoScroll();
 
@@ -445,7 +453,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
 
       handleStartReply(replyTarget);
     },
-    [closeCommentMenu, handleStartReply, lockAutoScroll, setReplyScrollTarget],
+    [closeCommentMenu, handleStartReply, lockAutoScroll, requireLogin, setReplyScrollTarget],
   );
 
   // 입력창이 닫히면 답글 대상 위치도 함께 잊는다.
@@ -626,30 +634,31 @@ const FeedDetailScreen = ({ navigation, route }) => {
         </View>
       </ScrollView>
 
-      <Animated.View
-        ref={commentBarRef}
-        collapsable={false}
-        onLayout={handleCommentBarLayout}
-        style={[
-          styles.commentBarContainer,
-          { paddingBottom: commentBarPadding },
-          commentBarAnimatedStyle,
-        ]}
-      >
-        <CommentComposer
-          onSubmit={handleSubmitComment}
-          canSubmit={canSubmitComment}
-          onClose={handleCloseComposer}
-          disabled={isCreatingComment}
-          profileImageUri={currentUser?.profileImageUri}
-          targetUsername={replyTarget?.userCode ?? user.userCode ?? ''}
-          isReply={!!replyTarget}
-          focusRequestKey={replyFocusRequestKey}
-        />
+      {showCommentBar && (
+        <Animated.View
+          ref={commentBarRef}
+          collapsable={false}
+          onLayout={handleCommentBarLayout}
+          style={[
+            styles.commentBarContainer,
+            { paddingBottom: commentBarPadding },
+            commentBarAnimatedStyle,
+          ]}
+        >
+          <CommentComposer
+            onSubmit={handleSubmitComment}
+            onClose={handleCloseComposer}
+            disabled={isCreatingComment}
+            profileImageUri={currentUser?.profileImageUri}
+            targetUsername={replyTarget?.userCode ?? user.userCode ?? ''}
+            isReply={!!replyTarget}
+            focusRequestKey={replyFocusRequestKey}
+          />
 
-        {/* iOS 키보드 둥근 모서리 틈으로 댓글 목록이 비치지 않게 바 배경을 키보드 뒤까지 늘린다 */}
-        <KeyboardGapFill height={keyboardHeight} />
-      </Animated.View>
+          {/* iOS 키보드 둥근 모서리 틈으로 댓글 목록이 비치지 않게 바 배경을 키보드 뒤까지 늘린다 */}
+          <KeyboardGapFill height={keyboardHeight} />
+        </Animated.View>
+      )}
 
       {commentMenu && (
         <CommentMenuOverlay
