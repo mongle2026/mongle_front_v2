@@ -23,8 +23,8 @@ const NOTIFICATION_ITEMS = [
   { key: NOTIFICATION_SETTING_KEY.COMMENT, text: '댓글 알림', caption: '내 글의 댓글과 내 댓글의 답글을 알려드려요.' },
   { key: NOTIFICATION_SETTING_KEY.LETTER_SENT, text: '편지 전송 전 알림', caption: '내가 쓴 편지가 전송되기 하루 전에 알려드려요.' },
   { key: NOTIFICATION_SETTING_KEY.LETTER_RECEIVED, text: '편지 도착 알림', caption: '새로운 편지가 도착하면 알려드려요.' },
-  { key: NOTIFICATION_SETTING_KEY.SYSTEM, text: '업데이트 알림', caption: '새로운 기능이나 업데이트 소식을 알려드려요' },
-  { key: NOTIFICATION_SETTING_KEY.EVENT, text: '이벤트 알림', caption: '이벤트 소식을 알려드려요' },
+  { key: NOTIFICATION_SETTING_KEY.SYSTEM, text: '업데이트 알림', caption: '새로운 기능이나 업데이트 소식을 알려드려요.' },
+  { key: NOTIFICATION_SETTING_KEY.EVENT, text: '이벤트 알림', caption: '이벤트 소식을 알려드려요.' },
 ];
 
 // 설정 화면의 알림 설정 행으로 들어오는 알림 설정 화면
