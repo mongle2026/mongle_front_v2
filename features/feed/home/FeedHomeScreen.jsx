@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -11,34 +11,25 @@ import { useIsFocused } from '@react-navigation/native';
 
 import WriteFab, { DEFAULT_WRITE_FAB_HEIGHT } from '../../../shared/components/action/WriteFab';
 import Empty from '../../../shared/components/content/Empty';
-import PullToRefresh from '../../../shared/components/layout/PullToRefresh';
 import TopNavigation from '../../../shared/components/navigation/topnavigation/TopNavigation';
 import { FEED_TAB, FEED_TOP_NAVIGATION_TABS } from '../constants';
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import { useIsSignedIn } from '../../../shared/auth/useAuthStore';
-import usePullRefresh from '../../../shared/hooks/usePullRefresh';
 import { colors } from '../../../shared/styles/color';
-import { gap, padding } from '../../../shared/styles/token';
 
 import FeedListState from './components/FeedListState';
 import FeedPostItem from './components/FeedPostItem';
+import FeedPostList from './components/FeedPostList';
 import useFeedActions from '../hooks/useFeedActions';
 import useFeedHome from './hooks/useFeedHome';
-import useFeedHomeListController from './hooks/useFeedHomeListController';
+import useFeedListLayout from './hooks/useFeedListLayout';
 import useNotificationDeniedToast from './hooks/useNotificationDeniedToast';
 import useBrowseNotificationPermission from './hooks/useBrowseNotificationPermission';
 import useHasUnreadNotification from '../../notification/hooks/useHasUnreadNotification';
 import { useCreatedFeedStore } from '../store/useCreatedFeedStore';
 import { useFeedCoachmarkStore } from '../store/useFeedCoachmarkStore';
 import { hasId } from '../../../shared/utils/id';
-
-const VIEWABILITY_CONFIG = {
-  viewAreaCoveragePercentThreshold: 50,
-  minimumViewTime: 100,
-};
-
-const keyExtractor = item => String(item.feedId);
 
 // 추천 ↔ 팔로잉을 바꾸면 피드가 탭 방향에서 살짝 밀려 들어오며 나타난다
 const TAB_SWITCH_OFFSET = 24;
@@ -65,6 +56,8 @@ const FeedHomeScreen = ({ navigation, route }) => {
   const isSignedIn = useIsSignedIn();
   const hasUnreadNotification = useHasUnreadNotification();
   const isFollowing = activeTab === FEED_TAB.FOLLOWING;
+  // 팔로잉 목록은 처음 열 때 그리고, 그 뒤로는 탭을 바꿔도 지우지 않는다
+  const [hasOpenedFollowing, setHasOpenedFollowing] = useState(false);
 
   const [fabHeight, setFabHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
 
@@ -77,17 +70,12 @@ const FeedHomeScreen = ({ navigation, route }) => {
   } = useFeedMusicPlayback({ navigation });
 
   const {
-    posts,
-    error,
+    recommended,
+    following,
     isConfigured,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    refetchFeed,
     handlePressFollow,
     pendingTargetUserIds,
-  } = useFeedHome({ userId, isFollowing });
+  } = useFeedHome({ userId, loadFollowing: hasOpenedFollowing });
 
   const {
     handlePressLike,
@@ -114,24 +102,43 @@ const FeedHomeScreen = ({ navigation, route }) => {
   });
 
   const {
-    listRef,
     postCardHeight,
+    snapInterval,
     paddingTop,
     paddingBottom,
-    snapToInterval,
-    snapToOffsets,
     getItemLayout,
     handleListLayout,
-    handleListScrollEnd,
-    handleChangeTab,
-    scrollToTop,
-  } = useFeedHomeListController({ posts, activeTab, setActiveTab, resetPlayback, reservedBottomSpace: fabHeight });
+  } = useFeedListLayout({ reservedBottomSpace: fabHeight });
 
-  const { isPullRefreshing, handleRefresh } = usePullRefresh({
-    refetch: refetchFeed,
-    onBeforeRefresh: resetPlayback,
-    errorMessage: '피드 새로고침에 실패했습니다.',
-  });
+  const recommendedListRef = useRef(null);
+  const followingListRef = useRef(null);
+
+  const scrollToTop = useCallback(() => {
+    const listRef = activeTab === FEED_TAB.FOLLOWING ? followingListRef : recommendedListRef;
+    listRef.current?.scrollToTop();
+  }, [activeTab]);
+
+  // 탭을 바꾸면 보던 목록은 숨겨 두기만 하고, 돌아오면 보던 위치 그대로 보인다
+  const refetchRecommendedIfInvalidated = recommended.refetchIfInvalidated;
+  const refetchFollowingIfInvalidated = following.refetchIfInvalidated;
+
+  const handleChangeTab = useCallback(
+    nextTab => {
+      if (nextTab === activeTab) return;
+
+      resetPlayback();
+
+      if (nextTab === FEED_TAB.FOLLOWING) {
+        setHasOpenedFollowing(true);
+        refetchFollowingIfInvalidated();
+      } else {
+        refetchRecommendedIfInvalidated();
+      }
+
+      setActiveTab(nextTab);
+    },
+    [activeTab, refetchFollowingIfInvalidated, refetchRecommendedIfInvalidated, resetPlayback]
+  );
 
   // 피드 탭에 있는 상태에서 하단 피드 버튼을 다시 누르면 새로고침 없이 맨 위로만 올린다
   useEffect(() => {
@@ -146,7 +153,7 @@ const FeedHomeScreen = ({ navigation, route }) => {
   // 팔로잉 피드에는 내 글이 없어서 추천 탭으로 옮긴다
   const createdFeedId = useCreatedFeedStore(state => state.createdFeedId);
   const clearCreatedFeedId = useCreatedFeedStore(state => state.clearCreatedFeedId);
-  const firstFeedId = posts[0]?.feedId;
+  const firstFeedId = recommended.posts[0]?.feedId;
 
   useEffect(() => {
     if (createdFeedId == null) return;
@@ -159,13 +166,13 @@ const FeedHomeScreen = ({ navigation, route }) => {
 
     if (String(firstFeedId) !== String(createdFeedId)) return;
 
-    scrollToTop();
+    recommendedListRef.current?.scrollToTop();
     clearCreatedFeedId();
-  }, [activeTab, clearCreatedFeedId, createdFeedId, firstFeedId, resetPlayback, scrollToTop]);
+  }, [activeTab, clearCreatedFeedId, createdFeedId, firstFeedId, resetPlayback]);
 
   /*
-   * 탭 전환: 목록이 그 탭의 스크롤 위치로 돌아가는 순간(다음 프레임)이 보이지 않게
-   * 투명한 상태에서 시작해, 오른쪽 탭(팔로잉)이면 오른쪽에서 · 왼쪽 탭(추천)이면 왼쪽에서 들어온다
+   * 탭 전환: 투명한 상태에서 시작해,
+   * 오른쪽 탭(팔로잉)이면 오른쪽에서 · 왼쪽 탭(추천)이면 왼쪽에서 들어온다
    */
   const tabSwitchProgress = useSharedValue(1);
   const tabSwitchDirection = useSharedValue(0);
@@ -198,33 +205,6 @@ const FeedHomeScreen = ({ navigation, route }) => {
   // 카드마다 새 객체를 넘기면 FeedPostItem memo가 깨져서
   // 재생 중인 카드가 바뀔 때마다 보이는 카드 전부가 다시 그려진다
   const cardStyle = useMemo(() => ({ height: postCardHeight }), [postCardHeight]);
-
-  const contentContainerStyle = useMemo(
-    () => [
-      styles.postList,
-      posts.length > 0 && { paddingTop, paddingBottom },
-      posts.length === 0 && styles.emptyPostList,
-    ],
-    [paddingBottom, paddingTop, posts.length]
-  );
-
-  const handleViewableItemsChanged = useCallback(
-    ({ viewableItems }) => {
-      const currentItem = viewableItems.find(
-        ({ isViewable, item }) => isViewable && item?.feedId != null
-      )?.item;
-
-      if (currentItem) {
-        handleVisibleFeedChange(currentItem.feedId);
-      }
-    },
-    [handleVisibleFeedChange]
-  );
-
-  const handleEndReached = useCallback(() => {
-    if (!hasNextPage || isFetchingNextPage) return;
-    void fetchNextPage();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const handlePressPost = useCallback(
     item => {
@@ -297,35 +277,22 @@ const FeedHomeScreen = ({ navigation, route }) => {
     ]
   );
 
-  const renderPostSeparator = useCallback(() => <View style={styles.postSeparator} />, []);
+  // 다 받았는데 글이 없을 때. 로딩 · 오류 화면은 FeedPostList 가 띄운다
+  const recommendedEmpty = useMemo(
+    () => <FeedListState message="아직 표시할 게시물이 없습니다." />,
+    []
+  );
 
-  const renderListFooter = useCallback(() => {
-    if (!isFetchingNextPage) return null;
-
-    return (
-      <View style={styles.footerLoading}>
-        <ActivityIndicator />
-      </View>
-    );
-  }, [isFetchingNextPage]);
-
-  const renderListEmpty = useCallback(() => {
-    if (!isConfigured) return <FeedListState message="EXPO_PUBLIC_API_BASE_URL을 확인해 주세요." />;
-    if (isLoading) return <FeedListState loading />;
-    if (error) return <FeedListState message="피드를 불러오지 못했습니다." />;
-
-    if (isFollowing) {
-      return (
-        <Empty
-          type="followingFeed"
-          title="아직 아무도 팔로우하지 않았어요."
-          body="팔로우하고 음악과 기록을 만나보세요."
-        />
-      );
-    }
-
-    return <FeedListState message="아직 표시할 게시물이 없습니다." />;
-  }, [error, isConfigured, isFollowing, isLoading]);
+  const followingEmpty = useMemo(
+    () => (
+      <Empty
+        type="followingFeed"
+        title="아직 아무도 팔로우하지 않았어요."
+        body="팔로우하고 음악과 기록을 만나보세요."
+      />
+    ),
+    []
+  );
 
   const handlePressBell = useCallback(() => {
     navigation.navigate('Notification');
@@ -348,39 +315,43 @@ const FeedHomeScreen = ({ navigation, route }) => {
       </SafeAreaView>
 
       <Animated.View style={[styles.listTransition, tabSwitchStyle]}>
-        <PullToRefresh refreshing={isPullRefreshing} onRefresh={handleRefresh}>
-          <Animated.FlatList
-            ref={listRef}
-            data={posts}
-            extraData={feedExtraData}
-            keyExtractor={keyExtractor}
-            getItemLayout={getItemLayout}
-            renderItem={renderPost}
-            ItemSeparatorComponent={renderPostSeparator}
-            contentContainerStyle={contentContainerStyle}
-            onLayout={handleListLayout}
-            onViewableItemsChanged={handleViewableItemsChanged}
-            viewabilityConfig={VIEWABILITY_CONFIG}
-            snapToInterval={snapToInterval}
-            snapToOffsets={snapToOffsets}
-            decelerationRate="fast"
-            disableIntervalMomentum
-            showsVerticalScrollIndicator={false}
-            removeClippedSubviews={Platform.OS === 'android'}
-            initialNumToRender={3}
-            maxToRenderPerBatch={3}
-            windowSize={5}
-            updateCellsBatchingPeriod={50}
-            onEndReached={handleEndReached}
-            onEndReachedThreshold={0.4}
-            onScrollEndDrag={handleListScrollEnd}
-            onMomentumScrollEnd={handleListScrollEnd}
-            ListEmptyComponent={renderListEmpty}
-            ListFooterComponent={renderListFooter}
-          />
-        </PullToRefresh>
+        <FeedPostList
+          ref={recommendedListRef}
+          feed={recommended}
+          isActive={!isFollowing}
+          isConfigured={isConfigured}
+          emptyComponent={recommendedEmpty}
+          renderItem={renderPost}
+          extraData={feedExtraData}
+          getItemLayout={getItemLayout}
+          snapInterval={snapInterval}
+          paddingTop={paddingTop}
+          paddingBottom={paddingBottom}
+          onLayout={handleListLayout}
+          onVisibleFeedChange={handleVisibleFeedChange}
+          onBeforeRefresh={resetPlayback}
+        />
 
-        {/* 로그인하지 않았으면 팔로잉 목록 대신 엠티뷰로 덮는다 (목록은 탭별 스크롤 위치 때문에 그대로 둔다) */}
+        {hasOpenedFollowing && (
+          <FeedPostList
+            ref={followingListRef}
+            feed={following}
+            isActive={isFollowing}
+            isConfigured={isConfigured}
+            emptyComponent={followingEmpty}
+            renderItem={renderPost}
+            extraData={feedExtraData}
+            getItemLayout={getItemLayout}
+            snapInterval={snapInterval}
+            paddingTop={paddingTop}
+            paddingBottom={paddingBottom}
+            onLayout={handleListLayout}
+            onVisibleFeedChange={handleVisibleFeedChange}
+            onBeforeRefresh={resetPlayback}
+          />
+        )}
+
+        {/* 로그인하지 않았으면 팔로잉 목록 대신 엠티뷰로 덮는다 */}
         {isFollowing && !isSignedIn && (
           <View style={[styles.loginEmpty, { paddingBottom: fabHeight }]}>
             <Empty
@@ -423,22 +394,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     backgroundColor: colors.bgBase,
-  },
-  postList: {
-    flexGrow: 1,
-    paddingHorizontal: padding.M,
-  },
-  emptyPostList: {
-    justifyContent: 'center',
-  },
-  postSeparator: {
-    height: gap.M,
-  },
-  footerLoading: {
-    width: '100%',
-    paddingVertical: padding.XL,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 
