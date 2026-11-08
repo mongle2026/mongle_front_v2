@@ -5,6 +5,7 @@ import IlDialogBlock from '../../../assets/illustrations/il_dialog_block.svg';
 import { Dialog } from '../../../shared/components/feedback/Dialog';
 import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import { useDialog } from '../../../shared/providers/DialogProvider';
+import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
 
 import useUserBlock from './useUserBlock';
 
@@ -16,13 +17,17 @@ const BLOCK_DIALOG_ID = 'user-block-dialog';
  * '[아이디]님을 차단할까요?' Dialog 를 띄우고, '차단'을 누르면 차단한 뒤 토스트를 띄운다.
  * - targetUserId: 차단할 사람의 publicId
  * - toastBottomOffset: 차단 완료 토스트 위치 (화면마다 CommentBar · 하단 안전영역 위)
+ * 로그인하지 않았으면 차단 Dialog 대신 로그인 안내 Dialog 를 띄운다.
  */
 export default function useBlockDialog() {
   const { openDialog } = useDialog();
   const { blockUser } = useUserBlock();
+  const { requireLogin } = useLoginDialog();
 
   const openBlockDialog = useCallback(({ targetUserId, userCode, toastBottomOffset } = {}) => {
     if (!targetUserId) return;
+
+    if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.BLOCK)) return;
 
     // userCode 에 @ 가 붙어 와도 '아이디님' 으로 보이게 뗀다
     const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
@@ -46,7 +51,7 @@ export default function useBlockDialog() {
         />
       ),
     });
-  }, [blockUser, openDialog]);
+  }, [blockUser, openDialog, requireLogin]);
 
   return { openBlockDialog };
 }
