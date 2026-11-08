@@ -358,7 +358,10 @@ const Calendar = ({
               initialNumToRender={1}
               maxToRenderPerBatch={2}
               windowSize={3}
-              removeClippedSubviews
+              // removeClippedSubviews는 쓰지 않습니다.
+              // iOS(Fabric)에서 화면 밖 날짜 칸을 칸 단위로 떼었다 붙이면서
+              // gesture-handler Pressable 터치가 일부 칸(요일)에서 먹통이 됩니다.
+              // 13개월 · windowSize 3이라 성능 이득도 거의 없습니다.
             />
           )}
         </View>
