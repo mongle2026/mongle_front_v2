@@ -66,6 +66,7 @@ const navigationRef = createNavigationContainerRef();
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const StampDetailStack = createNativeStackNavigator();
 
 const linking = {
   prefixes: [
@@ -155,6 +156,77 @@ const FeedDetailRoute = props => (
   </SafeAreaProvider>
 );
 
+// 우표 상세 모달 안의 스택. iOS 는 모달 위에 띄운 화면이 모달(페이지 시트)로 떠서,
+// 우표 상세에서 이어지는 화면(편지 · 보낸 사람 프로필과 거기서 가는 신고 · 피드 상세 · 작성 흐름)은
+// 이 안에서 push 한다. 뒤로 오면 모달 안에서만 빠지므로 시트가 그대로 남아 있다.
+// 각 화면의 옵션은 RootNavigator 와 같게 둔다
+const StampDetailNavigator = ({ route }) => (
+  <StampDetailStack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <StampDetailStack.Screen
+      name="StampDetailSheet"
+      component={StampDetailScreen}
+      initialParams={route.params}
+      options={{
+        // 모달 뒤의 편지함이 보이도록 투명하게 둔다
+        contentStyle: { backgroundColor: 'transparent' },
+      }}
+    />
+    <StampDetailStack.Screen
+      name="LetterDetail"
+      component={LetterDetailScreen}
+      options={{
+        animation: 'ios_from_right',
+      }}
+    />
+    <StampDetailStack.Screen
+      name="UserProfile"
+      component={UserProfileScreen}
+      options={{
+        animation: 'ios_from_right',
+      }}
+    />
+    <StampDetailStack.Screen
+      name="FeedDetail"
+      component={FeedDetailRoute}
+      options={{
+        animation: 'ios_from_right',
+      }}
+    />
+    <StampDetailStack.Screen
+      name="Report"
+      component={ReportScreen}
+      options={{
+        animation: 'ios_from_right',
+      }}
+    />
+    <StampDetailStack.Screen
+      name="Record"
+      component={RecordScreen}
+    />
+    <StampDetailStack.Screen
+      name="RecordEdit"
+      component={RecordEditScreen}
+    />
+    <StampDetailStack.Screen
+      name="Envelope"
+      component={EnvelopeScreen}
+    />
+    <StampDetailStack.Screen
+      name="LetterSend"
+      component={LetterSendScreen}
+      options={{
+        // 보내는 중에는 뒤로가기 제스처를 막는다 (완료 화면에서 닫기로 나간다)
+        gestureEnabled: false,
+        animation: 'fade',
+      }}
+    />
+  </StampDetailStack.Navigator>
+);
+
 // 투명 모달은 (iOS에서) 별도 네이티브 화면으로 떠서, 안의 BottomSheet 제스처와
 // 안전영역이 동작하도록 루트를 한 번 더 감싼다
 const StampDetailRoute = props => (
@@ -162,7 +234,7 @@ const StampDetailRoute = props => (
     <SafeAreaProvider
       initialMetrics={initialWindowMetrics}
     >
-      <StampDetailScreen {...props} />
+      <StampDetailNavigator {...props} />
     </SafeAreaProvider>
   </GestureHandlerRootView>
 );
