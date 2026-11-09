@@ -23,7 +23,7 @@ export function resolvePatternColor(
 }
 
 /*
- * envelopeData 의 frontImg / flapImg / thumbnailImg 는 require('...svg') 결과라
+ * envelopeData 의 frontImg / backImg / flapImg / thumbnailImg 는 require('...svg') 결과라
  * ESM 상호운용에 따라 컴포넌트가 { default } 로 감싸질 수 있다.
  * 렌더에 바로 쓸 수 있도록 컴포넌트만 꺼낸다.
  */
@@ -51,9 +51,12 @@ export function resolveEnvelope({
     color: color ?? null,
     stamp,
 
-    /* 봉투 앞면(body) / 덮개(flap) / 우표 SVG 컴포넌트 */
+    /* 봉투 앞면(body) / 뒷면(back) / 덮개(flap) / 우표 SVG 컴포넌트 */
     FrontSvg: color
       ? toSvgComponent(color.frontImg)
+      : null,
+    BackSvg: color
+      ? toSvgComponent(color.backImg)
       : null,
     FlapSvg: color
       ? toSvgComponent(color.flapImg)
