@@ -20,6 +20,7 @@ import { colors } from '../../shared/styles/color';
 import LetterSection from './letter/home/LetterSection';
 import StampSection from './stamp/home/StampSection';
 import { prefetchStampDetail } from './stamp/detail/hooks/useStampDetail';
+import { prefetchStampBox } from './stamp/home/hooks/useStampBox';
 import useHasUnreadNotification from '../notification/hooks/useHasUnreadNotification';
 
 // 탭을 바꾸면 피드 홈과 같은 값으로 내용이 옆에서 들어온다
@@ -57,6 +58,11 @@ const LetterBoxScreen = ({ navigation }) => {
       },
     ],
   }));
+
+  // 우표 탭을 열기 전에 받은 우표 개수를 미리 불러온다
+  useEffect(() => {
+    if (isSignedIn) prefetchStampBox(queryClient, { userId });
+  }, [isSignedIn, queryClient, userId]);
 
   const [fabHeight, setFabHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
 

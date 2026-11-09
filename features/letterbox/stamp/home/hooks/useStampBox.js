@@ -17,19 +17,30 @@ function normalizeStampCounts(data) {
   }, {});
 }
 
+const isStampBoxConfigured = userId => Boolean(isApiConfigured && hasId(userId));
+
+const getStampBoxQueryOptions = userId => ({
+  queryKey: letterboxKeys.stamps(userId),
+  queryFn: async () => {
+    const response = await apiClient.get('/stamp');
+    return normalizeStampCounts(response.data);
+  },
+});
+
+// 편지함 화면에 들어올 때 미리 불러온다. 우표 탭을 열 때 데이터가 이미 있으면
+// 전부 회색으로 그렸다가 받은 우표만 다시 그리는 일이 없다.
+export const prefetchStampBox = (queryClient, { userId }) => {
+  if (!isStampBoxConfigured(userId)) return;
+  void queryClient.prefetchQuery(getStampBoxQueryOptions(userId));
+};
+
 // 편지함 우표 탭. GET /stamp
 // 우표 목록은 프론트(envelopeData STAMPS)가 기준이고, 서버에서는 받은 횟수만 받아 합친다.
 // 서버에 없는(또는 아직 못 불러온) 우표는 받은 적 없는 우표(count 0)로 둔다.
 const useStampBox = ({ userId } = {}) => {
-  const isConfigured = Boolean(isApiConfigured && hasId(userId));
-
   const { data: counts, refetch } = useQuery({
-    queryKey: letterboxKeys.stamps(userId),
-    enabled: isConfigured,
-    queryFn: async () => {
-      const response = await apiClient.get('/stamp');
-      return normalizeStampCounts(response.data);
-    },
+    ...getStampBoxQueryOptions(userId),
+    enabled: isStampBoxConfigured(userId),
   });
 
   const stamps = useMemo(

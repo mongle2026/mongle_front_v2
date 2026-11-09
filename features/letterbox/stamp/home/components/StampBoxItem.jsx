@@ -1,11 +1,12 @@
 import { memo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../../../../../shared/styles/color';
 import { typo } from '../../../../../shared/styles/typo';
 import { padding, radius } from '../../../../../shared/styles/token';
+import { findStampBoxImage } from '../../../../../shared/data/stampImageData';
 
-import Stamp from '../../../../../shared/components/content/Stamp';
+import Stamp, { getStampHeight } from '../../../../../shared/components/content/Stamp';
 
 const COUNT_BADGE_SIZE = 20;
 // 우표 기준 아래/오른쪽에서 띄우는 거리
@@ -22,10 +23,20 @@ const COUNT_BADGE_OFFSET = 8;
  */
 const StampBoxItem = ({ stampCode, count = 0, width, onPress }) => {
   const isCollected = count > 0;
+  // 우표함은 탭에 들어갈 때마다 전체를 새로 그려서 SVG 대신 미리 뽑아 둔 PNG 를 쓴다. PNG 가 없는 우표만 SVG 로 그린다
+  const stampImage = findStampBoxImage(stampCode, isCollected);
 
   return (
     <Pressable disabled={!isCollected} onPress={() => onPress?.(stampCode)}>
-      <Stamp stampCode={stampCode} width={width} grayscale={!isCollected} />
+      {stampImage ? (
+        <Image
+          source={stampImage}
+          style={{ width, height: getStampHeight(width) }}
+          resizeMode="cover"
+        />
+      ) : (
+        <Stamp stampCode={stampCode} width={width} grayscale={!isCollected} />
+      )}
 
       {isCollected && (
         <View style={styles.countBadge}>
