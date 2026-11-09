@@ -1,11 +1,10 @@
 import { memo } from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 import MusicCoverImg from '../../../../shared/components/atomic/MusicCoverImg';
+import { colors } from '../../../../shared/styles/color';
 import { radius } from '../../../../shared/styles/token';
-
-const DEFAULT_PROFILE_IMAGE = require('../../../../assets/write/profile_img.png');
 
 /**
  * 봉투에 담기는 내용물 한 장 (보내는 사람 프로필 / 음악 커버 / 첨부 사진).
@@ -51,12 +50,11 @@ const SendContentCard = ({ kind, uri, layout, columnBottom, sinkOffset, contentO
     >
       {kind === 'music' ? (
         <MusicCoverImg imageSource={uri ? { uri } : null} size={size} />
+      ) : uri ? (
+        <Image source={{ uri }} style={styles.image} resizeMode="cover" />
       ) : (
-        <Image
-          source={uri ? { uri } : DEFAULT_PROFILE_IMAGE}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        // 사진이 없으면 단색으로 채운다
+        <View style={[styles.image, styles.empty]} />
       )}
     </Animated.View>
   );
@@ -70,6 +68,9 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+  },
+  empty: {
+    backgroundColor: colors.fillNeutralWeak,
   },
 });
 
