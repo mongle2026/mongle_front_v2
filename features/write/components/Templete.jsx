@@ -41,12 +41,12 @@ export default function Templete({
         </View>
 
         {/* stamp 정보 넣을 곳 (aspect-ratio 59/88) */}
-        <View style={[styles.slot, styles.stampSlot]}>
+        <View style={styles.stampSlot}>
           {StampSvg && (
             <StampSvg
               width="100%"
               height="100%"
-              preserveAspectRatio="xMidYMid slice"
+              preserveAspectRatio="xMidYMid meet"
             />
           )}
         </View>
@@ -93,7 +93,9 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: radius.XS, // 예외: 면이 꽉 찬 봉투 썸네일은 XL 이면 너무 둥글어 앨범 커버처럼 XS
   },
+  // 우표는 톱니 테두리까지 온전히 보이도록 회색 배경 · 라운드 클리핑 없이 그린다
   stampSlot: {
+    height: PREVIEW_HEIGHT,
     aspectRatio: STAMP_ASPECT_RATIO, 
   },
 });

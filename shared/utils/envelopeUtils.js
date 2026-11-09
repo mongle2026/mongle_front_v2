@@ -51,7 +51,7 @@ export function resolveEnvelope({
     color: color ?? null,
     stamp,
 
-    /* 봉투 앞주머니(V자로 파임) / 뒷판(이름·우표 면) / 덮개(flap) / 우표 SVG 컴포넌트 */
+    /* 봉투 앞면(body) / 뒷면(back) / 덮개(flap) / 우표 SVG 컴포넌트 */
     FrontSvg: color
       ? toSvgComponent(color.frontImg)
       : null,
