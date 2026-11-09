@@ -48,6 +48,7 @@ const useUnreadLetterStack = ({ onEndReached, endReachedThreshold = 0.4 } = {}) 
   );
 
   return {
+    scrollY,
     progress,
     stickyOffset,
     scrollHandler,

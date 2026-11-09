@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import InboxIcon from '../../../assets/icons/ic_inbox.svg';
@@ -300,4 +301,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Card;
+export default memo(Card);

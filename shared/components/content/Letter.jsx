@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { StyleSheet, View, Image } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -55,6 +55,17 @@ function Letter({
   const [wrapperSize, setWrapperSize] = useState(null);
   const [flapSize, setFlapSize] = useState(null);
 
+  // 크기를 재느라(onLayout) 마운트 직후 몇 번 다시 렌더링되는데, 그때 봉투 SVG(요소 수가 많다)는
+  // 다시 그리지 않도록 엘리먼트를 고정한다
+  const backgroundSvgElement = useMemo(
+    () => (BackgroundSvg ? <BackgroundSvg width="100%" height="100%" preserveAspectRatio="none" /> : null),
+    [BackgroundSvg],
+  );
+  const flapSvgElement = useMemo(
+    () => (FlapSvg ? <FlapSvg width="100%" height="100%" preserveAspectRatio="none" /> : null),
+    [FlapSvg],
+  );
+
   return (
     <View
       style={[styles.wrapper, style]}
@@ -77,9 +88,7 @@ function Letter({
         style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]}
         pointerEvents="none"
       >
-        {BackgroundSvg ? (
-          <BackgroundSvg width="100%" height="100%" preserveAspectRatio="none" />
-        ) : (
+        {backgroundSvgElement ?? (
           <Image
             source={LetterBackground}
             style={StyleSheet.absoluteFill}
@@ -141,9 +150,7 @@ function Letter({
               setFlapSize({ width, height });
             }}
           >
-            {FlapSvg ? (
-              <FlapSvg width="100%" height="100%" preserveAspectRatio="none" />
-            ) : (
+            {flapSvgElement ?? (
               <Image source={LetterFlap} style={StyleSheet.absoluteFill} resizeMode="stretch" />
             )}
           </View>
@@ -224,4 +231,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Letter;
+export default memo(Letter);

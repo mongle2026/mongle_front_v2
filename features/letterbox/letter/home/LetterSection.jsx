@@ -1,6 +1,7 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Empty from '../../../../shared/components/content/Empty';
 import PullToRefresh from '../../../../shared/components/layout/PullToRefresh';
@@ -8,6 +9,7 @@ import Tabs, { TABS_BOTTOM_FADE_HEIGHT } from '../../../../shared/components/nav
 import usePullRefresh from '../../../../shared/hooks/usePullRefresh';
 import { gap, padding } from '../../../../shared/styles/token';
 
+import { letterboxKeys } from '../../api/letterboxKeys';
 import Card from '../../components/Card';
 import useLetterBox from './hooks/useLetterBox';
 import UnreadLetterStack from './components/UnreadLetterStack';
@@ -41,6 +43,10 @@ const LETTER_FILTER_LABELS_UNREAD_LAST = LETTER_FILTERS_UNREAD_LAST.map(filter =
 // 스크롤이 끝에서 화면 높이의 이 비율 이내로 오면 다음 페이지를 불러온다
 const END_REACHED_THRESHOLD = 0.4;
 
+// 카드(143) + 간격으로 한 화면을 채우는 정도만 처음에 그리고, 나머지는 스크롤하면서 그린다
+const INITIAL_CARD_COUNT = 6;
+const LIST_WINDOW_SIZE = 11;
+
 const EMPTY_UNREAD_TITLE = '읽지 않은 편지가 없어요.';
 const EMPTY_UNREAD_BODY = '도착한 편지를 모두 확인했어요.';
 const EMPTY_LETTER_TITLE = '아직 주고받은 편지가 없어요.';
@@ -50,10 +56,21 @@ const letterKeyExtractor = letter => String(letter.letterId);
 
 const renderLetterSeparator = () => <View style={styles.letterSeparator} />;
 
+// 목록이 다시 그려져도 편지가 그대로면 카드(봉투 SVG)를 다시 그리지 않게 onPress 를 고정한다
+const LetterCard = memo(({ letter, onPressLetter }) => {
+  const handlePress = useCallback(() => onPressLetter?.(letter), [letter, onPressLetter]);
+  return <Card letter={letter} onPress={handlePress} />;
+});
+
 // bottomInset: 목록 하단이 FAB에 가려지지 않도록 확보할 여백
 // onPressLetter: 편지 카드를 누르면 letter 객체와 함께 호출
 // isSignedIn 이 false 면 필터 Tabs 아래에 로그인 엠티뷰를 보여주고, 버튼을 누르면 onPressLogin 을 호출
-const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLetter, onPressLogin }) => {
+// resetKey: 값이 바뀌면 처음 들어올 때처럼 초기화한다 (기본 필터 · 탭 순서 · 스크롤 · 편지 더미 모아짐).
+//           다시 마운트하지 않고 상태만 되돌려, 필터가 그대로면 그려 둔 편지를 다시 그리지 않는다
+const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, resetKey = 0, onPressLetter, onPressLogin }) => {
+  const queryClient = useQueryClient();
+  const letterListRef = useRef(null);
+
   // 기본 필터가 정해지기 전에는 null
   const [activeFilter, setActiveFilter] = useState(null);
   // 편지 탭에 들어올 때 안 읽은 편지가 있었는지 (탭 순서를 정한다). 정해지기 전에는 null
@@ -65,6 +82,15 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
     filter: LETTER_FILTER.UNREAD,
   });
   const hasUnread = unreadQueryLetters.some(letter => !letter.isRead);
+
+  // 초기화: 기본 필터 · 탭 순서를 다시 정한다.
+  // null 로 되돌리면 목록이 한 번 사라졌다 다시 마운트되므로, 정할 수 있으면 바로 정한다 (아래 첫 진입과 같은 기준)
+  const [handledResetKey, setHandledResetKey] = useState(resetKey);
+  if (handledResetKey !== resetKey) {
+    setHandledResetKey(resetKey);
+    setActiveFilter(isUnreadLoading ? null : hasUnread ? LETTER_FILTER.UNREAD : LETTER_FILTER.ALL);
+    setEnteredWithUnread(isUnreadLoading ? null : hasUnread);
+  }
 
   // 기본 필터는 편지 탭에 들어올 때 한 번만 정한다.
   // 상세에서 마지막 안 읽은 편지를 읽고 돌아와도 '전체'로 넘어가지 않고 엠티뷰를 보여준다
@@ -88,6 +114,17 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
   });
 
   const isUnread = activeFilter === LETTER_FILTER.UNREAD;
+
+  // 초기화: 목록을 맨 위로 올리고 (안 읽음 편지 더미는 UnreadLetterStack 이 resetKey 로 모은다),
+  // 다시 마운트할 때처럼 오래된 목록은 새로 불러온다
+  const prevResetKeyRef = useRef(resetKey);
+  useEffect(() => {
+    if (prevResetKeyRef.current === resetKey) return;
+    prevResetKeyRef.current = resetKey;
+
+    letterListRef.current?.scrollToOffset({ offset: 0, animated: false });
+    void queryClient.refetchQueries({ queryKey: letterboxKeys.letters(userId), type: 'active', stale: true });
+  }, [queryClient, resetKey, userId]);
 
   // 상세에서 읽음 처리된 편지는 안 읽음 목록에서 바로 뺀다 (useLetterDetail 이 캐시의 isRead 를 갱신)
   const unreadLetters = useMemo(() => letters.filter(letter => !letter.isRead), [letters]);
@@ -121,13 +158,15 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
   );
 
   const renderLetter = useCallback(
-    ({ item }) => <Card letter={item} onPress={() => onPressLetter?.(item)} />,
+    ({ item }) => <LetterCard letter={item} onPressLetter={onPressLetter} />,
     [onPressLetter]
   );
 
   return (
     <View style={styles.container}>
+      {/* Tabs 는 가벼워서 초기화할 때 다시 마운트해 가로 스크롤 · 활성 칩 위치까지 처음처럼 되돌린다 */}
       <Tabs
+        key={resetKey}
         tabs={filterLabels}
         activeIndex={activeFilterIndex}
         onChange={handleChangeFilter}
@@ -166,6 +205,7 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
         <View style={styles.listContainer}>
           {isUnread && (
             <UnreadLetterStack
+              resetKey={resetKey}
               topInset={TABS_BOTTOM_FADE_HEIGHT}
               letters={unreadLetters}
               bottomInset={bottomInset}
@@ -186,11 +226,14 @@ const LetterSection = ({ userId, isSignedIn = true, bottomInset = 0, onPressLett
               indicatorOffset={TABS_BOTTOM_FADE_HEIGHT}
             >
               <Animated.FlatList
+                ref={letterListRef}
                 data={letters}
                 keyExtractor={letterKeyExtractor}
                 renderItem={renderLetter}
                 ItemSeparatorComponent={renderLetterSeparator}
                 contentContainerStyle={listContentStyle}
+                initialNumToRender={INITIAL_CARD_COUNT}
+                windowSize={LIST_WINDOW_SIZE}
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={END_REACHED_THRESHOLD}
                 showsVerticalScrollIndicator={false}
