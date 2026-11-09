@@ -8,12 +8,12 @@ import { useIsSignedIn } from '../auth/useAuthStore';
 
 // 로그인하지 않고 로그인이 필요한 동작을 하려 할 때 Dialog 에 보여줄 설명
 export const LOGIN_DIALOG_DESCRIPTION = Object.freeze({
-  LIKE: '로그인해서 마음에 드는 기록에 좋아요를 남겨 보세요.',
-  BOOKMARK: '로그인해서 마음에 드는 기록을 보관함에 담아 보세요.',
-  COMMENT: '로그인해서 댓글을 남겨 이야기를 나눠 보세요.',
-  WRITE_FEED: '로그인해서 피드에 새로운 기록을 남겨 보세요.',
-  WRITE_LETTER: '로그인해서 음악을 담은 편지를 보내 보세요.',
-  FOLLOW: '로그인해서 팔로우하고 새 기록을 받아 보세요.',
+  LIKE: '로그인해서 마음에 드는 기록에\n좋아요를 남겨 보세요.',
+  BOOKMARK: '로그인해서 마음에 드는 기록을\n보관함에 담아 보세요.',
+  COMMENT: '로그인해서 댓글을 남겨\n이야기를 나눠 보세요.',
+  WRITE_FEED: '로그인해서 피드에\n새로운 기록을 남겨 보세요.',
+  WRITE_LETTER: '로그인해서 음악을 담은\n편지를 보내 보세요.',
+  FOLLOW: '로그인해서 팔로우하고\n새 기록을 받아 보세요.',
   REPORT: '로그인하면 불편한 게시물이나\n사용자를 신고할 수 있어요.',
   BLOCK: '로그인하면 원하지 않는 사용자를\n차단할 수 있어요.',
 });
