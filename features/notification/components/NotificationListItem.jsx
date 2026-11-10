@@ -25,6 +25,12 @@ const truncate = (text, maxLength) => {
   return `${chars.slice(0, maxLength).join('')}...`;
 };
 
+// 댓글/답글 내용은 따옴표로 감싼다. (예: '안녕하세요') 푸시 문구(백엔드 notification-message.util)와 같다
+const toQuotedContent = content => {
+  const text = truncate(content, MAX_FEED_CONTENT_LENGTH);
+  return text ? `'${text}'` : '';
+};
+
 const toUserCode = userCode =>
   `@${String(userCode ?? '').replace(/^@+/, '')}`;
 
@@ -81,11 +87,11 @@ const NOTIFICATION_CONTENT = {
     // name: 댓글/답글 작성자 아이디, content: 댓글/답글 내용
     [NOTIFICATION_STATUS.COMMENT]: ({ userCodeNode, content }) => ({
       title: <>{userCodeNode}의 댓글</>,
-      body: truncate(content, MAX_FEED_CONTENT_LENGTH),
+      body: toQuotedContent(content),
     }),
     [NOTIFICATION_STATUS.REPLY]: ({ userCodeNode, content }) => ({
       title: <>{userCodeNode}의 답글</>,
-      body: truncate(content, MAX_FEED_CONTENT_LENGTH),
+      body: toQuotedContent(content),
     }),
     // name: 나를 팔로우한 사람 아이디
     [NOTIFICATION_STATUS.FOLLOW]: ({ userCodeNode }) => ({
