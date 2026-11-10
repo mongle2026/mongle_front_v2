@@ -7,6 +7,8 @@ import { gap, radius } from '../../../shared/styles/token';
 const DOT_SIZE = 6;
 const ACTIVE_DOT_WIDTH = 16;
 
+export const PAGE_INDICATOR_HEIGHT = DOT_SIZE;
+
 // 온보딩 페이지 인디케이터. activeIndex(0부터) 위치의 dot만 가로로 늘어난 active 형태로 표시한다
 const PageIndicator = ({ total = 3, activeIndex = 0, style }) => (
   <View style={[styles.container, style]}>

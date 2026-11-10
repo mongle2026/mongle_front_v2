@@ -6,14 +6,14 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
 import IlEmptyMusic from '../../assets/illustrations/il_empty_music.svg';
 import IlEmptySuccessletter from '../../assets/illustrations/il_empty_successletter.svg';
 import IlEmptyArchive from '../../assets/illustrations/il_empty_archive.svg';
 
-import PageIndicator from './components/PageIndicator';
+import PageIndicator, { PAGE_INDICATOR_HEIGHT } from './components/PageIndicator';
 import { useOnboardingStore } from './useOnboardingStore';
 import {
   Button,
@@ -32,8 +32,8 @@ const ILLUSTRATION_SIZE = 200;
 // XL 버튼 높이 (위아래 padding.XL + suitLabelXLargeStrong 줄 높이)
 const BUTTON_XL_HEIGHT = padding.XL * 2 + typo.suitLabelXLargeStrong.lineHeight;
 
-// 버튼이 하나인 페이지도 마지막 페이지처럼 버튼 두 개 높이를 차지해서, 페이지를 넘겨도 content 영역 높이가 그대로다
-const BUTTON_CONTAINER_HEIGHT = BUTTON_XL_HEIGHT * 2 + gap.M + padding.L;
+// 버튼이 하나인 페이지에서 두 번째 버튼이 들어갈 자리. 이만큼은 스크롤 영역이 되어 스와이프가 된다
+const SECOND_BUTTON_SPACE = BUTTON_XL_HEIGHT + gap.M;
 
 const PAGES = [
   {
@@ -58,11 +58,32 @@ const LAST_PAGE_INDEX = PAGES.length - 1;
 const OnboardingScreen = () => {
   const navigation = useNavigation();
   const { width: pageWidth } = useWindowDimensions();
+  const { top: topInset } = useSafeAreaInsets();
   const scrollRef = useRef(null);
   const [pageIndex, setPageIndex] = useState(0);
+  // 페이지마다 일러스트 + 텍스트 묶음의 아래 끝 y. 가장 아래 값 밑에 인디케이터를 둔다
+  const [pageBodyBottoms, setPageBodyBottoms] = useState([]);
+  const indicatorTop =
+    pageBodyBottoms.length === PAGES.length
+      ? Math.max(...pageBodyBottoms) + gap.XL
+      : null;
+
+  const handlePageBodyLayout = (index, { y, height }) => {
+    setPageBodyBottoms(prev => {
+      if (prev[index] === y + height) return prev;
+      const next = [...prev];
+      next[index] = y + height;
+      return next;
+    });
+  };
   const completeOnboarding = useOnboardingStore(state => state.complete);
 
   const isLastPage = pageIndex === LAST_PAGE_INDEX;
+
+  // 아래 padding으로 인디케이터 자리(gap + 높이)를 비워서 일러스트 · 텍스트 · 인디케이터 묶음이 가운데에 온다.
+  // 버튼이 하나일 때는 스크롤 영역이 두 번째 버튼 자리만큼 길어지므로 그만큼 더 비워서, 페이지를 넘겨도 내용 위치가 그대로다
+  const pagePaddingBottom =
+    gap.XL + PAGE_INDICATOR_HEIGHT + (isLastPage ? 0 : SECOND_BUTTON_SPACE);
 
   // 넘기는 도중에도 절반을 지나면 인디케이터 · 버튼이 다음 페이지 것으로 바뀐다
   const handleScroll = event => {
@@ -99,7 +120,7 @@ const OnboardingScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.content}>
         <ScrollView
           ref={scrollRef}
@@ -112,27 +133,44 @@ const OnboardingScreen = () => {
           onScroll={handleScroll}
           style={styles.pager}
         >
-          {PAGES.map(({ Illustration, title, body }) => (
-            <View key={title} style={[styles.page, { width: pageWidth }]}>
-              <Illustration
-                width={ILLUSTRATION_SIZE}
-                height={ILLUSTRATION_SIZE}
-                color={colors.fgNeutralSecondary}
-              />
+          {PAGES.map(({ Illustration, title, body }, index) => (
+            <View
+              key={title}
+              style={[
+                styles.page,
+                {
+                  width: pageWidth,
+                  paddingTop: topInset,
+                  paddingBottom: pagePaddingBottom,
+                },
+              ]}
+            >
+              <View
+                style={styles.pageBody}
+                onLayout={event => handlePageBodyLayout(index, event.nativeEvent.layout)}
+              >
+                <Illustration
+                  width={ILLUSTRATION_SIZE}
+                  height={ILLUSTRATION_SIZE}
+                  color={colors.fgNeutralSecondary}
+                />
 
-              <View style={styles.textContainer}>
-                <Text style={styles.title}>{title}</Text>
-                <Text style={styles.body}>{body}</Text>
+                <View style={styles.textContainer}>
+                  <Text style={styles.title}>{title}</Text>
+                  <Text style={styles.body}>{body}</Text>
+                </View>
               </View>
             </View>
           ))}
         </ScrollView>
 
-        <PageIndicator
-          total={PAGES.length}
-          activeIndex={pageIndex}
-          style={styles.pageIndicator}
-        />
+        {indicatorTop !== null && (
+          <PageIndicator
+            total={PAGES.length}
+            activeIndex={pageIndex}
+            style={[styles.pageIndicator, { top: indicatorTop }]}
+          />
+        )}
       </View>
 
       <View style={styles.buttonContainer}>
@@ -179,27 +217,30 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgSurface,
   },
 
-  // buttonContainer를 뺀 나머지 높이를 채우고 그 가운데에 내용을 둔다
+  // 상태바부터 버튼 바로 위까지 전부. 버튼을 뺀 어디를 밀어도 페이지가 넘어간다
   content: {
     width: '100%',
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: gap.XL,
   },
 
-  // ScrollView 기본 flexGrow를 꺼서 높이는 페이지 내용만큼만, 너비는 화면 끝까지 넘어가게 채운다
   pager: {
-    flexGrow: 0,
+    flex: 1,
     alignSelf: 'stretch',
   },
 
   // 좌우 padding은 페이지마다 둔다 (content에 두면 넘기는 페이지가 양옆에서 잘린다)
+  // 아래 padding(pagePaddingBottom)은 인라인으로 준다
   page: {
     paddingHorizontal: padding.XXL,
     flexDirection: 'column',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  pageBody: {
+    alignSelf: 'stretch',
+    flexDirection: 'column',
     alignItems: 'center',
     gap: gap.XL,
   },
@@ -225,20 +266,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  // 페이지 위에 고정으로 띄운다. 터치는 통과시켜 인디케이터 위에서도 스와이프가 된다
   // PageIndicator 기본 alignSelf(flex-start)를 덮어써 가운데에 둔다
   pageIndicator: {
+    position: 'absolute',
     alignSelf: 'center',
+    pointerEvents: 'none',
   },
 
-  // 버튼이 하나일 때는 justifyContent: 'flex-end'로 아래에 붙는다
+  // 높이는 실제 버튼만큼만 차지한다. 스크롤 영역과 겹치지 않아 버튼 위에서는 스와이프가 안 된다
   buttonContainer: {
     width: '100%',
-    height: BUTTON_CONTAINER_HEIGHT,
     flexShrink: 0,
     paddingHorizontal: padding.L,
     paddingBottom: padding.L,
     flexDirection: 'column',
-    justifyContent: 'flex-end',
     alignItems: 'center',
     gap: gap.M,
   },
