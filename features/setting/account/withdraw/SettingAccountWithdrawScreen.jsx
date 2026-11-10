@@ -159,7 +159,7 @@ const SettingAccountWithdrawScreen = () => {
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
-            placeholder="아이디를 입력해주세요"
+            placeholder={`${currentUser?.userCode ?? '아이디'}를 입력해주세요`}
             description={getIdDescription({ id, isIdMatched })}
             maxLength={ID_MAX_LENGTH}
             showCounter={false}
