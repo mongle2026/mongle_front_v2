@@ -79,8 +79,9 @@ const useCreateFeed = ({
     },
 
     onSuccess: ({ data, localUris }) => {
-      const recommendedKey =
-        feedHomeKeys.list(userId, 'recommended');
+      // 추천 피드에는 내 글이 나오지 않으므로 최신 피드에 넣는다
+      const latestKey =
+        feedHomeKeys.list(userId, 'latest');
       const createdFeed =
         withLocalImageUris(
           normalizeFeedItem(data?.feed),
@@ -95,16 +96,16 @@ const useCreateFeed = ({
         data?.feed?.visibility === 'PRIVACY';
 
       /*
-       * 새 글을 추천 피드 맨 앞에 직접 넣습니다.
+       * 새 글을 최신 피드 맨 앞에 직접 넣습니다.
        * 서버 순서를 기다리면 그사이 다른 사람이 쓴 글이 위로 올 수 있습니다.
-       * 다시 불러오면 이 순서가 덮어써지므로 추천 피드는 무효화하지 않습니다.
+       * 다시 불러오면 이 순서가 덮어써지므로 최신 피드는 무효화하지 않습니다.
        * 다음 페이지는 id가 더 작은 글만 불러와서 새 글이 중복되지 않습니다.
        */
       let hasPrepended = false;
 
       if (createdFeed && !isPrivate) {
         queryClient.setQueryData(
-          recommendedKey,
+          latestKey,
           queryData => {
             if (!queryData?.pages?.length) return queryData;
 
@@ -132,7 +133,7 @@ const useCreateFeed = ({
        */
       if (!isPrivate && !hasPrepended) {
         queryClient.setQueryData(
-          recommendedKey,
+          latestKey,
           queryData => (queryData?.pages?.length > 1
             ? {
               pages: queryData.pages.slice(0, 1),
@@ -142,13 +143,13 @@ const useCreateFeed = ({
         );
 
         queryClient.invalidateQueries({
-          queryKey: recommendedKey,
+          queryKey: latestKey,
         });
       }
 
       /*
-       * 피드 홈이 새 글 위치로 스크롤을 올리도록 알립니다.
-       * 팔로잉 피드에는 내 글이 없어서 다시 불러오지 않습니다.
+       * 피드 홈이 최신 탭으로 옮겨 새 글 위치로 스크롤을 올리도록 알립니다.
+       * 추천 · 팔로잉 피드에는 내 글이 없어서 다시 불러오지 않습니다.
        */
       if (!isPrivate) {
         useCreatedFeedStore.getState().setCreatedFeedId(data?.feedId);

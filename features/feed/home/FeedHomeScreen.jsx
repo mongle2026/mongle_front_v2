@@ -31,7 +31,7 @@ import { useCreatedFeedStore } from '../store/useCreatedFeedStore';
 import { useFeedCoachmarkStore } from '../store/useFeedCoachmarkStore';
 import { hasId } from '../../../shared/utils/id';
 
-// 추천 ↔ 팔로잉을 바꾸면 피드가 탭 방향에서 살짝 밀려 들어오며 나타난다
+// 탭(추천 · 최신 · 팔로잉)을 바꾸면 피드가 탭 방향에서 살짝 밀려 들어오며 나타난다
 const TAB_SWITCH_OFFSET = 24;
 const TAB_SWITCH_TIMING = { duration: 280, easing: Easing.out(Easing.cubic) };
 const getTabIndex = tab => FEED_TOP_NAVIGATION_TABS.findIndex(item => item.key === tab);
@@ -56,7 +56,8 @@ const FeedHomeScreen = ({ navigation, route }) => {
   const isSignedIn = useIsSignedIn();
   const hasUnreadNotification = useHasUnreadNotification();
   const isFollowing = activeTab === FEED_TAB.FOLLOWING;
-  // 팔로잉 목록은 처음 열 때 그리고, 그 뒤로는 탭을 바꿔도 지우지 않는다
+  // 최신 · 팔로잉 목록은 처음 열 때 그리고, 그 뒤로는 탭을 바꿔도 지우지 않는다
+  const [hasOpenedLatest, setHasOpenedLatest] = useState(false);
   const [hasOpenedFollowing, setHasOpenedFollowing] = useState(false);
 
   const [fabHeight, setFabHeight] = useState(DEFAULT_WRITE_FAB_HEIGHT);
@@ -71,11 +72,12 @@ const FeedHomeScreen = ({ navigation, route }) => {
 
   const {
     recommended,
+    latest,
     following,
     isConfigured,
     handlePressFollow,
     pendingTargetUserIds,
-  } = useFeedHome({ userId, loadFollowing: hasOpenedFollowing });
+  } = useFeedHome({ userId, loadLatest: hasOpenedLatest, loadFollowing: hasOpenedFollowing });
 
   const {
     handlePressLike,
@@ -111,15 +113,22 @@ const FeedHomeScreen = ({ navigation, route }) => {
   } = useFeedListLayout({ reservedBottomSpace: fabHeight });
 
   const recommendedListRef = useRef(null);
+  const latestListRef = useRef(null);
   const followingListRef = useRef(null);
 
+  const getListRef = useCallback(tab => {
+    if (tab === FEED_TAB.LATEST) return latestListRef;
+    if (tab === FEED_TAB.FOLLOWING) return followingListRef;
+    return recommendedListRef;
+  }, []);
+
   const scrollToTop = useCallback(() => {
-    const listRef = activeTab === FEED_TAB.FOLLOWING ? followingListRef : recommendedListRef;
-    listRef.current?.scrollToTop();
-  }, [activeTab]);
+    getListRef(activeTab).current?.scrollToTop();
+  }, [activeTab, getListRef]);
 
   // 탭을 바꾸면 보던 목록은 숨겨 두기만 하고, 돌아오면 보던 위치 그대로 보인다
   const refetchRecommendedIfInvalidated = recommended.refetchIfInvalidated;
+  const refetchLatestIfInvalidated = latest.refetchIfInvalidated;
   const refetchFollowingIfInvalidated = following.refetchIfInvalidated;
 
   const handleChangeTab = useCallback(
@@ -131,13 +140,22 @@ const FeedHomeScreen = ({ navigation, route }) => {
       if (nextTab === FEED_TAB.FOLLOWING) {
         setHasOpenedFollowing(true);
         refetchFollowingIfInvalidated();
+      } else if (nextTab === FEED_TAB.LATEST) {
+        setHasOpenedLatest(true);
+        refetchLatestIfInvalidated();
       } else {
         refetchRecommendedIfInvalidated();
       }
 
       setActiveTab(nextTab);
     },
-    [activeTab, refetchFollowingIfInvalidated, refetchRecommendedIfInvalidated, resetPlayback]
+    [
+      activeTab,
+      refetchFollowingIfInvalidated,
+      refetchLatestIfInvalidated,
+      refetchRecommendedIfInvalidated,
+      resetPlayback,
+    ]
   );
 
   // 피드 탭에 있는 상태에서 하단 피드 버튼을 다시 누르면 새로고침 없이 맨 위로만 올린다
@@ -150,29 +168,30 @@ const FeedHomeScreen = ({ navigation, route }) => {
   }, [navigation, scrollToTop]);
 
   // 피드를 작성하고 돌아오면 새 글이 맨 위에 온 뒤에 스크롤을 올린다
-  // 팔로잉 피드에는 내 글이 없어서 추천 탭으로 옮긴다
+  // 추천 · 팔로잉 피드에는 내 글이 없어서 최신 탭으로 옮긴다 (새 글은 useCreateFeed 가 최신 목록 맨 앞에 넣는다)
   const createdFeedId = useCreatedFeedStore(state => state.createdFeedId);
   const clearCreatedFeedId = useCreatedFeedStore(state => state.clearCreatedFeedId);
-  const firstFeedId = recommended.posts[0]?.feedId;
+  const firstLatestFeedId = latest.posts[0]?.feedId;
 
   useEffect(() => {
     if (createdFeedId == null) return;
 
-    if (activeTab !== FEED_TAB.RECOMMENDED) {
+    if (activeTab !== FEED_TAB.LATEST) {
       resetPlayback();
-      setActiveTab(FEED_TAB.RECOMMENDED);
+      setHasOpenedLatest(true);
+      setActiveTab(FEED_TAB.LATEST);
       return;
     }
 
-    if (String(firstFeedId) !== String(createdFeedId)) return;
+    if (String(firstLatestFeedId) !== String(createdFeedId)) return;
 
-    recommendedListRef.current?.scrollToTop();
+    latestListRef.current?.scrollToTop();
     clearCreatedFeedId();
-  }, [activeTab, clearCreatedFeedId, createdFeedId, firstFeedId, resetPlayback]);
+  }, [activeTab, clearCreatedFeedId, createdFeedId, firstLatestFeedId, resetPlayback]);
 
   /*
    * 탭 전환: 투명한 상태에서 시작해,
-   * 오른쪽 탭(팔로잉)이면 오른쪽에서 · 왼쪽 탭(추천)이면 왼쪽에서 들어온다
+   * 지금보다 오른쪽 탭이면 오른쪽에서 · 왼쪽 탭이면 왼쪽에서 들어온다
    */
   const tabSwitchProgress = useSharedValue(1);
   const tabSwitchDirection = useSharedValue(0);
@@ -277,7 +296,7 @@ const FeedHomeScreen = ({ navigation, route }) => {
     ]
   );
 
-  // 다 받았는데 글이 없을 때. 로딩 · 오류 화면은 FeedPostList 가 띄운다
+  // 다 받았는데 글이 없을 때 (추천 · 최신). 로딩 · 오류 화면은 FeedPostList 가 띄운다
   const recommendedEmpty = useMemo(
     () => <FeedListState message="아직 표시할 게시물이 없습니다." />,
     []
@@ -318,7 +337,7 @@ const FeedHomeScreen = ({ navigation, route }) => {
         <FeedPostList
           ref={recommendedListRef}
           feed={recommended}
-          isActive={!isFollowing}
+          isActive={activeTab === FEED_TAB.RECOMMENDED}
           isConfigured={isConfigured}
           emptyComponent={recommendedEmpty}
           renderItem={renderPost}
@@ -331,6 +350,25 @@ const FeedHomeScreen = ({ navigation, route }) => {
           onVisibleFeedChange={handleVisibleFeedChange}
           onBeforeRefresh={resetPlayback}
         />
+
+        {hasOpenedLatest && (
+          <FeedPostList
+            ref={latestListRef}
+            feed={latest}
+            isActive={activeTab === FEED_TAB.LATEST}
+            isConfigured={isConfigured}
+            emptyComponent={recommendedEmpty}
+            renderItem={renderPost}
+            extraData={feedExtraData}
+            getItemLayout={getItemLayout}
+            snapInterval={snapInterval}
+            paddingTop={paddingTop}
+            paddingBottom={paddingBottom}
+            onLayout={handleListLayout}
+            onVisibleFeedChange={handleVisibleFeedChange}
+            onBeforeRefresh={resetPlayback}
+          />
+        )}
 
         {hasOpenedFollowing && (
           <FeedPostList

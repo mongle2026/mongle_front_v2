@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from 'expo-audio';
 
 import { toIdKey } from '../utils/id';
+import { MUSIC_LISTEN_END_REASON, recordMusicPlay } from '../analytics/eventQueue';
+import { musicListenTracker } from '../analytics/musicListenTracker';
 import {
   clearPlaybackHandoff,
   findPlaybackHandoff,
@@ -43,6 +45,8 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
   const player = handoff?.player ?? ownPlayer;
 
   const loadedFeedIdRef = useRef(handoff?.feedId ?? null);
+  // 지금 올려 둔 곡의 서버 음악 id. 재생 기록에 쓴다 (글쓰기 화면처럼 없으면 기록하지 않는다)
+  const loadedMusicIdRef = useRef(handoff?.musicId ?? null);
   const pendingPlayFeedIdRef = useRef(handoff?.pendingPlay ? handoff.feedId : null);
   const waitingForLoadTransitionRef = useRef(handoff?.waitingForLoadTransition ?? false);
   const playbackStatusRef = useRef(handoff ? handoff.player.currentStatus ?? null : null);
@@ -142,6 +146,9 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
   // 화면을 떠날 때 진행 중인 페이드 타이머를 정리한다
   useEffect(() => cancelFade, [cancelFade]);
 
+  // 화면이 닫히면 플레이어가 상태 알림 없이 멈출 수 있어서, 이 플레이어로 재던 들은 시간을 여기서 끝낸다
+  useEffect(() => () => musicListenTracker.stop(player), [player]);
+
   const updatePlayingFeedId = useCallback(nextFeedId => {
     if (playingFeedIdRef.current === nextFeedId) return;
 
@@ -156,6 +163,7 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
     playbackStatusRef.current = null;
 
     loadedFeedIdRef.current = null;
+    loadedMusicIdRef.current = null;
 
     updatePlayingFeedId(null);
   }, [canControlPlayer, pauseWithFadeOut, updatePlayingFeedId]);
@@ -227,6 +235,7 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
 
       const nextHandoff = {
         feedId: nextFeedId,
+        musicId: loadedMusicIdRef.current,
         player,
         pendingPlay: isPending,
         waitingForLoadTransition: waitingForLoadTransitionRef.current,
@@ -241,6 +250,7 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
       pendingPlayFeedIdRef.current = null;
       waitingForLoadTransitionRef.current = false;
       loadedFeedIdRef.current = null;
+      loadedMusicIdRef.current = null;
       playbackStatusRef.current = null;
     },
     [cancelFade, player]
@@ -252,6 +262,15 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
       if (!canControlPlayer()) return;
 
       playbackStatusRef.current = status;
+
+      // 들은 시간 기록 (shared/analytics/musicListenTracker.js)
+      musicListenTracker.update(player, {
+        playbackId: loadedFeedIdRef.current,
+        musicId: loadedMusicIdRef.current,
+        playing: Boolean(status.playing),
+        currentTime: status.currentTime,
+        didJustFinish: Boolean(status.didJustFinish),
+      });
 
       if (status.error) {
         console.warn('음악 재생 중 오류가 발생했습니다.', status.error);
@@ -317,8 +336,15 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
     [stopAndReset]
   );
 
+  /**
+   * @param {object} params
+   * @param {string|number} params.feedId 재생 id (화면마다 피드 id · 'letter-{id}' · 애플뮤직 곡 id)
+   * @param {string} params.previewUrl
+   * @param {string|number} [params.musicId] 서버 음악 id (응답의 music.musicId). 넘기면 "재생해 본 음악" · 들은 시간을 기록한다.
+   *   글쓰기 화면은 서버 음악 id 가 없어서 넘기지 않는다 (기록하지 않음)
+   */
   const handlePressPlayback = useCallback(
-    async ({ feedId, previewUrl }) => {
+    async ({ feedId, previewUrl, musicId }) => {
       // 홈이 다시 가져간 플레이어는 닫히는 상세에서 건드리지 않는다
       if (handoff?.revoked) return;
 
@@ -340,6 +366,7 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
         pendingPlayFeedIdRef.current = null;
         waitingForLoadTransitionRef.current = false;
 
+        musicListenTracker.setEndReason(player, MUSIC_LISTEN_END_REASON.PAUSE);
         updatePlayingFeedId(null);
         void pauseWithFadeOut();
         return;
@@ -361,6 +388,7 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
         }
 
         updatePlayingFeedId(null);
+        musicListenTracker.setEndReason(player, MUSIC_LISTEN_END_REASON.SWITCH);
 
         // 다른 곡이 나오고 있으면 짧게 줄여 끊김 없이 넘긴다.
         // 줄이는 사이 다른 동작(또 다른 곡 · 정지)이 들어오면 이번 전환은 그만둔다
@@ -370,8 +398,12 @@ const useFeedMusicPlayback = ({ navigation, handoffFeedId }) => {
         pendingPlayFeedIdRef.current = nextFeedId;
         waitingForLoadTransitionRef.current = Boolean(player.isLoaded);
         loadedFeedIdRef.current = nextFeedId;
+        loadedMusicIdRef.current = toIdKey(musicId);
 
         player.replace(nextPreviewUrl);
+
+        // 새 곡을 틀 때만 남긴다 (같은 곡 이어 듣기는 빼고). 추천 피드의 "재생해 본 음악"
+        recordMusicPlay(loadedMusicIdRef.current);
       } catch (error) {
         console.warn('음악을 재생하지 못했습니다.', error);
         stopAndReset();

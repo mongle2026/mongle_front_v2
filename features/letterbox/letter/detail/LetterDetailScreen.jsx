@@ -278,11 +278,12 @@ const LetterDetailScreen = ({ navigation, route }) => {
     navigation.navigate('Record', { type: 'letter' });
   }, [canReply, insets.bottom, letter, navigation, openDialog, setReceiver, unblockUser]);
 
+  const musicId = letter?.music.musicId;
   const handleMusicPlayback = useCallback(() => {
     if (!playbackId || !previewUri) return;
 
-    handlePressPlayback({ feedId: playbackId, previewUrl: previewUri });
-  }, [handlePressPlayback, playbackId, previewUri]);
+    handlePressPlayback({ feedId: playbackId, previewUrl: previewUri, musicId });
+  }, [handlePressPlayback, musicId, playbackId, previewUri]);
 
   const isBlinded = Boolean(letter?.isBlinded);
 

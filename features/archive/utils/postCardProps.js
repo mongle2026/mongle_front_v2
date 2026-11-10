@@ -24,6 +24,8 @@ export const toShortPost = feed => {
       ...base.music,
       artist: feed?.music?.musicArtist,
       previewUrl: resolveMediaUri(feed?.music?.previewUrl),
+      // 재생 기록용 서버 음악 id
+      musicId: feed?.music?.musicId ?? null,
     },
   };
 };

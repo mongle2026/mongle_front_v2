@@ -50,6 +50,8 @@ function normalizeLetterDetail(data, userId) {
     text: record?.text ?? '',
     imageSources: getImageSources(record?.files),
     music: {
+      // 재생 기록용 서버 음악 id. 가린 편지는 음악이 없어서 null
+      musicId: record?.music?.id ?? null,
       title: record?.music?.musicTitle ?? '',
       singer: record?.music?.musicArtist ?? '',
       artworkUri: resolveMediaUri(record?.music?.musicArtwork),

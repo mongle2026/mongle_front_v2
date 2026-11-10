@@ -71,8 +71,9 @@ const FeedPostItem = ({
     onPressMusicPlayback?.({
       feedId,
       previewUrl: musicPreviewUri,
+      musicId: music?.musicId,
     });
-  }, [feedId, musicPreviewUri, onPressMusicPlayback]);
+  }, [feedId, music?.musicId, musicPreviewUri, onPressMusicPlayback]);
 
   const { likeButtonRef, handleTap } = useDoubleTapLike({
     isLiked,

@@ -16,6 +16,7 @@ import { useDialog } from '../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 
 import useFeedMusicPlayback from '../../../shared/hooks/useFeedMusicPlayback';
+import useFeedDetailDwell from '../../../shared/analytics/useFeedDetailDwell';
 import useKeyboardAttachedBar from '../../../shared/hooks/useKeyboardAttachedBar';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
@@ -66,6 +67,10 @@ const FeedDetailScreen = ({ navigation, route }) => {
   const commentBarRef = useRef(null);
 
   const feedId = route?.params?.feedId;
+
+  // 상세에 머문 시간 기록 (추천 피드 개선용)
+  useFeedDetailDwell(feedId);
+
   const shouldScrollToComment = Boolean(route?.params?.scrollToComment);
   // 댓글/답글 알림으로 들어왔을 때 그 댓글 id와 답글 여부
   const notifiedCommentId = route?.params?.commentId ?? null;
@@ -548,6 +553,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
     handlePressPlayback({
       feedId: feed.feedId,
       previewUrl: musicPreviewUri,
+      musicId: music?.musicId,
     });
   };
 

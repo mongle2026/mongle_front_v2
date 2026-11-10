@@ -68,7 +68,7 @@ export function findFeedItemInCache(queryClient, userId, feedId) {
     ?? findFeedItemInHomeCache(queryClient, userId, feedId);
 }
 
-// 홈(추천/팔로잉) 목록과 상세 캐시에 있는 같은 피드를 함께 바꾼다
+// 홈(추천/최신/팔로잉) 목록과 상세 캐시에 있는 같은 피드를 함께 바꾼다
 export function updateFeedInAllCaches(queryClient, userId, feedId, updater) {
   queryClient.setQueriesData(
     { queryKey: feedHomeKeys.user(userId) },
@@ -81,13 +81,15 @@ export function updateFeedInAllCaches(queryClient, userId, feedId, updater) {
   );
 }
 
-// 팔로우 상태를 홈(추천/팔로잉)·상세 캐시에 반영한다. 보관함 북마크는 bookmarkCache 에서 따로 맞춘다.
+// 팔로우 상태를 홈(추천/최신/팔로잉)·상세 캐시에 반영한다. 보관함 북마크는 bookmarkCache 에서 따로 맞춘다.
 // 팔로잉 피드는 언팔로우면 그 사람 글을 빼고, 팔로우면 넣을 글 데이터가 없으니 서버 반영 후 다시 받는다
 function writeFollowState(queryClient, { userId, targetUserId, nextFollowing }) {
-  queryClient.setQueriesData(
-    { queryKey: feedHomeKeys.list(userId, 'recommended') },
-    queryData => mapInfiniteItems(queryData, item => withAuthorFollowing(item, targetUserId, nextFollowing)),
-  );
+  ['recommended', 'latest'].forEach(feedType => {
+    queryClient.setQueriesData(
+      { queryKey: feedHomeKeys.list(userId, feedType) },
+      queryData => mapInfiniteItems(queryData, item => withAuthorFollowing(item, targetUserId, nextFollowing)),
+    );
+  });
 
   if (!nextFollowing) {
     queryClient.setQueriesData(

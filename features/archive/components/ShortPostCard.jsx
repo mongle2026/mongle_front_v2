@@ -51,11 +51,12 @@ const ShortPostCard = ({
   const normalizedFont = normalizeFont(font);
   const previewUrl = music.previewUrl;
 
-  // 피드와 같이 { feedId, previewUrl } 를 넘겨 useFeedMusicPlayback 의 handlePressPlayback 에 바로 연결한다
+  // 피드와 같이 { feedId, previewUrl, musicId } 를 넘겨 useFeedMusicPlayback 의 handlePressPlayback 에 바로 연결한다
+  const musicId = music.musicId;
   const handlePressPlayback = useCallback(() => {
     if (!previewUrl) return;
-    onPressPlayback?.({ feedId, previewUrl });
-  }, [feedId, previewUrl, onPressPlayback]);
+    onPressPlayback?.({ feedId, previewUrl, musicId });
+  }, [feedId, musicId, previewUrl, onPressPlayback]);
 
   // 피드 카드와 같은 눌림 효과: 카드 어디를 눌러도(음악 · 본문) 카드 전체가 살짝 눌린다
   const { animatedStyle, pressHandlers } = usePressAnimation({ onPress });
