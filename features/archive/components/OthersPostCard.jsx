@@ -16,8 +16,8 @@ import { typo } from '../../../shared/styles/typo';
 import { formatDateDetail } from '../../../shared/utils/dateUtils';
 import { getImageKey } from '../../../shared/utils/media';
 
-const CONTENT_HEIGHT = 44;
-const IMAGE_WIDTH = (CONTENT_HEIGHT * 4) / 3;
+const IMAGE_HEIGHT = 44;
+const IMAGE_WIDTH = (IMAGE_HEIGHT * 4) / 3;
 const CD_SIZE = 24;
 
 const MUSIC_TITLE_TYPOGRAPHY = Object.freeze({
@@ -69,17 +69,17 @@ const OthersPostCard = ({
           onPress={onPressProfile}
           font={normalizedFont}
         />
+      </View>
 
-        <View style={styles.cdContainer}>
-          <CdCover imageUri={musicImageUri} size={CD_SIZE} />
-          <FontFallbackText
-            style={[styles.musicTitle, MUSIC_TITLE_TYPOGRAPHY[normalizedFont]]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {music.title}
-          </FontFallbackText>
-        </View>
+      <View style={styles.musicContainer}>
+        <CdCover imageUri={musicImageUri} size={CD_SIZE} />
+        <FontFallbackText
+          style={[styles.musicTitle, MUSIC_TITLE_TYPOGRAPHY[normalizedFont]]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {music.title}
+        </FontFallbackText>
       </View>
 
       <PressArea style={styles.pressArea} {...pressAreaProps}>
@@ -137,11 +137,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  cdContainer: {
-    flexShrink: 1,
+  musicContainer: {
+    alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
     gap: gap.S,
+    paddingTop: padding.M,
   },
 
   musicTitle: {
@@ -163,13 +164,12 @@ const styles = StyleSheet.create({
 
   contentText: {
     flex: 1,
-    height: CONTENT_HEIGHT,
     color: colors.fgNeutralSecondary,
   },
 
   image: {
     width: IMAGE_WIDTH,
-    height: CONTENT_HEIGHT,
+    height: IMAGE_HEIGHT,
   },
 
   dateContainer: {
