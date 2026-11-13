@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -270,6 +270,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
 
   const handlePressImage = useCallback(
     imageSource => {
+      Keyboard.dismiss();
       closeCommentMenu();
       setIsFeedMenuOpen(false);
       hideToast();
