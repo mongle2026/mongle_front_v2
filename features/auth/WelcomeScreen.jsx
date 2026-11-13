@@ -136,11 +136,10 @@ const WelcomeScreen = () => {
       />
 
       <View style={styles.hero}>
-        {/* 화면에 있는 동안 심볼 모션을 계속 반복 재생한다 */}
         <LottieView
           source={logoSymbolMotion}
           autoPlay
-          loop
+          loop={false}
           style={styles.logo}
         />
         <Text style={styles.tagline}>당신의 추억이 음악으로 남는 곳</Text>
