@@ -26,6 +26,7 @@ import { gap, padding } from '../../../shared/styles/token';
  *
  * 제한 내용은 useAuthStore.restriction 에서 읽는다 (API 403 ACCOUNT_RESTRICTED 응답으로 채워진다)
  * - reason: 백엔드 ReportReason('SPAM' 등). 신고하기 화면과 같은 문구('스팸 · 광고')로 보여준다
+ * - restrictedAt: 제한이 시작된 시각(ISO 문자열). 이의 신청 화면의 제한 기간에 쓴다
  * - restrictedUntil: 제한이 끝나는 시각(ISO 문자열). 영구 제한이면 null 이라 날짜를 뺀다
  * - appealStatus: 이의 신청 상태. 검토 중이면 이의 신청하기 버튼을 막고, 기각되면 다시 신청할 수 있다
  *
@@ -34,7 +35,7 @@ import { gap, padding } from '../../../shared/styles/token';
 const AccountRestrictedScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { reason, restrictedUntil, appealStatus } =
+  const { reason, restrictedAt, restrictedUntil, appealStatus } =
     useAuthStore(state => state.restriction) ?? {};
 
   const reasonLabel =
@@ -66,6 +67,7 @@ const AccountRestrictedScreen = () => {
           onPress={() =>
             navigation.navigate('Appeal', {
               reason,
+              restrictedAt,
               restrictedUntil,
               // 버튼과 겹쳐도 되고, 안드로이드 하단 네비게이션 바 위에만 뜨면 된다
               toastBottomOffset: insets.bottom,

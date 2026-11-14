@@ -29,6 +29,7 @@ const useRestrictionRecheck = () => {
           data?.isRestricted
             ? {
                 reason: data.reason ?? null,
+                restrictedAt: data.restrictedAt ?? null,
                 restrictedUntil: data.restrictedUntil ?? null,
                 appealStatus: data.appealStatus ?? null,
               }

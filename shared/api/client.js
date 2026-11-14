@@ -79,6 +79,7 @@ apiClient.interceptors.response.use(undefined, async error => {
   ) {
     useAuthStore.getState().setRestriction({
       reason: response.data.reason ?? null,
+      restrictedAt: response.data.restrictedAt ?? null,
       restrictedUntil: response.data.restrictedUntil ?? null,
       appealStatus: response.data.appealStatus ?? null,
     });
