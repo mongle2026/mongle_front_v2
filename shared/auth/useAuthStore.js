@@ -20,6 +20,9 @@ const saveSession = session =>
  * restriction: 신고로 이용 제한된 계정이면 { reason, restrictedAt, restrictedUntil, appealStatus }, 아니면 null.
  *   API 가 403 ACCOUNT_RESTRICTED 를 주면 채운다(shared/api/client.js). 앱을 다시 켜면 다시 확인한다.
  *   appealStatus: 이 제한에 낸 이의 신청 상태(APPEAL_STATUS). 안 냈으면 null. 이의 신청하면 PENDING 으로 바꾼다
+ * restrictionLifted: 이용 제한이 풀리고 아직 해제 안내를 확인하지 않았으면 { reason: RESTRICTION_LIFT_REASON }, 아니면 null.
+ *   GET /sanction/restriction-lift(useRestrictionLiftCheck) · 제재 화면의 다시 확인(useRestrictionRecheck)으로 채운다.
+ *   해제 안내 화면에서 몽글 시작하기를 누르면 지운다
  * warning: 아직 확인하지 않은 경고 1회가 있으면 { reason }, 아니면 null.
  *   GET /sanction/warning 으로 채운다(features/auth/warning/hooks/useWarningCheck.js). 경고 안내 화면에서 확인을 누르면 지운다
  */
@@ -27,9 +30,11 @@ export const useAuthStore = create((set, get) => ({
   status: AUTH_STATUS.RESTORING,
   session: null,
   restriction: null,
+  restrictionLifted: null,
   warning: null,
 
   setRestriction: restriction => set({ restriction }),
+  setRestrictionLifted: restrictionLifted => set({ restrictionLifted }),
   setWarning: warning => set({ warning }),
 
   restoreSession: async () => {
@@ -59,6 +64,7 @@ export const useAuthStore = create((set, get) => ({
       status: AUTH_STATUS.SIGNED_IN,
       session,
       restriction: null,
+      restrictionLifted: null,
       warning: null,
     });
   },
@@ -79,6 +85,7 @@ export const useAuthStore = create((set, get) => ({
       status: AUTH_STATUS.SIGNED_OUT,
       session: null,
       restriction: null,
+      restrictionLifted: null,
       warning: null,
     });
 

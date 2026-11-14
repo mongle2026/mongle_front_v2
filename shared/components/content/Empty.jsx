@@ -13,6 +13,7 @@ import IlEmptyFollowingFeed from '../../../assets/illustrations/il_empty_followi
 import IlEmptyRestricted from '../../../assets/illustrations/il_empty_restricted.svg';
 import IlEmptyBlock from '../../../assets/illustrations/il_empty_block.svg';
 import IcFilledAlert from '../../../assets/icons/ic_filledalert.svg';
+import IcFilledCheck from '../../../assets/icons/ic_filledcheck.svg';
 
 import {
   Button,
@@ -84,19 +85,36 @@ const Empty = ({
   const Illustration = getIllustration();
 
   // 계정 이용 제한처럼 경고로 알릴 때. 일러스트 대신 경고 아이콘을 쓰고 제목을 강조색으로 쓴다.
-  // warning(경고 1회 안내)은 같은 모양에 아이콘 · 제목만 기본색으로 쓴다
+  // warning(경고 1회 안내)은 같은 모양에 아이콘 · 제목만 기본색으로 쓴다.
+  // positive(이용 제한 해제 안내)는 같은 모양에 체크 아이콘을 쓰고 제목은 기본색으로 쓴다
   const isWarning = type === 'warning';
-  const isAlert = type === 'alert' || isWarning;
+  const isPositive = type === 'positive';
+  const isAlert = type === 'alert' || isWarning || isPositive;
+  const isNeutralTitle = isWarning || isPositive;
+
+  const getAlertIcon = () => {
+    if (isPositive) {
+      return (
+        <IcFilledCheck
+          width={ALERT_ICON_SIZE}
+          height={ALERT_ICON_SIZE}
+          color={colors.fgPositive}
+        />
+      );
+    }
+
+    return (
+      <IcFilledAlert
+        width={ALERT_ICON_SIZE}
+        height={ALERT_ICON_SIZE}
+        color={isWarning ? colors.fgNeutralPrimary : colors.fgCritical}
+      />
+    );
+  };
 
   return (
     <View style={[styles.container, isAlert && styles.alertContainer]}>
-      {isAlert ? (
-        <IcFilledAlert
-          width={ALERT_ICON_SIZE}
-          height={ALERT_ICON_SIZE}
-          color={isWarning ? colors.fgNeutralPrimary : colors.fgCritical}
-        />
-      ) : null}
+      {isAlert ? getAlertIcon() : null}
 
       {Illustration ? (
         <View style={styles.illustration}>
@@ -113,7 +131,7 @@ const Empty = ({
             style={[
               styles.title,
               isAlert && styles.alertTitle,
-              isWarning && styles.warningTitle,
+              isNeutralTitle && styles.warningTitle,
             ]}
           >
             {title}

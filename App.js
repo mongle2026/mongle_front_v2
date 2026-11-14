@@ -47,8 +47,10 @@ import { useOnboardingStore } from './features/onboarding/useOnboardingStore';
 import WelcomeScreen from './features/auth/WelcomeScreen';
 import AccountRestrictedScreen from './features/auth/restricted/AccountRestrictedScreen';
 import AppealScreen from './features/auth/restricted/appeal/AppealScreen';
+import RestrictionLiftedScreen from './features/auth/restricted/lifted/RestrictionLiftedScreen';
 import WarningNoticeScreen from './features/auth/warning/WarningNoticeScreen';
 import useWarningCheck from './features/auth/warning/hooks/useWarningCheck';
+import useRestrictionLiftCheck from './features/auth/restricted/lifted/hooks/useRestrictionLiftCheck';
 import TermsScreen from './features/signup/terms/TermsScreen';
 import SignupScreen from './features/signup/SignupScreen';
 import SignupCompleteScreen from './features/signup/complete/SignupCompleteScreen';
@@ -473,6 +475,18 @@ const RestrictedNavigator = () => (
   </Stack.Navigator>
 );
 
+// 이용 제한이 풀리고 아직 해제 안내를 확인하지 않은 계정. 몽글 시작하기를 누르면 원래 화면(홈)으로 들어간다
+const RestrictionLiftedNavigator = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      gestureEnabled: false,
+    }}
+  >
+    <Stack.Screen name="RestrictionLifted" component={RestrictionLiftedScreen} />
+  </Stack.Navigator>
+);
+
 // 아직 확인하지 않은 경고 1회가 있는 계정. 확인을 누르면 원래 화면(홈)으로 돌아간다
 const WarningNavigator = () => (
   <Stack.Navigator
@@ -491,6 +505,7 @@ export default function App() {
 
   const authStatus = useAuthStore(state => state.status);
   const restriction = useAuthStore(state => state.restriction);
+  const restrictionLifted = useAuthStore(state => state.restrictionLifted);
   const warning = useAuthStore(state => state.warning);
   const restoreSession = useAuthStore(state => state.restoreSession);
   const isAuthRestored = authStatus !== AUTH_STATUS.RESTORING;
@@ -511,6 +526,7 @@ export default function App() {
     void restoreOnboarding();
   }, [restoreOnboarding]);
 
+  useRestrictionLiftCheck();
   useWarningCheck();
 
   // 로그아웃하면 이전 계정으로 받아 둔 데이터를 지운다.
@@ -566,6 +582,8 @@ export default function App() {
                 >
                   {isSignedIn && restriction ? (
                     <RestrictedNavigator />
+                  ) : isSignedIn && restrictionLifted ? (
+                    <RestrictionLiftedNavigator />
                   ) : isSignedIn && warning ? (
                     <WarningNavigator />
                   ) : (

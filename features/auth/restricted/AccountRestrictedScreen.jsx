@@ -28,7 +28,8 @@ import { gap, padding } from '../../../shared/styles/token';
  * - reason: 백엔드 ReportReason('SPAM' 등). 신고하기 화면과 같은 문구('스팸 · 광고')로 보여준다
  * - restrictedAt: 제한이 시작된 시각(ISO 문자열). 이의 신청 화면의 제한 기간에 쓴다
  * - restrictedUntil: 제한이 끝나는 시각(ISO 문자열). 영구 제한이면 null 이라 날짜를 뺀다
- * - appealStatus: 이의 신청 상태. 검토 중이면 이의 신청하기 버튼을 막고, 기각되면 다시 신청할 수 있다
+ * - appealStatus: 이의 신청 상태. 검토 중이거나 기각되면 이의 신청하기 버튼을 막는다.
+ *   기각되면 검토 결과(제한 유지)를 안내한다
  *
  * 앱으로 돌아오거나 푸시를 받으면 제한 상태를 다시 확인한다 (useRestrictionRecheck)
  */
@@ -45,6 +46,18 @@ const AccountRestrictedScreen = () => {
   useRestrictionRecheck();
 
   const isAppealPending = appealStatus === APPEAL_STATUS.PENDING;
+  const isAppealRejected = appealStatus === APPEAL_STATUS.REJECTED;
+  const isAppealDisabled = isAppealPending || isAppealRejected;
+
+  const body = isAppealRejected
+    ? `이의 신청을 검토했으나 운영정책 위반\n(${reasonLabel})이 확인됐어요.\n${until}이용 정지가 유지돼요.`
+    : `운영정책 위반(${reasonLabel})으로\n${until}서비스를 이용할 수 없어요.`;
+
+  const appealButtonLabel = isAppealRejected
+    ? '이의 신청 완료'
+    : isAppealPending
+      ? '이의 신청 검토 중'
+      : '이의 신청하기';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,14 +65,14 @@ const AccountRestrictedScreen = () => {
         <Empty
           type="alert"
           title="계정 이용이 제한됐어요"
-          body={`운영정책 위반(${reasonLabel})으로\n${until}서비스를 이용할 수 없어요.`}
+          body={body}
         />
       </View>
 
       <View style={styles.footer}>
         <Button
           variant={
-            isAppealPending ? BUTTON_VARIANT.DISABLED : BUTTON_VARIANT.WEAK
+            isAppealDisabled ? BUTTON_VARIANT.DISABLED : BUTTON_VARIANT.WEAK
           }
           size={BUTTON_SIZE.XL}
           font={FONT.SUIT}
@@ -74,7 +87,7 @@ const AccountRestrictedScreen = () => {
             })
           }
         >
-          {isAppealPending ? '이의 신청 검토 중' : '이의 신청하기'}
+          {appealButtonLabel}
         </Button>
       </View>
     </SafeAreaView>
