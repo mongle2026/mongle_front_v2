@@ -112,7 +112,10 @@ const AppealScreen = () => {
     },
   });
 
-  const canSubmit = content.trim().length > 0 && !isAppealing;
+  const isContentTooLong = content.length > APPEAL_MAX_LENGTH;
+  // 내용을 적어야 하고, 최대 글자 수를 넘으면 제출할 수 없다
+  const canSubmit =
+    content.trim().length > 0 && !isContentTooLong && !isAppealing;
 
   const handlePressSubmit = () => {
     if (!canSubmit) return;
@@ -133,18 +136,6 @@ const AppealScreen = () => {
     blurField,
   } = useScrollFocusedFieldToCenter({ isKeyboardVisible });
 
-  // 키보드가 내려가 있을 때의 ScrollView 높이. 내용 최소 높이로 써서
-  // 키보드가 올라와도 제출하기 버튼이 따라 올라오지 않고 키보드 아래에 남게 한다
-  const [fullHeight, setFullHeight] = useState(0);
-
-  const handleLayout = event => {
-    if (!isKeyboardVisible) {
-      setFullHeight(event.nativeEvent.layout.height);
-    }
-
-    handleScrollViewLayout(event);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <TopSubNavigation
@@ -158,12 +149,9 @@ const AppealScreen = () => {
 
       <ScrollView
         ref={scrollViewRef}
-        onLayout={handleLayout}
+        onLayout={handleScrollViewLayout}
         style={[styles.scrollView, { marginBottom: keyboardInset }]}
-        contentContainerStyle={[
-          styles.scrollContent,
-          fullHeight > 0 && { minHeight: fullHeight },
-        ]}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -200,6 +188,8 @@ const AppealScreen = () => {
             placeholder="제한 조치에 대한 의견을 적어 주세요."
             description="최대 500자까지 입력할 수 있어요"
             maxLength={APPEAL_MAX_LENGTH}
+            limitInput={false}
+            status={isContentTooLong ? 'error' : undefined}
             maxLines={APPEAL_MAX_LINES}
           />
         </View>
@@ -230,7 +220,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // 내용이 짧을 때도 화면을 채워서 footer가 맨 아래에 붙게 한다
+  // 내용이 짧을 때도 화면을 채워서 footer가 맨 아래에 붙게 한다.
+  // 키보드가 올라오면 ScrollView가 줄어든 만큼 입력창과 버튼 사이 여백이 줄어
+  // 제출하기 버튼이 키보드 위로 올라온다
   scrollContent: {
     flexGrow: 1,
   },
