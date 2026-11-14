@@ -104,9 +104,12 @@ const ReportScreen = () => {
   const [etcReason, setEtcReason] = useState('');
 
   const isEtcSelected = selectedReason === REPORT_REASON.ETC;
-  // 기타는 사유를 적어야 신고할 수 있다
+  const isEtcReasonTooLong = etcReason.length > ETC_REASON_MAX_LENGTH;
+  // 기타는 사유를 적어야 하고, 최대 글자 수를 넘으면 신고할 수 없다
   const canReport =
-    selectedReason !== null && (!isEtcSelected || etcReason.trim().length > 0);
+    selectedReason !== null &&
+    (!isEtcSelected ||
+      (etcReason.trim().length > 0 && !isEtcReasonTooLong));
 
   const handlePressReason = reason => {
     setSelectedReason(previous => (previous === reason ? null : reason));
@@ -180,7 +183,7 @@ const ReportScreen = () => {
           <View style={styles.titleArea}>
             <Text style={styles.title}>신고 사유를 선택해 주세요</Text>
             <Text style={styles.description}>
-              신고 내용은 운영 정책에 따라 검토 후 처리돼요.
+              {'신고 내용은 운영정책에 따라 검토돼요.\n신고 사실은 상대방에게 알려지지 않아요.'}
             </Text>
           </View>
 
@@ -215,6 +218,8 @@ const ReportScreen = () => {
               placeholder="신고 사유를 입력해 주세요"
               description="최대 200자까지 입력할 수 있어요"
               maxLength={ETC_REASON_MAX_LENGTH}
+              limitInput={false}
+              status={isEtcReasonTooLong ? 'error' : undefined}
               maxLines={ETC_REASON_MAX_LINES}
             />
           )}

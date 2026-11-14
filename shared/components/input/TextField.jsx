@@ -42,6 +42,7 @@ const getDescriptionColor = status => {
  * @param {string} [prefix] 입력값 앞에 고정으로 붙는 글자
  * @param {string} [description] 입력창 아래 설명
  * @param {number} maxLength 최대 글자 수. 입력창 아래 오른쪽에 n/maxLength 로 보여줍니다
+ * @param {boolean} [limitInput] false면 maxLength를 넘어도 계속 입력할 수 있습니다 (글자 수 표시만 maxLength 기준)
  * @param {boolean} [showCounter] false면 n/maxLength 글자 수를 숨깁니다
  * @param {'positive' | 'error'} [status] positive면 설명이 초록색,
  *   error면 테두리·설명·글자 수가 빨간색이 됩니다
@@ -59,6 +60,7 @@ const TextField = ({
   placeholder,
   description,
   maxLength,
+  limitInput = true,
   showCounter = true,
   status,
   onFocus,
@@ -106,7 +108,7 @@ const TextField = ({
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor={colors.fgNeutralTertiary}
-          maxLength={maxLength}
+          maxLength={limitInput ? maxLength : undefined}
           onFocus={event => {
             setIsFocused(true);
             onFocus?.(event);
