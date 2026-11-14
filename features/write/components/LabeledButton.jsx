@@ -19,7 +19,7 @@ const LabeledButton = ({
   iconColor = colors.fgNeutralSecondary,
   backgroundColor = colors.fillNeutralWeak,
   pressedBackgroundColor = colors.fillNeutralWeakPress,
-  typography = typo.suitLabelLargeStrong,
+  typography = typo.suitBodyMedium600,
   onPress,
   disabled = false,
   style,

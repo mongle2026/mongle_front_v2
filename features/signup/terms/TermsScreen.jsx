@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
 
   welcomeText: {
-    ...typo.suitTitleMediumStrong,
+    ...typo.suitTitleSmall,
     alignSelf: 'stretch',
     color: colors.fgNeutralPrimary,
   },

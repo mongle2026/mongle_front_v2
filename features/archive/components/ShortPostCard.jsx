@@ -27,8 +27,8 @@ const withContentHeight = typography => ({
 });
 
 const CONTENT_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: withContentHeight(typo.kyoboBodyMedium),
-  [FONT.SUIT]: withContentHeight(typo.suitBodyMedium),
+  [FONT.KYOBO]: withContentHeight(typo.kyoboBodySmall),
+  [FONT.SUIT]: withContentHeight(typo.suitBodySmall400),
 });
 
 const ShortPostCard = ({
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
 
   date: {
     flex: 1,
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralTertiary,
     textAlign: 'justify',
   },

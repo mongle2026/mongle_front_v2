@@ -25,7 +25,7 @@ const ButtonText = ({
       <Text
         style={[
           styles.text,
-          typo.suitLabelXLargeStrong,
+          typo.suitBodyLarge600,
           textStyle,
         ]}
       >

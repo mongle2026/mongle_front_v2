@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderRadius: radius[999],
     overflow: 'hidden',
-    ...typo.suitLabelLarge,
+    ...typo.suitBodyMedium400,
   },
 
   itemInactive: {

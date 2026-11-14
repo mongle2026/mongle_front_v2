@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
 
   // Item 의 활성 탭 라벨과 같은 스타일
   title: {
-    ...typo.suitTitleXLargeStrong,
+    ...typo.suitTitleLarge,
     flexShrink: 1,
     color: colors.fgNeutralPrimary,
   },

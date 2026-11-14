@@ -20,8 +20,8 @@ const Item = ({
 }) => {
   const textTypo =
     font === FONT.KYOBO
-      ? typo.kyoboLabelXLarge
-      : typo.suitLabelXLarge;
+      ? typo.kyoboBodyLarge
+      : typo.suitBodyLarge400;
 
   return (
     <Pressable

@@ -103,12 +103,12 @@ const styles = StyleSheet.create({
   },
 
   panelTitle: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     color: colors.fgNeutralSecondary,
   },
 
   close: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     color: colors.fgInfo,
   },
 
@@ -126,12 +126,12 @@ const styles = StyleSheet.create({
   },
 
   instanceName: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     color: colors.fgInfo,
   },
 
   instanceTitle: {
-    ...typo.suitLabelLarge,
+    ...typo.suitBodyMedium400,
     color: colors.fgNeutralPrimary,
   },
 
@@ -151,12 +151,12 @@ const styles = StyleSheet.create({
   },
 
   tagKey: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralTertiary,
   },
 
   tagValue: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     color: colors.fgNeutralPrimary,
   },
 
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   },
 
   blockTitle: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     color: colors.fgNeutralSecondary,
   },
 
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
 
   key: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     width: 112,
     color: colors.fgNeutralTertiary,
   },
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   },
 
   value: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     flex: 1,
     color: colors.fgNeutralPrimary,
   },
@@ -210,12 +210,12 @@ const styles = StyleSheet.create({
   },
 
   empty: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralQuaternary,
   },
 
   error: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgCritical,
   },
 });

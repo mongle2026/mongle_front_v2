@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
   title: {
     alignSelf: 'stretch',
-    ...typo.suitTitleXLargeStrong,
+    ...typo.suitTitleLarge,
     fontSize: 20,
     lineHeight: 30,
     color: colors.fgNeutralSecondary,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   description: {
     alignSelf: 'stretch',
-    ...typo.suitBodyLarge,
+    ...typo.suitBodyLarge400,
     color: colors.fgNeutralTertiary,
     textAlign: 'center',
   },

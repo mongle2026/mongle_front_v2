@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
 
   titleS: {
-    ...typo.suitTitleSmallStrong,
+    ...typo.suitBodySmall600,
     flex: 1,
     textAlign: 'justify',
   },
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
 
   titleM: {
-    ...typo.suitTitleMediumStrong,
+    ...typo.suitTitleSmall,
     textAlign: 'justify',
   },
 

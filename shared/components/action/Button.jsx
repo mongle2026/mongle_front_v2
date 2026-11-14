@@ -83,9 +83,9 @@ const resolveSize = size => (SIZE_STYLES[size] ? size : S);
  *
  * 교보는 S 사이즈의 Solid / Ghost 에만 있다. 나머지 조합은 font 와 상관없이 SUIT.
  *
- * S       Kyobo = kyoboLabelLarge / SUIT = suitLabelLarge
- * M       SUIT  = suitLabelLargeStrong
- * L/XL    SUIT  = suitLabelXLargeStrong
+ * S       Kyobo = kyoboBodyMedium / SUIT = suitBodyMedium400
+ * M       SUIT  = suitBodyMedium600
+ * L/XL    SUIT  = suitBodyLarge600
  */
 const KYOBO_VARIANTS_BY_SIZE = {
   [S]: [SOLID, GHOST],
@@ -98,20 +98,20 @@ const resolveFont = (variant, size, font) =>
 
 const TYPOGRAPHY_STYLES = {
   [S]: {
-    [FONT.KYOBO]: typo.kyoboLabelLarge,
-    [FONT.SUIT]: typo.suitLabelLarge,
+    [FONT.KYOBO]: typo.kyoboBodyMedium,
+    [FONT.SUIT]: typo.suitBodyMedium400,
   },
 
   [M]: {
-    [FONT.SUIT]: typo.suitLabelLargeStrong,
+    [FONT.SUIT]: typo.suitBodyMedium600,
   },
 
   [L]: {
-    [FONT.SUIT]: typo.suitLabelXLargeStrong,
+    [FONT.SUIT]: typo.suitBodyLarge600,
   },
 
   [XL]: {
-    [FONT.SUIT]: typo.suitLabelXLargeStrong,
+    [FONT.SUIT]: typo.suitBodyLarge600,
   },
 };
 

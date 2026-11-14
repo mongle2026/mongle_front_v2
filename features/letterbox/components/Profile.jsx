@@ -118,13 +118,13 @@ const styles = StyleSheet.create({
   },
 
   badgeText: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     color: colors.fgNeutralInverted,
     textAlign: 'center',
   },
 
   name: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     alignSelf: 'stretch',
     color: colors.fgNeutralPrimary,
     textAlign: 'center',

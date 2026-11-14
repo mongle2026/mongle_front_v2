@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   text: {
     color: colors.fgNeutralTertiary,
     textAlign: 'center',
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
   },
 });
 

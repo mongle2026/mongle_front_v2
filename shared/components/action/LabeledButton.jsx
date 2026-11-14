@@ -13,7 +13,7 @@ import { typo } from '../../styles/typo';
 const SIZE_CONFIG = {
   S: {
     iconSize: 12,
-    typography: typo.suitLabelMedium,
+    typography: typo.suitCaptionMedium400,
     containerStyle: {
       paddingVertical: padding.XS,
       paddingHorizontal: 0,
@@ -22,7 +22,7 @@ const SIZE_CONFIG = {
 
   M: {
     iconSize: 22,
-    typography: typo.suitLabelLarge,
+    typography: typo.suitBodyMedium400,
     containerStyle: {
       padding: padding.M,
       borderRadius: radius.M,

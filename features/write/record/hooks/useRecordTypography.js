@@ -15,8 +15,8 @@ export const useRecordTypography = () => {
   const normalizedFont = normalizeFont(font);
   const isSuitFont = normalizedFont === FONT.SUIT;
 
-  const dateTypography = isSuitFont ? typo.suitLabelLarge : typo.kyoboLabelLarge;
-  const bodyTypography = isSuitFont ? typo.suitBodyLarge : typo.kyoboBodyLarge;
+  const dateTypography = isSuitFont ? typo.suitBodyMedium400 : typo.kyoboBodyMedium;
+  const bodyTypography = isSuitFont ? typo.suitBodyLarge400 : typo.kyoboBodyLarge;
 
   const handleSelectFont = useCallback(
     nextFont => {

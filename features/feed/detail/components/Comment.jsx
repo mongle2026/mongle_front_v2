@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
 
   userId: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     flexShrink: 1,
     color: colors.fgNeutralTertiary,
   },
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
 
   date: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     flex: 1,
     minWidth: 0,
     color: colors.fgNeutralQuaternary,
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   },
 
   comment: {
-    ...typo.suitBodyLarge,
+    ...typo.suitBodyLarge400,
     width: '100%',
     alignSelf: 'stretch',
     color: colors.fgNeutralSecondary,

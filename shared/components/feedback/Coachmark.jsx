@@ -91,12 +91,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgNeutralInverted,
   },
   title: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     alignSelf: 'stretch',
     color: colors.fgNeutralInverted,
   },
   body: {
-    ...typo.suitBodyMedium,
+    ...typo.suitBodySmall400,
     alignSelf: 'stretch',
     color: colors.fgNeutralQuaternary,
   },

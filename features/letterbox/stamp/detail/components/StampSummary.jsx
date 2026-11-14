@@ -28,7 +28,7 @@ const EXPANDED_TEXT_LEFT = EXPANDED_STAMP_LEFT + EXPANDED_STAMP_WIDTH + gap.L;
 const COLLAPSED_TEXT_TOP = COLLAPSED_STAMP_HEIGHT + gap.L;
 
 // 텍스트 두 줄 높이의 어림값. 실제 높이는 onLayout 으로 잰다.
-const ESTIMATED_TEXT_HEIGHT = typo.suitTitleMedium.lineHeight + typo.suitBodyMedium.lineHeight;
+const ESTIMATED_TEXT_HEIGHT = typo.suitTitleSmall.lineHeight + typo.suitBodySmall400.lineHeight;
 
 // Figma 지정값 (대응하는 색 토큰이 없음)
 const TITLE_COLOR = colors.fgNeutralPrimary;
@@ -160,11 +160,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   title: {
-    ...typo.suitTitleMedium,
+    ...typo.suitTitleSmall,
     color: TITLE_COLOR,
   },
   caption: {
-    ...typo.suitBodyMedium,
+    ...typo.suitBodySmall400,
     color: colors.fgNeutralTertiary,
   },
 });

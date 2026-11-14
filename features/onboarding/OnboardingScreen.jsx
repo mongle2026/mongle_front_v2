@@ -29,8 +29,8 @@ import { gap, padding } from '../../shared/styles/token';
 
 const ILLUSTRATION_SIZE = 200;
 
-// XL 버튼 높이 (위아래 padding.XL + suitLabelXLargeStrong 줄 높이)
-const BUTTON_XL_HEIGHT = padding.XL * 2 + typo.suitLabelXLargeStrong.lineHeight;
+// XL 버튼 높이 (위아래 padding.XL + suitBodyLarge600 줄 높이)
+const BUTTON_XL_HEIGHT = padding.XL * 2 + typo.suitBodyLarge600.lineHeight;
 
 // 버튼이 하나인 페이지에서 두 번째 버튼이 들어갈 자리. 이만큼은 스크롤 영역이 되어 스와이프가 된다
 const SECOND_BUTTON_SPACE = BUTTON_XL_HEIGHT + gap.M;
@@ -253,14 +253,14 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    ...typo.suitTitleXLargeStrong,
+    ...typo.suitTitleLarge,
     alignSelf: 'stretch',
     color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },
 
   body: {
-    ...typo.suitBodyXLarge,
+    ...typo.suitBodyLarge400,
     alignSelf: 'stretch',
     color: colors.fgNeutralTertiary,
     textAlign: 'center',

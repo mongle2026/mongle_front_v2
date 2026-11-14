@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 0,
     color: colors.fgNeutralPrimary,
-    ...typo.suitLabelXLarge,
+    ...typo.suitBodyLarge400,
   },
 });
 

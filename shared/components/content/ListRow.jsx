@@ -159,12 +159,12 @@ const styles = StyleSheet.create({
   },
 
   primaryText: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     color: colors.fgNeutralPrimary,
   },
 
   secondaryText: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     alignSelf: 'stretch',
     color: colors.fgNeutralQuaternary,
   },

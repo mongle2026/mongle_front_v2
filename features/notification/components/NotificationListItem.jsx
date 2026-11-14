@@ -210,17 +210,17 @@ const styles = StyleSheet.create({
     gap: gap.S,
   },
   title: {
-    ...typo.suitTitleSmallStrong,
+    ...typo.suitBodySmall600,
     alignSelf: 'stretch',
     color: colors.fgNeutralSecondary,
   },
   body: {
-    ...typo.suitBodyMedium,
+    ...typo.suitBodySmall400,
     alignSelf: 'stretch',
     color: colors.fgNeutralTertiary,
   },
   date: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgDisabled,
   },
   withdrawnName: {

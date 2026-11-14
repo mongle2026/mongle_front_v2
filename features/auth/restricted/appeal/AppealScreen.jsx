@@ -245,12 +245,12 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    ...typo.suitTitleMediumStrong,
+    ...typo.suitTitleSmall,
     color: colors.fgNeutralPrimary,
   },
 
   description: {
-    ...typo.suitBodyMedium,
+    ...typo.suitBodySmall400,
     color: colors.fgNeutralPrimary,
   },
 
@@ -280,12 +280,12 @@ const styles = StyleSheet.create({
   },
 
   summaryLabel: {
-    ...typo.suitBodyMedium,
+    ...typo.suitBodySmall400,
     color: colors.fgNeutralSecondary,
   },
 
   summaryValue: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     color: colors.fgNeutralPrimary,
   },
 

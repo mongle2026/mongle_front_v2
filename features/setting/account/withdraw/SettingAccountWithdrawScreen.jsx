@@ -210,13 +210,13 @@ const styles = StyleSheet.create({
   },
 
   noticeTitle: {
-    ...typo.suitTitleMediumStrong,
+    ...typo.suitTitleSmall,
     alignSelf: 'stretch',
     color: colors.fgNeutralPrimary,
   },
 
   noticeBody: {
-    ...typo.suitBodyMedium,
+    ...typo.suitBodySmall400,
     alignSelf: 'stretch',
     color: colors.fgNeutralPrimary,
   },

@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   },
 
   countText: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     color: colors.fgNeutralInverted,
     textAlign: 'center',
   },

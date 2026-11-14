@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     color: colors.fgNeutralSecondary,
     textAlign: 'center',
   },

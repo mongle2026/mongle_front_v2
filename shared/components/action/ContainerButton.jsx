@@ -23,7 +23,7 @@ const ContainerButton = ({
       style={[styles.container, style]}
       {...pressableProps}
     >
-      <Text style={[typo.suitLabelXLargeStrong, styles.label, textStyle]}>
+      <Text style={[typo.suitBodyLarge600, styles.label, textStyle]}>
         {label}
       </Text>
     </Pressable>

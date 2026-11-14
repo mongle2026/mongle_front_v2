@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   expandedLabel: {
     flexShrink: 1,
     color: colors.fgNeutralInverted,
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
   },
 
   defaultButtonWrapper: {
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
 
   defaultLabel: {
     color: colors.fgNeutralSecondary,
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
   },
 
   stackedLabel: {

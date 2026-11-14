@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   },
 
   headerText: {
-    ...typo.suitLabelXLargeStrong,
+    ...typo.suitBodyLarge600,
 
     color: colors.fgNeutralPrimary,
     textAlign: 'center',

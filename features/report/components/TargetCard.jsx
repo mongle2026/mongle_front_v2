@@ -80,15 +80,15 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   title: {
-    ...typo.suitBodyMedium,
+    ...typo.suitBodySmall400,
     flexShrink: 1,
     color: colors.fgNeutralPrimary,
   },
   userCode: {
-    ...typo.suitTitleSmallStrong,
+    ...typo.suitBodySmall600,
   },
   preview: {
-    ...typo.suitBodySmall,
+    ...typo.suitCaptionMedium400,
     alignSelf: 'stretch',
     color: colors.fgNeutralTertiary,
   },
