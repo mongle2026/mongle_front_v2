@@ -57,6 +57,8 @@ const Menu = ({
   // 남의 피드·편지·댓글이면 신고 / 차단를 맨 위에 보여준다
   showReport = false,
   onPressReport,
+  // 신고만 필요한 화면(편지 상세)은 showBlock={false}
+  showBlock = true,
   onPressBlock,
   // [{ key, label, onPress }] 를 넘기면 수정/삭제 대신 이 항목들을 보여준다 (정렬 선택 등)
   items,
@@ -102,12 +104,14 @@ const Menu = ({
               color={colors.fgNeutralPrimary}
               onPress={onPressReport}
             />
-            <Item
-              icon={IcBlock}
-              label="차단"
-              color={colors.fgNeutralPrimary}
-              onPress={onPressBlock}
-            />
+            {showBlock && (
+              <Item
+                icon={IcBlock}
+                label="차단"
+                color={colors.fgNeutralPrimary}
+                onPress={onPressBlock}
+              />
+            )}
           </>
         )}
         {showEdit && (

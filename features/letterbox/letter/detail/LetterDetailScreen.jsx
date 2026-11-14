@@ -35,7 +35,6 @@ import LetterDetailContent from './components/LetterDetailContent';
 import useLetterDetail from './hooks/useLetterDetail';
 import { toImageSource } from '../../../../shared/utils/media';
 import { REPORT_TARGET_TYPE } from '../../../report/constants';
-import useBlockDialog from '../../../block/hooks/useBlockDialog';
 import useUserBlock from '../../../block/hooks/useUserBlock';
 
 // route.params: { letterId }
@@ -45,7 +44,6 @@ const LetterDetailScreen = ({ navigation, route }) => {
   const letterId = route?.params?.letterId;
   const { userId } = useCurrentUser();
   const { openDialog } = useDialog();
-  const { openBlockDialog } = useBlockDialog();
   const { unblockUser } = useUserBlock();
   const { showToast } = useGlobalOverlay();
 
@@ -95,7 +93,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
   // 나에게 쓴 편지는 받은 편지로 취급한다 (편지함 목록과 동일)
   const isSent = Boolean(letter?.isSender && !letter?.isReceiver);
-  // 남이 나에게 보낸 편지면 메뉴에 신고/차단를 함께 보여준다
+  // 남이 나에게 보낸 편지면 메뉴에 신고를 함께 보여준다
   const isFromOthers = Boolean(letter?.isReceiver && !letter?.isSender);
 
   // 예약 발송해서 아직 도착 시각이 지나지 않은 편지는 상대방이 아직 받지 못했다.
@@ -163,19 +161,6 @@ const LetterDetailScreen = ({ navigation, route }) => {
       toastBottomOffset: insets.bottom,
     });
   }, [insets.bottom, letter, navigation]);
-
-  // 차단 메뉴는 받은 편지에서만 보이므로 보낸 사람을 차단한다
-  const handlePressBlock = useCallback(() => {
-    setIsMenuOpen(false);
-
-    if (!letter) return;
-
-    openBlockDialog({
-      targetUserId: letter.sender.userId,
-      userCode: letter.sender.userCode,
-      toastBottomOffset: insets.bottom,
-    });
-  }, [insets.bottom, letter, openBlockDialog]);
 
   // 버튼을 누른 시점에 이미 도착한 편지면 취소를 막고 상세를 다시 불러온다.
   // 상세를 다시 받으면 isDelivered가 바뀌면서 취소 버튼이 케밥 메뉴로 전환된다.
@@ -318,7 +303,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
             <Menu
               showReport={isFromOthers}
               onPressReport={handlePressReport}
-              onPressBlock={handlePressBlock}
+              showBlock={false}
               showEdit={false}
               deleteLabel="삭제"
               deleteAccessibilityLabel="편지 삭제"

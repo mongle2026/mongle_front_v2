@@ -50,11 +50,17 @@ const ALREADY_REPORTED_TARGET_NAME = {
 };
 const ETC_REASON_MAX_LINES = 4;
 
+// 신고 후 함께 닫는 상세 화면 (신고 대상 종류 → 상세 화면 route 이름)
+const DETAIL_ROUTE_NAME_BY_TYPE = {
+  [REPORT_TARGET_TYPE.FEED]: 'FeedDetail',
+  [REPORT_TARGET_TYPE.LETTER]: 'LetterDetail',
+};
+
 // 피드 · 댓글 · 편지 · 사용자 신고 화면.
 // params: { type: REPORT_TARGET_TYPE, targetId, userCode, profileImageUrl, preview, toastBottomOffset }
 // targetId: 피드 · 댓글 · 편지는 id, 사용자는 publicId
 // toastBottomOffset: 돌아간 화면에서 결과 Toast 를 띄울 높이 (그 화면의 다른 Toast 와 같은 위치).
-//   피드 신고로 피드 상세까지 닫고 돌아갈 때는 쓰지 않는다
+//   피드 · 편지 신고로 상세까지 닫고 돌아갈 때는 쓰지 않는다
 const ReportScreen = () => {
   const navigation = useNavigation();
   const { params } = useRoute();
@@ -74,14 +80,16 @@ const ReportScreen = () => {
 
   const insets = useSafeAreaInsets();
 
-  // 피드 상세에서 피드를 신고했으면 상세까지 닫고, 상세에 들어오기 바로 전 화면(피드 홈 · 프로필 · 보관함 · 알림 등)으로 돌아간다.
+  // 피드 상세 · 편지 상세에서 그 피드 · 편지를 신고했으면 상세까지 닫고,
+  // 상세에 들어오기 바로 전 화면(피드 홈 · 프로필 · 보관함 · 편지함 · 알림 등)으로 돌아간다.
   // 그 화면들은 하단 안전영역 위에 Toast 를 띄우므로 결과 Toast 도 같은 높이에 띄운다
-  const leavesFeedDetail = () => {
-    if (type !== REPORT_TARGET_TYPE.FEED) return false;
+  const leavesDetail = () => {
+    const detailRouteName = DETAIL_ROUTE_NAME_BY_TYPE[type];
+    if (!detailRouteName) return false;
 
     const { routes, index } = navigation.getState();
 
-    return index >= 2 && routes[index - 1]?.name === 'FeedDetail';
+    return index >= 2 && routes[index - 1]?.name === detailRouteName;
   };
 
   const { report, isReporting } = useReport({
@@ -90,7 +98,7 @@ const ReportScreen = () => {
     onSuccess: data => {
       let resultToastBottomOffset = toastBottomOffset;
 
-      if (leavesFeedDetail()) {
+      if (leavesDetail()) {
         navigation.dispatch(StackActions.pop(2));
         resultToastBottomOffset = insets.bottom;
       } else {
