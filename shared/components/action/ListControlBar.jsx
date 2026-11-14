@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
 
     color: colors.fgNeutralTertiary,
   },

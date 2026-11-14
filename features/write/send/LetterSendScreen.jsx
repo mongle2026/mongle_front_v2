@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     gap: gap.M,
   },
   hintText: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralTertiary,
   },
 
@@ -507,12 +507,12 @@ const styles = StyleSheet.create({
     gap: gap.XS,
   },
   doneTitle: {
-    ...typo.suitTitleXLargeStrong,
+    ...typo.suitTitleLarge,
     color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },
   doneDescription: {
-    ...typo.suitBodyXLarge,
+    ...typo.suitBodyLarge400,
     color: colors.fgNeutralTertiary,
     textAlign: 'center',
   },

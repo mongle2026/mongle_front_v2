@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   label: {
     alignSelf: 'stretch',
     textAlign: 'center',
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
   },
 });
 

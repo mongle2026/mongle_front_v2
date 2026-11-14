@@ -165,14 +165,14 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    ...typo.suitTitleMediumStrong,
+    ...typo.suitTitleSmall,
 
     color: colors.fgNeutralTertiary,
     textAlign: 'center',
   },
 
   body: {
-    ...typo.suitBodyXLarge,
+    ...typo.suitBodyLarge400,
 
     color: colors.fgNeutralQuaternary,
     textAlign: 'center',

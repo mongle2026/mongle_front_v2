@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     borderColor: colors.strokeNeutralSecondary,
   },
   text: {
-    ...typo.suitBodyLarge,
+    ...typo.suitBodyLarge400,
     flex: 1,
     color: colors.fgNeutralSecondary,
   },

@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   },
 
   faceLabel: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralTertiary,
   },
 

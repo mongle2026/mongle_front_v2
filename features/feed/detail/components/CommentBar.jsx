@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
   },
 
   placeholder: {
-    ...typo.suitBodyXLarge,
+    ...typo.suitBodyLarge400,
 
     width: '100%',
 
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    ...typo.suitBodyXLarge,
+    ...typo.suitBodyLarge400,
 
     width: '100%',
     minHeight: INPUT_MIN_HEIGHT,
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
   },
 
   inputMeasure: {
-    ...typo.suitBodyXLarge,
+    ...typo.suitBodyLarge400,
 
     position: 'absolute',
     top: 0,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   },
 
   targetId: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
 
     flexShrink: 1,
 
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   },
 
   targetDescription: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
 
     flexShrink: 0,
 
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   },
 
   currentCount: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
 
     color: colors.fgNeutralTertiary,
     textAlign: 'right',
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   },
 
   maxCount: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
 
     color: colors.fgNeutralQuaternary,
     textAlign: 'right',

@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     gap: gap.L,
   },
   tagline: {
-    ...typo.suitBodyMedium,
+    ...typo.suitBodySmall400,
     color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },

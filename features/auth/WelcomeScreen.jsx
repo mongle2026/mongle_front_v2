@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   },
 
   tagline: {
-    ...typo.suitLabelXLargeStrong,
+    ...typo.suitBodyLarge600,
     color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },

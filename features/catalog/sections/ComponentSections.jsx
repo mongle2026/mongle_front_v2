@@ -91,7 +91,7 @@ const BUTTON_COLOR_NOTES = {
 
 // 사이즈 스펙 표 (Button.jsx SIZE_STYLES / TYPOGRAPHY_STYLES 와 같은 값)
 const BUTTON_SIZE_SPECS = [
-  { size: 'S', height: 28, padding: 'M', radius: 'S', typo: 'labelLarge', kyobo: 'kyoboLabelLarge' },
+  { size: 'S', height: 28, padding: 'M', radius: 'S', typo: 'labelLarge', kyobo: 'kyoboBodyMedium' },
   { size: 'M', height: 36, padding: 'L', radius: 'S', typo: 'labelLargeStrong' },
   { size: 'L', height: 44, padding: 'XL', radius: 'M', typo: 'labelXLargeStrong' },
   { size: 'XL', height: 52, padding: 'XXL', radius: 'XL', typo: 'labelXLargeStrong' },
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   },
 
   sizeName: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     width: 24,
     color: colors.fgNeutralPrimary,
   },
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
 
   sizeSpecLine: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralPrimary,
   },
 

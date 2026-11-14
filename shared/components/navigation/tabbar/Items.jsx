@@ -110,12 +110,12 @@ const styles = StyleSheet.create({
   },
 
   labelInactive: {
-    ...typo.suitLabelLarge,
+    ...typo.suitBodyMedium400,
     color: colors.fgNeutralQuaternary,
   },
 
   labelActive: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     color: colors.fgNeutralPrimary,
   },
 });

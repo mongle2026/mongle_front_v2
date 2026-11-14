@@ -127,14 +127,14 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    ...typo.suitTitleXLargeStrong,
+    ...typo.suitTitleLarge,
     alignSelf: 'stretch',
     color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },
 
   body: {
-    ...typo.suitBodyXLarge,
+    ...typo.suitBodyLarge400,
     alignSelf: 'stretch',
     color: colors.fgNeutralTertiary,
     textAlign: 'center',

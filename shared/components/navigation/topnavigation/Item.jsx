@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    ...typo.suitTitleXLargeStrong,
+    ...typo.suitTitleLarge,
     textAlign: 'center',
   },
 

@@ -259,7 +259,7 @@ const RecordEditorBody = ({
             <LabeledButton
               icon={<IcMusic />}
               label="음악 선택"
-              typography={typo.suitLabelLargeStrong}
+              typography={typo.suitBodyMedium600}
               color={colors.fgNeutralSecondary}
               iconColor={colors.fgNeutralSecondary}
               backgroundColor={colors.fillNeutralWeak}

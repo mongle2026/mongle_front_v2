@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   nickname: {
     flex: 1,
     color: colors.fgNeutralPrimary,
-    ...typo.suitLabelXLargeStrong,
+    ...typo.suitBodyLarge600,
   },
   // 탈퇴한 회원 이름 '(탈퇴한 회원)'
   withdrawnNickname: {
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   caption: {
     color: colors.fgNeutralTertiary,
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
   },
   // caption 사이 구분 점: 2x2 원
   captionDot: {
@@ -251,13 +251,13 @@ const styles = StyleSheet.create({
   },
   titleText: {
     color: colors.fgNeutralSecondary,
-    ...typo.suitLabelLarge,
+    ...typo.suitBodyMedium400,
   },
   // 가린 편지 안내 '운영정책에 따라 삭제된 편지예요.'
   blindedText: {
     alignSelf: 'stretch',
     color: colors.fgDisabled,
-    ...typo.suitLabelLarge,
+    ...typo.suitBodyMedium400,
   },
 
   // singer: 세로 padding XXS, 높이 고정 없음. 그 외 title과 동일
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   },
   singerText: {
     color: colors.fgNeutralTertiary,
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
   },
   // read 카드: 텍스트 줄높이가 dot 2행보다 커서, 카드 높이 143을 맞추기 위해 상하 padding 제거
   textBoxRead: {

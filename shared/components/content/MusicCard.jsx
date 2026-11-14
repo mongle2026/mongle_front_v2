@@ -16,13 +16,13 @@ import MusicCoverImg from '../atomic/MusicCoverImg';
 import FontFallbackText from '../atomic/FontFallbackText';
 
 const TITLE_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboLabelXLarge,
-  [FONT.SUIT]: typo.suitLabelXLarge,
+  [FONT.KYOBO]: typo.kyoboBodyLarge,
+  [FONT.SUIT]: typo.suitBodyLarge400,
 });
 
 const ARTIST_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboLabelLarge,
-  [FONT.SUIT]: typo.suitLabelLarge,
+  [FONT.KYOBO]: typo.kyoboBodyMedium,
+  [FONT.SUIT]: typo.suitBodyMedium400,
 });
 
 const PLAY_ICON_SIZE = 20;

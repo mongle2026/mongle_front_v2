@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
 
   date: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
 
     flex: 1,
     minWidth: 0,

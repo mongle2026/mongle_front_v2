@@ -92,8 +92,8 @@ const Profile = ({
 
     const letterTextStyle =
       normalizedFont === FONT.SUIT
-        ? typo.suitLabelLarge
-        : typo.kyoboLabelLarge;
+        ? typo.suitBodyMedium400
+        : typo.kyoboBodyMedium;
 
     const LetterContainer = onPress ? Pressable : View;
     const letterContainerProps = onPress

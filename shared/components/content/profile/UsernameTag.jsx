@@ -104,8 +104,8 @@ const UsernameTag = ({
   const variantStyle = VARIANT_STYLES[currentVariant];
 
   const typographyStyle = normalizeFont(font) === FONT.SUIT
-    ? typo.suitLabelLarge
-    : typo.kyoboLabelLarge;
+    ? typo.suitBodyMedium400
+    : typo.kyoboBodyMedium;
 
   const [renderedVariant, setRenderedVariant] = useState(currentVariant);
   const [transition, setTransition] = useState(null);

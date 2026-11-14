@@ -1,5 +1,5 @@
 // 사용 예시
-// ...typo.suitBodyMedium  /  ...typo.kyoboBodyMedium
+// ...typo.suitBodyMedium400  /  ...typo.kyoboBodyMedium
 
 // Android는 fontWeight로 굵기 구분이 안 돼서 fontFamily로 직접 지정
 // 폰트가 SUITX(SUIT 확장판) / Kyobo Handwriting 2025 두 종류라 key에 접두어(suit/kyobo)를 붙임
@@ -22,46 +22,38 @@ export const HAN_FALLBACK_FONT_FAMILY = fontFamily.kiwiMaru;
 // includeFontPadding: false → Android 기본 여백 제거 (iOS/Android 크기 통일)
 // letterSpacing은 지정하지 않는다. iOS는 letterSpacing: 0도 NSKern 0으로 넘겨 폰트 커닝을 꺼버려서
 // Figma보다 자간이 벌어져 보인다(예: WOODZ). 0이 필요하면 생략, 그 외 값만 지정할 것.
-// lineHeight는 Figma의 % 값을 fontSize 기준으로 계산한 결과 (절대값은 그대로)
 const base = { includeFontPadding: false };
 
 export const typo = {
   // ── SUIT (UI 텍스트) ──────────────────────────────────────────
-  // title: lineHeight 150%
-  suitTitleXLargeStrong:  { ...base, fontFamily: fontFamily.suitBold,     fontSize: 24, lineHeight: 36 },
-  suitTitleLarge:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 20, lineHeight: 30 },
-  suitTitleMediumStrong:  { ...base, fontFamily: fontFamily.suitBold,     fontSize: 18, lineHeight: 27 },
-  suitTitleMedium:        { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 18, lineHeight: 27 },
-  suitTitleSmallStrong:   { ...base, fontFamily: fontFamily.suitBold,     fontSize: 14, lineHeight: 21 },
-  suitTitleSmall:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 14, lineHeight: 21 },
-  // body: lineHeight 150%
-  suitBodyXLarge:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 17, lineHeight: 25.5 },
-  suitBodyLarge:          { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 16, lineHeight: 24 },
-  suitBodyMedium:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 14, lineHeight: 21 },
-  suitBodySmall:          { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 19.5 },
-  // label: lineHeight 125%
-  suitLabelXXLargeStrong: { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 17, lineHeight: 21.25 },
-  suitLabelXLargeStrong:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 16, lineHeight: 20 },
-  suitLabelXLarge:        { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 16, lineHeight: 20 },
-  suitLabelLargeStrong:   { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 15, lineHeight: 18.75 },
-  suitLabelLarge:         { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 15, lineHeight: 18.75 },
-  suitLabelMedium:        { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 16.25 },
-  suitLabelMediumStrong:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 13, lineHeight: 16.25 },
-
+  // 이름 = Figma 텍스트 스타일 이름 (title-large → suitTitleLarge, body-large-600 → suitBodyLarge600)
+  // title: Bold(700) 단일 굵기
+  suitTitleLarge:        { ...base, fontFamily: fontFamily.suitBold,     fontSize: 24, lineHeight: 34 },
+  suitTitleMedium:       { ...base, fontFamily: fontFamily.suitBold,     fontSize: 20, lineHeight: 28 },
+  suitTitleSmall:        { ...base, fontFamily: fontFamily.suitBold,     fontSize: 18, lineHeight: 26 },
+  // body: SemiBold(600) / Regular(400)
+  suitBodyLarge600:      { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 16, lineHeight: 24 },
+  suitBodyLarge400:      { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 16, lineHeight: 24 },
+  suitBodyMedium600:     { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 15, lineHeight: 22 },
+  suitBodyMedium400:     { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 15, lineHeight: 22 },
+  suitBodySmall600:      { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 14, lineHeight: 20 },
+  suitBodySmall400:      { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 14, lineHeight: 20 },
+  // caption: SemiBold(600) / Regular(400)
+  suitCaptionMedium600:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 13, lineHeight: 18 },
+  suitCaptionMedium400:  { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 18 },
+  suitCaptionSmall600:   { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 12, lineHeight: 16 },
+  suitCaptionSmall400:   { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 12, lineHeight: 16 },
 
   // ── Kyobo Handwriting 2025 (본문 손글씨) ──────────────────────
-  // title: lineHeight 150%
-  kyoboTitleLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 24, lineHeight: 36 },
-  kyoboTitleMedium:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 20, lineHeight: 30 },
-  kyoboTitleSmall:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 27 },
-  // body: lineHeight 150%
-  kyoboBodyXLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 19, lineHeight: 26.6 },
-  kyoboBodyLarge:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 25.2 },
-  kyoboBodyMedium:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 16, lineHeight: 22.4 },
-  kyoboBodySmall:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 14, lineHeight: 19.6 },
-  // label: lineHeight 125%
-  kyoboLabelXLarge:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 19, lineHeight: 23.75 },
-  kyoboLabelLarge:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 17, lineHeight: 21.25 },
-  kyoboLabelMedium:  { ...base, fontFamily: fontFamily.kyobo, fontSize: 15, lineHeight: 18.75 },
-  kyoboLabelSmall:   { ...base, fontFamily: fontFamily.kyobo, fontSize: 13, lineHeight: 16.25 },
+  // SUIT와 같은 이름 체계. 굵기가 하나뿐이라 600/400 접미어는 없다.
+  // 손글씨는 같은 크기에서 더 작아 보여서 body/caption은 SUIT보다 2px 크게 둔다 (title은 동일).
+  // lineHeight는 같은 자리 SUIT의 비율을 따라 정수로 반올림
+  kyoboTitleLarge:       { ...base, fontFamily: fontFamily.kyobo, fontSize: 24, lineHeight: 34 },
+  kyoboTitleMedium:      { ...base, fontFamily: fontFamily.kyobo, fontSize: 20, lineHeight: 28 },
+  kyoboTitleSmall:       { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 26 },
+  kyoboBodyLarge:        { ...base, fontFamily: fontFamily.kyobo, fontSize: 18, lineHeight: 27 },
+  kyoboBodyMedium:       { ...base, fontFamily: fontFamily.kyobo, fontSize: 17, lineHeight: 25 },
+  kyoboBodySmall:        { ...base, fontFamily: fontFamily.kyobo, fontSize: 16, lineHeight: 23 },
+  kyoboCaptionMedium:    { ...base, fontFamily: fontFamily.kyobo, fontSize: 15, lineHeight: 21 },
+  kyoboCaptionSmall:     { ...base, fontFamily: fontFamily.kyobo, fontSize: 14, lineHeight: 19 },
 };

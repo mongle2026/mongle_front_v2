@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     color: colors.fgNeutralPrimary,
   },
 });

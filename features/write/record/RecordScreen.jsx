@@ -277,7 +277,7 @@ const RecordScreen = ({ navigation, route }) => {
           <LabeledButton
             icon={<IcProfile />}
             label="수신인 선택"
-            typography={typo.suitLabelLargeStrong}
+            typography={typo.suitBodyMedium600}
             color={colors.fgNeutralSecondary}
             iconColor={colors.fgNeutralSecondary}
             backgroundColor={colors.fillNeutralWeak}
@@ -300,7 +300,7 @@ const RecordScreen = ({ navigation, route }) => {
           <LabeledButton
             icon={<IcCalendar />}
             label="도착일 선택"
-            typography={typo.suitLabelLargeStrong}
+            typography={typo.suitBodyMedium600}
             color={colors.fgNeutralSecondary}
             backgroundColor={colors.fillNeutralWeak}
             onPress={handleOpenDateSelect}

@@ -21,13 +21,13 @@ const IMAGE_WIDTH = (CONTENT_HEIGHT * 4) / 3;
 const CD_SIZE = 24;
 
 const MUSIC_TITLE_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboLabelLarge,
-  [FONT.SUIT]: typo.suitLabelLarge,
+  [FONT.KYOBO]: typo.kyoboBodyMedium,
+  [FONT.SUIT]: typo.suitBodyMedium400,
 });
 
 const CONTENT_TYPOGRAPHY = Object.freeze({
-  [FONT.KYOBO]: typo.kyoboBodyMedium,
-  [FONT.SUIT]: typo.suitBodyMedium,
+  [FONT.KYOBO]: typo.kyoboBodySmall,
+  [FONT.SUIT]: typo.suitBodySmall400,
 });
 
 const OthersPostCard = ({
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
 
   date: {
     flex: 1,
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralTertiary,
     textAlign: 'justify',
   },

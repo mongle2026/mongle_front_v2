@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    ...typo.suitLabelXLargeStrong,
+    ...typo.suitBodyLarge600,
     flexShrink: 1,
   },
 });

@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   },
 
   nickname: {
-    ...typo.suitTitleMediumStrong,
+    ...typo.suitTitleSmall,
     // 긴 닉네임은 한 줄에서 말줄임
     flexShrink: 1,
     color: colors.fgNeutralPrimary,

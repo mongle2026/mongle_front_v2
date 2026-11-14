@@ -12,12 +12,12 @@ import { padding, gap, radius } from '../../styles/token';
 import { typo } from '../../styles/typo';
 
 const BORDER_WIDTH = 1;
-const INPUT_LINE_HEIGHT = typo.suitBodyLarge.lineHeight;
+const INPUT_LINE_HEIGHT = typo.suitBodyLarge400.lineHeight;
 
 // iOS 한 줄 입력창(UITextField)은 lineHeight가 fontSize보다 크면 글자를 줄 아래쪽에 붙여 그려서
 // 글자가 아래로 밀리고 아랫부분이 잘린다. 그래서 lineHeight를 빼고 같은 값을 height로 준다.
 const { lineHeight: _lineHeight, ...inputTextWithoutLineHeight } =
-  typo.suitBodyLarge;
+  typo.suitBodyLarge400;
 const IOS_SINGLE_LINE_INPUT_STYLE = {
   ...inputTextWithoutLineHeight,
   height: INPUT_LINE_HEIGHT,
@@ -160,12 +160,12 @@ const styles = StyleSheet.create({
 
   labelText: {
     color: colors.fgNeutralPrimary,
-    ...typo.suitTitleSmallStrong,
+    ...typo.suitBodySmall600,
   },
 
   requiredMark: {
     color: colors.fgCritical,
-    ...typo.suitTitleSmallStrong,
+    ...typo.suitBodySmall600,
   },
 
   // 테두리 두께만큼 패딩을 줄여 Figma 크기(안쪽 테두리)를 유지한다
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
 
   inputText: {
-    ...typo.suitBodyLarge,
+    ...typo.suitBodyLarge400,
   },
 
   input: {
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
 
   descriptionText: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
   },
 });
 

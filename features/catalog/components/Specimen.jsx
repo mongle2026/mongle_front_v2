@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    ...typo.suitTitleXLargeStrong,
+    ...typo.suitTitleLarge,
     color: colors.fgNeutralPrimary,
   },
 
@@ -119,17 +119,17 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     color: colors.fgNeutralPrimary,
   },
 
   note: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralTertiary,
   },
 
   hint: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgInfo,
   },
 

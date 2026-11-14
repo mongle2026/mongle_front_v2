@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
 
   monthLabel: {
-    ...typo.suitLabelXLargeStrong,
+    ...typo.suitBodyLarge600,
     color: colors.fgNeutralPrimary,
     textAlign: 'center',
   },

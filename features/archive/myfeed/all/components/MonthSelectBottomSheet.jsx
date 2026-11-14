@@ -8,11 +8,12 @@ import BottomSheet, {
   DRAG_HANDLE_HEIGHT,
 } from '../../../../../shared/components/overlay/BottomSheet';
 import { padding } from '../../../../../shared/styles/token';
+import { typo } from '../../../../../shared/styles/typo';
 
 import { formatMonthLabel } from '../../utils/formatMonthLabel';
 
-// ContainerButton 한 줄 높이 (padding XL * 2 + suitLabelXLargeStrong lineHeight 20)
-const MONTH_BUTTON_HEIGHT = padding.XL * 2 + 20;
+// ContainerButton 한 줄 높이 (padding XL * 2 + suitBodyLarge600 lineHeight)
+const MONTH_BUTTON_HEIGHT = padding.XL * 2 + typo.suitBodyLarge600.lineHeight;
 
 const monthKeyExtractor = month => month;
 

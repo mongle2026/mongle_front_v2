@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   label: {
     alignSelf: 'stretch',
     color: colors.fgNeutralPrimary, 
-    ...typo.suitLabelLarge, 
+    ...typo.suitBodyMedium400, 
   },
   previewRow: {
     flexDirection: 'row',

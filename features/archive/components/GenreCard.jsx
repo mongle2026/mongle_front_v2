@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   label: {
     alignSelf: 'stretch',
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
     color: colors.fgNeutralInverted,
   },
 });

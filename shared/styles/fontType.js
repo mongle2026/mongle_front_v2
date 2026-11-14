@@ -20,7 +20,7 @@ export const normalizeFont = font => {
 // 기록 / 편지 본문 폰트별 타이포
 const BODY_FONT_STYLES = Object.freeze({
   [FONT.KYOBO]: typo.kyoboBodyLarge,
-  [FONT.SUIT]: typo.suitBodyLarge,
+  [FONT.SUIT]: typo.suitBodyLarge400,
 });
 
 export const getBodyFontStyle = font =>

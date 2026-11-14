@@ -145,12 +145,12 @@ const styles = StyleSheet.create({
   },
 
   caption: {
-    ...typo.suitLabelMediumStrong,
+    ...typo.suitCaptionMedium600,
     color: colors.fgNeutralSecondary,
   },
 
   captionWeak: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralQuaternary,
   },
 
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   },
 
   tokenName: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     flex: 1,
     color: colors.fgNeutralPrimary,
   },
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
 
   scaleLabel: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     width: 72,
     color: colors.fgNeutralTertiary,
   },

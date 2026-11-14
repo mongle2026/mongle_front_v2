@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   text: {
     flex: 1,
     color: colors.fgNeutralInverted,
-    ...typo.suitLabelLargeStrong,
+    ...typo.suitBodyMedium600,
   },
 });
 

@@ -129,12 +129,12 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    ...typo.suitLabelXLargeStrong,
+    ...typo.suitBodyLarge600,
     color: colors.fgNeutralPrimary,
   },
 
   caption: {
-    ...typo.suitLabelMedium,
+    ...typo.suitCaptionMedium400,
     color: colors.fgNeutralTertiary,
   },
 
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
 
   subtextText: {
-    ...typo.suitLabelLarge,
+    ...typo.suitBodyMedium400,
     flex: 1,
     overflow: 'hidden',
     textAlign: 'right',
