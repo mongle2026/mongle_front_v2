@@ -20,13 +20,17 @@ const saveSession = session =>
  * restriction: 신고로 이용 제한된 계정이면 { reason, restrictedAt, restrictedUntil, appealStatus }, 아니면 null.
  *   API 가 403 ACCOUNT_RESTRICTED 를 주면 채운다(shared/api/client.js). 앱을 다시 켜면 다시 확인한다.
  *   appealStatus: 이 제한에 낸 이의 신청 상태(APPEAL_STATUS). 안 냈으면 null. 이의 신청하면 PENDING 으로 바꾼다
+ * warning: 아직 확인하지 않은 경고 1회가 있으면 { reason }, 아니면 null.
+ *   GET /sanction/warning 으로 채운다(features/auth/warning/hooks/useWarningCheck.js). 경고 안내 화면에서 확인을 누르면 지운다
  */
 export const useAuthStore = create((set, get) => ({
   status: AUTH_STATUS.RESTORING,
   session: null,
   restriction: null,
+  warning: null,
 
   setRestriction: restriction => set({ restriction }),
+  setWarning: warning => set({ warning }),
 
   restoreSession: async () => {
     let session = null;
@@ -51,7 +55,12 @@ export const useAuthStore = create((set, get) => ({
     const session = { accessToken, refreshToken, userId: user.userId };
 
     await saveSession(session);
-    set({ status: AUTH_STATUS.SIGNED_IN, session, restriction: null });
+    set({
+      status: AUTH_STATUS.SIGNED_IN,
+      session,
+      restriction: null,
+      warning: null,
+    });
   },
 
   // refresh 로 새로 받은 토큰. 그 사이 로그아웃했으면 저장하지 않는다
@@ -66,7 +75,12 @@ export const useAuthStore = create((set, get) => ({
   },
 
   signOut: async () => {
-    set({ status: AUTH_STATUS.SIGNED_OUT, session: null, restriction: null });
+    set({
+      status: AUTH_STATUS.SIGNED_OUT,
+      session: null,
+      restriction: null,
+      warning: null,
+    });
 
     try {
       await SecureStore.deleteItemAsync(SESSION_STORAGE_KEY);

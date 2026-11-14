@@ -6,7 +6,7 @@ import apiClient, { getApiErrorDetail } from '../../../../shared/api/client';
 import { useAuthStore } from '../../../../shared/auth/useAuthStore';
 
 /**
- * 제재 화면에 있는 동안 이용 제한 상태를 다시 확인한다. GET /appeal/restriction
+ * 제재 화면에 있는 동안 이용 제한 상태를 다시 확인한다. GET /sanction/restriction
  *
  * - 앱으로 돌아올 때 (이의 신청 결과 푸시를 눌러서 들어온 경우 포함)
  * - 앱을 보고 있는 중에 푸시를 받을 때
@@ -20,7 +20,7 @@ const useRestrictionRecheck = () => {
   useEffect(() => {
     const recheck = async () => {
       try {
-        const { data } = await apiClient.get('/appeal/restriction');
+        const { data } = await apiClient.get('/sanction/restriction');
 
         // 그 사이 로그아웃했으면 건드리지 않는다
         if (!useAuthStore.getState().restriction) return;

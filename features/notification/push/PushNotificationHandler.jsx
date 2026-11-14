@@ -66,10 +66,12 @@ const PushNotificationHandler = ({ navigationRef, isNavigationReady }) => {
     // 로그인하지 않은 기기는 공지 푸시만 받고 알림 목록이 없어서 앱만 연다
     if (!hasId(userId)) return;
 
-    // 이용 제한 중에는 제재 화면만 있어서 이동하지 않는다 (제재 화면이 제한 상태를 다시 확인한다).
-    // 이의 신청 결과 푸시는 알림 목록에 없어서 앱만 연다
+    // 이용 제한 중에는 제재 화면만, 경고 안내 중에는 경고 안내 화면만 있어서 이동하지 않는다
+    // (제재 화면이 제한 상태를 다시 확인한다). 이의 신청 결과 푸시는 알림 목록에 없어서 앱만 연다
+    const { restriction, warning } = useAuthStore.getState();
     if (
-      useAuthStore.getState().restriction ||
+      restriction ||
+      warning ||
       APPEAL_PUSH_STATUSES.has(content.data?.status)
     ) {
       return;

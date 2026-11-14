@@ -83,8 +83,10 @@ const Empty = ({
 
   const Illustration = getIllustration();
 
-  // 계정 이용 제한처럼 경고로 알릴 때. 일러스트 대신 경고 아이콘을 쓰고 제목을 강조색으로 쓴다
-  const isAlert = type === 'alert';
+  // 계정 이용 제한처럼 경고로 알릴 때. 일러스트 대신 경고 아이콘을 쓰고 제목을 강조색으로 쓴다.
+  // warning(경고 1회 안내)은 같은 모양에 아이콘 · 제목만 기본색으로 쓴다
+  const isWarning = type === 'warning';
+  const isAlert = type === 'alert' || isWarning;
 
   return (
     <View style={[styles.container, isAlert && styles.alertContainer]}>
@@ -92,7 +94,7 @@ const Empty = ({
         <IcFilledAlert
           width={ALERT_ICON_SIZE}
           height={ALERT_ICON_SIZE}
-          color={colors.fgCritical}
+          color={isWarning ? colors.fgNeutralPrimary : colors.fgCritical}
         />
       ) : null}
 
@@ -108,7 +110,11 @@ const Empty = ({
       <View style={styles.textContainer}>
         {title ? (
           <Text
-            style={[styles.title, isAlert && styles.alertTitle]}
+            style={[
+              styles.title,
+              isAlert && styles.alertTitle,
+              isWarning && styles.warningTitle,
+            ]}
           >
             {title}
           </Text>
@@ -184,6 +190,10 @@ const styles = StyleSheet.create({
 
   alertTitle: {
     color: colors.fgCritical,
+  },
+
+  warningTitle: {
+    color: colors.fgNeutralPrimary,
   },
 
   alertBody: {
