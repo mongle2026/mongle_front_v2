@@ -4,7 +4,11 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {
+  StackActions,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 
 import IcArrowLeft from '../../assets/icons/ic_arrow_left.svg';
 
@@ -49,7 +53,8 @@ const ETC_REASON_MAX_LINES = 4;
 // 피드 · 댓글 · 편지 · 사용자 신고 화면.
 // params: { type: REPORT_TARGET_TYPE, targetId, userCode, profileImageUrl, preview, toastBottomOffset }
 // targetId: 피드 · 댓글 · 편지는 id, 사용자는 publicId
-// toastBottomOffset: 돌아간 화면에서 결과 Toast 를 띄울 높이 (그 화면의 다른 Toast 와 같은 위치)
+// toastBottomOffset: 돌아간 화면에서 결과 Toast 를 띄울 높이 (그 화면의 다른 Toast 와 같은 위치).
+//   피드 신고로 피드 상세까지 닫고 돌아갈 때는 쓰지 않는다
 const ReportScreen = () => {
   const navigation = useNavigation();
   const { params } = useRoute();
@@ -67,18 +72,37 @@ const ReportScreen = () => {
   // 실패 토스트를 신고하기 버튼 위에 띄우려고 footer 높이를 잰다
   const [footerHeight, setFooterHeight] = useState(0);
 
+  const insets = useSafeAreaInsets();
+
+  // 피드 상세에서 피드를 신고했으면 상세까지 닫고, 상세에 들어오기 바로 전 화면(피드 홈 · 프로필 · 보관함 · 알림 등)으로 돌아간다.
+  // 그 화면들은 하단 안전영역 위에 Toast 를 띄우므로 결과 Toast 도 같은 높이에 띄운다
+  const leavesFeedDetail = () => {
+    if (type !== REPORT_TARGET_TYPE.FEED) return false;
+
+    const { routes, index } = navigation.getState();
+
+    return index >= 2 && routes[index - 1]?.name === 'FeedDetail';
+  };
+
   const { report, isReporting } = useReport({
     // 이전 화면으로 돌아가서 결과를 Toast로 알린다.
     // 이미 신고한 대상이면 서버가 다시 저장하지 않고 isAlreadyReported: true 로 응답한다
     onSuccess: data => {
-      navigation.goBack();
+      let resultToastBottomOffset = toastBottomOffset;
+
+      if (leavesFeedDetail()) {
+        navigation.dispatch(StackActions.pop(2));
+        resultToastBottomOffset = insets.bottom;
+      } else {
+        navigation.goBack();
+      }
 
       if (data?.isAlreadyReported) {
         showToast({
           message: `이미 신고한 ${ALREADY_REPORTED_TARGET_NAME[type] ?? '내용'}예요.`,
           icon: 'info',
           iconColor: colors.fgInfoInverted,
-          bottomOffset: toastBottomOffset,
+          bottomOffset: resultToastBottomOffset,
         });
         return;
       }
@@ -87,7 +111,7 @@ const ReportScreen = () => {
         message: '신고가 접수됐어요.',
         icon: 'check',
         iconColor: colors.fgPositiveInverted,
-        bottomOffset: toastBottomOffset,
+        bottomOffset: resultToastBottomOffset,
       });
     },
     onError: error => {
@@ -127,7 +151,6 @@ const ReportScreen = () => {
     });
   };
 
-  const insets = useSafeAreaInsets();
   const keyboardHeight = useKeyboardHeight();
 
   const isKeyboardVisible = keyboardHeight > 0;

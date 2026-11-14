@@ -7,7 +7,7 @@ import {
   findFeedItemInHomeCache,
   removeFeedItem,
 } from '../../api/feedCache';
-import { normalizeFeedItem } from '../../api/normalizeFeed';
+import { fetchFeedDetail } from '../../api/fetchFeedDetail';
 import { archiveKeys } from '../../../archive/api/archiveKeys';
 import { hasId } from '../../../../shared/utils/id';
 
@@ -26,12 +26,7 @@ export default function useFeedDetail({ feedId, userId, onDeleteSuccess, onDelet
   } = useQuery({
     queryKey: detailQueryKey,
 
-    queryFn: async () => {
-      const response = await apiClient.get(`/feed/${feedId}`);
-
-      // 홈 캐시(placeholder)와 같은 형태로 맞춘다
-      return normalizeFeedItem(response.data);
-    },
+    queryFn: () => fetchFeedDetail(feedId),
 
     // 로그인하지 않아도(userId 없음) 볼 수 있다
     enabled: isConfigured && hasId(feedId),

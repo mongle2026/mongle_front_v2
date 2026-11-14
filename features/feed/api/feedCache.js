@@ -4,6 +4,7 @@ import {
   refreshBookmarkFollowingFeeds,
   revertBookmarkFollowState,
 } from '../../archive/api/bookmarkCache';
+import { archiveKeys } from '../../archive/api/archiveKeys';
 import { profileKeys } from '../../profile/api/profileKeys';
 import {
   findInfiniteItem,
@@ -13,6 +14,8 @@ import {
   withAuthorFollowing,
 } from '../../../shared/api/infiniteCache';
 import { isSameId, toIdKey } from '../../../shared/utils/id';
+
+import { fetchFeedDetail } from './fetchFeedDetail';
 
 const FEED_HOME_QUERY_ROOT = ['feed-home'];
 
@@ -79,6 +82,32 @@ export function updateFeedInAllCaches(queryClient, userId, feedId, updater) {
     feedDetailKeys.detail(userId, feedId),
     feed => (feed ? updater(feed) : feed),
   );
+}
+
+/*
+ * 신고한 피드를 서버에서 다시 받아, 그 사이 운영자가 가렸는지 본다.
+ * 가렸으면 홈 목록의 그 피드를 가림 카드로 바꾼다. 서버는 가린 글을 목록에서 빼므로
+ * 다음에 목록을 다시 받으면 가림 카드도 사라진다.
+ * 북마크 · 작성자 프로필 커버도 다시 받게 해서 가린 글이 남아 보이지 않게 한다.
+ * 실패해도 신고는 이미 끝났으므로 조용히 넘어간다
+ */
+export async function syncReportedFeed(queryClient, { userId, feedId }) {
+  try {
+    const feed = await queryClient.fetchQuery({
+      queryKey: feedDetailKeys.detail(userId, feedId),
+      queryFn: () => fetchFeedDetail(feedId),
+      staleTime: 0,
+    });
+
+    if (!feed?.isBlinded) return;
+
+    updateFeedInAllCaches(queryClient, userId, feedId, item => ({ ...item, isBlinded: true }));
+
+    queryClient.invalidateQueries({ queryKey: archiveKeys.bookmark(userId) });
+    queryClient.invalidateQueries({ queryKey: profileKeys.userCovers(userId, feed.user?.userId) });
+  } catch (error) {
+    console.warn('신고한 피드를 다시 불러오지 못했습니다.', error);
+  }
 }
 
 // 팔로우 상태를 홈(추천/최신/팔로잉)·상세 캐시에 반영한다. 보관함 북마크는 bookmarkCache 에서 따로 맞춘다.
