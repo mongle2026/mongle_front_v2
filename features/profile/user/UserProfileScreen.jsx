@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -8,9 +8,9 @@ import IcArrowLeft from '../../../assets/icons/ic_arrow_left.svg';
 import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import Empty from '../../../shared/components/content/Empty';
 import { Button, BUTTON_SIZE, BUTTON_VARIANT } from '../../../shared/components/action/Button';
+import Menu from '../../../shared/components/action/menu/Menu';
 import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 import useLoginDialog, { LOGIN_DIALOG_DESCRIPTION } from '../../../shared/hooks/useLoginDialog';
-import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
 import { colors } from '../../../shared/styles/color';
 import { FONT } from '../../../shared/styles/fontType';
 import { gap, padding } from '../../../shared/styles/token';
@@ -25,12 +25,9 @@ import ProfileCoverList from '../components/ProfileCoverList';
 import ProfileUserRow from '../components/ProfileUserRow';
 import useProfileFeedCovers from '../hooks/useProfileFeedCovers';
 
-import UserProfileMoreBottomSheet from './components/UserProfileMoreBottomSheet';
 import useFollowStatus from './hooks/useFollowStatus';
 import useUserFollow from './hooks/useUserFollow';
 import useUserProfile from './hooks/useUserProfile';
-
-const USER_PROFILE_MORE_OVERLAY_ID = 'user-profile-more';
 
 // 나를 차단한 회원의 프로필에 고정으로 보여주는 닉네임 · 아이디
 const UNKNOWN_USER_NICKNAME = '알 수 없는 사용자';
@@ -50,7 +47,8 @@ const UserProfileScreen = () => {
 
   const { userId } = useCurrentUser();
   const insets = useSafeAreaInsets();
-  const { openOverlay } = useGlobalOverlay();
+  // 케밥을 누르면 신고 / 차단 Menu 를 연다 (피드 상세 더보기 메뉴와 같다)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { openBlockDialog } = useBlockDialog();
   const { unblockUser, isTargetPending: isBlockPending } = useUserBlock();
   const { requireLogin } = useLoginDialog();
@@ -72,6 +70,8 @@ const UserProfileScreen = () => {
   const hidesPosts = isUnknown || isRestricted || isBlocked;
   // 닉네임 · 아이디를 흐리게, 팔로우 버튼을 Disabled 로 보여준다
   const isUnavailable = isUnknown || isRestricted;
+  // 내 프로필 · 이용 제한 · 내가 차단 · 나를 차단한 계정이면 케밥을 숨긴다
+  const showMore = !followStatus?.isMe && !hidesPosts;
   const nickname = isUnknown ? UNKNOWN_USER_NICKNAME : (user?.nickname ?? '');
   const userCode = isUnknown ? UNKNOWN_USER_CODE : user?.userCode;
   // 팔로우해야 하면 '팔로우'(Solid), 팔로우 중이면 '팔로잉'(Ghost). 피드 ProfileBar 와 같다
@@ -85,6 +85,8 @@ const UserProfileScreen = () => {
   }, [toggleFollow, ownerId, isFollowing]);
 
   const handlePressBlock = useCallback(() => {
+    setIsMenuOpen(false);
+
     openBlockDialog({
       targetUserId: ownerId,
       userCode: user?.userCode,
@@ -102,37 +104,29 @@ const UserProfileScreen = () => {
   }, [unblockUser, ownerId, user?.userCode, insets.bottom]);
 
   const handlePressMore = useCallback(() => {
-    openOverlay({
-      id: USER_PROFILE_MORE_OVERLAY_ID,
-      accessibilityLabel: '더보기 닫기',
-      contentContainerStyle: styles.moreOverlay,
-      renderContent: ({ close }) => (
-        <UserProfileMoreBottomSheet
-          onPressReport={() => {
-            close();
+    setIsMenuOpen(previous => !previous);
+  }, []);
 
-            // 신고 화면은 로그인해야 들어갈 수 있다
-            if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.REPORT)) return;
+  const closeMenu = useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
 
-            // 사용자 신고는 publicId 로 하고, 미리보기 없이 아이디 · 프로필 사진만 보여준다
-            navigation.navigate('Report', {
-              type: REPORT_TARGET_TYPE.USER,
-              targetId: ownerId,
-              userCode: user?.userCode,
-              profileImageUrl: user?.profileImageUri,
-              // 돌아와서 띄우는 신고 결과 토스트를 안드로이드 하단 네비게이션 바 위에 둔다
-              toastBottomOffset: insets.bottom,
-            });
-          }}
-          onPressBlock={() => {
-            close();
-            handlePressBlock();
-          }}
-          onClose={close}
-        />
-      ),
+  const handlePressReport = useCallback(() => {
+    setIsMenuOpen(false);
+
+    // 신고 화면은 로그인해야 들어갈 수 있다
+    if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.REPORT)) return;
+
+    // 사용자 신고는 publicId 로 하고, 미리보기 없이 아이디 · 프로필 사진만 보여준다
+    navigation.navigate('Report', {
+      type: REPORT_TARGET_TYPE.USER,
+      targetId: ownerId,
+      userCode: user?.userCode,
+      profileImageUrl: user?.profileImageUri,
+      // 돌아와서 띄우는 신고 결과 토스트를 안드로이드 하단 네비게이션 바 위에 둔다
+      toastBottomOffset: insets.bottom,
     });
-  }, [openOverlay, navigation, ownerId, requireLogin, user, insets.bottom, handlePressBlock]);
+  }, [navigation, ownerId, requireLogin, user, insets.bottom]);
 
   const header = (
     <>
@@ -218,15 +212,27 @@ const UserProfileScreen = () => {
 
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
-      <TopSubNavigation
-        leftIcon={IcArrowLeft}
-        leftAccessibilityLabel="뒤로가기"
-        onPressClose={navigation.goBack}
-        showShare={false}
-        // 내 프로필이거나 이용 제한된 계정이면 케밥을 숨긴다
-        showMore={!followStatus?.isMe && !isRestricted}
-        onPressMore={handlePressMore}
-      />
+      <View style={styles.topNavigationContainer}>
+        <TopSubNavigation
+          leftIcon={IcArrowLeft}
+          leftAccessibilityLabel="뒤로가기"
+          onPressClose={navigation.goBack}
+          showShare={false}
+          showMore={showMore}
+          onPressMore={handlePressMore}
+        />
+
+        {isMenuOpen && showMore && (
+          <Menu
+            style={styles.menu}
+            showReport
+            showEdit={false}
+            showDelete={false}
+            onPressReport={handlePressReport}
+            onPressBlock={handlePressBlock}
+          />
+        )}
+      </View>
 
       {hidesPosts ? (
         // 게시물은 모두 숨기고 남은 자리 가운데에 Empty 를 둔다
@@ -256,7 +262,7 @@ const UserProfileScreen = () => {
         </View>
       ) : (
         // TopSubNavigation 아래 전체(이름 + 프로필 정보 + 커버 그리드)가 함께 스크롤된다
-        <ProfileCoverList header={header} {...coverQuery} />
+        <ProfileCoverList header={header} onScrollBeginDrag={closeMenu} {...coverQuery} />
       )}
     </SafeAreaView>
   );
@@ -325,13 +331,19 @@ const styles = StyleSheet.create({
     opacity: 0,
   },
 
-  // BottomSheet를 화면 전체 위에 띄운다
-  moreOverlay: {
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  // 더보기 Menu 가 아래 목록 위에 뜨도록 위로 올린다
+  topNavigationContainer: {
     width: '100%',
+    position: 'relative',
+    zIndex: 20,
+  },
+
+  // 케밥 버튼 바로 아래 오른쪽에 붙인다 (피드 상세와 같다)
+  menu: {
+    position: 'absolute',
+    top: '100%',
+    right: padding.L,
+    zIndex: 30,
   },
 });
 

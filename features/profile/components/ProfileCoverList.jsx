@@ -26,6 +26,7 @@ const ProfileCoverList = ({
   hasNextPage,
   isFetchingNextPage,
   fetchNextPage,
+  onScrollBeginDrag,
 }) => {
   const navigation = useNavigation();
   const coverRows = useMemo(() => chunk(covers, COLUMN_COUNT), [covers]);
@@ -83,6 +84,7 @@ const ProfileCoverList = ({
       onEndReached={handleEndReached}
       onEndReachedThreshold={END_REACHED_THRESHOLD}
       showsVerticalScrollIndicator={false}
+      onScrollBeginDrag={onScrollBeginDrag}
       contentContainerStyle={contentContainerStyle}
     />
   );
