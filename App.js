@@ -49,8 +49,8 @@ import AccountRestrictedScreen from './features/auth/restricted/AccountRestricte
 import AppealScreen from './features/auth/restricted/appeal/AppealScreen';
 import RestrictionLiftedScreen from './features/auth/restricted/lifted/RestrictionLiftedScreen';
 import WarningNoticeScreen from './features/auth/warning/WarningNoticeScreen';
-import AccountWithdrawnScreen from './features/auth/withdrawn/AccountWithdrawnScreen';
-import RejoinBlockedScreen from './features/auth/withdrawn/RejoinBlockedScreen';
+import AccountWithdrawnScreen from './features/auth/banned/AccountWithdrawnScreen';
+import RejoinBlockedScreen from './features/auth/banned/RejoinBlockedScreen';
 import useWarningCheck from './features/auth/warning/hooks/useWarningCheck';
 import useRestrictionLiftCheck from './features/auth/restricted/lifted/hooks/useRestrictionLiftCheck';
 import TermsScreen from './features/signup/terms/TermsScreen';
