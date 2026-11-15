@@ -22,6 +22,8 @@ export const NOTIFICATION_STATUS = {
   // 소식: 이의 신청한 사람에게 이의 신청 결과
   APPEAL_ACCEPTED: 'appeal_accepted',
   APPEAL_REJECTED: 'appeal_rejected',
+  // 소식: 이용 정지 기간이 끝난 사람에게 이용 정지 해제 안내
+  RESTRICTION_EXPIRED: 'restriction_expired',
 };
 
 // 신고 처리 알림의 대상 종류 (백엔드 ReportTargetType)

@@ -131,6 +131,11 @@ const NOTIFICATION_CONTENT = {
       body: '검토 결과 위반이 확인되어 이용 정지가 유지돼요.',
       profileColor: colors.fgNeutralTertiary,
     }),
+    [NOTIFICATION_STATUS.RESTRICTION_EXPIRED]: () => ({
+      title: '이용 정지 해제 안내',
+      body: '이용 정지 기간이 끝났어요. 다시 몽글에서 만나요.',
+      profileColor: colors.fgNeutralTertiary,
+    }),
   },
 };
 
