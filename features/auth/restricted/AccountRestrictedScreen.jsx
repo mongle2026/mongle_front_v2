@@ -13,7 +13,7 @@ import {
 } from '../../../shared/components/action/Button';
 import { useAuthStore } from '../../../shared/auth/useAuthStore';
 
-import { REPORT_REASONS } from '../../report/constants';
+import { getReportReasonLabel } from '../../report/constants';
 import { APPEAL_STATUS } from './constants';
 import useRestrictionRecheck from './hooks/useRestrictionRecheck';
 import { formatDate } from '../../../shared/utils/dateUtils';
@@ -90,8 +90,7 @@ const AccountRestrictedScreen = () => {
 
   const isPermanent = restrictedUntil == null;
 
-  const reasonLabel =
-    REPORT_REASONS.find(item => item.key === reason)?.label ?? reason;
+  const reasonLabel = getReportReasonLabel(reason);
   const until = restrictedUntil ? `${formatDate(restrictedUntil)} 까지 ` : '';
 
   useRestrictionRecheck();

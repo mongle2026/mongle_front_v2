@@ -10,7 +10,7 @@ import {
 import apiClient, { getApiErrorDetail } from '../../../shared/api/client';
 import { useAuthStore } from '../../../shared/auth/useAuthStore';
 
-import { REPORT_REASONS } from '../../report/constants';
+import { getReportReasonLabel } from '../../report/constants';
 import { getRoSuffix } from '../../../shared/utils/koreanUtils';
 import { colors } from '../../../shared/styles/color';
 import { FONT } from '../../../shared/styles/fontType';
@@ -29,8 +29,7 @@ const WarningNoticeScreen = () => {
   const reason = useAuthStore(state => state.warning?.reason);
   const setWarning = useAuthStore(state => state.setWarning);
 
-  const reasonLabel =
-    REPORT_REASONS.find(item => item.key === reason)?.label ?? reason;
+  const reasonLabel = getReportReasonLabel(reason);
 
   const handleConfirm = () => {
     setWarning(null);

@@ -27,7 +27,7 @@ import { FONT } from '../../../../shared/styles/fontType';
 import { gap, padding, radius } from '../../../../shared/styles/token';
 import { typo } from '../../../../shared/styles/typo';
 
-import { REPORT_REASONS } from '../../../report/constants';
+import { getReportReasonLabel } from '../../../report/constants';
 import useAppeal from './hooks/useAppeal';
 
 const HEADER_TEXT = '이의 신청';
@@ -71,8 +71,7 @@ const AppealScreen = () => {
   const { showToast } = useGlobalOverlay();
   const setRestriction = useAuthStore(state => state.setRestriction);
 
-  const reasonLabel =
-    REPORT_REASONS.find(item => item.key === reason)?.label ?? reason;
+  const reasonLabel = getReportReasonLabel(reason);
   const periodLabel = getPeriodLabel(
     restrictedAt,
     restrictedUntil,

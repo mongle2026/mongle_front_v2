@@ -28,3 +28,8 @@ export const REPORT_REASONS = [
 ];
 
 export const ETC_REASON_MAX_LENGTH = 200;
+
+// 백엔드 ReportReason('SPAM' 등)을 신고하기 화면과 같은 문구('스팸 · 광고')로 바꾼다.
+// 모르는 값이면 받은 값을 그대로 보여준다
+export const getReportReasonLabel = reason =>
+  REPORT_REASONS.find(item => item.key === reason)?.label ?? reason;
