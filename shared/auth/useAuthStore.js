@@ -25,7 +25,7 @@ const saveSession = session =>
  *   GET /sanction/restriction-lift(useRestrictionLiftCheck) · 제재 화면의 다시 확인(useRestrictionRecheck)으로 채운다.
  *   해제 안내 화면에서 몽글 시작하기를 누르면 지운다
  * warning: 아직 확인하지 않은 경고 1회가 있으면 { reason }, 아니면 null.
- *   GET /sanction/warning 으로 채운다(features/auth/warning/hooks/useWarningCheck.js). 경고 안내 화면에서 확인을 누르면 지운다
+ *   GET /sanction/warning 으로 채운다(features/sanction/warning/hooks/useWarningCheck.js). 경고 안내 화면에서 확인을 누르면 지운다
  * isAccountWithdrawn: 영구 정지로 탈퇴 처리돼서 로그아웃됐으면 true. 탈퇴 완료 화면(AccountWithdrawnScreen)을 띄운다.
  *   API 가 401 ACCOUNT_WITHDRAWN 을 주면 signOut({ isAccountWithdrawn: true }) 로 채운다(shared/api/client.js). 확인을 누르면 지운다
  */

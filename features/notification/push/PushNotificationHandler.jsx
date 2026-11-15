@@ -7,7 +7,7 @@ import { notificationKeys } from '../api/notificationKeys';
 import { getNotificationRoute } from '../utils/getNotificationRoute';
 import { registerPushToken } from './registerPushToken';
 import { hasId } from '../../../shared/utils/id';
-import { APPEAL_PUSH_STATUSES } from '../../auth/restricted/constants';
+import { APPEAL_PUSH_STATUSES } from '../../sanction/restricted/constants';
 
 // 앱을 보고 있는 중에 온 알림도 배너로 띄운다
 Notifications.setNotificationHandler({
