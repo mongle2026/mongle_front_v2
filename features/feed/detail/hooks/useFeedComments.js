@@ -38,6 +38,9 @@ const normalizeComment = ({
     isWithdrawn: Boolean(comment.user?.isWithdrawn),
     nickname: comment.user?.nickname ?? '',
 
+    // 이용이 제한된 회원. 아이디 · 프로필 사진만 제한 안내로 바꾸고 내용은 그대로 보여준다
+    isRestricted: Boolean(comment.user?.isRestricted),
+
     comment: comment.content ?? '',
 
     createdAt: comment.createdAt

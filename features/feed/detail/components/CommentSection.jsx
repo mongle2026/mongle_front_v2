@@ -123,6 +123,7 @@ const CommentSection = ({
               <Comment
                 userCode={comment.userCode}
                 isWithdrawn={comment.isWithdrawn}
+                isRestricted={comment.isRestricted}
                 isBlinded={comment.isBlinded}
                 nickname={comment.nickname}
                 comment={comment.comment}

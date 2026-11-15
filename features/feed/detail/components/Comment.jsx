@@ -20,11 +20,14 @@ import { typo } from '../../../../shared/styles/typo';
 
 const BLINDED_AUTHOR_NAME = '(삭제된 댓글)';
 const BLINDED_COMMENT = '운영정책에 따라 삭제된 댓글이에요.';
+const RESTRICTED_AUTHOR_NAME = '(이용이 제한된 회원)';
 
 const Comment = ({
   userCode,
   // 탈퇴한 회원의 댓글이면 아이디 대신 닉네임(서버가 '(탈퇴한 회원)'으로 보낸다), 프로필 사진은 탈퇴 회원 이미지로 고정한다
   isWithdrawn = false,
+  // 이용이 제한된 회원의 댓글이면 아이디 · 프로필 사진만 제한 안내로 바꾸고 내용은 그대로 보여준다
+  isRestricted = false,
   // 운영자가 가린 댓글이면 아이디 · 내용 · 프로필 사진을 가림 안내로 바꾸고 답글 달기를 막는다
   isBlinded = false,
   nickname,
@@ -45,9 +48,13 @@ const Comment = ({
   const menuButtonRef = useRef(null);
 
   const normalizedUserCode = String(userCode ?? '').replace(/^@+/, '');
+  // 가린 댓글이 먼저다. 제한된 회원의 댓글도 가려지면 가린 댓글로 보인다
+  const showsRestricted = isRestricted && !isBlinded && !isWithdrawn;
   const authorName = isBlinded
     ? BLINDED_AUTHOR_NAME
-    : isWithdrawn ? nickname : `@${normalizedUserCode}`;
+    : isWithdrawn
+      ? nickname
+      : showsRestricted ? RESTRICTED_AUTHOR_NAME : `@${normalizedUserCode}`;
   const displayComment = isBlinded ? BLINDED_COMMENT : comment;
 
   // 키보드가 올라온 뒤 이 댓글이 가려졌는지 다시 재야 해서
@@ -107,7 +114,7 @@ const Comment = ({
               <ProfileImg
                 imageUri={profileImageUrl}
                 isWithdrawn={isWithdrawn}
-                isRestricted={isBlinded}
+                isRestricted={isBlinded || showsRestricted}
                 size="M"
               />
             </Pressable>
@@ -115,7 +122,7 @@ const Comment = ({
             <ProfileImg
               imageUri={profileImageUrl}
               isWithdrawn={isWithdrawn}
-              isRestricted={isBlinded}
+              isRestricted={isBlinded || showsRestricted}
               size="M"
             />
           )}
@@ -125,7 +132,11 @@ const Comment = ({
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={[styles.userId, isWithdrawn && !isBlinded && styles.withdrawnUserId]}
+                style={[
+                  styles.userId,
+                  isWithdrawn && !isBlinded && styles.withdrawnUserId,
+                  showsRestricted && styles.restrictedUserId,
+                ]}
               >
                 {authorName}
               </Text>
@@ -234,6 +245,12 @@ const styles = StyleSheet.create({
   // 탈퇴한 회원 이름 '(탈퇴한 회원)'
   withdrawnUserId: {
     color: colors.fgDisabled,
+  },
+
+  // 이용이 제한된 회원 이름 '(이용이 제한된 회원)'
+  restrictedUserId: {
+    ...typo.suitLabelMediumStrong,
+    color: colors.fgNeutralTertiary,
   },
 
   date: {
