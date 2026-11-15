@@ -67,8 +67,10 @@ const getPermanentContent = ({
  * - reason: 백엔드 ReportReason('SPAM' 등). 신고하기 화면과 같은 문구('스팸 · 광고')로 보여준다
  * - restrictedAt: 제한이 시작된 시각(ISO 문자열). 이의 신청 화면의 제한 기간에 쓴다
  * - restrictedUntil: 제한이 끝나는 시각(ISO 문자열). 영구 정지면 null 이라 영구 정지 문구를 쓴다
- * - withdrawAt: 영구 정지 계정이 자동으로 탈퇴되는 시각(ISO 문자열). 영구 정지일 때만 쓴다
- *   (TODO: 백엔드 연결 시 필드 이름 확인)
+ * - appealDeadline: 이의 신청할 수 있는 마지막 시각(ISO 문자열). 영구 정지면 제한 시작 + 7일이라 탈퇴 예정일로 쓴다.
+ *   403 응답에는 없어서 화면에 들어올 때 GET /sanction/restriction 으로 받는다 (useRestrictionRecheck)
+ * - rejoinAvailableAt: 영구 정지일 때 재가입이 풀리는 시각(ISO 문자열). 이의 신청 화면의 제한 기간에 쓴다.
+ *   appealDeadline 처럼 GET /sanction/restriction 으로 받는다
  * - appealStatus: 이의 신청 상태. 검토 중이거나 기각되면 이의 신청하기 버튼을 막는다.
  *   검토 중 · 기각이면 그에 맞는 문구로 안내한다
  *
@@ -77,8 +79,14 @@ const getPermanentContent = ({
 const AccountRestrictedScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { reason, restrictedAt, restrictedUntil, withdrawAt, appealStatus } =
-    useAuthStore(state => state.restriction) ?? {};
+  const {
+    reason,
+    restrictedAt,
+    restrictedUntil,
+    appealDeadline,
+    appealStatus,
+    rejoinAvailableAt,
+  } = useAuthStore(state => state.restriction) ?? {};
 
   const isPermanent = restrictedUntil == null;
 
@@ -95,7 +103,7 @@ const AccountRestrictedScreen = () => {
   const { title, body } = isPermanent
     ? getPermanentContent({
         reasonLabel,
-        withdrawDate: formatDate(withdrawAt),
+        withdrawDate: formatDate(appealDeadline),
         isAppealPending,
         isAppealRejected,
       })
@@ -114,6 +122,7 @@ const AccountRestrictedScreen = () => {
           type="alert"
           title={title}
           body={body}
+          showPolicyLinks
         />
       </View>
 
@@ -130,6 +139,7 @@ const AccountRestrictedScreen = () => {
               reason,
               restrictedAt,
               restrictedUntil,
+              rejoinAvailableAt,
               // 버튼과 겹쳐도 되고, 안드로이드 하단 네비게이션 바 위에만 뜨면 된다
               toastBottomOffset: insets.bottom,
             })

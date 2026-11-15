@@ -39,6 +39,14 @@ apiClient.interceptors.request.use(config => {
 // refresh token 은 한 번 쓰면 바뀌어서(rotation) 두 번 보내면 두 번째는 실패한다
 let refreshPromise = null;
 
+// 영구 정지로 탈퇴 처리된 계정이면 서버가 401 과 이 code 를 준다 (API · refresh 모두).
+// 받으면 로그아웃하고 탈퇴 완료 화면(AccountWithdrawnScreen)을 띄운다
+const ACCOUNT_WITHDRAWN_ERROR_CODE = 'ACCOUNT_WITHDRAWN';
+
+const isAccountWithdrawnError = error =>
+  error?.response?.status === 401 &&
+  error.response.data?.code === ACCOUNT_WITHDRAWN_ERROR_CODE;
+
 const refreshTokens = refreshToken => {
   refreshPromise ??= axios
     // interceptor 를 타지 않도록 axios 를 직접 쓴다
@@ -51,7 +59,9 @@ const refreshTokens = refreshToken => {
       // refresh token 이 만료 · 무효(다른 기기에서 로그인 등)면 다시 로그인해야 한다.
       // 네트워크 에러는 로그인을 유지한다
       if (error?.response?.status === 401) {
-        await useAuthStore.getState().signOut();
+        await useAuthStore
+          .getState()
+          .signOut({ isAccountWithdrawn: isAccountWithdrawnError(error) });
       }
 
       throw error;
@@ -77,12 +87,33 @@ apiClient.interceptors.response.use(undefined, async error => {
     response.data?.code === ACCOUNT_RESTRICTED_ERROR_CODE &&
     session
   ) {
+    const current = useAuthStore.getState().restriction;
+    const restrictedAt = response.data.restrictedAt ?? null;
+    const isSameRestriction = current?.restrictedAt === restrictedAt;
+
     useAuthStore.getState().setRestriction({
       reason: response.data.reason ?? null,
-      restrictedAt: response.data.restrictedAt ?? null,
+      restrictedAt,
       restrictedUntil: response.data.restrictedUntil ?? null,
       appealStatus: response.data.appealStatus ?? null,
+      // appealDeadline · rejoinAvailableAt 은 403 응답에는 없어서 제재 화면이 GET /sanction/restriction 으로 채운다.
+      // 같은 제한이면 받아 둔 값을 그대로 쓴다
+      appealDeadline:
+        response.data.appealDeadline ??
+        (isSameRestriction ? current.appealDeadline : null) ??
+        null,
+      rejoinAvailableAt:
+        response.data.rejoinAvailableAt ??
+        (isSameRestriction ? current.rejoinAvailableAt : null) ??
+        null,
     });
+  }
+
+  // 탈퇴 처리된 계정은 토큰을 새로 받아도 막혀서 바로 로그아웃한다.
+  // 동시에 여러 요청이 받아도 첫 번째에서 session 이 비워져서 한 번만 한다
+  if (isAccountWithdrawnError(error) && session) {
+    await useAuthStore.getState().signOut({ isAccountWithdrawn: true });
+    throw error;
   }
 
   if (

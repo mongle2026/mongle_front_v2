@@ -47,6 +47,7 @@ const WarningNoticeScreen = () => {
           type="warning"
           title="운영정책 위반으로 경고를 받았어요"
           body={`${reasonLabel}${getRoSuffix(reasonLabel)} 경고 1회를 받았어요.\n한 번 더 경고를 받으면 7일 동안 이용이 정지돼요.`}
+          showPolicyLinks
         />
       </View>
 

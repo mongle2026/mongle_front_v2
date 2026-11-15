@@ -43,6 +43,8 @@ export const typo = {
   suitCaptionMedium400:  { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 18 },
   suitCaptionSmall600:   { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 12, lineHeight: 16 },
   suitCaptionSmall400:   { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 12, lineHeight: 16 },
+  // label: SemiBold(600). Figma label/labelMediumStrong (line-height 125%)
+  suitLabelMediumStrong: { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 13, lineHeight: 16.25 },
 
   // ── Kyobo Handwriting 2025 (본문 손글씨) ──────────────────────
   // SUIT와 같은 이름 체계. 굵기가 하나뿐이라 600/400 접미어는 없다.

@@ -7,38 +7,48 @@ import {
   BUTTON_SIZE,
   BUTTON_VARIANT,
 } from '../../../shared/components/action/Button';
+import { useAuthStore } from '../../../shared/auth/useAuthStore';
 
 import { colors } from '../../../shared/styles/color';
 import { FONT } from '../../../shared/styles/fontType';
 import { padding } from '../../../shared/styles/token';
 
 /**
- * 영구 정지 후 7일이 지나 자동으로 탈퇴 처리된 계정
+ * 영구 정지 후 7일이 지나 자동으로 탈퇴 처리된 계정 (운영자가 탈퇴시킨 경우 포함)
  *
- * TODO: 확인 버튼 동작 연결
+ * API 가 401 ACCOUNT_WITHDRAWN 을 주면 로그아웃하면서 useAuthStore.isAccountWithdrawn 을 채워 띄운다 (shared/api/client.js).
+ * 확인을 누르면 isAccountWithdrawn 을 지워서 로그아웃한 상태의 원래 화면으로 돌아간다
  */
-const AccountWithdrawnScreen = () => (
-  <SafeAreaView style={styles.container}>
-    <View style={styles.content}>
-      <Empty
-        type="alert"
-        title="계정이 탈퇴 처리됐어요"
-        body={`영구 정지 후 7일이 지나\n운영정책에 따라 탈퇴 처리됐어요.\n일정 기간 동안 다시 가입할 수 없어요.`}
-      />
-    </View>
+const AccountWithdrawnScreen = () => {
+  const setIsAccountWithdrawn = useAuthStore(
+    state => state.setIsAccountWithdrawn,
+  );
 
-    <View style={styles.footer}>
-      <Button
-        variant={BUTTON_VARIANT.WEAK}
-        size={BUTTON_SIZE.XL}
-        font={FONT.SUIT}
-        style={styles.confirmButton}
-      >
-        확인
-      </Button>
-    </View>
-  </SafeAreaView>
-);
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Empty
+          type="alert"
+          title="계정이 탈퇴 처리됐어요"
+          body={`영구 정지 후 7일이 지나\n운영정책에 따라 탈퇴 처리됐어요.\n일정 기간 동안 다시 가입할 수 없어요.`}
+          showPolicyLinks
+        />
+      </View>
+
+      <View style={styles.footer}>
+        <Button
+          variant={BUTTON_VARIANT.WEAK}
+          size={BUTTON_SIZE.XL}
+          font={FONT.SUIT}
+          style={styles.confirmButton}
+          onPress={() => setIsAccountWithdrawn(false)}
+        >
+          확인
+        </Button>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

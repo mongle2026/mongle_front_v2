@@ -49,6 +49,8 @@ import AccountRestrictedScreen from './features/auth/restricted/AccountRestricte
 import AppealScreen from './features/auth/restricted/appeal/AppealScreen';
 import RestrictionLiftedScreen from './features/auth/restricted/lifted/RestrictionLiftedScreen';
 import WarningNoticeScreen from './features/auth/warning/WarningNoticeScreen';
+import AccountWithdrawnScreen from './features/auth/withdrawn/AccountWithdrawnScreen';
+import RejoinBlockedScreen from './features/auth/withdrawn/RejoinBlockedScreen';
 import useWarningCheck from './features/auth/warning/hooks/useWarningCheck';
 import useRestrictionLiftCheck from './features/auth/restricted/lifted/hooks/useRestrictionLiftCheck';
 import TermsScreen from './features/signup/terms/TermsScreen';
@@ -453,6 +455,11 @@ const RootNavigator = ({ isSignedIn, showOnboarding }) => (
           name="Signup"
           component={SignupScreen}
         />
+        {/* 재가입 제한 중인 소셜 계정으로 로그인했을 때. params: { rejoinAvailableAt } */}
+        <Stack.Screen
+          name="RejoinBlocked"
+          component={RejoinBlockedScreen}
+        />
       </Stack.Group>
     )}
   </Stack.Navigator>
@@ -499,6 +506,18 @@ const WarningNavigator = () => (
   </Stack.Navigator>
 );
 
+// 영구 정지로 탈퇴 처리돼서 로그아웃된 계정. 확인을 누르면 로그아웃한 상태의 원래 화면으로 돌아간다
+const AccountWithdrawnNavigator = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      gestureEnabled: false,
+    }}
+  >
+    <Stack.Screen name="AccountWithdrawn" component={AccountWithdrawnScreen} />
+  </Stack.Navigator>
+);
+
 export default function App() {
   const [isNavigationReady, setIsNavigationReady] = useState(false);
   const [isSplashVisible, setIsSplashVisible] = useState(true);
@@ -507,6 +526,7 @@ export default function App() {
   const restriction = useAuthStore(state => state.restriction);
   const restrictionLifted = useAuthStore(state => state.restrictionLifted);
   const warning = useAuthStore(state => state.warning);
+  const isAccountWithdrawn = useAuthStore(state => state.isAccountWithdrawn);
   const restoreSession = useAuthStore(state => state.restoreSession);
   const isAuthRestored = authStatus !== AUTH_STATUS.RESTORING;
 
@@ -586,6 +606,8 @@ export default function App() {
                     <RestrictionLiftedNavigator />
                   ) : isSignedIn && warning ? (
                     <WarningNavigator />
+                  ) : !isSignedIn && isAccountWithdrawn ? (
+                    <AccountWithdrawnNavigator />
                   ) : (
                     <RootNavigator
                       isSignedIn={isSignedIn}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 
 import IlEmptyComment from '../../../assets/illustrations/il_empty_comment.svg';
 import IlEmptyRecipient from '../../../assets/illustrations/il_empty_recipient.svg';
@@ -28,10 +29,18 @@ import { FONT } from '../../styles/fontType';
 
 const ALERT_ICON_SIZE = 24;
 
+const TERMS_URL =
+  'https://mongle-music-letter.notion.site/4058a27574f080d49a63e15237a48fb3';
+const PRIVACY_URL =
+  'https://mongle-music-letter.notion.site/4058a27574f0800e9b0fd1a49021ad73';
+
 const Empty = ({
   type,
   title,
   body,
+
+  // 계정 경고 · 이용 제한 · 탈퇴 안내에서 본문 아래에 이용약관 · 개인정보처리방침 링크를 둔다
+  showPolicyLinks = false,
 
   /**
    * buttonLabel을 넘기지 않으면 버튼은 렌더되지 않습니다.
@@ -125,7 +134,12 @@ const Empty = ({
         </View>
       ) : null}
 
-      <View style={styles.textContainer}>
+      <View
+        style={[
+          styles.textContainer,
+          showPolicyLinks && styles.policyTextContainer,
+        ]}
+      >
         {title ? (
           <Text
             style={[
@@ -144,6 +158,28 @@ const Empty = ({
           >
             {body}
           </Text>
+        ) : null}
+
+        {showPolicyLinks ? (
+          <View style={styles.linkRow}>
+            <Text
+              style={[styles.linkText, styles.linkUnderline]}
+              accessibilityRole="link"
+              onPress={() => WebBrowser.openBrowserAsync(TERMS_URL)}
+            >
+              이용약관
+            </Text>
+
+            <Text style={styles.linkText}>·</Text>
+
+            <Text
+              style={[styles.linkText, styles.linkUnderline]}
+              accessibilityRole="link"
+              onPress={() => WebBrowser.openBrowserAsync(PRIVACY_URL)}
+            >
+              개인정보처리방침
+            </Text>
+          </View>
         ) : null}
       </View>
 
@@ -204,6 +240,27 @@ const styles = StyleSheet.create({
 
   alertContainer: {
     gap: gap.M,
+  },
+
+  policyTextContainer: {
+    gap: gap.M,
+  },
+
+  linkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: gap.M,
+  },
+
+  linkText: {
+    ...typo.suitLabelMediumStrong,
+
+    color: colors.fgNeutralTertiary,
+  },
+
+  linkUnderline: {
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'solid',
   },
 
   alertTitle: {

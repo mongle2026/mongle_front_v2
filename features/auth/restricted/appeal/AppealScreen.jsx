@@ -35,22 +35,25 @@ const HEADER_TEXT = '이의 신청';
 const APPEAL_MAX_LENGTH = 500;
 const APPEAL_MAX_LINES = 4;
 
-// 영구 제한이면 restrictedUntil 이 null 이다
+// 영구 정지인데 재가입이 풀리는 시각을 아직 받지 못했을 때
 const PERMANENT_LABEL = '영구';
 
 // 제한 기간: 'yy.mm.dd ~ yy.mm.dd'. 시작 시각이 없으면(이전 응답) 끝나는 날만 보여준다
-const getPeriodLabel = (restrictedAt, restrictedUntil) => {
-  if (!restrictedUntil) return PERMANENT_LABEL;
+// - 영구 정지(restrictedUntil 이 null): 끝나는 날은 서버가 준 재가입이 풀리는 시각(rejoinAvailableAt)
+// - 기간 정지: 끝나는 날은 restrictedUntil
+const getPeriodLabel = (restrictedAt, restrictedUntil, rejoinAvailableAt) => {
+  const end = restrictedUntil ?? rejoinAvailableAt;
+  if (!end) return PERMANENT_LABEL;
 
-  const until = formatDate(restrictedUntil);
+  const until = formatDate(end);
   return restrictedAt ? `${formatDate(restrictedAt)} ~ ${until}` : until;
 };
 
 /**
  * 이용 제한에 이의 신청하는 화면. 제재 화면(AccountRestrictedScreen)에서 들어온다
  *
- * params: { reason, restrictedAt, restrictedUntil, toastBottomOffset }
- * - reason, restrictedAt, restrictedUntil: 제재 화면과 같은 값
+ * params: { reason, restrictedAt, restrictedUntil, rejoinAvailableAt, toastBottomOffset }
+ * - reason, restrictedAt, restrictedUntil, rejoinAvailableAt: 제재 화면과 같은 값
  * - toastBottomOffset: 접수되고 제재 화면으로 돌아가서 띄우는 토스트 위치 (안드로이드 하단 네비게이션 바 위)
  *
  * 접수되면 restriction.appealStatus 를 서버가 준 값(검토 중)으로 바꿔서 제재 화면 버튼을 막는다
@@ -61,6 +64,7 @@ const AppealScreen = () => {
     reason,
     restrictedAt,
     restrictedUntil,
+    rejoinAvailableAt,
     toastBottomOffset = 0,
   } = useRoute().params ?? {};
 
@@ -69,7 +73,11 @@ const AppealScreen = () => {
 
   const reasonLabel =
     REPORT_REASONS.find(item => item.key === reason)?.label ?? reason;
-  const periodLabel = getPeriodLabel(restrictedAt, restrictedUntil);
+  const periodLabel = getPeriodLabel(
+    restrictedAt,
+    restrictedUntil,
+    rejoinAvailableAt,
+  );
 
   const [content, setContent] = useState('');
 

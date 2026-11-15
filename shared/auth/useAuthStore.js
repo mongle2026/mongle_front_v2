@@ -17,7 +17,8 @@ const saveSession = session =>
 
 /**
  * session: { accessToken, refreshToken, userId } | null
- * restriction: 신고로 이용 제한된 계정이면 { reason, restrictedAt, restrictedUntil, appealStatus }, 아니면 null.
+ * restriction: 신고로 이용 제한된 계정이면 { reason, restrictedAt, restrictedUntil, appealStatus, appealDeadline, rejoinAvailableAt }, 아니면 null.
+ *   rejoinAvailableAt: 영구 정지일 때 재가입이 풀리는 시각. 이의 신청 화면의 제한 기간 끝으로 쓴다
  *   API 가 403 ACCOUNT_RESTRICTED 를 주면 채운다(shared/api/client.js). 앱을 다시 켜면 다시 확인한다.
  *   appealStatus: 이 제한에 낸 이의 신청 상태(APPEAL_STATUS). 안 냈으면 null. 이의 신청하면 PENDING 으로 바꾼다
  * restrictionLifted: 이용 제한이 풀리고 아직 해제 안내를 확인하지 않았으면 { reason: RESTRICTION_LIFT_REASON }, 아니면 null.
@@ -25,6 +26,8 @@ const saveSession = session =>
  *   해제 안내 화면에서 몽글 시작하기를 누르면 지운다
  * warning: 아직 확인하지 않은 경고 1회가 있으면 { reason }, 아니면 null.
  *   GET /sanction/warning 으로 채운다(features/auth/warning/hooks/useWarningCheck.js). 경고 안내 화면에서 확인을 누르면 지운다
+ * isAccountWithdrawn: 영구 정지로 탈퇴 처리돼서 로그아웃됐으면 true. 탈퇴 완료 화면(AccountWithdrawnScreen)을 띄운다.
+ *   API 가 401 ACCOUNT_WITHDRAWN 을 주면 signOut({ isAccountWithdrawn: true }) 로 채운다(shared/api/client.js). 확인을 누르면 지운다
  */
 export const useAuthStore = create((set, get) => ({
   status: AUTH_STATUS.RESTORING,
@@ -32,10 +35,12 @@ export const useAuthStore = create((set, get) => ({
   restriction: null,
   restrictionLifted: null,
   warning: null,
+  isAccountWithdrawn: false,
 
   setRestriction: restriction => set({ restriction }),
   setRestrictionLifted: restrictionLifted => set({ restrictionLifted }),
   setWarning: warning => set({ warning }),
+  setIsAccountWithdrawn: isAccountWithdrawn => set({ isAccountWithdrawn }),
 
   restoreSession: async () => {
     let session = null;
@@ -66,6 +71,7 @@ export const useAuthStore = create((set, get) => ({
       restriction: null,
       restrictionLifted: null,
       warning: null,
+      isAccountWithdrawn: false,
     });
   },
 
@@ -80,13 +86,15 @@ export const useAuthStore = create((set, get) => ({
     set({ session: nextSession });
   },
 
-  signOut: async () => {
+  // isAccountWithdrawn: 영구 정지로 탈퇴 처리돼서 로그아웃하는지. true 면 탈퇴 완료 화면을 띄운다
+  signOut: async ({ isAccountWithdrawn = false } = {}) => {
     set({
       status: AUTH_STATUS.SIGNED_OUT,
       session: null,
       restriction: null,
       restrictionLifted: null,
       warning: null,
+      isAccountWithdrawn,
     });
 
     try {

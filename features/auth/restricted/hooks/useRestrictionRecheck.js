@@ -8,6 +8,7 @@ import { useAuthStore } from '../../../../shared/auth/useAuthStore';
 /**
  * 제재 화면에 있는 동안 이용 제한 상태를 다시 확인한다. GET /sanction/restriction
  *
+ * - 제재 화면에 들어올 때 (403 응답에 없는 appealDeadline · rejoinAvailableAt 을 받는다)
  * - 앱으로 돌아올 때 (이의 신청 결과 푸시를 눌러서 들어온 경우 포함)
  * - 앱을 보고 있는 중에 푸시를 받을 때
  *
@@ -35,6 +36,8 @@ const useRestrictionRecheck = () => {
             restrictedAt: data.restrictedAt ?? null,
             restrictedUntil: data.restrictedUntil ?? null,
             appealStatus: data.appealStatus ?? null,
+            appealDeadline: data.appealDeadline ?? null,
+            rejoinAvailableAt: data.rejoinAvailableAt ?? null,
           });
           return;
         }
@@ -50,6 +53,9 @@ const useRestrictionRecheck = () => {
         console.warn('이용 제한 상태를 확인하지 못했습니다.', getApiErrorDetail(error));
       }
     };
+
+    // 403 응답에는 appealDeadline · rejoinAvailableAt 이 없어서 화면에 들어오자마자 한 번 받아 온다
+    void recheck();
 
     const appStateSubscription = AppState.addEventListener('change', state => {
       if (state === 'active') void recheck();

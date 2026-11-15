@@ -23,6 +23,9 @@ import { colors } from '../../shared/styles/color';
 import { typo } from '../../shared/styles/typo';
 import { gap, padding, radius } from '../../shared/styles/token';
 
+// 재가입 제한 중인 소셜 계정으로 로그인하면 서버가 403 과 함께 주는 code. 응답의 rejoinAvailableAt 으로 재가입 차단 화면을 띄운다
+const ACCOUNT_BANNED_ERROR_CODE = 'ACCOUNT_BANNED';
+
 // 로고 모션은 원본(120 × 50)을 비율대로 줄여서 보여 준다
 const LOGO_WIDTH = 104;
 const LOGO_HEIGHT = (LOGO_WIDTH * 50) / 120;
@@ -91,7 +94,18 @@ const WelcomeScreen = () => {
     }
   };
 
-  const showLoginErrorToast = (error, fallbackMessage) => {
+  // 이용 제한 중에 탈퇴한 소셜 계정이면 서버가 재가입 제한이 끝날 때까지 403 ACCOUNT_BANNED 로 막는다.
+  // 토스트 대신 재가입 차단 화면을 띄운다
+  const handleLoginError = (error, fallbackMessage) => {
+    const { status, data } = error?.response ?? {};
+
+    if (status === 403 && data?.code === ACCOUNT_BANNED_ERROR_CODE) {
+      navigation.navigate('RejoinBlocked', {
+        rejoinAvailableAt: data.rejoinAvailableAt ?? null,
+      });
+      return;
+    }
+
     showToast({
       message: getApiErrorMessage(error, fallbackMessage),
       icon: 'alert',
@@ -103,13 +117,13 @@ const WelcomeScreen = () => {
   const { loginWithKakao, isLoggingIn: isKakaoLoggingIn } = useKakaoLogin({
     onNewUser: handleNewUser,
     onBeforeSignIn: handleBeforeSignIn,
-    onError: error => showLoginErrorToast(error, '카카오로 로그인하지 못했습니다.'),
+    onError: error => handleLoginError(error, '카카오로 로그인하지 못했습니다.'),
   });
 
   const { loginWithApple, isLoggingIn: isAppleLoggingIn } = useAppleLogin({
     onNewUser: handleNewUser,
     onBeforeSignIn: handleBeforeSignIn,
-    onError: error => showLoginErrorToast(error, 'Apple로 로그인하지 못했습니다.'),
+    onError: error => handleLoginError(error, 'Apple로 로그인하지 못했습니다.'),
   });
 
   // 한쪽 로그인이 진행 중이면 다른 버튼도 막는다
