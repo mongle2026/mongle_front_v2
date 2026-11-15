@@ -53,6 +53,10 @@ const AccountRestrictedScreen = () => {
     ? `이의 신청을 검토했으나 운영정책 위반\n(${reasonLabel})이 확인됐어요.\n${until}이용 정지가 유지돼요.`
     : `운영정책 위반(${reasonLabel})으로\n${until}서비스를 이용할 수 없어요.`;
 
+  const title = isAppealRejected
+    ? '서비스 이용 정지가 유지돼요'
+    : '서비스 이용이 정지됐어요';
+
   const appealButtonLabel = isAppealRejected
     ? '이의 신청 완료'
     : isAppealPending
@@ -64,7 +68,7 @@ const AccountRestrictedScreen = () => {
       <View style={styles.content}>
         <Empty
           type="alert"
-          title="계정 이용이 제한됐어요"
+          title={title}
           body={body}
         />
       </View>
