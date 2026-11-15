@@ -20,6 +20,3 @@ export const RESTRICTION_LIFT_REASON = Object.freeze({
   // 제한 기간이 끝났다
   EXPIRED: 'EXPIRED',
 });
-
-// 이의 신청 결과 푸시의 data.status (백엔드 APPEAL_PUSH_STATUS). 알림 목록에는 없어서 누르면 앱만 연다
-export const APPEAL_PUSH_STATUSES = new Set(['appeal_accepted', 'appeal_rejected']);

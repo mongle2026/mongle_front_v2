@@ -19,6 +19,9 @@ export const NOTIFICATION_STATUS = {
   REPORT_REJECTED: 'report_rejected',
   // 소식: 신고당한 사람에게 운영정책 안내
   POLICY_NOTICE: 'policy_notice',
+  // 소식: 이의 신청한 사람에게 이의 신청 결과
+  APPEAL_ACCEPTED: 'appeal_accepted',
+  APPEAL_REJECTED: 'appeal_rejected',
 };
 
 // 신고 처리 알림의 대상 종류 (백엔드 ReportTargetType)

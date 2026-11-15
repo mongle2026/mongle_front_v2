@@ -7,7 +7,6 @@ import { notificationKeys } from '../api/notificationKeys';
 import { getNotificationRoute } from '../utils/getNotificationRoute';
 import { registerPushToken } from './registerPushToken';
 import { hasId } from '../../../shared/utils/id';
-import { APPEAL_PUSH_STATUSES } from '../../sanction/restricted/constants';
 
 // 앱을 보고 있는 중에 온 알림도 배너로 띄운다
 Notifications.setNotificationHandler({
@@ -67,16 +66,9 @@ const PushNotificationHandler = ({ navigationRef, isNavigationReady }) => {
     if (!hasId(userId)) return;
 
     // 이용 제한 중에는 제재 화면만, 제한 해제 안내 · 경고 안내 중에는 그 화면만 있어서 이동하지 않는다
-    // (제재 화면이 제한 상태를 다시 확인한다). 이의 신청 결과 푸시는 알림 목록에 없어서 앱만 연다
+    // (제재 화면이 제한 상태를 다시 확인한다)
     const { restriction, restrictionLifted, warning } = useAuthStore.getState();
-    if (
-      restriction ||
-      restrictionLifted ||
-      warning ||
-      APPEAL_PUSH_STATUSES.has(content.data?.status)
-    ) {
-      return;
-    }
+    if (restriction || restrictionLifted || warning) return;
 
     queryClient.invalidateQueries({ queryKey: notificationKeys.all });
 

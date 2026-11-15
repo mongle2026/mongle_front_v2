@@ -36,6 +36,9 @@ const toUserCode = userCode =>
 
 const NO_VIOLATION_SUFFIX = '\n운영정책 위반 사항은 확인되지 않았어요.';
 
+// 이의 신청 결과 알림 제목. 푸시 문구(백엔드 notification-message.util)와 같다
+const APPEAL_RESULT_TITLE = '이의 신청 결과 안내';
+
 // 신고 처리 알림 본문. 대상 종류(targetType)마다 다르다. 푸시 문구(백엔드 notification-message.util)와 같다
 const REPORT_NOTICE_BODIES = {
   [NOTIFICATION_STATUS.REPORT_RESOLVED]: {
@@ -118,6 +121,16 @@ const NOTIFICATION_CONTENT = {
     // targetType: 운영정책에 따라 처리된 내 글(또는 계정) 종류
     [NOTIFICATION_STATUS.POLICY_NOTICE]: ({ targetType }) =>
       getReportNoticeContent('운영정책 안내', NOTIFICATION_STATUS.POLICY_NOTICE, targetType),
+    [NOTIFICATION_STATUS.APPEAL_ACCEPTED]: () => ({
+      title: APPEAL_RESULT_TITLE,
+      body: '이의 신청이 받아들여져 이용 정지가 해제되었어요.',
+      profileColor: colors.fgNeutralTertiary,
+    }),
+    [NOTIFICATION_STATUS.APPEAL_REJECTED]: () => ({
+      title: APPEAL_RESULT_TITLE,
+      body: '검토 결과 위반이 확인되어 이용 정지가 유지돼요.',
+      profileColor: colors.fgNeutralTertiary,
+    }),
   },
 };
 
