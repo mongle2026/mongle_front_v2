@@ -9,8 +9,8 @@ const APPLE_CANCEL_CODE = 'ERR_REQUEST_CANCELED';
 
 const isAppleLoginCancelled = error => error?.code === APPLE_CANCEL_CODE;
 
-// 서버가 애플 계정 연결을 끊으려면 탈퇴 직전에 받은 authorization code 가 필요하다.
-// 발급 후 5분 안에 한 번만 쓸 수 있어서 탈퇴할 때마다 애플 로그인을 한 번 더 한다
+// 서버가 애플 계정 연결을 끊는 데 쓸 authorization code. 발급 후 5분 안에 한 번만 쓸 수 있어서 탈퇴할 때마다 애플 로그인을 한 번 더 한다.
+// 서버는 로그인 때 받아 둔 값으로도 끊을 수 있지만, 그 값이 없는 회원(이 기능 전에 로그인한 뒤 다시 로그인하지 않은 회원)이 있어서 계속 보낸다
 const getAppleAuthorizationCode = async () => {
   const { authorizationCode } = await AppleAuthentication.signInAsync();
 
