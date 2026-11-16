@@ -38,6 +38,8 @@ const CommentSection = ({
   openCommentMenuId = null,
   onPressMenu,
   onPressReply,
+  // 이용이 제한된 회원의 댓글 · 답글에 답글을 달려고 누르면 불린다 (답글 대신 안내 Dialog)
+  onPressRestrictedReply,
   // 댓글 작성자 userId 를 넘긴다. 내 댓글과 탈퇴한 회원의 댓글은 넘기지 않는다
   onPressProfile,
   // 방금 작성한(서버 저장 전) 댓글이 자리를 잡으면 그 View 를 넘긴다 → 화면이 그 댓글로 스크롤
@@ -149,6 +151,11 @@ const CommentSection = ({
                   if (comment.isPending) return;
                   // 탈퇴한 회원의 댓글, 가린 댓글에는 답글을 달 수 없다
                   if (comment.isWithdrawn || comment.isBlinded) return;
+                  // 이용이 제한된 회원의 댓글에는 답글을 달 수 없어서, 누르는 순간 안내한다
+                  if (comment.isRestricted) {
+                    onPressRestrictedReply?.();
+                    return;
+                  }
                   onPressReply?.(resolveReplyTarget(comment), commentRef);
                 }}
               />

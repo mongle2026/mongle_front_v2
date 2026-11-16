@@ -11,6 +11,7 @@ import { BUTTON_VARIANT } from '../../../shared/components/action/Button';
 import { MAIN_TAB_ROUTES } from '../../../shared/components/navigation/bottomnavigation/routeNames';
 
 import IlDialogDeletedfeed from '../../../assets/illustrations/il_dialog_deletedfeed.svg';
+import IlDialogRestricted from '../../../assets/illustrations/il_dialog_restricted.svg';
 
 import { useDialog } from '../../../shared/providers/DialogProvider';
 import { useGlobalOverlay } from '../../../shared/providers/GlobalOverlayProvider';
@@ -464,6 +465,32 @@ const FeedDetailScreen = ({ navigation, route }) => {
     [closeCommentMenu, handleStartReply, lockAutoScroll, requireLogin, setReplyScrollTarget],
   );
 
+  // 이용이 제한된 회원의 댓글 · 답글에는 답글을 달 수 없어서, 누르는 순간 안내 Dialog 를 띄운다
+  const handlePressRestrictedReply = useCallback(() => {
+    closeCommentMenu();
+    setIsFeedMenuOpen(false);
+
+    // 비로그인이면 다른 답글과 똑같이 로그인 안내 Dialog 를 먼저 띄운다
+    if (!requireLogin(LOGIN_DIALOG_DESCRIPTION.COMMENT)) return;
+
+    openDialog({
+      id: 'comment-restricted-reply-dialog',
+      closeOnDimPress: true,
+      closeOnBackPress: true,
+      accessibilityLabel: '답글 제한 안내 닫기',
+      renderContent: ({ close }) => (
+        <Dialog
+          illustration={IlDialogRestricted}
+          title={'이 댓글에는\n답글을 남길 수 없어요'}
+          description="이용이 제한된 회원의 댓글이에요."
+          cancelText="확인"
+          confirmText={null}
+          onCancel={close}
+        />
+      ),
+    });
+  }, [closeCommentMenu, openDialog, requireLogin]);
+
   // 입력창이 닫히면 답글 대상 위치도 함께 잊는다.
   const handleCloseComposer = useCallback(() => {
     clearReplyTarget();
@@ -637,6 +664,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
             openCommentMenuId={commentMenu?.comment?.commentId ?? null}
             onPressMenu={handleOpenCommentMenu}
             onPressReply={handlePressReply}
+            onPressRestrictedReply={handlePressRestrictedReply}
             onPressProfile={handlePressUserProfile}
             onNewCommentLayout={revealComment}
           />
