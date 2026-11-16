@@ -22,6 +22,8 @@ function normalizeLetterDetail(data, userId) {
     isBlinded: Boolean(data?.isBlinded),
     // 받은 편지에서 내가 보낸 사람을 차단했는지. 답장 대신 차단 해제 안내 Dialog를 띄운다
     isSenderBlocked: Boolean(data?.isSenderBlocked),
+    // 받은 편지에서 보낸 사람이 나를 차단했는지. 보낸 사람을 흐리게 보여주고 답장 대신 보낼 수 없다는 안내를 띄운다
+    hasSenderBlockedMe: Boolean(data?.hasSenderBlockedMe),
     isSender: isSameId(record?.userId, userId),
     isReceiver: isSameId(letter.receiverId, userId),
     isRead: Boolean(letter.isRead),

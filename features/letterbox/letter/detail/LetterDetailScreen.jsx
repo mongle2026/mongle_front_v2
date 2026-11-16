@@ -6,6 +6,7 @@ import IlDialogBlock from '../../../../assets/illustrations/il_dialog_block.svg'
 import IlDialogCancelletter from '../../../../assets/illustrations/il_dialog_cancelletter.svg';
 import IlDialogDeleteletter from '../../../../assets/illustrations/il_dialog_deleteletter.svg';
 import IlDialogDeletedletter from '../../../../assets/illustrations/il_dialog_deletedletter.svg';
+import IlDialogRestricted from '../../../../assets/illustrations/il_dialog_restricted.svg';
 
 import { Dialog } from '../../../../shared/components/feedback/Dialog';
 import Menu from '../../../../shared/components/action/menu/Menu';
@@ -95,6 +96,8 @@ const LetterDetailScreen = ({ navigation, route }) => {
   const isSent = Boolean(letter?.isSender && !letter?.isReceiver);
   // 남이 나에게 보낸 편지면 메뉴에 신고를 함께 보여준다
   const isFromOthers = Boolean(letter?.isReceiver && !letter?.isSender);
+  // 남이 보낸 편지에서 보낸 사람이 나를 차단했는지 (서버가 받은 편지에서만 true 로 준다)
+  const hasSenderBlockedMe = Boolean(letter?.hasSenderBlockedMe);
 
   // 예약 발송해서 아직 도착 시각이 지나지 않은 편지는 상대방이 아직 받지 못했다.
   // 화면을 열어둔 사이에 도착 시각이 지나도 버튼은 그대로 남아서, 누를 때 다시 확인한다.
@@ -228,7 +231,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
           <Dialog
             illustration={IlDialogBlock}
             title={'차단한 사용자에게는\n답장할 수 없어요'}
-            description={`${letter.sender.nickname}님의 차단을 해제하면\n다시 편지를 주고받을 수 있어요`}
+            description={'차단을 해제하면\n다시 편지를 주고받을 수 있어요'}
             cancelText="닫기"
             confirmText="차단 해제"
             confirmVariant={BUTTON_VARIANT.CRITICAL}
@@ -241,6 +244,28 @@ const LetterDetailScreen = ({ navigation, route }) => {
                 toastBottomOffset: insets.bottom,
               });
             }}
+          />
+        ),
+      });
+
+      return;
+    }
+
+    // 나를 차단한 사람에게는 편지를 보낼 수 없어서, 작성 화면 대신 안내만 띄운다
+    if (hasSenderBlockedMe) {
+      openDialog({
+        id: 'letter-reply-blocked-me-dialog',
+        closeOnDimPress: true,
+        closeOnBackPress: true,
+        accessibilityLabel: '답장 제한 안내 닫기',
+        renderContent: ({ close }) => (
+          <Dialog
+            illustration={IlDialogRestricted}
+            title={'이 사용자에게는\n편지를 보낼 수 없어요'}
+            description="받은 편지는 계속 확인할 수 있어요."
+            cancelText="확인"
+            confirmText={null}
+            onCancel={close}
           />
         ),
       });
@@ -261,7 +286,7 @@ const LetterDetailScreen = ({ navigation, route }) => {
     });
 
     navigation.navigate('Record', { type: 'letter' });
-  }, [canReply, insets.bottom, letter, navigation, openDialog, setReceiver, unblockUser]);
+  }, [canReply, hasSenderBlockedMe, insets.bottom, letter, navigation, openDialog, setReceiver, unblockUser]);
 
   const musicId = letter?.music.musicId;
   const handleMusicPlayback = useCallback(() => {
@@ -274,6 +299,8 @@ const LetterDetailScreen = ({ navigation, route }) => {
 
   // 보낸 편지는 받는 사람, 받은 편지는 보낸 사람을 보여준다
   const counterpart = isSent ? letter?.receiver : letter?.sender;
+  // 받은 편지의 보낸 사람이 나를 차단했으면 프로필 사진을 탈퇴 회원 이미지로, 닉네임을 흐린 색으로 보여준다
+  const isCounterpartBlockingMe = !isSent && hasSenderBlockedMe;
   // 나에게 쓴 편지면 상대가 나라서, 탈퇴한 회원은 프로필이 없어서 프로필로 이동하지 않는다
   const canPressCounterpart =
     hasId(counterpart?.userId) && !isSameId(counterpart.userId, userId) && !counterpart.isWithdrawn;
@@ -347,11 +374,14 @@ const LetterDetailScreen = ({ navigation, route }) => {
               <Profile
                 type="Letter"
                 imageUri={counterpart.profileImageUri}
-                isWithdrawn={counterpart.isWithdrawn}
+                // 나를 차단한 사람도 탈퇴 회원처럼 보여주지만 닉네임은 그대로라 뒤에 붙는 말은 받침으로 정한다
+                isWithdrawn={counterpart.isWithdrawn || isCounterpartBlockingMe}
                 recipientName={counterpart.nickname}
                 // 탈퇴한 회원 이름은 '(탈퇴한 회원)'이라 받침으로 정하지 않고 편지함처럼 '이가'로 고정한다
                 nameSuffix={isSent ? '에게' : counterpart.isWithdrawn ? '이가' : getSenderSuffix(counterpart.nickname)}
                 font={letter.font}
+                // 나를 차단한 사람은 닉네임뿐 아니라 뒤에 붙는 말('가' / '이가')도 흐린 색으로 보여준다
+                textStyle={isCounterpartBlockingMe ? styles.blockingMeProfileText : undefined}
                 onPress={canPressCounterpart ? handlePressCounterpart : undefined}
               />
             </View>
@@ -393,14 +423,16 @@ const LetterDetailScreen = ({ navigation, route }) => {
           {letter.isReceiver && (
             <View style={[styles.buttonContainer, { paddingBottom: padding.XXL + insets.bottom }]}>
               {canReply ? (
+                // 내가 차단한 사람이면 차단 해제 버튼으로 바꿔 보여준다 (누르면 똑같이 차단 해제 안내를 띄운다)
+                // 나를 차단한 사람이면 글자는 그대로 두고 Weak 로 보여준다 (누르면 보낼 수 없다는 안내를 띄운다)
                 <Button
-                  variant="Solid"
+                  variant={letter.isSenderBlocked || hasSenderBlockedMe ? 'Weak' : 'Solid'}
                   size="XL"
                   font={FONT.SUIT}
                   onPress={handlePressReply}
                   style={styles.bottomButton}
                 >
-                  {`${letter.sender.nickname}에게 답장하기`}
+                  {letter.isSenderBlocked ? '차단 해제' : `${letter.sender.nickname}에게 답장하기`}
                 </Button>
               ) : (
                 <Button
@@ -488,6 +520,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     alignSelf: 'stretch',
+  },
+  blockingMeProfileText: {
+    color: colors.fgDisabled,
   },
   buttonContainer: {
     paddingHorizontal: padding.L,
