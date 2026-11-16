@@ -440,15 +440,18 @@ const LetterSendDone = ({ snapshot, onClose, onViewSentLetter, isOpeningSentLett
         >
           돌아가기
         </Button>
-        <Button
-          variant={BUTTON_VARIANT.SOLID}
-          size={BUTTON_SIZE.XL}
-          onPress={onViewSentLetter}
-          loading={isOpeningSentLetter}
-          style={styles.doneButton}
-        >
-          보낸 편지 보기
-        </Button>
+        {/* 나에게 보낸 편지는 완료 화면에서 돌아가기만 둔다 */}
+        {!snapshot.isToMe ? (
+          <Button
+            variant={BUTTON_VARIANT.SOLID}
+            size={BUTTON_SIZE.XL}
+            onPress={onViewSentLetter}
+            loading={isOpeningSentLetter}
+            style={styles.doneButton}
+          >
+            보낸 편지 보기
+          </Button>
+        ) : null}
       </View>
     </SafeAreaView>
   );
