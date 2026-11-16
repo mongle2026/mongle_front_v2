@@ -30,6 +30,10 @@ const FLAP_RIGHT_INSET_RATIO = FLAP_INSET_RATIO + FLAP_SHIFT_RATIO;
 const FLAP_ROTATE_DEG = -0.33;
 const FLAP_ROTATE_TRANSFORM = [{ rotate: `${FLAP_ROTATE_DEG}deg` }];
 
+// 위 인셋 · 이동 · 회전 보정은 기본 PNG(318x164) 용이다.
+// 봉투 SVG 덮개는 앞면과 너비가 같게(308.99) 그려져 있어 보정 없이 꽉 채워 올린다
+const SVG_FLAP_ASPECT_RATIO = 308.99 / 157.68;
+
 // 우표 원본 비율(59 : 88) — 너비만 72px 로 고정하고 높이는 비율로
 export const STAMP_ASPECT_RATIO = 59 / 88;
 
@@ -50,6 +54,7 @@ function Letter({
   flapStyle,
 }) {
   const isBack = type === 'back';
+  const isSvgFlap = Boolean(FlapSvg);
   const nameStyle = isDark ? [styles.name, styles.nameOnDark] : styles.name;
 
   const [wrapperSize, setWrapperSize] = useState(null);
@@ -133,9 +138,9 @@ function Letter({
                 paddedBoxStyle(
                   flapSize,
                   FLAP_SHADOW_PAD,
-                  -FLAP_SHIFT_RATIO * wrapperSize.width,
+                  isSvgFlap ? 0 : -FLAP_SHIFT_RATIO * wrapperSize.width,
                 ),
-                { transform: FLAP_ROTATE_TRANSFORM },
+                !isSvgFlap && { transform: FLAP_ROTATE_TRANSFORM },
               ]}
               resizeMode="stretch"
               pointerEvents="none"
@@ -143,7 +148,7 @@ function Letter({
           ) : null}
 
           <View
-            style={styles.flapBox}
+            style={[styles.flapBox, isSvgFlap && styles.svgFlapBox]}
             pointerEvents="none"
             onLayout={(e) => {
               const { width, height } = e.nativeEvent.layout;
@@ -200,6 +205,12 @@ const styles = StyleSheet.create({
     aspectRatio: FLAP_ASPECT_RATIO,
     overflow: 'hidden',
     transform: FLAP_ROTATE_TRANSFORM,
+  },
+  svgFlapBox: {
+    left: 0,
+    right: 0,
+    aspectRatio: SVG_FLAP_ASPECT_RATIO,
+    transform: [],
   },
 
   // type="back" : section 안에 container + stamp 를 나란히
