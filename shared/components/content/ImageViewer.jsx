@@ -7,11 +7,14 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { padding } from '../../styles/token';
 import { toImageSource } from '../../utils/media';
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
+// 세로로 긴 사진이 노치 · 홈 인디케이터에 붙지 않도록 세이프 에어리어 바깥으로 더 띄우는 여백
+const VERTICAL_MARGIN = 40;
 
 const clamp = (value, min, max) => {
   return Math.min(Math.max(value, min), max);
@@ -30,6 +33,7 @@ const getTouchDistance = touches => {
 const ImageViewer = ({ imageSource }) => {
   const { width: screenWidth, height: screenHeight } =
     useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const source = useMemo(
     () => toImageSource(imageSource),
@@ -109,8 +113,11 @@ const ImageViewer = ({ imageSource }) => {
 
     const availableWidth =
       screenWidth - padding.L * 2;
+    // 가운데 정렬을 유지하려고 위아래 중 큰 인셋을 양쪽에 똑같이 적용
+    const verticalInset =
+      Math.max(insets.top, insets.bottom) + VERTICAL_MARGIN;
     const availableHeight =
-      screenHeight - padding.XL * 2;
+      screenHeight - verticalInset * 2;
 
     const imageRatio =
       naturalSize.width / naturalSize.height;
@@ -130,6 +137,8 @@ const ImageViewer = ({ imageSource }) => {
       height: availableHeight,
     };
   }, [
+    insets.bottom,
+    insets.top,
     naturalSize,
     screenHeight,
     screenWidth,
