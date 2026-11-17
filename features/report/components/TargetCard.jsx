@@ -6,32 +6,56 @@ import ProfileImg from '../../../shared/components/atomic/ProfileImg';
 import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
 import { typo } from '../../../shared/styles/typo';
-import { REPORT_TARGET_TYPE } from '../constants';
+import {
+  OWN_TARGET_TYPES,
+  REPORT_TARGET_TYPE,
+  TARGET_CARD_VARIANT,
+} from '../constants';
 
 const toUserCode = userCode =>
   `@${String(userCode ?? '').replace(/^@+/, '')}`;
 
-// 신고 대상 종류별 아이디 뒤에 붙는 문구. user는 미리보기를 보여주지 않는다
-const TARGET_TITLE_SUFFIX = {
-  [REPORT_TARGET_TYPE.FEED]: '님의 피드를 신고해요',
-  [REPORT_TARGET_TYPE.COMMENT]: '님의 댓글을 신고해요',
-  [REPORT_TARGET_TYPE.LETTER]: '님의 편지를 신고해요',
-  [REPORT_TARGET_TYPE.USER]: '님을 신고해요',
+// 문구 종류 · 신고 대상 종류별 아이디(굵게) 뒤에 붙는 문구
+const TITLE_SUFFIX = {
+  [TARGET_CARD_VARIANT.REPORT]: {
+    [REPORT_TARGET_TYPE.FEED]: '님의 피드를 신고해요',
+    [REPORT_TARGET_TYPE.COMMENT]: '님의 댓글을 신고해요',
+    [REPORT_TARGET_TYPE.LETTER]: '님의 편지를 신고해요',
+    [REPORT_TARGET_TYPE.USER]: '님을 신고해요',
+  },
+  [TARGET_CARD_VARIANT.REPORTER]: {
+    [REPORT_TARGET_TYPE.FEED]: '님의 피드를 신고했어요',
+    [REPORT_TARGET_TYPE.COMMENT]: '님의 댓글을 신고했어요',
+    [REPORT_TARGET_TYPE.LETTER]: '님의 편지를 신고했어요',
+    [REPORT_TARGET_TYPE.USER]: '님의 계정을 신고했어요',
+  },
+  // 피드 · 계정(OWN_TARGET_TYPES)은 아이디 없이 문구만 보여준다
+  [TARGET_CARD_VARIANT.REPORTED]: {
+    [REPORT_TARGET_TYPE.FEED]: '내가 올린 피드',
+    [REPORT_TARGET_TYPE.COMMENT]: '님의 피드에 남긴 댓글',
+    [REPORT_TARGET_TYPE.LETTER]: '님에게 보낸 편지',
+    [REPORT_TARGET_TYPE.USER]: '내 계정',
+  },
 };
 
 const TargetCard = ({
+  variant = TARGET_CARD_VARIANT.REPORT,
   type,
-  // 신고 대상 아이디
+  // REPORT · REPORTER: 신고 대상 아이디
+  // REPORTED: 댓글을 단 피드의 작성자 · 편지를 받은 사람 아이디 (피드 · 계정은 쓰지 않는다)
   userCode,
-  // 신고 대상 프로필 이미지
+  // REPORT · REPORTER: 신고 대상 프로필 이미지, REPORTED: 내 프로필 이미지
   profileImageUrl,
-  // feed/comment/letter: 신고하는 피드 · 댓글 · 편지 내용
+  // feed/comment/letter: 신고한 피드 · 댓글 · 편지 내용. user는 미리보기를 보여주지 않는다
   preview,
   style,
 }) => {
-  const titleSuffix = TARGET_TITLE_SUFFIX[type];
+  const titleSuffix = TITLE_SUFFIX[variant]?.[type];
   if (!titleSuffix) return null;
 
+  const showUserCode = !(
+    variant === TARGET_CARD_VARIANT.REPORTED && OWN_TARGET_TYPES.includes(type)
+  );
   const showPreview = type !== REPORT_TARGET_TYPE.USER && !!preview;
 
   return (
@@ -41,7 +65,9 @@ const TargetCard = ({
       <View style={styles.textContainer}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>
-            <Text style={styles.userCode}>{toUserCode(userCode)}</Text>
+            {showUserCode ? (
+              <Text style={styles.userCode}>{toUserCode(userCode)}</Text>
+            ) : null}
             {titleSuffix}
           </Text>
         </View>

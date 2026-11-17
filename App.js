@@ -35,6 +35,7 @@ import SettingAccountScreen from './features/setting/account/SettingAccountScree
 import SettingAccountWithdrawScreen from './features/setting/account/withdraw/SettingAccountWithdrawScreen';
 import SettingBlockScreen from './features/setting/block/SettingBlockScreen';
 import ReportScreen from './features/report/ReportScreen';
+import ReportResultScreen from './features/report/result/ReportResultScreen';
 import LetterDetailScreen from './features/letterbox/letter/detail/LetterDetailScreen';
 import StampDetailScreen from './features/letterbox/stamp/detail/StampDetailScreen';
 import NotificationScreen from './features/notification/NotificationScreen';
@@ -422,6 +423,14 @@ const RootNavigator = ({ isSignedIn, showOnboarding }) => (
         <Stack.Screen
           name="Report"
           component={ReportScreen}
+          options={{
+            animation: 'ios_from_right',
+          }}
+        />
+        {/* 신고 결과 · 운영정책 · 이용 정지 해제 안내. params: ReportResultScreen 참고 */}
+        <Stack.Screen
+          name="ReportResult"
+          component={ReportResultScreen}
           options={{
             animation: 'ios_from_right',
           }}

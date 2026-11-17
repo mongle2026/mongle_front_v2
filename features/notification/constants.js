@@ -33,3 +33,13 @@ export const REPORT_TARGET_TYPE = {
   LETTER: 'LETTER',
   USER: 'USER',
 };
+
+// 운영정책 안내(policy_notice)의 제재 내용 (백엔드 SanctionNotice)
+export const SANCTION_NOTICE = {
+  // 경고 1회
+  WARNING: 'WARNING',
+  // 경고 2회로 7일 이용 정지
+  SUSPENSION: 'SUSPENSION',
+  // 영구 정지
+  PERMANENT: 'PERMANENT',
+};

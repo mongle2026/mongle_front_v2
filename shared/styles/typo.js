@@ -43,7 +43,8 @@ export const typo = {
   suitCaptionMedium400:  { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 13, lineHeight: 18 },
   suitCaptionSmall600:   { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 12, lineHeight: 16 },
   suitCaptionSmall400:   { ...base, fontFamily: fontFamily.suitRegular,  fontSize: 12, lineHeight: 16 },
-  // label: SemiBold(600). Figma label/labelMediumStrong (line-height 125%)
+  // label: SemiBold(600). Figma label/labelLargeStrong · labelMediumStrong (line-height 125%)
+  suitLabelLargeStrong:  { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 15, lineHeight: 18.75 },
   suitLabelMediumStrong: { ...base, fontFamily: fontFamily.suitSemiBold, fontSize: 13, lineHeight: 16.25 },
 
   // ── Kyobo Handwriting 2025 (본문 손글씨) ──────────────────────
