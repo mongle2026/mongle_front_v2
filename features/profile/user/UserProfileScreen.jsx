@@ -38,7 +38,7 @@ const UNKNOWN_USER_CODE = 'unknown';
 // 게시물 대신 Empty 를 보여준다 (서버도 게시물을 빈 목록으로 준다)
 // 내가 차단한 회원이면 팔로우 버튼 자리에 '차단 해제'(Weak)를 두고 게시물 대신 Empty 를 보여준다
 // 나를 차단한 회원이면 '알 수 없는 사용자' · '@unknown' · 탈퇴 회원 이미지로 고정하고
-// 팔로우 버튼을 Disabled 로, 게시물 대신 Empty 를 보여준다 (이용 제한 · 내 차단보다 먼저)
+// 팔로우 버튼을 Disabled 로, 게시물 대신 이용 제한과 같은 Empty 를 보여준다 (이용 제한 · 내 차단보다 먼저)
 // route params: { userId } (프로필 주인의 publicId)
 const UserProfileScreen = () => {
   const navigation = useNavigation();
@@ -239,13 +239,8 @@ const UserProfileScreen = () => {
         <View style={styles.restrictedBody}>
           {header}
           <View style={styles.emptyContainer}>
-            {isUnknown ? (
-              <Empty
-                type="recipient"
-                title="프로필을 볼 수 없어요"
-                body="현재 접근할 수 없는 프로필이에요."
-              />
-            ) : isRestricted ? (
+            {/* 나를 차단한 계정도 이용 제한된 계정과 같은 Empty 를 보여준다 */}
+            {isUnavailable ? (
               <Empty
                 type="restricted"
                 title="게시물을 볼 수 없어요"
