@@ -58,6 +58,19 @@ function createFeedQueryOptions({ userId, feedType, enabled }) {
   };
 }
 
+// 다음 페이지에 앞에서 받은 글이 다시 오면 앞의 것만 남긴다. 같은 feedId 가 두 번 있으면 FlatList key 가 겹친다
+function uniqueByFeedId(posts) {
+  const seen = new Set();
+
+  return posts.filter(post => {
+    const key = String(post.feedId);
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
+}
+
 // 받아 둔 페이지를 첫 페이지만 남긴다. 다시 받을 때 페이지 수만큼 요청하지 않고 첫 페이지부터 새로 받게 한다
 const keepFirstPage = data =>
   data?.pages?.length > 1
@@ -114,7 +127,7 @@ function useFeedList({ userId, queryOptions, resetPagesOnRefresh = false }) {
     void refetchList();
   }, [enabled, queryClient, queryKey, refetchList]);
 
-  const posts = useMemo(() => flattenPages(data?.pages), [data?.pages]);
+  const posts = useMemo(() => uniqueByFeedId(flattenPages(data?.pages)), [data?.pages]);
 
   return useMemo(
     () => ({
