@@ -7,9 +7,10 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { Image as CachedImage } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { padding } from '../../styles/token';
-import { toImageSource } from '../../utils/media';
+import { IMAGE_CACHE_POLICY, toImageSource } from '../../utils/media';
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
@@ -30,7 +31,17 @@ const getTouchDistance = touches => {
   return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 };
 
-const ImageViewer = ({ imageSource }) => {
+// 원본 크기를 아직 모를 때 먼저 띄워 두는 비율 (WriteImg 기본값과 같은 4:3)
+const FALLBACK_SIZE = Object.freeze({ width: 4, height: 3 });
+
+const isValidSize = size => size?.width > 0 && size?.height > 0;
+
+/*
+ * initialSize: 원본 크기를 이미 알면 넘긴다(상세 화면에서 읽어 둔 값).
+ * 크기를 다시 받느라 기다리지 않고 바로 띄우고,
+ * 모르면 기본 비율로 먼저 띄운 뒤 사진이 다 받아지면(onLoad) 실제 비율로 맞춘다.
+ */
+const ImageViewer = ({ imageSource, initialSize }) => {
   const { width: screenWidth, height: screenHeight } =
     useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -40,7 +51,36 @@ const ImageViewer = ({ imageSource }) => {
     [imageSource],
   );
 
-  const [naturalSize, setNaturalSize] = useState(null);
+  // onLoad 로 알아낸 크기. 다른 사진으로 바뀌면 무시하도록 source 와 같이 기억한다
+  const [loadedSize, setLoadedSize] = useState(null);
+
+  const knownSize = useMemo(() => {
+    if (!source) return null;
+    if (loadedSize?.source === source) return loadedSize;
+    if (isValidSize(initialSize)) return initialSize;
+
+    // require 로 넣은 로컬 이미지는 크기를 바로 알 수 있다
+    const resolvedSource = Image.resolveAssetSource(source);
+    if (isValidSize(resolvedSource)) return resolvedSource;
+
+    return null;
+  }, [initialSize, loadedSize, source]);
+
+  const naturalSize = knownSize ?? FALLBACK_SIZE;
+
+  const knownSizeRef = useRef(knownSize);
+  knownSizeRef.current = knownSize;
+
+  const handleLoad = event => {
+    // 이미 크기를 알고 있으면 다시 그리지 않는다
+    if (knownSizeRef.current) return;
+
+    // expo-image 의 onLoad 는 nativeEvent 없이 { source: { width, height } } 를 바로 준다
+    const { width, height } = event?.source ?? {};
+    if (!isValidSize({ width, height })) return;
+
+    setLoadedSize({ source, width, height });
+  };
 
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -58,9 +98,8 @@ const ImageViewer = ({ imageSource }) => {
     y: 0,
   });
 
+  // 다른 사진으로 바뀌면 확대 · 이동을 되돌린다
   useEffect(() => {
-    setNaturalSize(null);
-
     scaleRef.current = 1;
     translateXRef.current = 0;
     translateYRef.current = 0;
@@ -68,39 +107,6 @@ const ImageViewer = ({ imageSource }) => {
     scale.setValue(1);
     translateX.setValue(0);
     translateY.setValue(0);
-
-    if (!source) return;
-
-    const resolvedSource = Image.resolveAssetSource(source);
-
-    if (
-      resolvedSource?.width > 0 &&
-      resolvedSource?.height > 0
-    ) {
-      setNaturalSize({
-        width: resolvedSource.width,
-        height: resolvedSource.height,
-      });
-      return;
-    }
-
-    if (!source.uri) return;
-
-    Image.getSize(
-      source.uri,
-      (width, height) => {
-        setNaturalSize({
-          width,
-          height,
-        });
-      },
-      error => {
-        console.warn(
-          '이미지 크기를 불러오지 못했습니다.',
-          error,
-        );
-      },
-    );
   }, [
     scale,
     source,
@@ -109,8 +115,6 @@ const ImageViewer = ({ imageSource }) => {
   ]);
 
   const displaySize = useMemo(() => {
-    if (!naturalSize) return null;
-
     const availableWidth =
       screenWidth - padding.L * 2;
     // 가운데 정렬을 유지하려고 위아래 중 큰 인셋을 양쪽에 똑같이 적용
@@ -148,8 +152,6 @@ const ImageViewer = ({ imageSource }) => {
   displaySizeRef.current = displaySize;
 
   const containerStyle = useMemo(() => {
-    if (!displaySize) return null;
-
     return {
       position: 'absolute',
       left: (screenWidth - displaySize.width) / 2,
@@ -357,7 +359,7 @@ const ImageViewer = ({ imageSource }) => {
     ],
   );
 
-  if (!source || !displaySize || !containerStyle) {
+  if (!source) {
     return null;
   }
 
@@ -366,9 +368,8 @@ const ImageViewer = ({ imageSource }) => {
       {...panResponder.panHandlers}
       style={containerStyle}
     >
-      <Animated.Image
-        source={source}
-        resizeMode="contain"
+      {/* 확대 · 이동은 감싼 Animated.View 가 맡고, 사진은 expo-image 캐시에서 그린다 */}
+      <Animated.View
         style={[
           styles.image,
           {
@@ -381,7 +382,15 @@ const ImageViewer = ({ imageSource }) => {
             ],
           },
         ]}
-      />
+      >
+        <CachedImage
+          source={source}
+          onLoad={handleLoad}
+          contentFit="contain"
+          cachePolicy={IMAGE_CACHE_POLICY}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
     </View>
   );
 };

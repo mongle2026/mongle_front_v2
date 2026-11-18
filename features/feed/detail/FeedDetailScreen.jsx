@@ -269,7 +269,7 @@ const FeedDetailScreen = ({ navigation, route }) => {
   }, [feed, toggleBookmark]);
 
   const handlePressImage = useCallback(
-    imageSource => {
+    (imageSource, _index, imageSize) => {
       Keyboard.dismiss();
       closeCommentMenu();
       setIsFeedMenuOpen(false);
@@ -283,7 +283,9 @@ const FeedDetailScreen = ({ navigation, route }) => {
         accessibilityLabel: '사진 크게 보기 닫기',
         dimStyle: styles.imageViewerDim,
         contentContainerStyle: styles.imageViewerOverlay,
-        renderContent: () => <ImageViewer imageSource={imageSource} />,
+        renderContent: () => (
+          <ImageViewer imageSource={imageSource} initialSize={imageSize} />
+        ),
       });
     },
     [closeCommentMenu, hideToast, openOverlay],

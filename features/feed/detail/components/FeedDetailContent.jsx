@@ -1,13 +1,13 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { WriteImg, WRITE_IMG_EFFECT } from '../../../../shared/components/atomic/WriteImg';
+import { WriteImg, WRITE_IMG_EFFECT, getWriteImgRatio } from '../../../../shared/components/atomic/WriteImg';
 import FontFallbackText from '../../../../shared/components/atomic/FontFallbackText';
 
-import useWriteImgRatio from '../../../../shared/hooks/useWriteImgRatio';
+import useImageSize from '../../../../shared/hooks/useImageSize';
 
 import { colors } from '../../../../shared/styles/color';
-import { getImageKey } from '../../../../shared/utils/media';
+import { getImageKey, prefetchImages } from '../../../../shared/utils/media';
 import { FONT, getBodyFontStyle } from '../../../../shared/styles/fontType';
 import { gap, padding } from '../../../../shared/styles/token';
 
@@ -114,11 +114,13 @@ const DETAIL_CONTENT_MIN_HEIGHT = 418;
 
 // 가로 사진 4:3, 세로 사진 5:6
 // 피드 홈과 같은 필름 보정. 사진을 눌러 크게 볼 때(ImageViewer)는 원본
+// 여기서 읽은 원본 크기를 뷰어로 넘겨, 뷰어가 크기를 다시 받지 않고 바로 뜨게 한다
 const DetailImage = ({ imageSource, onPress }) => {
-  const ratio = useWriteImgRatio(imageSource);
+  const size = useImageSize(imageSource);
+  const ratio = getWriteImgRatio(size ?? undefined);
 
   return (
-    <Pressable onPress={onPress} style={styles.imageButton}>
+    <Pressable onPress={() => onPress?.(size)} style={styles.imageButton}>
       <WriteImg
         imageSource={imageSource}
         ratio={ratio}
@@ -140,6 +142,17 @@ const FeedDetailContent = ({
   const visibleImages = imageSources.filter(Boolean);
   const fontStyle = getBodyFontStyle(font);
 
+  // 상세 화면에 들어오면 원본을 미리 받아 둬서, 사진을 눌렀을 때 뷰어가 캐시에서 바로 띄운다.
+  // imageSources 는 렌더마다 새 배열이라 uri 를 이어 붙인 문자열로 바뀜을 판단한다
+  const prefetchKey = visibleImages
+    .map(imageSource => (typeof imageSource === 'string' ? imageSource : imageSource?.uri))
+    .filter(Boolean)
+    .join('\n');
+
+  useEffect(() => {
+    if (prefetchKey) prefetchImages(prefetchKey.split('\n'));
+  }, [prefetchKey]);
+
   return (
     <View style={styles.container}>
       {hasContent && (
@@ -157,7 +170,7 @@ const FeedDetailContent = ({
             <DetailImage
               key={getImageKey(imageSource, index)}
               imageSource={imageSource}
-              onPress={() => onPressImage?.(imageSource, index)}
+              onPress={size => onPressImage?.(imageSource, index, size)}
             />
           ))}
         </View>
