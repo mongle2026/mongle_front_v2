@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import { Keyboard, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { WriteImg, WRITE_IMG_EFFECT } from '../../../../shared/components/atomic/WriteImg';
 import FontFallbackText from '../../../../shared/components/atomic/FontFallbackText';
@@ -37,7 +37,37 @@ const parseUrlSegments = text => {
   return segments.length > 0 ? segments : [{ type: 'text', text }];
 };
 
-// URL 을 하이퍼링크로 보여주는 본문 텍스트 컴포넌트
+/*
+ * iOS 본문 텍스트.
+ * iOS 의 <Text selectable> 은 길게 누르면 '전체 복사' 메뉴만 떠서 원하는 부분만 고를 수 없다.
+ * 그래서 읽기 전용 TextInput(UITextView)으로 그려 OS 기본 범위 선택 · 복사를 쓴다.
+ * 링크는 UITextView 의 링크 감지(dataDetectorTypes)가 눌렀을 때 열어 주고,
+ * 링크 색이 tintColor(= selectionColor)를 따르므로 링크 색과 맞춘다.
+ */
+const IosContentText = ({ segments, style }) => (
+  <TextInput
+    multiline
+    editable={false}
+    scrollEnabled={false}
+    dataDetectorTypes="link"
+    selectionColor={colors.fgInfo}
+    style={[style, styles.iosReadOnlyInput]}
+  >
+    {segments.map((segment, index) =>
+      segment.type === 'url' ? (
+        <Text key={index} style={[style, styles.linkText]}>
+          {segment.text}
+        </Text>
+      ) : (
+        <FontFallbackText key={index} style={style}>
+          {segment.text}
+        </FontFallbackText>
+      )
+    )}
+  </TextInput>
+);
+
+// URL 을 하이퍼링크로 보여주는 본문 텍스트 컴포넌트 (길게 눌러 원하는 부분을 골라 복사할 수 있다)
 const ContentText = memo(({ content, style }) => {
   const segments = useMemo(() => parseUrlSegments(content), [content]);
   const hasLinks = segments.some(s => s.type === 'url');
@@ -46,16 +76,21 @@ const ContentText = memo(({ content, style }) => {
     Linking.openURL(url).catch(() => {/* 열기 실패 시 무시 */});
   }, []);
 
+  if (Platform.OS === 'ios') {
+    return <IosContentText segments={segments} style={style} />;
+  }
+
+  // Android 는 <Text selectable> 이 OS 기본 범위 선택 · 복사를 지원한다
   if (!hasLinks) {
     return (
-      <FontFallbackText style={style}>
+      <FontFallbackText selectable style={style}>
         {content}
       </FontFallbackText>
     );
   }
 
   return (
-    <Text style={style}>
+    <Text selectable style={style}>
       {segments.map((segment, index) =>
         segment.type === 'url' ? (
           <Text
@@ -99,20 +134,14 @@ const FeedDetailContent = ({
   content = '',
   imageSources = [],
   font = FONT.KYOBO,
-  onPress,
   onPressImage,
 }) => {
   const hasContent = typeof content === 'string' && content.trim().length > 0;
   const visibleImages = imageSources.filter(Boolean);
   const fontStyle = getBodyFontStyle(font);
 
-  const handlePress = useCallback(() => {
-    Keyboard.dismiss();
-    onPress?.();
-  }, [onPress]);
-
   return (
-    <Pressable onPress={handlePress} style={styles.container}>
+    <View style={styles.container}>
       {hasContent && (
         <View style={styles.textContainer}>
           <ContentText
@@ -133,7 +162,7 @@ const FeedDetailContent = ({
           ))}
         </View>
       )}
-    </Pressable>
+    </View>
   );
 };
 
@@ -162,6 +191,11 @@ const styles = StyleSheet.create({
   linkText: {
     color: colors.fgInfo,
     textDecorationLine: 'underline',
+  },
+
+  // multiline TextInput 의 기본 위쪽 여백(5)을 없애 Text 와 같은 자리에 그린다
+  iosReadOnlyInput: {
+    padding: 0,
   },
 
   imgContainer: {

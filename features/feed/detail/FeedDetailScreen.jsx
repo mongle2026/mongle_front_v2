@@ -35,7 +35,6 @@ import ProfileBar from '../components/ProfileBar';
 
 import useFeedActions from '../hooks/useFeedActions';
 import useFeedFollow from '../hooks/useFeedFollow';
-import useDoubleTapLike from '../hooks/useDoubleTapLike';
 
 import FeedDetailContent from './components/FeedDetailContent';
 import CommentSection from './components/CommentSection';
@@ -289,14 +288,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
     },
     [closeCommentMenu, hideToast, openOverlay],
   );
-
-  const {
-    likeButtonRef,
-    handleTap: handleContentTap,
-  } = useDoubleTapLike({
-    isLiked: Boolean(feed?.isLiked),
-    onLike: handlePressLike,
-  });
 
   // 피드 홈에서 이 피드를 재생하다 바로 들어왔으면 노래를 이어서 튼다
   const { playingFeedId, handlePressPlayback } = useFeedMusicPlayback({
@@ -640,7 +631,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
           content={record.text ?? ''}
           imageSources={imageSources}
           font={normalizedFont}
-          onPress={handleContentTap}
           onPressImage={handlePressImage}
         />
 
@@ -652,7 +642,6 @@ const FeedDetailScreen = ({ navigation, route }) => {
           isBookmarked={Boolean(feed.isBookmarked)}
           bookmarkCount={feed.bookmarkCount}
           showCommentButton={false}
-          likeButtonRef={likeButtonRef}
           onLikePress={handlePressLike}
           onBookmarkPress={handlePressBookmark}
         />
