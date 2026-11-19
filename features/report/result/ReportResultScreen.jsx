@@ -8,6 +8,7 @@ import IcArrowLeft from '../../../assets/icons/ic_arrow_left.svg';
 import TopSubNavigation from '../../../shared/components/navigation/topnavigation/TopSubNavigation';
 import PolicyLinks from '../../../shared/components/content/PolicyLinks';
 import { getApiErrorDetail } from '../../../shared/api/client';
+import useCurrentUser from '../../../shared/hooks/useCurrentUser';
 
 import { colors } from '../../../shared/styles/color';
 import { gap, padding, radius } from '../../../shared/styles/token';
@@ -40,7 +41,7 @@ const WARNING_TITLE = {
   [REPORT_TARGET_TYPE.COMMENT]: '작성하신 댓글이 삭제됐어요',
   [REPORT_TARGET_TYPE.FEED]: '작성하신 피드가 가려졌어요',
   [REPORT_TARGET_TYPE.LETTER]: '보내신 편지가 삭제됐어요',
-  [REPORT_TARGET_TYPE.USER]: '계정이 제한됐어요',
+  [REPORT_TARGET_TYPE.USER]: '계정이 경고를 받았어요',
 };
 
 // 경고 2회: 설명 앞에 붙는 신고 대상 문구. 사용자 신고는 붙이지 않는다
@@ -48,15 +49,15 @@ const SUSPENDED_TARGET_PREFIX = {
   [REPORT_TARGET_TYPE.COMMENT]: '이 댓글로 ',
   [REPORT_TARGET_TYPE.FEED]: '이 피드로 ',
   [REPORT_TARGET_TYPE.LETTER]: '이 편지로 ',
-  [REPORT_TARGET_TYPE.USER]: '',
+  [REPORT_TARGET_TYPE.USER]: '계정 신고로',
 };
 
-// 위반 확인: 설명에 들어가는 신고 대상 종류별 조치 문구
+// 위반 확인: 설명 첫 문장. 사용자 신고는 문장 구성이 달라 통째로 둔다
 const VIOLATION_ACTION_TEXT = {
-  [REPORT_TARGET_TYPE.COMMENT]: '댓글을 삭제했어요.',
-  [REPORT_TARGET_TYPE.FEED]: '피드를 가렸어요.',
-  [REPORT_TARGET_TYPE.LETTER]: '편지를 삭제했어요.',
-  [REPORT_TARGET_TYPE.USER]: '회원을 제한했어요.',
+  [REPORT_TARGET_TYPE.COMMENT]: '운영정책 위반이 확인되어 해당 댓글을 삭제했어요.',
+  [REPORT_TARGET_TYPE.FEED]: '운영정책 위반이 확인되어 해당 피드를 가렸어요.',
+  [REPORT_TARGET_TYPE.LETTER]: '운영정책 위반이 확인되어 해당 편지를 삭제했어요.',
+  [REPORT_TARGET_TYPE.USER]: '위반이 확인되어 이 사용자의 이용을 제한했어요.',
 };
 
 const getTitleArea = (resultType, targetType) => {
@@ -64,7 +65,7 @@ const getTitleArea = (resultType, targetType) => {
     case REPORT_RESULT_TYPE.VIOLATION:
       return {
         title: '신고하신 내용이 조치됐어요',
-        description: `운영정책 위반이 확인되어 해당 ${VIOLATION_ACTION_TEXT[targetType] ?? ''}\n몽글을 함께 지켜 주셔서 고마워요.`,
+        description: `${VIOLATION_ACTION_TEXT[targetType] ?? ''}\n몽글을 함께 지켜 주셔서 고마워요.`,
       };
 
     case REPORT_RESULT_TYPE.NO_VIOLATION:
@@ -144,6 +145,7 @@ const ReportResultScreen = () => {
   } = params ?? {};
 
   const isSanctionResult = SANCTION_RESULT_TYPES.includes(resultType);
+  const { currentUser } = useCurrentUser();
   const { data: sanction, error: sanctionError } = useSanctionDetail(
     isSanctionResult ? sanctionId : null,
   );
@@ -157,10 +159,15 @@ const ReportResultScreen = () => {
   // 제재 내역을 받기 전에는 제목(대상 종류별) · 요약이 비어 깜빡이지 않게 내용을 그리지 않는다
   const isReady = !isSanctionResult || !!sanction;
 
+  const sanctionTargetType = toReportTargetType(sanction?.targetType);
   const target = isSanctionResult
     ? {
-        type: toReportTargetType(sanction?.targetType),
-        userCode: sanction?.userCode,
+        type: sanctionTargetType,
+        // 계정 신고는 제재 응답에 아이디가 없어(null) 신고당한 내 아이디를 쓴다
+        userCode:
+          sanctionTargetType === REPORT_TARGET_TYPE.USER
+            ? currentUser?.userCode
+            : sanction?.userCode,
         profileImageUrl: sanction?.profileImageUrl,
         preview: sanction?.preview,
       }
@@ -178,13 +185,13 @@ const ReportResultScreen = () => {
         historyRows: [],
       };
 
-  // 신고당한 사람은 '내가 올린 피드' 처럼 내 기준 문구, 신고한 사람은 '@id님의 피드를 신고했어요'
+  // 신고당한 사람은 '내가 올린 피드' · '@내아이디 · 내 계정' 처럼 내 기준 문구, 신고한 사람은 '@id님의 피드를 신고했어요'
   const targetCardVariant = isSanctionResult
     ? TARGET_CARD_VARIANT.REPORTED
     : TARGET_CARD_VARIANT.REPORTER;
   // 이용 정지 해제 안내는 대상 카드가 없다.
   // 아이디를 쓰는 카드인데 상대가 탈퇴해 아이디가 없으면 카드를 그리지 않는다.
-  // 신고당한 사람의 피드 · 계정 카드는 아이디를 쓰지 않아 그대로 그린다
+  // 신고당한 사람의 피드 카드는 아이디를 쓰지 않아 그대로 그린다
   const showTargetCard =
     resultType !== REPORT_RESULT_TYPE.SUSPENSION_LIFTED &&
     (!!target.userCode ||

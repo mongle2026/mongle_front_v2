@@ -4,6 +4,7 @@ import {
   getReportReasonLabel,
   REPORT_ACTION_LABEL,
   REPORT_RESULT_TYPE,
+  REPORT_TARGET_TYPE,
   toReportTargetType,
 } from '../../constants';
 
@@ -62,6 +63,9 @@ export const buildSanctionRows = (resultType, sanction) => {
 
   const reasonLabel = getReportReasonLabel(sanction.reason);
   const actionLabel = getActionLabel(sanction.targetType);
+  // 계정 신고는 가리거나 지울 콘텐츠가 없어 조치 내용에 대상 문구 대신 경고 횟수를 적는다
+  const isUserTarget =
+    toReportTargetType(sanction.targetType) === REPORT_TARGET_TYPE.USER;
   const suspensionPeriod = formatPeriod(
     sanction.restrictedAt,
     sanction.restrictedUntil,
@@ -72,7 +76,10 @@ export const buildSanctionRows = (resultType, sanction) => {
       return {
         summaryRows: [
           { label: '위반 사유', value: reasonLabel },
-          { label: '조치 내용', value: `${actionLabel} · 경고 1회` },
+          {
+            label: '조치 내용',
+            value: isUserTarget ? '경고 1회' : `${actionLabel} · 경고 1회`,
+          },
           { label: '조치 일자', value: formatDate(sanction.sanctionedAt) },
           { label: '누적 경고', value: WARNING_COUNT_LABEL[1] },
         ],
@@ -83,7 +90,12 @@ export const buildSanctionRows = (resultType, sanction) => {
       return {
         summaryRows: [
           { label: '위반 사유', value: reasonLabel },
-          { label: '조치 내용', value: `${actionLabel} · 7일 이용 정지` },
+          {
+            label: '조치 내용',
+            value: isUserTarget
+              ? '경고 2회 · 7일 이용 정지'
+              : `${actionLabel} · 7일 이용 정지`,
+          },
           { label: '조치 일자', value: suspensionPeriod },
           { label: '누적 경고', value: WARNING_COUNT_LABEL[2] },
         ],

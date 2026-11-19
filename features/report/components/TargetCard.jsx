@@ -27,14 +27,14 @@ const TITLE_SUFFIX = {
     [REPORT_TARGET_TYPE.FEED]: '님의 피드를 신고했어요',
     [REPORT_TARGET_TYPE.COMMENT]: '님의 댓글을 신고했어요',
     [REPORT_TARGET_TYPE.LETTER]: '님의 편지를 신고했어요',
-    [REPORT_TARGET_TYPE.USER]: '님의 계정을 신고했어요',
+    [REPORT_TARGET_TYPE.USER]: '님을 신고했어요',
   },
-  // 피드 · 계정(OWN_TARGET_TYPES)은 아이디 없이 문구만 보여준다
+  // 피드(OWN_TARGET_TYPES)는 아이디 없이 문구만 보여준다. 계정은 신고당한 내 아이디를 보여준다
   [TARGET_CARD_VARIANT.REPORTED]: {
     [REPORT_TARGET_TYPE.FEED]: '내가 올린 피드',
     [REPORT_TARGET_TYPE.COMMENT]: '님의 피드에 남긴 댓글',
     [REPORT_TARGET_TYPE.LETTER]: '님에게 보낸 편지',
-    [REPORT_TARGET_TYPE.USER]: '내 계정',
+    [REPORT_TARGET_TYPE.USER]: ' · 내 계정',
   },
 };
 
@@ -42,7 +42,7 @@ const TargetCard = ({
   variant = TARGET_CARD_VARIANT.REPORT,
   type,
   // REPORT · REPORTER: 신고 대상 아이디
-  // REPORTED: 댓글을 단 피드의 작성자 · 편지를 받은 사람 아이디 (피드 · 계정은 쓰지 않는다)
+  // REPORTED: 댓글을 단 피드의 작성자 · 편지를 받은 사람 아이디, 계정은 신고당한 내 아이디 (피드는 쓰지 않는다)
   userCode,
   // REPORT · REPORTER: 신고 대상 프로필 이미지, REPORTED: 내 프로필 이미지
   profileImageUrl,

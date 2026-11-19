@@ -17,8 +17,8 @@ export const TARGET_CARD_VARIANT = {
   REPORTED: 'reported',
 };
 
-// 신고당한 사람 카드에서 아이디 없이 '내가 올린 피드' · '내 계정'만 보여주는 대상 종류
-export const OWN_TARGET_TYPES = [REPORT_TARGET_TYPE.FEED, REPORT_TARGET_TYPE.USER];
+// 신고당한 사람 카드에서 아이디 없이 '내가 올린 피드'만 보여주는 대상 종류
+export const OWN_TARGET_TYPES = [REPORT_TARGET_TYPE.FEED];
 
 // 신고 사유. ETC를 고르면 사유를 직접 입력하는 입력창이 나온다.
 // 값은 백엔드 ReportReason 과 같아서 그대로 reason 으로 보낸다
@@ -58,7 +58,7 @@ export const REPORT_ACTION_LABEL = {
   [REPORT_TARGET_TYPE.COMMENT]: '댓글 삭제',
   [REPORT_TARGET_TYPE.FEED]: '피드 가림',
   [REPORT_TARGET_TYPE.LETTER]: '편지 삭제',
-  [REPORT_TARGET_TYPE.USER]: '계정 제한',
+  [REPORT_TARGET_TYPE.USER]: '계정 이용 제한',
 };
 
 // 신고 결과 안내 화면 종류.
